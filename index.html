@@ -388,5 +388,67 @@ $('pass-cancelar').addEventListener('click', ()=>{ window._pendingPassAction=nul
 
 </script>
 
+
+<script id="pcq-v1310-external-guard">
+(function(){
+  const FORBIDDEN = 'https://lamannafernando-commits.github.io/pejeDB/#inspectores';
+  function isForbidden(url){ try{ return String(url).replace(/\/$/,'') === FORBIDDEN.replace(/\/$/,''); }catch(_){ return false; } }
+  function hasActive(){ try{ return !!(typeof getInspectorActivo==='function' ? getInspectorActivo() : null); }catch(_){ return false; } }
+  function homeUrl(){
+    try{ const u = new URL(location.href); u.hash=''; u.search=''; return u.href; }catch(_){ return './'; }
+  }
+  function goHome(){
+    try{ if(typeof showSection==='function') showSection('inspectores'); }catch(_){ }
+    try{ location.replace(homeUrl()); }catch(_){ try{ location.hash='#inspectores'; }catch(__){} }
+  }
+
+  // 1) Al cargar: si estamos en la URL prohibida y no hay activo → home
+  document.addEventListener('DOMContentLoaded', function(){
+    try{
+      if(!hasActive() && (isForbidden(location.href) || (document.referrer && isForbidden(document.referrer)))){ goHome(); }
+    }catch(_){ }
+  });
+
+  // 2) Interceptar <a href="...">
+  document.addEventListener('click', function(ev){
+    try{
+      var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null;
+      if(!a) return;
+      var href = a.getAttribute('href');
+      if(isForbidden(href) && !hasActive()){ ev.preventDefault(); goHome(); }
+    }catch(_){ }
+  }, true);
+
+  // 3) Interceptar window.open
+  try{
+    var _open = window.open;
+    window.open = function(url, name, specs){ if(isForbidden(url) && !hasActive()){ goHome(); return null; } return _open ? _open.apply(window, arguments) : null; };
+  }catch(_){ }
+
+  // 4) Interceptar asignaciones a location (assign/replace)
+  try{
+    var _assign = window.location.assign.bind(window.location);
+    var _replace = window.location.replace.bind(window.location);
+    function guardNav(next){ return isForbidden(next) && !hasActive(); }
+    window.location.assign = function(next){ if(guardNav(next)){ goHome(); return; } return _assign(next); };
+    window.location.replace = function(next){ if(guardNav(next)){ goHome(); return; } return _replace(next); };
+  }catch(_){ }
+
+  // 5) Proteger navClick/showSection si alguien pasa una URL completa
+  try{
+    var _navClick = window.navClick;
+    window.navClick = function(id, btn){
+      try{ if(isForbidden(id) && !hasActive()){ goHome(); return; } }catch(_){ }
+      if(typeof _navClick==='function') return _navClick(id, btn);
+      try{ if(typeof showSection==='function') return showSection(id); }catch(_){ }
+    };
+  }catch(_){ }
+
+  // 6) Si ocurre un error global y no hay activo → home
+  window.addEventListener('error', function(){ try{ if(!hasActive()) goHome(); }catch(_){ } });
+  window.addEventListener('unhandledrejection', function(){ try{ if(!hasActive()) goHome(); }catch(_){ } });
+})();
+</script>
+
 </body>
 </html>
