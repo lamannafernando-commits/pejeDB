@@ -8,9 +8,82 @@
 </head>
 <body>
 
-  <!-- SYNC LOADING -->
-  <div id="sync-loading">
-    <div class="bloqueo-logo">
+<div id="sync-loading">
+  <div class="bloqueo-logo">
+    <svg class="logo-fish" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="10,10 10,70 55,40" fill="none" stroke="#2d6e2d" stroke-width="5" stroke-linejoin="round"/>
+      <ellipse cx="120" cy="40" rx="70" ry="28" fill="none" stroke="#2d6e2d" stroke-width="5"/>
+      <circle cx="168" cy="34" r="5" fill="#2d6e2d"/>
+      <path d="M90,18 Q120,10 150,18" fill="none" stroke="#2d6e2d" stroke-width="3"/>
+    </svg>
+    <div class="logo-club-text">PEJERREY CLUB</div>
+  </div>
+  <div class="sync-spinner"></div>
+  <div class="sync-loading-txt" id="sync-loading-txt">Conectando...</div>
+  <div class="sync-loading-sub" id="sync-loading-sub">Sincronizando datos entre dispositivos</div>
+</div>
+
+<div id="token-modal">
+  <div class="token-box">
+    <h2>🔑 Token de GitHub requerido</h2>
+    <p>Para sincronizar datos entre dispositivos necesitás un <strong style="color:var(--dorado)">Personal Access Token</strong> de GitHub.</p>
+    <div class="pasos">
+      <strong>Cómo obtenerlo:</strong><br/>
+      1. Entrá a <strong>github.com</strong> → tu perfil<br/>
+      2. <strong>Settings → Developer settings</strong><br/>
+      3. <strong>Personal access tokens → Tokens (classic)</strong><br/>
+      4. <strong>Generate new token (classic)</strong><br/>
+      5. Permiso: ✅ <strong>repo</strong><br/>
+      6. Copiá el token (empieza con <strong>ghp_</strong>)
+    </div>
+    <input type="password" id="token-input-modal" placeholder="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" autocomplete="off"/>
+    <div class="token-btns">
+      <button class="btn btn-gold" onclick="guardarTokenModal()">💾 Guardar y continuar</button>
+      <button class="btn btn-secondary" onclick="continuarSinToken()">▶ Continuar sin token (solo local)</button>
+    </div>
+    <div id="alerta-token-modal" class="alerta" style="margin-top:12px;"></div>
+  </div>
+</div>
+
+<div id="bloqueo-overlay">
+  <div class="bloqueo-logo">
+    <svg class="logo-fish" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="10,10 10,70 55,40" fill="none" stroke="#2d6e2d" stroke-width="5" stroke-linejoin="round"/>
+      <ellipse cx="120" cy="40" rx="70" ry="28" fill="none" stroke="#2d6e2d" stroke-width="5"/>
+      <circle cx="168" cy="34" r="5" fill="#2d6e2d"/>
+      <path d="M90,18 Q120,10 150,18" fill="none" stroke="#2d6e2d" stroke-width="3"/>
+    </svg>
+    <div class="logo-club-text">PEJERREY CLUB</div>
+  </div>
+  <div class="bloqueo-titulo">Pejerrey Club Quilmes</div>
+  <div class="bloqueo-subtitulo">Sistema de Gestión de Ingreso de Invitados</div>
+  <div class="bloqueo-reloj" id="bloqueo-reloj">--:--:--</div>
+  <div class="bloqueo-fecha" id="bloqueo-fecha">--/--/----</div>
+  <div class="bloqueo-icono">🔒</div>
+  <div class="bloqueo-mensaje">
+    <h2>⚠️ Sin Inspector Activo</h2>
+    <p>Para acceder al sistema es necesario tener un <strong style="color:var(--dorado)">inspector de turno activo</strong>.<br/><br/>
+    Hacé clic en <strong style="color:var(--dorado)">👮 Inspectores</strong> en el menú de arriba y presioná <strong style="color:var(--dorado)">⚡ Activar</strong>.</p>
+  </div>
+  <button class="bloqueo-btn" onclick="irAInspectores()">👮 Ir a Inspectores</button>
+</div>
+
+<div id="modal-pass">
+  <div class="pass-box">
+    <h3 id="pass-titulo">🔒 Contraseña requerida</h3>
+    <p style="font-size:.85rem;color:#4a6a4a;margin-bottom:14px;" id="pass-subtitulo">Ingresá la contraseña para continuar.</p>
+    <input type="password" id="pass-input" placeholder="Contraseña..." onkeydown="if(event.key==='Enter')confirmarPass()"/>
+    <div id="alerta-pass" class="alerta"></div>
+    <div class="pass-btns">
+      <button class="btn btn-secondary" onclick="cerrarModalPass()">✖ Cancelar</button>
+      <button class="btn btn-gold" onclick="confirmarPass()">✅ Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="header-logo-row">
+    <div class="logo-svg-wrap">
       <svg class="logo-fish" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
         <polygon points="10,10 10,70 55,40" fill="none" stroke="#2d6e2d" stroke-width="5" stroke-linejoin="round"/>
         <ellipse cx="120" cy="40" rx="70" ry="28" fill="none" stroke="#2d6e2d" stroke-width="5"/>
@@ -19,163 +92,82 @@
       </svg>
       <div class="logo-club-text">PEJERREY CLUB</div>
     </div>
-    <div class="sync-spinner"></div>
-    <div class="sync-loading-txt" id="sync-loading-txt">Conectando...</div>
-    <div class="sync-loading-sub" id="sync-loading-sub">Sincronizando datos entre dispositivos</div>
-  </div>
-
-  <!-- TOKEN MODAL -->
-  <div id="token-modal">
-    <div class="token-box">
-      <h2>🔑 Token de GitHub requerido</h2>
-      <p>Para sincronizar datos entre dispositivos necesitás un <strong style="color:var(--dorado)">Personal Access Token</strong> de GitHub.</p>
-      <div class="pasos">
-        <strong>Cómo obtenerlo:</strong><br/>
-        1. Entrá a <strong>github.com</strong> → tu perfil<br/>
-        2. <strong>Settings → Developer settings</strong><br/>
-        3. <strong>Personal access tokens → Tokens (classic)</strong><br/>
-        4. <strong>Generate new token (classic)</strong><br/>
-        5. Permiso: ✅ <strong>repo</strong> | Expiración: <strong>No expiration</strong><br/>
-        6. Copiá el token (empieza con <strong>ghp_</strong>)
-      </div>
-      <input type="password" id="token-input-modal" placeholder="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" autocomplete="off"/>
-      <div class="token-btns">
-        <button class="btn btn-gold" onclick="guardarTokenModal()">💾 Guardar y continuar</button>
-        <button class="btn btn-secondary" onclick="continuarSinToken()">▶ Continuar sin token (solo local)</button>
-      </div>
-      <div id="alerta-token-modal" class="alerta" style="margin-top:12px;"></div>
+    <div class="header-titles">
+      <h1>🎣 Pejerrey Club Quilmes</h1>
+      <p>Sistema de Gestión de Ingreso de Invitados</p>
     </div>
   </div>
-
-  <!-- BLOQUEO -->
-  <div id="bloqueo-overlay">
-    <div class="bloqueo-logo">
-      <svg class="logo-fish" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
-        <polygon points="10,10 10,70 55,40" fill="none" stroke="#2d6e2d" stroke-width="5" stroke-linejoin="round"/>
-        <ellipse cx="120" cy="40" rx="70" ry="28" fill="none" stroke="#2d6e2d" stroke-width="5"/>
-        <circle cx="168" cy="34" r="5" fill="#2d6e2d"/>
-        <path d="M90,18 Q120,10 150,18" fill="none" stroke="#2d6e2d" stroke-width="3"/>
-      </svg>
-      <div class="logo-club-text">PEJERREY CLUB</div>
-    </div>
-    <div class="bloqueo-titulo">Pejerrey Club Quilmes</div>
-    <div class="bloqueo-subtitulo">Sistema de Gestión de Ingreso de Invitados</div>
-    <div class="bloqueo-reloj" id="bloqueo-reloj">--:--:--</div>
-    <div class="bloqueo-fecha" id="bloqueo-fecha">--/--/----</div>
-    <div class="bloqueo-icono">🔒</div>
-    <div class="bloqueo-mensaje">
-      <h2>⚠️ Sin Inspector Activo</h2>
-      <p>Para acceder al sistema es necesario tener un <strong style="color:var(--dorado)">inspector de turno activo</strong>.<br/><br/>
-      Hacé clic en <strong style="color:var(--dorado)">👮 Inspectores</strong> en el menú de arriba y presioná <strong style="color:var(--dorado)">⚡ Activar</strong>.</p>
-    </div>
-    <button class="bloqueo-btn" onclick="irAInspectores()">👮 Ir a Inspectores</button>
+  <div class="header-info-row">
+    <div id="reloj-header">Cargando hora...</div>
+    <div id="header-inspector" class="sin-inspector">🔒 Sin inspector activo</div>
+    <div id="sync-badge"><span id="sync-dot"></span><span id="sync-txt">Conectando...</span></div>
   </div>
+</header>
 
-  <!-- PASSWORD MODAL -->
-  <div id="modal-pass">
-    <div class="pass-box">
-      <h3 id="pass-titulo">🔒 Contraseña requerida</h3>
-      <p style="font-size:.85rem;color:#4a6a4a;margin-bottom:14px;" id="pass-subtitulo">Ingresá la contraseña para continuar.</p>
-      <input type="password" id="pass-input" placeholder="Contraseña..." onkeydown="if(event.key==='Enter')confirmarPass()"/>
-      <div id="alerta-pass" class="alerta"></div>
-      <div class="pass-btns">
-        <button class="btn btn-secondary" onclick="cerrarModalPass()">✖ Cancelar</button>
-        <button class="btn btn-gold" onclick="confirmarPass()">✅ Confirmar</button>
-      </div>
-    </div>
-  </div>
+<nav>
+  <button id="btn-nav-ingreso" onclick="navClick('ingreso',this)">🚪 Ingreso</button>
+  <button id="btn-nav-apercibamiento" onclick="navClick('apercibamiento',this)">⚠️ Apercibamiento</button>
+  <button id="btn-nav-suspension" onclick="navClick('suspension',this)">🚫 Suspensión</button>
+  <button id="btn-nav-consulta" onclick="navClick('consulta',this)">📋 Consulta por Fechas</button>
+  <button id="btn-nav-vencidos" onclick="navClick('vencidos',this)">⏰ Ingresos Vencidos</button>
+  <button id="btn-nav-inspectores" onclick="navClick('inspectores',this)">👮 Inspectores</button>
+  <button id="btn-nav-backup" onclick="navClick('backup',this)">💾 Backup</button>
+  <button id="btn-nav-estadisticas" onclick="navClick('estadisticas',this)">📊 Estadísticas</button>
+</nav>
 
-  <!-- HEADER -->
-  <header>
-    <div class="header-logo-row">
-      <div class="logo-svg-wrap">
-        <svg class="logo-fish" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
-          <polygon points="10,10 10,70 55,40" fill="none" stroke="#2d6e2d" stroke-width="5" stroke-linejoin="round"/>
-          <ellipse cx="120" cy="40" rx="70" ry="28" fill="none" stroke="#2d6e2d" stroke-width="5"/>
-          <circle cx="168" cy="34" r="5" fill="#2d6e2d"/>
-          <path d="M90,18 Q120,10 150,18" fill="none" stroke="#2d6e2d" stroke-width="3"/>
-        </svg>
-        <div class="logo-club-text">PEJERREY CLUB</div>
-      </div>
-      <div class="header-titles">
-        <h1>🎣 Pejerrey Club Quilmes</h1>
-        <p>Sistema de Gestión de Ingreso de Invitados</p>
-      </div>
-    </div>
-    <div class="header-info-row">
-      <div id="reloj-header">Cargando hora...</div>
-      <div id="header-inspector" class="sin-inspector">🔒 Sin inspector activo</div>
-      <div id="sync-badge"><span id="sync-dot"></span><span id="sync-txt">Conectando...</span></div>
-    </div>
-  </header>
+<main id="main-content">
+  <div id="slot-ingreso"></div>
+  <div id="slot-apercibamiento"></div>
+  <div id="slot-suspension"></div>
+  <div id="slot-consulta"></div>
+  <div id="slot-vencidos"></div>
+  <div id="slot-inspectores"></div>
+  <div id="slot-backup"></div>
+  <div id="slot-estadisticas"></div>
+</main>
 
-  <!-- NAV -->
-  <nav>
-    <button id="btn-nav-ingreso"        onclick="navClick('ingreso',this)">🚪 Ingreso</button>
-    <button id="btn-nav-apercibamiento" onclick="navClick('apercibamiento',this)">⚠️ Apercibamiento</button>
-    <button id="btn-nav-suspension"     onclick="navClick('suspension',this)">🚫 Suspensión</button>
-    <button id="btn-nav-consulta"       onclick="navClick('consulta',this)">📋 Consulta por Fechas</button>
-    <button id="btn-nav-vencidos"       onclick="navClick('vencidos',this)">⏰ Ingresos Vencidos</button>
-    <button id="btn-nav-inspectores"    onclick="navClick('inspectores',this)">👮 Inspectores</button>
-    <button id="btn-nav-backup"         onclick="navClick('backup',this)">💾 Backup</button>
-    <button id="btn-nav-estadisticas"   onclick="navClick('estadisticas',this)">📊 Estadísticas</button>
-  </nav>
-
-  <main id="main-content">
-    <div id="slot-ingreso"></div>
-    <div id="slot-apercibamiento"></div>
-    <div id="slot-suspension"></div>
-    <div id="slot-consulta"></div>
-    <div id="slot-vencidos"></div>
-    <div id="slot-inspectores"></div>
-    <div id="slot-backup"></div>
-    <div id="slot-estadisticas"></div>
-  </main>
-
-  <!-- MODALES -->
-  <div class="modal-overlay" id="modal-insp">
-    <div class="modal-box">
-      <h3>✏️ Editando Inspector</h3>
-      <div class="form-row"><label>Nombre completo<input type="text" id="m-insp-nombre"/></label></div>
-      <div class="form-row"><label>Teléfono (opcional)<input type="text" id="m-insp-tel" maxlength="30"/></label></div>
-      <div class="form-row"><label>Observaciones (opcional)<input type="text" id="m-insp-obs" maxlength="80"/></label></div>
-      <div id="alerta-modal-insp" class="alerta"></div>
-      <div class="modal-acciones">
-        <button class="btn btn-secondary" onclick="cerrarModalInspector()">✖ Cancelar</button>
-        <button class="btn btn-success" onclick="guardarModalInspector()">💾 Guardar</button>
-      </div>
+<div class="modal-overlay" id="modal-insp">
+  <div class="modal-box">
+    <h3>✏️ Editando Inspector</h3>
+    <div class="form-row"><label>Nombre completo<input type="text" id="m-insp-nombre"/></label></div>
+    <div class="form-row"><label>Teléfono (opcional)<input type="text" id="m-insp-tel" maxlength="30"/></label></div>
+    <div class="form-row"><label>Observaciones (opcional)<input type="text" id="m-insp-obs" maxlength="80"/></label></div>
+    <div id="alerta-modal-insp" class="alerta"></div>
+    <div class="modal-acciones">
+      <button class="btn btn-secondary" onclick="cerrarModalInspector()">✖ Cancelar</button>
+      <button class="btn btn-success" onclick="guardarModalInspector()">💾 Guardar</button>
     </div>
   </div>
+</div>
 
-  <div class="modal-overlay" id="modal-cierre">
-    <div class="modal-box" style="max-width:500px;">
-      <h3>📋 Resumen de Turno – <span id="mc-inspector-nombre"></span></h3>
-      <div id="mc-resumen" style="font-size:.88rem;color:#444;margin:12px 0;line-height:1.7;"></div>
-      <p style="font-size:.8rem;color:#666;margin-bottom:6px;">Se descargará el XML del turno y se abrirá WhatsApp con el resumen.</p>
-      <div id="alerta-modal-cierre" class="alerta"></div>
-      <div class="modal-acciones">
-        <button class="btn btn-secondary" onclick="cerrarModalCierre()">✖ Cancelar</button>
-        <button class="btn btn-danger" onclick="confirmarDesactivar()">✖ Desactivar y Enviar</button>
-      </div>
+<div class="modal-overlay" id="modal-cierre">
+  <div class="modal-box" style="max-width:500px;">
+    <h3>📋 Resumen de Turno – <span id="mc-inspector-nombre"></span></h3>
+    <div id="mc-resumen" style="font-size:.88rem;color:#444;margin:12px 0;line-height:1.7;"></div>
+    <p style="font-size:.8rem;color:#666;margin-bottom:6px;">Se descargará el XML del turno y se abrirá WhatsApp con el resumen.</p>
+    <div id="alerta-modal-cierre" class="alerta"></div>
+    <div class="modal-acciones">
+      <button class="btn btn-secondary" onclick="cerrarModalCierre()">✖ Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmarDesactivar()">✖ Desactivar y Enviar</button>
     </div>
   </div>
+</div>
 
-  <!-- MODAL FOTO -->
-  <div id="modal-foto" onclick="cerrarModalFoto()">
-    <div id="modal-foto-container" onclick="event.stopPropagation()">
-      <img id="modal-foto-img" src="" alt="Foto invitado"/>
-    </div>
-    <div id="modal-foto-info"></div>
-    <div class="foto-zoom-controls" onclick="event.stopPropagation()">
-      <button onclick="zoomFoto(-0.3)" title="Alejar">🔍−</button>
-      <span id="zoom-level-display">100%</span>
-      <button onclick="zoomFoto(0.3)" title="Acercar">🔍+</button>
-      <button onclick="resetZoomFoto()" title="Restablecer">⟳ Reset</button>
-      <button onclick="cerrarModalFoto()">✖ Cerrar</button>
-    </div>
-    <div class="foto-zoom-hint">🖱️ Rueda del mouse para zoom · Arrastrá para mover · Clic fuera para cerrar</div>
+<div id="modal-foto" onclick="cerrarModalFoto()">
+  <div id="modal-foto-container" onclick="event.stopPropagation()">
+    <img id="modal-foto-img" src="" alt="Foto invitado"/>
   </div>
+  <div id="modal-foto-info"></div>
+  <div class="foto-zoom-controls" onclick="event.stopPropagation()">
+    <button onclick="zoomFoto(-0.3)" title="Alejar">🔍−</button>
+    <span id="zoom-level-display">100%</span>
+    <button onclick="zoomFoto(0.3)" title="Acercar">🔍+</button>
+    <button onclick="resetZoomFoto()" title="Restablecer">⟳ Reset</button>
+    <button onclick="cerrarModalFoto()">✖ Cerrar</button>
+  </div>
+  <div class="foto-zoom-hint">🖱️ Rueda del mouse para zoom · Arrastrá para mover · Clic fuera para cerrar</div>
+</div>
 
-  <script src="assets/app.js"></script>
+<script src="assets/app.js"></script>
 </body>
 </html>
