@@ -1241,11 +1241,12 @@ function getInspectorActivo(){
   return cargarDatos(KEYS.inspectores).find(i=>String(i.id)===String(id))||null;
 }
 function actualizarEstadoBloqueo(){
-  const ok=!!getInspectorActivo();
-  document.getElementById('bloqueo-overlay').classList[ok?'remove':'add']('show');
-  ['btn-nav-ingreso','btn-nav-apercibamiento','btn-nav-suspension','btn-nav-consulta','btn-nav-vencidos','btn-nav-estadisticas','btn-nav-backup'].forEach(id=>{
-    const b=document.getElementById(id);if(b)b.classList[ok?'remove':'add']('nav-bloqueado');
-  });
+  const overlay=document.getElementById('bloqueo-overlay');
+  if(overlay) overlay.classList.remove('show');
+  const ids=['btn-nav-ingreso','btn-nav-apercibamiento','btn-nav-suspension','btn-nav-consulta','btn-nav-vencidos','btn-nav-estadisticas','btn-nav-backup'];
+  ids.forEach(id=>{ const b=document.getElementById(id); if(b) b.classList.remove('nav-bloqueado'); });
+}
+);
 }
 function irAInspectores(){
   document.getElementById('bloqueo-overlay').classList.remove('show');
@@ -1253,7 +1254,7 @@ function irAInspectores(){
   _navegarSeccion('inspectores',document.getElementById('btn-nav-inspectores'));
   window.scrollTo({top:0,behavior:'smooth'});
 }
-function navClick(id,btn){if(!getInspectorActivo()&&id!=='inspectores')return;_navegarSeccion(id,btn);}
+function navClick(id,btn){ _navegarSeccion(id,btn); }
 function _navegarSeccion(id,btn){
   document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('activa'));
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('activo'));
@@ -2129,10 +2130,16 @@ function _renderTablaTopVisitantes(ing){
 /* ══ INIT ══ */
 function finalizarInit(){
   document.getElementById('sync-loading').classList.remove('show');
-  actualizarUIInspectorActivo();actualizarEstadoBloqueo();actualizarTokenStatusCard();_initZoomEvents();
-  if(getInspectorActivo()){
-    _navegarSeccion('ingreso',document.getElementById('btn-nav-ingreso'));
-  } else {
+  actualizarUIInspectorActivo();
+  actualizarEstadoBloqueo();
+  actualizarTokenStatusCard();
+  _initZoomEvents();
+  const banner=document.getElementById('banner-activar');
+  if(banner) banner.style.display='none';
+  _navegarSeccion('ingreso',document.getElementById('btn-nav-ingreso'));
+  setInterval(async()=>{if(! _syncEnCurso && getToken()) await sincronizarDesdeGitHub(false);}, SYNC_INTERVAL);
+}
+ else {
     document.getElementById('banner-activar').style.display='block';
     _navegarSeccion('inspectores',document.getElementById('btn-nav-inspectores'));
   }
