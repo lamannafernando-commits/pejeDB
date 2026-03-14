@@ -2,15 +2,11 @@
 <html lang="es">
 <head>
   <meta charset="utf-8"/>
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, user-scalable=no"/>
-  <title>PCQ – Inspectores / Administrar (v12.9.4)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+  <title>PCQ – Gestión de Inspectores (v13.0.0)</title>
 
   <!-- Ocultar cualquier badge/estado de token en el header -->
-  <style id="pcq-hide-token-badge">
-    #sync-badge{display:none!important}
-  </style>
+  <style id="pcq-hide-token-badge">#sync-badge{display:none!important}</style>
 
   <style>
     :root{
@@ -24,7 +20,7 @@
       --c-line:#1f2937;    /* gray-800  */
     }
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--c-bg);color:var(--c-txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue","Noto Sans",Arial,"Apple Color Emoji","Segoe UI Emoji";}
+    html,body{margin:0;padding:0;background:var(--c-bg);color:var(--c-txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue","Noto Sans",Arial,"Apple Color Emoji","Segoe UI Emoji"}
     header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--c-line);position:sticky;top:0;background:var(--c-bg);z-index:5}
     header h1{margin:0;font-size:18px;font-weight:600}
     nav{display:flex;gap:8px;flex-wrap:wrap}
@@ -37,10 +33,7 @@
     nav button.nav-bloqueado{opacity:.35;pointer-events:none}
     main{max-width:1100px;margin:16px auto;padding:0 12px}
     .seccion{display:none}
-    .card{
-      background:var(--c-card); border:1px solid var(--c-line); border-radius:12px;
-      padding:16px;margin:12px 0;
-    }
+    .card{background:var(--c-card); border:1px solid var(--c-line); border-radius:12px; padding:16px;margin:12px 0}
     h2{margin:0 0 12px 0; font-size:18px}
     h3{margin:10px 0 8px 0; font-size:16px; color:var(--c-sub)}
     .form-row{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0}
@@ -58,16 +51,12 @@
     .alerta.show{display:block}
     .alerta-ok{border-color:#14532d;color:#a7f3d0}
     .alerta-error{border-color:#7f1d1d;color:#fecaca}
-    /* Modal genérico para pass maestra y edición */
-    .modal-overlay{
-      position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:20;
-    }
-    .modal-overlay.show{display:flex}
-    .modal-box{
-      width:min(680px,90vw); background:var(--c-card); border:1px solid var(--c-line); border-radius:12px; padding:16px;
-    }
-    .modal-acciones{display:flex;gap:12px; justify-content:flex-end; margin-top:12px}
     .muted{color:var(--c-sub)}
+    /* Modal */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:20}
+    .modal-overlay.show{display:flex}
+    .modal-box{width:min(680px,90vw); background:var(--c-card); border:1px solid var(--c-line); border-radius:12px; padding:16px}
+    .modal-acciones{display:flex;gap:12px; justify-content:flex-end; margin-top:12px}
   </style>
 </head>
 <body>
@@ -152,7 +141,6 @@
 <div class="modal-overlay" id="modal-admin-edit-insp">
   <div class="modal-box">
     <h3>✏️ Editar inspector</h3>
-
     <div class="form-row">
       <label>Apellido y Nombre
         <input type="text" id="edit-insp-nombre"/>
@@ -161,7 +149,6 @@
         <input type="text" id="edit-insp-tel"/>
       </label>
     </div>
-
     <div class="form-row">
       <label>Usuario
         <input type="text" id="edit-insp-user"/>
@@ -170,13 +157,11 @@
         <input type="password" id="edit-insp-pass"/>
       </label>
     </div>
-
     <div class="form-row">
       <label>Observaciones
         <input type="text" id="edit-insp-obs"/>
       </label>
     </div>
-
     <div id="alerta-admin-edit" class="alerta"></div>
     <div class="modal-acciones">
       <button class="btn btn-secondary" id="btn-edit-cancelar">✖ Cancelar</button>
@@ -186,8 +171,8 @@
 </div>
 
 <script>
-/* =============== UTILIDADES =============== */
-const ENFORCE_ACTIVE_GATE = true; // Si querés desactivar gating por “inspector activo”, poné false.
+/***********************  CONFIG / UTILIDADES  ************************/  
+const ENFORCE_ACTIVE_GATE = true; // Si querés desactivar el gating por “inspector activo”, poné false.
 
 function $(id){ return document.getElementById(id); }
 function qsa(sel,root){ return Array.from((root||document).querySelectorAll(sel)); }
@@ -195,25 +180,19 @@ function keyInspectores(){ return (window.KEYS && KEYS.inspectores) ? KEYS.inspe
 function loadInspectores(){ try{ return JSON.parse(localStorage.getItem(keyInspectores())||'[]'); }catch(_){ return []; } }
 function saveInspectores(lst){ try{ localStorage.setItem(keyInspectores(), JSON.stringify(lst)); }catch(_){ } }
 
-/* Inspector activo (opcional): guardar id en localStorage con clave pcq_insp_activo */
+/* Tiempo local (sin red) si hubiera UI de reloj */
+window.sincronizarHora = async function(){ try{ const f=document.getElementById('fuente-hora'); if(f) f.textContent='🕐 Hora local del dispositivo'; }catch(_){} };
+
+/* Inspector activo (opcional) */
 function getInspectorActivo(){
-  try{
-    if(typeof window._getInspectorActivo==='function') return window._getInspectorActivo();
-    if(typeof window.getInspectorActivo==='function' && window.getInspectorActivo!==getInspectorActivo) return window.getInspectorActivo();
-  }catch(_){}
-  try{
-    const raw = localStorage.getItem('pcq_insp_activo') || localStorage.getItem('insp_activo_id');
-    if(raw){ const id=parseInt(raw,10); const arr=loadInspectores(); return arr.find(x=>x.id===id)||null; }
-  }catch(_){}
+  try{ if(typeof window._getInspectorActivo==='function') return window._getInspectorActivo(); }catch(_){}
+  try{ if(typeof window.getInspectorActivo==='function' && window.getInspectorActivo!==getInspectorActivo) return window.getInspectorActivo(); }catch(_){}
+  try{ const raw=localStorage.getItem('pcq_insp_activo')||localStorage.getItem('insp_activo_id'); if(raw){ const id=parseInt(raw,10); const arr=loadInspectores(); return arr.find(x=>x.id===id)||null; } }catch(_){}
   return null;
 }
 
-/* SHA-256 + fallback puro JS para entornos sin crypto.subtle */
-async function sha256Hex(str){
-  const enc = new TextEncoder().encode(str);
-  const buf = await crypto.subtle.digest('SHA-256', enc);
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
+/* SHA-256 + fallback */
+async function sha256Hex(str){ const enc=new TextEncoder().encode(str); const buf=await crypto.subtle.digest('SHA-256', enc); return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
 function sha256HexFallback(ascii){
   function R(v,a){return (v>>>a)|(v<<(32-a));}
   const M=Math.pow(2,32); let r='',w=[],i,j,L=ascii.length*8,h=sha256HexFallback.h=sha256HexFallback.h||[],k=sha256HexFallback.k=sha256HexFallback.k||[],p=k.length,c={};
@@ -236,7 +215,7 @@ function sha256HexFallback(ascii){
 }
 async function sha256HexSafe(s){ try{ if(window.crypto&&crypto.subtle){ return await sha256Hex(s);} }catch(_){ } return sha256HexFallback(s); }
 
-/* Pass maestra “smart”: BACKUP_PASS (plain) o BACKUP_PASS_HASH (sha-256); compat “gustavopeje” */
+/* Pass maestra smart: BACKUP_PASS / BACKUP_PASS_HASH, compat "gustavopeje" */
 async function checkMasterPassSmart(input){
   try{ if(typeof window.BACKUP_PASS!=='undefined' && window.BACKUP_PASS!==null){ if(String(input)===String(window.BACKUP_PASS)) return true; } }catch(_){}
   try{ if(typeof window.BACKUP_PASS_HASH!=='undefined' && window.BACKUP_PASS_HASH){ const h=await sha256HexSafe(String(input)); if(h===String(window.BACKUP_PASS_HASH)) return true; } }catch(_){}
@@ -244,53 +223,27 @@ async function checkMasterPassSmart(input){
   return false;
 }
 
-/* =============== RENDER: INSPECTORES (fallback si falta el propio) =============== */
+/***********************  RENDER: INSPECTORES  ************************/
 function renderInspectoresFallback(){
   let cont = $('lista-inspectores');
-  if(!cont){
-    const sec=$('sec-inspectores');
-    if(sec){ const card=sec.querySelector('.card')||sec; cont=document.createElement('div'); cont.id='lista-inspectores'; cont.className='lista-inspectores'; card.appendChild(cont); }
-  }
+  if(!cont){ const sec=$('sec-inspectores'); if(sec){ const card=sec.querySelector('.card')||sec; cont=document.createElement('div'); cont.id='lista-inspectores'; cont.className='lista-inspectores'; card.appendChild(cont);} }
   if(!cont) return;
   const data = loadInspectores();
-  if(!Array.isArray(data) || data.length===0){
-    cont.innerHTML = '<p class="muted">No hay inspectores registrados.</p>';
-    return;
-  }
-  let html = `
-    <table class="tabla" id="tabla-inspectores">
-      <thead><tr><th>Nombre</th><th>Teléfono</th><th>Usuario</th><th>Obs.</th></tr></thead>
-      <tbody>`;
-  data.forEach(i=>{
-    html += `<tr>
-      <td>${i.nombre||''}</td>
-      <td>${i.tel||''}</td>
-      <td>${i.usuario||''}</td>
-      <td>${i.obs||''}</td>
-    </tr>`;
-  });
+  if(!Array.isArray(data) || data.length===0){ cont.innerHTML='<p class="muted">No hay inspectores registrados.</p>'; return; }
+  let html = `\n<table class="tabla" id="tabla-inspectores"><thead><tr><th>Nombre</th><th>Teléfono</th><th>Usuario</th><th>Obs.</th></tr></thead><tbody>`;
+  data.forEach(i=>{ html += `<tr><td>${i.nombre||''}</td><td>${i.tel||''}</td><td>${i.usuario||''}</td><td>${i.obs||''}</td></tr>`; });
   html += `</tbody></table>`;
   cont.innerHTML = html;
 }
 const _origRenderInspectores = window.renderInspectores;
-window.renderInspectores = function(){
-  try{ if(typeof _origRenderInspectores==='function'){ _origRenderInspectores(); return; } }catch(_){}
-  renderInspectoresFallback();
-};
+window.renderInspectores = function(){ try{ if(typeof _origRenderInspectores==='function'){ _origRenderInspectores(); return; } }catch(_){ } renderInspectoresFallback(); };
 
-/* =============== RENDER: ADMIN (fallback si falta el propio) =============== */
+/***********************  RENDER: ADMIN  ************************/
 window.renderAdminLista = window.renderAdminLista || function(){
-  const cont = $('adm-insp-list');
-  if(!cont) return;
+  const cont = document.getElementById('adm-insp-list'); if(!cont) return;
   const data = loadInspectores();
-  if(!Array.isArray(data) || data.length===0){
-    cont.innerHTML = '<p class="muted">No hay inspectores registrados.</p>';
-    return;
-  }
-  let html = `
-    <table class="tabla" id="tabla-admin-inspectores">
-      <thead><tr><th>Nombre</th><th>Teléfono</th><th>Usuario</th><th>Obs.</th><th style="width:140px">Acciones</th></tr></thead>
-      <tbody>`;
+  if(!Array.isArray(data) || data.length===0){ cont.innerHTML='<p class="muted">No hay inspectores registrados.</p>'; return; }
+  let html = `\n<table class="tabla" id="tabla-admin-inspectores">\n<thead><tr><th>Nombre</th><th>Teléfono</th><th>Usuario</th><th>Obs.</th><th style="width:140px">Acciones</th></tr></thead><tbody>`;
   data.forEach(i=>{
     html += `<tr>
       <td>${i.nombre||''}</td>
@@ -307,172 +260,51 @@ window.renderAdminLista = window.renderAdminLista || function(){
   cont.innerHTML = html;
 };
 
-/* =============== NAVEGACIÓN ROBUSTA (todas las solapas) =============== */
+/***********************  NAVEGACIÓN ROBUSTA  ************************/
 function showSection(id){
   try{
-    qsa('section[id^="sec-"]').forEach(sec=>{
-      sec.style.display = (sec.id === 'sec-' + id) ? 'block' : 'none';
-    });
+    qsa('section[id^="sec-"]').forEach(sec=>{ sec.style.display = (sec.id==='sec-'+id)?'block':'none'; });
     qsa('nav button').forEach(b=>b.classList.remove('activo'));
-    const btn = $('btn-nav-' + id);
-    if(btn) btn.classList.add('activo');
-
+    const btn = $('btn-nav-'+id); if(btn) btn.classList.add('activo');
     location.hash = '#'+id;
-
     if(id==='inspectores') window.renderInspectores();
     if(id==='backup') window.renderAdminLista();
-  }catch(_){}
+  }catch(_){ }
 }
 window._navegarSeccion = showSection;
-window.navClick = function(id, btn){ try{ showSection(id); }catch(_){ location.hash = '#'+id; } };
+window.navClick = function(id, btn){ try{ showSection(id); }catch(_){ location.hash='#'+id; } };
 
+/* Wiring inicial */
 document.addEventListener('DOMContentLoaded', ()=>{
-  // Wire botones
-  qsa('nav button[id^="btn-nav-"]').forEach(b=>{
-    const id = b.id.replace('btn-nav-','');
-    b.addEventListener('click', ev=>{ ev.preventDefault(); window.navClick(id, b); });
-  });
-  // Forzar label de Administrar y navegación
-  try{
-    const admin = $('btn-nav-backup');
-    if(admin){
-      admin.textContent = '⚙️ Administrar';
-      admin.addEventListener('click', ev=>{ ev.preventDefault(); window.navClick('backup', admin); });
-    }
-  }catch(_){}
-
-  // Arranque
-  const wanted = (location.hash||'').replace('#','') || 'inspectores';
+  qsa('nav button[id^="btn-nav-"]').forEach(b=>{ const id=b.id.replace('btn-nav-',''); b.addEventListener('click', ev=>{ ev.preventDefault(); window.navClick(id, b); }); });
+  try{ const admin=$('btn-nav-backup'); if(admin){ admin.textContent='⚙️ Administrar'; admin.addEventListener('click', ev=>{ ev.preventDefault(); window.navClick('backup', admin); }); } }catch(_){}
+  const wanted=(location.hash||'').replace('#','') || 'inspectores';
   showSection(wanted);
-
-  // Primer render
-  setTimeout(()=>{
-    try{ if(wanted==='inspectores') window.renderInspectores(); else if(wanted==='backup') window.renderAdminLista(); }catch(_){}
-  }, 150);
+  setTimeout(()=>{ try{ if(wanted==='inspectores') window.renderInspectores(); else if(wanted==='backup') window.renderAdminLista(); }catch(_){ } }, 150);
 });
+window.addEventListener('hashchange', ()=>{ const id=(location.hash||'').replace('#','')||'inspectores'; showSection(id); });
 
-window.addEventListener('hashchange', ()=>{
-  const id = (location.hash||'').replace('#','') || 'inspectores';
-  showSection(id);
-});
-
-/* =============== GATING por “Inspector Activo” (opcional) =============== */
+/***********************  GATING por “Inspector Activo”  ************************/
 function applyActiveGate(){
   if(!ENFORCE_ACTIVE_GATE) return;
   const activo = !!getInspectorActivo();
   const buttons = qsa('nav button');
   if(!activo){
-    // Solo habilitar Inspectores; ocultar otras secciones
-    buttons.forEach(btn=>{
-      if((btn.id||'')==='btn-nav-inspectores') btn.classList.remove('nav-bloqueado');
-      else btn.classList.add('nav-bloqueado');
-    });
-    qsa('section[id^="sec-"]').forEach(sec=>{
-      sec.style.display = (sec.id==='sec-inspectores') ? 'block':'none';
-    });
-    // Forzar a Inspectores
+    // Habilitar solo Inspectores; ocultar otras secciones
+    buttons.forEach(btn=>{ if((btn.id||'')==='btn-nav-inspectores') btn.classList.remove('nav-bloqueado'); else btn.classList.add('nav-bloqueado'); });
+    qsa('section[id^="sec-"]').forEach(sec=>{ sec.style.display = (sec.id==='sec-inspectores') ? 'block':'none'; });
     if(location.hash !== '#inspectores') showSection('inspectores');
   }else{
-    // Habilitar todo
     buttons.forEach(btn=>btn.classList.remove('nav-bloqueado'));
   }
 }
-document.addEventListener('DOMContentLoaded', ()=> setTimeout(applyActiveGate, 200));
+document.addEventListener('DOMContentLoaded', ()=> setTimeout(applyActiveGate, 220));
 window.addEventListener('hashchange', applyActiveGate);
 
-/* =============== ABM EN “ADMINISTRAR” (con pass maestra) =============== */
-function setAlerta(id, tipo, msg){
-  const el=$(id); if(!el) return;
-  el.className='alerta show '+(tipo==='ok'?'alerta-ok':tipo==='error'?'alerta-error':'');
-  el.textContent=msg||'';
-}
-
-function abrirModalPass(titulo, subtitulo, accion){
-  try{
-    const tit=$('pass-titulo'); if(tit) tit.textContent=titulo||'🔒 Confirmación requerida';
-    const sub=$('pass-subtitulo'); if(sub) sub.textContent=subtitulo||'Ingresá la contraseña maestra para continuar.';
-    const a=$('alerta-pass'); if(a){ a.className='alerta'; a.textContent=''; }
-    $('pass-input').value='';
-    window._pendingPassAction=accion||null;
-    $('modal-pass').classList.add('show');
-    setTimeout(()=>{ try{ $('pass-input').focus(); }catch(_){} },80);
-  }catch(_){}
-}
-
-function cerrarModalPass(){
-  try{ $('modal-pass').classList.remove('show'); }catch(_){}
-}
-
-$('pass-confirmar').addEventListener('click', async ()=>{
-  const acc = window._pendingPassAction;
-  const val = $('pass-input').value||'';
-  const ok  = await checkMasterPassSmart(val);
-  if(!ok){
-    setAlerta('alerta-pass','error','❌ Contraseña incorrecta.');
-    $('pass-input').value=''; $('pass-input').focus();
-    return;
-  }
-  // Acciones
-  if(acc==='alta-inspector' && window._pendingInspectorAlta){
-    const e = window._pendingInspectorAlta;
-    let list = loadInspectores(); if(!Array.isArray(list)) list=[];
-    if(list.find(i=> (i.nombre||'').toLowerCase()===e.nombre.toLowerCase())){
-      setAlerta('adm-insp-alerta','error','Ya existe un inspector con ese nombre.');
-      return;
-    }
-    if(e.usuario && list.find(i=> (i.usuario||'').toLowerCase()===e.usuario.toLowerCase())){
-      setAlerta('adm-insp-alerta','error','Ya existe un inspector con ese usuario.');
-      return;
-    }
-    const reg = { id:Date.now(), nombre:e.nombre, tel:e.tel, usuario:e.usuario, pass:e.pass, obs:e.obs };
-    list.push(reg); saveInspectores(list);
-
-    // limpiar form y refrescar
-    ['adm-insp-nombre','adm-insp-tel','adm-insp-user','adm-insp-pass','adm-insp-obs'].forEach(id=>{ const el=$(id); if(el) el.value=''; });
-    try{ window.renderAdminLista(); }catch(_){}
-    try{ window.renderInspectores(); }catch(_){}
-    setAlerta('adm-insp-alerta','ok','✅ Inspector dado de alta.');
-    window._pendingInspectorAlta=null;
-  }
-
-  if(acc==='editar-inspector' && window._pendingEditInspector){
-    const e=window._pendingEditInspector;
-    let list = loadInspectores(); const idx=list.findIndex(i=>i.id===e.id);
-    if(idx>-1){
-      if(list.find((it,ix)=> ix!==idx && (it.nombre||'').toLowerCase()===e.nombre.toLowerCase())){
-        setAlerta('alerta-admin-edit','error','Ya existe un inspector con ese nombre.');
-        return;
-      }
-      if(e.usuario && list.find((it,ix)=> ix!==idx && (it.usuario||'').toLowerCase()===e.usuario.toLowerCase())){
-        setAlerta('alerta-admin-edit','error','Ya existe un inspector con ese usuario.');
-        return;
-      }
-      list[idx] = { ...list[idx], nombre:e.nombre, tel:e.tel, usuario:e.usuario, pass:e.pass, obs:e.obs };
-      saveInspectores(list);
-    }
-    try{ $('modal-admin-edit-insp').classList.remove('show'); }catch(_){}
-    try{ window.renderAdminLista(); }catch(_){}
-    try{ window.renderInspectores(); }catch(_){}
-    window._pendingEditInspector=null;
-  }
-
-  if(acc==='eliminar-inspector' && window._pendingDeleteInspectorId!=null){
-    let list = loadInspectores(); const idx=list.findIndex(i=>i.id===window._pendingDeleteInspectorId);
-    if(idx>-1){ list.splice(idx,1); saveInspectores(list); }
-    try{ window.renderAdminLista(); }catch(_){}
-    try{ window.renderInspectores(); }catch(_){}
-    window._pendingDeleteInspectorId=null;
-  }
-
-  if(acc==='abrir-admin'){
-    showSection('backup');
-  }
-
-  cerrarModalPass();
-  window._pendingPassAction=null;
-});
-
-$('pass-cancelar').addEventListener('click', ()=>{ window._pendingPassAction=null; cerrarModalPass(); });
+/***********************  ABM EN “ADMINISTRAR” (con pass maestra)  ************************/
+function setAlerta(id, tipo, msg){ const el=$(id); if(!el) return; el.className='alerta show '+(tipo==='ok'?'alerta-ok':tipo==='error'?'alerta-error':''); el.textContent=msg||''; }
+function abrirModalPass(titulo, subtitulo, accion){ try{ const tit=$('pass-titulo'); if(tit) tit.textContent=titulo||'🔒 Confirmación requerida'; const sub=$('pass-subtitulo'); if(sub) sub.textContent=subtitulo||'Ingresá la contraseña maestra para continuar.'; const a=$('alerta-pass'); if(a){ a.className='alerta'; a.textContent=''; } $('pass-input').value=''; window._pendingPassAction=accion||null; $('modal-pass').classList.add('show'); setTimeout(()=>{ try{ $('pass-input').focus(); }catch(_){} },80);}catch(_){} }
+function cerrarModalPass(){ try{ $('modal-pass').classList.remove('show'); }catch(_){} }
 
 /* Alta */
 $('adm-insp-crear').addEventListener('click', (ev)=>{
@@ -510,10 +342,50 @@ $('btn-edit-guardar').addEventListener('click', ()=>{
 });
 
 /* Eliminar */
-window.adminSolicitarEliminarInspector = function(id){
-  window._pendingDeleteInspectorId = id;
-  abrirModalPass('🔒 Eliminar inspector','Ingresá la contraseña maestra para confirmar la eliminación.','eliminar-inspector');
-};
+window.adminSolicitarEliminarInspector = function(id){ window._pendingDeleteInspectorId = id; abrirModalPass('🔒 Eliminar inspector','Ingresá la contraseña maestra para confirmar la eliminación.','eliminar-inspector'); };
+
+/* Confirmar / Cancelar PASS */
+$('pass-confirmar').addEventListener('click', async ()=>{
+  const acc = window._pendingPassAction; const val = ($('pass-input')||{}).value||''; const ok = await checkMasterPassSmart(val);
+  if(!ok){ setAlerta('alerta-pass','error','❌ Contraseña incorrecta.'); $('pass-input').value=''; $('pass-input').focus(); return; }
+
+  if(acc==='alta-inspector' && window._pendingInspectorAlta){
+    const e = window._pendingInspectorAlta; let list=loadInspectores(); if(!Array.isArray(list)) list=[];
+    if(list.find(i=> (i.nombre||'').toLowerCase()===e.nombre.toLowerCase())){ setAlerta('adm-insp-alerta','error','Ya existe un inspector con ese nombre.'); return; }
+    if(e.usuario && list.find(i=> (i.usuario||'').toLowerCase()===e.usuario.toLowerCase())){ setAlerta('adm-insp-alerta','error','Ya existe un inspector con ese usuario.'); return; }
+    const reg = { id:Date.now(), nombre:e.nombre, tel:e.tel, usuario:e.usuario, pass:e.pass, obs:e.obs };
+    list.push(reg); saveInspectores(list);
+    ['adm-insp-nombre','adm-insp-tel','adm-insp-user','adm-insp-pass','adm-insp-obs'].forEach(id=>{ const el=$(id); if(el) el.value=''; });
+    try{ window.renderAdminLista(); }catch(_){}
+    try{ window.renderInspectores(); }catch(_){}
+    setAlerta('adm-insp-alerta','ok','✅ Inspector dado de alta.');
+    window._pendingInspectorAlta=null;
+  }
+
+  if(acc==='editar-inspector' && window._pendingEditInspector){
+    const e=window._pendingEditInspector; let list=loadInspectores(); const idx=list.findIndex(i=>i.id===e.id);
+    if(idx>-1){
+      if(list.find((it,ix)=> ix!==idx && (it.nombre||'').toLowerCase()===e.nombre.toLowerCase())){ setAlerta('alerta-admin-edit','error','Ya existe un inspector con ese nombre.'); return; }
+      if(e.usuario && list.find((it,ix)=> ix!==idx && (it.usuario||'').toLowerCase()===e.usuario.toLowerCase())){ setAlerta('alerta-admin-edit','error','Ya existe un inspector con ese usuario.'); return; }
+      list[idx] = { ...list[idx], nombre:e.nombre, tel:e.tel, usuario:e.usuario, pass:e.pass, obs:e.obs }; saveInspectores(list);
+    }
+    try{ $('modal-admin-edit-insp').classList.remove('show'); }catch(_){}
+    try{ window.renderAdminLista(); }catch(_){}
+    try{ window.renderInspectores(); }catch(_){}
+    window._pendingEditInspector=null;
+  }
+
+  if(acc==='eliminar-inspector' && window._pendingDeleteInspectorId!=null){
+    let list=loadInspectores(); const idx=list.findIndex(i=>i.id===window._pendingDeleteInspectorId); if(idx>-1){ list.splice(idx,1); saveInspectores(list); }
+    try{ window.renderAdminLista(); }catch(_){}
+    try{ window.renderInspectores(); }catch(_){}
+    window._pendingDeleteInspectorId=null;
+  }
+
+  cerrarModalPass(); window._pendingPassAction=null;
+});
+$('pass-cancelar').addEventListener('click', ()=>{ window._pendingPassAction=null; cerrarModalPass(); });
+
 </script>
 
 </body>
