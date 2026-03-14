@@ -600,6 +600,68 @@
   function actualizarEstadoBloqueo(){ const o=document.getElementById('bloqueo-overlay'); if(o) o.style.display='none'; }
   function inicializarEstadisticas(){ const ing=cargarDatos(KEYS.ingresos); document.getElementById('stats-res').textContent = `Registros locales: ${ing.length}`; }
 
+  
+// ===================== CONECTIVIDAD & ACTIVACIÓN =====================
+function estaOnline(){ return (typeof navigator!=='undefined' && 'onLine' in navigator) ? navigator.onLine : true; }
+function mostrarOverlay(msj){
+  const o=document.getElementById('bloqueo-overlay');
+  if(!o) return;
+  o.style.display='flex';
+  o.style.position='fixed';
+  o.style.inset='0';
+  o.style.background='rgba(0,0,0,.6)';
+  o.style.alignItems='center';
+  o.style.justifyContent='center';
+  o.style.zIndex='1200';
+  o.innerHTML='<div style="background:#0c1c0c;border:1px solid var(--dorado);border-radius:12px;padding:16px;max-width:520px;width:calc(100% - 32px);color:#fff;text-align:center">'+msj+'</div>';
+}
+function ocultarOverlay(){ const o=document.getElementById('bloqueo-overlay'); if(o){ o.style.display='none'; o.innerHTML=''; } }
+
+function pedirTokenAlIniciar(){
+  // Abre modal y bloquea UI hasta que se cargue token
+  abrirTokenModal();
+  mostrarOverlay('🔒 Para activar la sincronización en la nube, ingresá tu <b>Token</b> y <b>Repo</b>.<br><br><small>Tip: Si preferís usar el sistema 100% local, podés cancelar el modal y seguir, pero la nube quedará desactivada.</small>');
+}
+
+function activarModoLocalSinInternet(){
+  // Modo local: no bloquear nada
+  ocultarOverlay();
+  setSyncBadge('err','☁️ ⚡ Local (sin internet)');
+}
+
+function activarModoLocalSinToken(){
+  // Hay internet pero no token: pedir token al inicio
+  setSyncBadge('err','☁️ ❌ Sin token');
+  pedirTokenAlIniciar();
+}
+
+function activarModoNubeOk(){
+  ocultarOverlay();
+  setSyncBadge('ok','☁️ ✔️ Listo');
+}
+
+// Re-enganchar guardarToken para cerrar overlay si corresponde
+const _guardarTokenOrig = guardarToken;
+guardarToken = async function(){
+  _guardarTokenOrig();
+  if(getToken()){
+    ocultarOverlay();
+    try{
+      setSyncBadge('syncing','☁️ 🔄 Validando...');
+      const r = await guardarEnGitHub(false); // stub/real
+      if(r && r.ok){ activarModoNubeOk(); }
+      else{ setSyncBadge('err','☁️ ❌ Error sync'); }
+    }catch{ setSyncBadge('err','☁️ ❌ Error'); }
+  }
+}
+
+// Eventos online/offline para reflejar estado en vivo
+window.addEventListener('online',()=>{
+  if(getToken()) setSyncBadge('ok','☁️ ✔️ Conectado'); else setSyncBadge('err','☁️ ❌ Sin token');
+});
+window.addEventListener('offline',()=>{ setSyncBadge('err','☁️ ⚡ Local (sin internet)'); });
+
+
   // ===================== INIT =====================
   (async function init(){
     try{ await sincronizarHora(); }catch(e){ offsetMs=0; }
