@@ -989,10 +989,10 @@ function deleteFoto(dni){const f=cargarFotos();delete f[String(dni)];guardarFoto
 
 /* ══ HORA ══ */
 async function sincronizarHora(){
-  const apis=['https://timeapi.io/api/time/current/zone?timeZone=America%2FArgentina%2FBuenos_Aires','https://worldtimeapi.org/api/timezone/America/Argentina/Buenos_Aires'];
-  for(const url of apis){
-    try{
-      const r=await fetchConTimeout(url,{},5000);if(!r.ok)continue;
+  // Forzar uso de hora local del dispositivo para evitar bloqueos por falta de internet
+  offsetMs = 0;
+  var el = document.getElementById('fuente-hora'); if(el) el.textContent='🕒 Usando hora local del dispositivo';
+},5000);if(!r.ok)continue;
       const d=await r.json();const raw=d.dateTime||d.datetime;if(!raw)continue;
       const dt=new Date(raw);if(isNaN(dt))continue;
       offsetMs=dt.getTime()-Date.now();
@@ -1613,12 +1613,7 @@ async function iniciarSyncConGitHub(){
   document.getElementById('sync-loading-sub').textContent='Esto puede tardar unos segundos...';
   setSyncBadge('syncing','🔄 Cargando...');
   let terminado=false;
-  const timeoutId=setTimeout(()=>{
-    if(terminado)return;terminado=true;_syncEnCurso=false;
-    setSyncBadge('error','❌ Timeout');
-    document.getElementById('sync-loading-sub').textContent='⚠️ Tiempo agotado – usando datos locales';
-    finalizarInit();
-  },12000);
+  const timeoutId=setTimeout(()=>{ if(terminado)return; terminado=true; _syncEnCurso=false; setSyncBadge('error','❌ Timeout'); document.getElementById('sync-loading-sub').textContent='⚠️ Tiempo agotado – usando datos locales'; finalizarInit(); },3000);
   try{
     const info=await ghGetFile(GH.dataFile);
     if(terminado)return;clearTimeout(timeoutId);terminado=true;
@@ -1657,8 +1652,7 @@ async function iniciarSyncConGitHub(){
 
 (async function init(){
   document.getElementById('sync-loading').classList.add('show');
-  document.getElementById('sync-loading-txt').textContent='🕐 Sincronizando hora...';
-  await Promise.race([sincronizarHora(),new Promise(r=>setTimeout(r,5000))]);
+  document.getElementById('sync-loading-txt').textContent='🕒 Preparando interfaz'; sincronizarHora();
   tickReloj();setInterval(tickReloj,1000);setInterval(sincronizarHora,5*60*1000);
   if(!getToken()){
     document.getElementById('sync-loading').classList.remove('show');
