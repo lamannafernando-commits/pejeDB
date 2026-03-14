@@ -309,5 +309,254 @@ function renderEstadisticas(){const {res,total}=calcularDistribucionEdad();const
   offsetMs=0; setSyncBadge('ok','Local'); actualizarHeaderInspector(); renderInspectoresUI(); // arranque básico
 })();
 </script>
+
+<!-- ====== INYECTADO POR COPILOT: Auto-completar por DNI + Cámara obligatoria + Estadísticas por horas/días ====== -->
+<style>
+  /* UI cámara / foto */
+  #foto-ui{margin-top:8px}
+  #foto-ui .cam-wrap{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start}
+  #cam-video, #foto-preview{width:260px;height:195px;background:#000;border-radius:10px;border:2px solid var(--dorado)}
+  #foto-perfil{width:120px;height:120px;border-radius:60px;border:2px solid var(--dorado);object-fit:cover;display:none}
+  .muted-small{color:#657b83;font-size:.8rem}
+</style>
+<script>
+(function(){
+  // ====== KEYS extra ======
+  if(!window.KEYS){window.KEYS={}}
+  if(!KEYS.personas){KEYS.personas='pcq_personas'}
+
+  // ====== Helpers personas / storage ======
+  function cargarLista(k){try{return JSON.parse(localStorage.getItem(k) || '[]')}catch(e){return []}}
+  function guardarLista(k,v){localStorage.setItem(k, JSON.stringify(v))}
+  function getPersona(dni){dni=String(dni||'').trim(); if(!dni) return null; return cargarLista(KEYS.personas).find(p=>String(p.dni)===dni)||null}
+  function upsertPersona(dni, nombre, fotoPerfil){
+    dni = String(dni||'').trim(); if(!dni) return; const lista = cargarLista(KEYS.personas);
+    let p = lista.find(x=>String(x.dni)===dni);
+    if(!p){p={dni, nombre:nombre||'', fotoPerfil:fotoPerfil||null}; lista.push(p)}
+    if(nombre && (!p.nombre || p.nombre.trim()==='')) p.nombre = nombre;
+    if(fotoPerfil) p.fotoPerfil = fotoPerfil;
+    guardarLista(KEYS.personas, lista);
+  }
+
+  // ====== Inyectar UI cámara / foto y perfil ======
+  function injectCameraUI(){
+    const cont = document.querySelector('#sec-ingreso .card');
+    if(!cont || document.getElementById('foto-ui')) return;
+    cont.insertAdjacentHTML('beforeend', `
+      <div id="foto-ui" class="card" style="margin-top:12px">
+        <h2>📸 Foto del ingreso (obligatoria)</h2>
+        <div class="cam-wrap">
+          <div>
+            <video id="cam-video" autoplay playsinline style="display:none"></video>
+            <img id="foto-preview" alt="Previa de la foto" style="display:none"/>
+            <canvas id="cam-canvas" width="320" height="240" style="display:none"></canvas>
+          </div>
+          <div>
+            <div class="muted">Foto de perfil guardada (si existe)</div>
+            <img id="foto-perfil" alt="Foto de perfil"/>
+            <div class="muted-small">Se muestra al tipear el DNI si hay una foto previa.</div>
+          </div>
+        </div>
+        <div class="row" style="gap:8px;margin-top:8px">
+          <button class="btn btn-secondary" id="btn-cam-start">🎥 Iniciar cámara</button>
+          <button class="btn btn-gold" id="btn-cam-snap" disabled>📸 Tomar foto</button>
+          <button class="btn btn-danger" id="btn-cam-clear" disabled>🗑️ Borrar foto</button>
+        </div>
+        <div class="muted-small" style="margin-top:6px">La foto se adjunta al registro de ingreso y además se usará como foto de perfil si no hubiera una guardada.</div>
+      </div>
+    `);
+
+    // Lógica de cámara
+    let stream = null; let fotoData = null; // dataURL de la foto tomada
+    const $ = (id)=>document.getElementById(id);
+    const btnStart = $('btn-cam-start');
+    const btnSnap  = $('btn-cam-snap');
+    const btnClear = $('btn-cam-clear');
+    const video = $('cam-video');
+    const canvas = $('cam-canvas');
+    const preview = $('foto-preview');
+
+    async function startCam(){
+      try{
+        stream = await navigator.mediaDevices.getUserMedia({video:true, audio:false});
+        video.srcObject = stream; video.style.display='block'; preview.style.display='none';
+        btnSnap.disabled=false; btnClear.disabled=false; btnStart.disabled=true;
+      }catch(err){
+        console.error('Cam error', err);
+        alert('No se pudo acceder a la cámara. Permití el acceso y probá en HTTPS o localhost.');
+      }
+    }
+    function stopCam(){
+      if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+      video.srcObject = null; video.style.display='none';
+    }
+    function clearPhoto(){
+      fotoData=null; preview.src=''; preview.style.display='none';
+      if(!stream){ btnStart.disabled=false; }
+    }
+    function takePhoto(){
+      const w = canvas.width, h = canvas.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, w, h);
+      fotoData = canvas.toDataURL('image/jpeg', 0.85);
+      preview.src = fotoData; preview.style.display='block';
+      stopCam(); // liberamos la cámara tras la captura
+    }
+
+    btnStart.addEventListener('click', startCam);
+    btnSnap.addEventListener('click', takePhoto);
+    btnClear.addEventListener('click', clearPhoto);
+
+    // Exponer para otras funciones
+    window.__pcq_getFotoIngreso = ()=>fotoData;
+    window.__pcq_clearFotoIngreso = clearPhoto;
+  }
+
+  // ====== Auto-completar al tipear DNI ======
+  function initAutocomplete(){
+    const dniInput = document.getElementById('dni-ingreso');
+    const nombreInput = document.getElementById('nombre-ingreso');
+    const fotoPerfil = document.getElementById('foto-perfil');
+    if(!dniInput) return;
+
+    dniInput.addEventListener('input', ()=>{
+      const dni = dniInput.value.trim();
+      if(dni.length<6){ if(fotoPerfil){fotoPerfil.style.display='none';} return; }
+      const p = getPersona(dni);
+      if(p){
+        if(nombreInput && (!nombreInput.value || nombreInput.value.trim()==='')){
+          if(p.nombre) nombreInput.value = p.nombre;
+        }
+        if(fotoPerfil && p.fotoPerfil){
+          fotoPerfil.src = p.fotoPerfil; fotoPerfil.style.display='block';
+        }else if(fotoPerfil){ fotoPerfil.style.display='none'; }
+      } else { if(fotoPerfil){fotoPerfil.style.display='none';} }
+      // Si no hay persona con nombre, intentar con el último ingreso de ese DNI
+      if(nombreInput && (!nombreInput.value || nombreInput.value.trim()==='')){
+        try{
+          const lista = JSON.parse(localStorage.getItem(KEYS.ingresos) || '[]');
+          const ult = lista.filter(i=>String(i.dni)===dni).slice(-1)[0];
+          if(ult && ult.nombre){ nombreInput.value = ult.nombre; }
+        }catch(e){}
+      }
+      // cargar últimos ingresos existentes
+      if(typeof window.cargarUltimos === 'function'){ window.cargarUltimos(dni); }
+    });
+  }
+
+  // ====== Override Registrar/Limpiar para exigir foto y guardar perfil ======
+  function overrideRegistrar(){
+    const original = window.registrarIngreso; // no se usará, reimplementamos para adjuntar foto
+    window.registrarIngreso = function(){
+      const dniEl = document.getElementById('dni-ingreso');
+      const nomEl = document.getElementById('nombre-ingreso');
+      const dni = (dniEl?dniEl.value:'').trim();
+      const nombre = (nomEl?nomEl.value:'').trim();
+      if(!dni){ return window.mostrarAlerta('alerta-ingreso','error','Ingresá el DNI.'); }
+      const foto = (typeof window.__pcq_getFotoIngreso==='function') ? window.__pcq_getFotoIngreso() : null;
+      if(!foto){ return window.mostrarAlerta('alerta-ingreso','error','📸 Tomá una foto del ingreso (obligatoria).'); }
+
+      // Guardar ingreso (manteniendo estructura + campo foto)
+      const now = window.ahoraReal();
+      const nuevo = {
+        dni: dni,
+        nombre: nombre,
+        fecha: window.formatFecha(now),
+        hora: window.formatHora(now),
+        isoFecha: window.isoFecha(now),
+        foto: foto
+      };
+      const lista = cargarLista(KEYS.ingresos);
+      lista.push(nuevo);
+      guardarLista(KEYS.ingresos, lista);
+
+      // Upsert persona y fotoPerfil si no tuviera
+      const p = getPersona(dni);
+      if(!p || !p.fotoPerfil){ upsertPersona(dni, nombre, foto); }
+      else if(nombre && (!p.nombre || p.nombre.trim()==='')){ upsertPersona(dni, nombre, null); }
+
+      if(nomEl) nomEl.value='';
+      window.mostrarAlerta('alerta-ingreso','ok', `✅ Ingreso registrado – DNI ${dni}`);
+      if(typeof window.cargarUltimos==='function'){ window.cargarUltimos(dni); }
+      if(typeof window.__pcq_clearFotoIngreso==='function'){ window.__pcq_clearFotoIngreso(); }
+    };
+
+    // Extender limpiar para también limpiar la foto
+    if(typeof window.limpiarCamposIngreso === 'function'){
+      const origLimpiar = window.limpiarCamposIngreso;
+      window.limpiarCamposIngreso = function(){
+        try{ origLimpiar(); }catch(e){}
+        if(typeof window.__pcq_clearFotoIngreso==='function'){ window.__pcq_clearFotoIngreso(); }
+        const fp = document.getElementById('foto-perfil'); if(fp){ fp.style.display='none'; fp.src=''; }
+      }
+    }
+  }
+
+  // ====== Estadísticas adicionales: rangos horarios y por día ======
+  let _chartHoras=null, _chartDias=null;
+  function ensureExtraCharts(){
+    const sec = document.getElementById('sec-estadisticas');
+    if(!sec || document.getElementById('chart-horas')) return;
+    const card = sec.querySelector('.card');
+    if(!card) return;
+    card.insertAdjacentHTML('beforeend', `
+      <div class="card" style="margin-top:12px">
+        <h2>🕒 Ingresos por rangos horarios</h2>
+        <div style="max-width:760px;margin:auto"><canvas id="chart-horas" height="220"></canvas></div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h2>📅 Ingresos por día de la semana</h2>
+        <div style="max-width:760px;margin:auto"><canvas id="chart-dias" height="220"></canvas></div>
+      </div>
+    `);
+  }
+  const H_BUCKETS = [
+    {label:'00–03', from:0, to:3},
+    {label:'04–07', from:4, to:7},
+    {label:'08–11', from:8, to:11},
+    {label:'12–15', from:12, to:15},
+    {label:'16–19', from:16, to:19},
+    {label:'20–23', from:20, to:23}
+  ];
+  function parseHoraStr(hhmmss){ const h = parseInt(String(hhmmss||'00:00:00').split(':')[0],10); return isNaN(h)?0:h; }
+  function calcularPorHoras(){
+    const res = {}; H_BUCKETS.forEach(b=>res[b.label]=0);
+    cargarLista(KEYS.ingresos).forEach(i=>{ const h=parseHoraStr(i.hora); const b = H_BUCKETS.find(b=>h>=b.from && h<=b.to); if(b) res[b.label]++; });
+    return res;
+  }
+  function calcularPorDia(){
+    const labels = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+    const counts = [0,0,0,0,0,0,0];
+    cargarLista(KEYS.ingresos).forEach(i=>{ try{ const d = window.parseFechaHora(i.fecha, i.hora); const dow = d.getDay(); counts[dow]++; }catch(e){} });
+    return {labels, counts};
+  }
+  function renderEstadisticasHorasDias(){
+    ensureExtraCharts();
+    const dataH = calcularPorHoras();
+    const ctxH = document.getElementById('chart-horas').getContext('2d');
+    if(_chartHoras){ _chartHoras.destroy(); }
+    _chartHoras = new Chart(ctxH, { type:'bar', data:{ labels:Object.keys(dataH), datasets:[{label:'Ingresos', data:Object.values(dataH), backgroundColor:'#c8a84b'}]}, options:{ plugins:{legend:{display:false}, title:{display:true, text:'Distribución por rangos horarios'}}, scales:{y:{beginAtZero:true, ticks:{precision:0}}}}});
+
+    const dDia = calcularPorDia();
+    const ctxD = document.getElementById('chart-dias').getContext('2d');
+    if(_chartDias){ _chartDias.destroy(); }
+    _chartDias = new Chart(ctxD, { type:'bar', data:{ labels:dDia.labels, datasets:[{label:'Ingresos', data:dDia.counts, backgroundColor:'#2d6e2d'}]}, options:{ plugins:{legend:{display:false}, title:{display:true, text:'Ingresos por día de la semana'}}, scales:{y:{beginAtZero:true, ticks:{precision:0}}}}});
+  }
+
+  // Overrider de renderEstadisticas para sumar nuestros gráficos
+  const originalRenderEst = window.renderEstadisticas;
+  if(typeof originalRenderEst === 'function'){
+    window.renderEstadisticas = function(){ originalRenderEst(); renderEstadisticasHorasDias(); };
+  }
+
+  // On DOM ready, inyectar todo
+  document.addEventListener('DOMContentLoaded', function(){
+    injectCameraUI();
+    initAutocomplete();
+    overrideRegistrar();
+  });
+})();
+</script>
+<!-- ====== FIN INYECTADO ====== -->
 </body>
 </html>
