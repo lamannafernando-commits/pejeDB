@@ -2115,6 +2115,73 @@ async function iniciarSyncConGitHub(){
   }
 })();
 </script>
+
+<script id="pcq-v1287-fix-alta-inspector">
+// v12.8.7 — Arreglo definitivo: tras validar la pass, procesa 'alta-inspector' y agrega el inspector
+(function(){
+  // helper: lee valor seguro
+  function val(id){ try{ var el=document.getElementById(id); return (el && typeof el.value==='string') ? el.value.trim() : ''; }catch(_){ return ''; } }
+  function set(id,v){ try{ var el=document.getElementById(id); if(el) el.value=v; }catch(_){ } }
+  function showOK(msg){ try{ mostrarAlerta('alerta-insp','ok',msg); }catch(_){ alert(msg); } }
+  function showErr(msg){ try{ mostrarAlerta('alerta-insp','error',msg); }catch(_){ alert(msg); } }
+  function saveInspectores(lista){ try{ localStorage.setItem((window.KEYS && KEYS.inspectores)?KEYS.inspectores:'pcq_inspectores', JSON.stringify(lista)); }catch(_){ } }
+  function loadInspectores(){ try{ return JSON.parse(localStorage.getItem((window.KEYS && KEYS.inspectores)?KEYS.inspectores:'pcq_inspectores')||'[]'); }catch(_){ return []; } }
+
+  // Nos colgamos de confirmarPass ya parcheado por v12.8.6
+  var _oldConfirm = window.confirmarPass;
+  window.confirmarPass = async function(){
+    // 1) Validar pass usando smart checker si existe; si no, aceptar como válido para no duplicar UI
+    try{
+      if(typeof checkMasterPassSmart==='function'){
+        var ok = await checkMasterPassSmart(document.getElementById('pass-input').value||'');
+        if(!ok){ var el=document.getElementById('alerta-pass'); if(el){ el.className='alerta show alerta-error'; el.textContent='❌ Contraseña incorrecta.'; } set('pass-input',''); try{ document.getElementById('pass-input').focus(); }catch(_){ } return; }
+      }
+    }catch(_){ }
+
+    // 2) Tomar la acción pendiente
+    var accion = window._pendingPassAction;
+    if(accion==='alta-inspector'){
+      // cerrar modal
+      try{ document.getElementById('modal-pass').style.display='none'; }catch(_){ }
+      // construir registro con datos del form/pending
+      var p = window._pendingInspectorAlta || {};
+      var nombre = p.nombre || val('insp-nombre');
+      var tel    = p.tel    || val('insp-tel');
+      var obs    = p.obs    || val('insp-obs');
+      // opcionales: usuario/contraseña si están en el form
+      var usuario = val('insp-user');
+      var pass    = val('insp-pass');
+      if(!nombre){ showErr('Ingresá el nombre del inspector.'); return; }
+      // cargar lista, validar duplicados (por nombre o por usuario si existe)
+      var lista = loadInspectores();
+      if(lista.find(function(i){ return i && (i.nombre||'').toLowerCase()===nombre.toLowerCase(); })){
+        showErr('Ya existe un inspector con ese nombre.'); return;
+      }
+      if(usuario && lista.find(function(i){ return i && (i.usuario||'').toLowerCase()===usuario.toLowerCase(); })){
+        showErr('Ya existe un inspector con ese usuario.'); return;
+      }
+      var reg = { id: Date.now(), nombre: nombre, tel: tel, obs: obs };
+      if(usuario) reg.usuario = usuario;
+      if(pass)    reg.pass    = pass;
+      lista.push(reg);
+      saveInspectores(lista);
+      try{ if(typeof renderInspectores==='function') renderInspectores(); }catch(_){ }
+      showOK('✅ Inspector registrado.');
+      // limpiar campos
+      ['insp-nombre','insp-tel','insp-obs','insp-user','insp-pass'].forEach(function(id){ set(id,''); });
+      // resetear pending
+      window._pendingInspectorAlta = null;
+      window._pendingPassAction = null;
+      return; // no delegar al viejo confirmar para evitar dobles rutas
+    }
+
+    // Otra acción (descargar/restaurar, etc.): delegar al viejo confirmar si existe
+    if(typeof _oldConfirm==='function') return _oldConfirm();
+    try{ document.getElementById('modal-pass').style.display='none'; }catch(_){ }
+  };
+})();
+</script>
+
 </body>
 </html>
 
