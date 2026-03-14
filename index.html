@@ -1,26 +1,472 @@
-/* enhancements.css — estilos discretos y no invasivos */
-.enh-thumb {
-  width: 40px; height: 40px; border-radius: 6px; object-fit: cover;
-  cursor: zoom-in; border: 1px solid rgba(0,0,0,.15);
-}
-.enh-chip {
-  padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; display: inline-block;
-}
-.enh-chip.socio { background: #c9f7d6; color: #083b1f; }
-.enh-chip.invitado { background: #d5e8ff; color: #0b2a5a; }
+<script>
+/** ========== Enhancements sin alterar tu UI ========== **/
 
-/* Modal (si no existe uno en tu UI) */
-.enh-modal { position: fixed; inset: 0; background: rgba(0,0,0,.75); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
-.enh-modal.open { display: flex; }
-.enh-modal-card { background: #0f172a; color: #e5e7eb; border: 1px solid rgba(255,255,255,.12); border-radius: 10px; max-width: 95vw; max-height: 95vh; padding: 12px; position: relative; }
-.enh-modal img { max-width: 90vw; max-height: 80vh; display: block; border-radius: 10px; }
-.enh-modal-close { position: absolute; top: 8px; right: 8px; }
+// ---- Utilidades ----
+const $ = (sel, root=document) => root.querySelector(sel);
+const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
-/* Ajuste responsive de Estadísticas: apila filtros en mobile */
-@media (max-width: 480px){
-  .enh-stack-mobile { display: grid; grid-template-columns: 1fr; gap: 8px; }
+function toast(msg, ms=2200){
+  let t = document.querySelector('.enh-toast');
+  if (!t){ t = document.createElement('div'); t.className='enh-toast'; document.body.appendChild(t); }
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), ms);
 }
 
-/* Toast básico */
-.enh-toast { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); background: rgba(15,23,42,.95); color: #e5e7eb; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,.1); display: none; z-index: 10000; }
-.enh-toast.show { display: block; }
+// Modal (usa el tuyo si existe; sino, uno básico)
+const Modal = {
+  open(contentNodeOrHtml){
+    const existing = $('#modal') && $('#modalContent') && $('#modalClose');
+    if (existing){
+      const mc = $('#modalContent'); mc.innerHTML = '';
+      if (typeof contentNodeOrHtml === 'string') mc.innerHTML = contentNodeOrHtml;
+      else mc.appendChild(contentNodeOrHtml);
+      $('#modal').style.display = 'flex';
+      $('#modalClose').onclick = () => { $('#modal').style.display = 'none'; mc.innerHTML=''; };
+      $('#modal').onclick = (e)=>{ if (e.target.id==='modal') { $('#modal').style.display='none'; mc.innerHTML=''; } };
+      return;
+    }
+    let root = document.querySelector('.enh-modal');
+    if (!root){
+      root = document.createElement('div'); root.className='enh-modal'; root.innerHTML = `
+        <div class="enh-modal-card">
+          <button class="enh-modal-close">Cerrar</button>
+          <div class="enh-modal-content"></div>
+        </div>`;
+      document.body.appendChild(root);
+      root.addEventListener('click', (e)=>{ if (e.target===root) root.classList.remove('open'); });
+      root.querySelector('.enh-modal-close').addEventListener('click', ()=> root.classList.remove('open'));
+      document.addEventListener('keydown', (e)=>{ if (e.key==='Escape') root.classList.remove('open'); });
+    }
+    const cont = root.querySelector('.enh-modal-content');
+    cont.innerHTML = '';
+    if (typeof contentNodeOrHtml === 'string') cont.innerHTML = contentNodeOrHtml;
+    else cont.appendChild(contentNodeOrHtml);
+    root.classList.add('open');
+  }
+};
+
+function makeThumb(src, alt='Foto'){
+  const img = document.createElement('img');
+  img.src = src || '';
+  img.alt = alt;
+  img.className = 'enh-thumb';
+  if (src) {
+    img.addEventListener('click', ()=> {
+      const big = document.createElement('img');
+      big.src = src; big.alt = alt;
+      Modal.open(big);
+    });
+  }
+  return img;
+}
+
+function toDataUrl(file){
+  return new Promise((res, rej)=>{
+    const r = new FileReader();
+    r.onload = ()=>res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+// ---- Simulación de datos (podés reemplazar por tu backend) ----
+const DB = {
+  personas: JSON.parse(localStorage.getItem('personas')||'[]'),
+  inspectores: JSON.parse(localStorage.getItem('inspectores')||'[]'),
+  ingresos: JSON.parse(localStorage.getItem('ingresos')||'[]'),
+  save(){ localStorage.setItem('personas', JSON.stringify(this.personas));
+          localStorage.setItem('inspectores', JSON.stringify(this.inspectores));
+          localStorage.setItem('ingresos', JSON.stringify(this.ingresos)); }
+};
+// Seed básico si está vacío
+if (!DB.inspectores.length){
+  DB.inspectores = [
+    {id:1, dni:'30000001', nombre:'Gabriela', apellido:'Paz', telefono:'', email:'', foto:null, estado:'ACTIVO'},
+    {id:2, dni:'30000002', nombre:'Luis', apellido:'Ortega', telefono:'', email:'', foto:null, estado:'INACTIVO'}
+  ];
+  DB.save();
+}
+let seq = JSON.parse(localStorage.getItem('seq')||'{"persona":3,"inspector":3,"ingreso":1}');
+function nextId(k){ const id = seq[k]||1; seq[k]=id+1; localStorage.setItem('seq', JSON.stringify(seq)); return id; }
+
+// API in-memory
+const api = {
+  // Personas
+  findPersonaByDni: dni => DB.personas.find(p => (p.dni||'')===String(dni)),
+  findPersonaByNroSocio: nro => DB.personas.find(p => (p.nroSocio||'')===String(nro)),
+  upsertPersona({dni, nroSocio, nombre, apellido, foto}) {
+    let p = (nroSocio && api.findPersonaByNroSocio(nroSocio)) || (dni && api.findPersonaByDni(dni));
+    if (p){
+      if (nombre!=null) p.nombre = nombre;
+      if (apellido!=null) p.apellido = apellido;
+      if (typeof foto !== 'undefined') p.foto = foto;
+      if (nroSocio) p.nroSocio = String(nroSocio);
+    } else {
+      p = {id: nextId('persona'), dni: dni?String(dni):'', nroSocio: nroSocio?String(nroSocio):null, nombre: nombre||'', apellido: apellido||'', foto: foto||null};
+      DB.personas.push(p);
+    }
+    DB.save(); return p;
+  },
+  // Inspectores
+  listInspectores: () => DB.inspectores.slice(),
+  createInspector(data){
+    if (DB.inspectores.some(x => x.dni===String(data.dni))) throw new Error('El DNI ya existe');
+    const it = {id: nextId('inspector'), estado:'ACTIVO', foto:null, ...data};
+    DB.inspectores.push(it); DB.save(); return it;
+  },
+  updateInspector(id, patch){
+    const i = DB.inspectores.findIndex(x=>x.id===id);
+    if (i<0) throw new Error('Inspector no encontrado');
+    DB.inspectores[i] = {...DB.inspectores[i], ...patch}; DB.save(); return DB.inspectores[i];
+  },
+  toggleInspector(id){
+    const it = DB.inspectores.find(x=>x.id===id);
+    if (!it) throw new Error('Inspector no encontrado');
+    it.estado = it.estado==='ACTIVO'?'INACTIVO':'ACTIVO'; DB.save(); return it;
+  },
+  // Ingresos
+  createIngreso({personaId, tipoPersona, nroSocio, dni, inspectorId}){
+    const item = {id: nextId('ingreso'), personaId, tipoPersona, nroSocio: nroSocio||null, dni: dni||null, inspectorId: inspectorId||null, fecha: new Date().toISOString()};
+    DB.ingresos.unshift(item); DB.save(); return item;
+  },
+  listIngresos: () => DB.ingresos.slice()
+};
+
+// ---- 1) Estadísticas: date pickers + responsive ----
+(function enhanceEstadisticas(){
+  const desde = document.getElementById('fechaDesde');
+  const hasta = document.getElementById('fechaHasta');
+
+  // Si tus inputs no son <input type="date"> los forcemos:
+  [desde, hasta].forEach(inp=>{
+    if (!inp) return;
+    if (inp.tagName.toLowerCase()==='input' && inp.type!=='date'){ try{ inp.type='date'; }catch{} }
+  });
+
+  // Contenedor de filtros para apilado en mobile (agregá la clase si te sirve)
+  const filtros = $('#estadisticasFiltros') || (desde && desde.closest('.filtros-estadisticas'));
+  if (filtros) filtros.classList.add('enh-stack-mobile');
+
+  const aplicar = $('#btnAplicarFiltros') || $('#estadisticasAplicar');
+  if (aplicar){
+    aplicar.addEventListener('click', ()=>{
+      renderEstadisticasFiltradas();
+      toast('Filtros aplicados');
+    });
+  }
+  const limpiar = $('#btnLimpiarFiltros') || $('#estadisticasLimpiar');
+  if (limpiar){
+    limpiar.addEventListener('click', ()=>{
+      if (desde) desde.value='';
+      if (hasta) hasta.value='';
+      const tipo = $('#tipoFiltro') || $('#estadisticasTipo');
+      if (tipo) tipo.value='TODOS';
+      renderEstadisticasFiltradas();
+    });
+  }
+
+  function renderEstadisticasFiltradas(){
+    const tbody = $('#tbodyEstadisticas') || $('#tbodyIngresosFiltrados');
+    const tipoSel = ($('#tipoFiltro') || $('#estadisticasTipo'))?.value || 'TODOS';
+    const dDesde = (desde && desde.value) ? new Date(desde.value + 'T00:00:00') : null;
+    const dHasta = (hasta && hasta.value) ? new Date(hasta.value + 'T23:59:59') : null;
+
+    const personas = DB.personas;
+    const inspectores = DB.inspectores;
+
+    let data = api.listIngresos().filter(ing=>{
+      const f = new Date(ing.fecha);
+      if (dDesde && f<dDesde) return false;
+      if (dHasta && f>dHasta) return false;
+      if (tipoSel !== 'TODOS' && ing.tipoPersona !== tipoSel) return false;
+      return true;
+    });
+
+    // Stats (si existen contadores en tu UI)
+    const stTotal = document.getElementById('statTotal');
+    const stSoc = document.getElementById('statSocios');
+    const stInv = document.getElementById('statInvitados');
+    if (stTotal) stTotal.textContent = data.length;
+    if (stSoc) stSoc.textContent = data.filter(x=>x.tipoPersona==='SOCIO').length;
+    if (stInv) stInv.textContent = data.filter(x=>x.tipoPersona==='INVITADO').length;
+
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    data.forEach(ing=>{
+      const p = personas.find(pp=>pp.id===ing.personaId);
+      const insp = inspectores.find(ii=>ii.id===ing.inspectorId);
+      const tr = document.createElement('tr');
+
+      const tdFoto = document.createElement('td'); tdFoto.appendChild(makeThumb(p?.foto, 'Foto'));
+      const tdNom = document.createElement('td'); tdNom.textContent = `${p?.apellido||''}, ${p?.nombre||''}`;
+      const tdId = document.createElement('td'); tdId.textContent = ing.tipoPersona==='SOCIO' ? `Nº ${p?.nroSocio||''}` : (p?.dni||'');
+      const tdTipo = document.createElement('td'); const chip = document.createElement('span'); chip.className='enh-chip ' + (ing.tipoPersona==='SOCIO'?'socio':'invitado'); chip.textContent = ing.tipoPersona==='SOCIO'?'Socio':'Invitado'; tdTipo.appendChild(chip);
+      const tdFh = document.createElement('td'); const d = new Date(ing.fecha); tdFh.textContent = d.toLocaleString();
+      const tdInsp = document.createElement('td'); tdInsp.textContent = insp ? `${insp.apellido}, ${insp.nombre}` : '—';
+
+      tr.append(tdFoto, tdNom, tdId, tdTipo, tdFh, tdInsp);
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Render inicial
+  renderEstadisticasFiltradas();
+})();
+
+// ---- 2) Inspectores: mover botón + ABM dentro de Back‑up ----
+(function enhanceInspectores(){
+  const btnOriginal = document.getElementById('btnAgregarInspector'); // botón que estaba en otra sección
+  const backupSection = document.getElementById('seccionBackupInspectores'); // sección destino
+
+  // Si existen ambos, movemos el botón (o clon)
+  if (btnOriginal && backupSection){
+    const clone = btnOriginal.cloneNode(true);
+    clone.id = 'btnAgregarInspectorBackup';
+    // Insertar arriba de la grilla o donde te convenga:
+    backupSection.insertBefore(clone, backupSection.firstChild);
+    // Opcional: ocultar el original
+    btnOriginal.style.display = 'none';
+
+    clone.addEventListener('click', ()=> openInspectorForm(null));
+  }
+
+  // Render de la grilla
+  const tbody = document.getElementById('tbodyInspectores');
+  const buscar = document.getElementById('buscarInspector');
+  const filtro = document.getElementById('filtroEstadoInspectores') || document.getElementById('filtroEstado');
+
+  function render(){
+    if (!tbody) return;
+    const q = (buscar?.value || '').trim().toLowerCase();
+    const fe = (filtro?.value || 'TODOS');
+    const data = api.listInspectores().filter(it=>{
+      const matches = [it.dni, it.nombre, it.apellido].join(' ').toLowerCase().includes(q);
+      const byEstado = fe==='TODOS' ? true : it.estado===fe;
+      return matches && byEstado;
+    });
+
+    tbody.innerHTML = '';
+    data.forEach(it=>{
+      const tr = document.createElement('tr');
+      const tdFoto = document.createElement('td'); tdFoto.appendChild(makeThumb(it.foto, 'Foto inspector'));
+      const tdNom = document.createElement('td'); tdNom.textContent = `${it.apellido}, ${it.nombre}`;
+      const tdDni = document.createElement('td'); tdDni.textContent = it.dni;
+      const tdEmail = document.createElement('td'); tdEmail.textContent = it.email || '—';
+      const tdTel = document.createElement('td'); tdTel.textContent = it.telefono || '—';
+      const tdEst = document.createElement('td'); const chip = document.createElement('span'); chip.className = 'enh-chip ' + (it.estado==='ACTIVO'?'socio':'invitado'); chip.textContent = it.estado; tdEst.appendChild(chip);
+      const tdAcc = document.createElement('td');
+      const btnEdit = document.createElement('button'); btnEdit.textContent='Editar'; btnEdit.addEventListener('click', ()=>openInspectorForm(it));
+      const btnTog = document.createElement('button'); btnTog.textContent = it.estado==='ACTIVO'?'Desactivar':'Activar';
+      btnTog.addEventListener('click', ()=>{ api.toggleInspector(it.id); render(); toast('Estado actualizado'); fillInspectoresSelect(); });
+      tdAcc.append(btnEdit, btnTog);
+
+      tr.append(tdFoto, tdNom, tdDni, tdEmail, tdTel, tdEst, tdAcc);
+      tbody.appendChild(tr);
+    });
+  }
+
+  buscar?.addEventListener('input', render);
+  filtro?.addEventListener('change', render);
+  render();
+
+  function openInspectorForm(existing){
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = `
+      <h3 style="margin:0 0 8px">${existing?'Editar inspector':'Agregar inspector'}</h3>
+      <div>
+        <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px">
+          <label>DNI <input type="text" id="i_dni" ${existing?'disabled':''} value="${existing?.dni||''}"></label>
+          <label>Email <input type="text" id="i_email" value="${existing?.email||''}"></label>
+          <label>Nombre <input type="text" id="i_nombre" value="${existing?.nombre||''}"></label>
+          <label>Apellido <input type="text" id="i_apellido" value="${existing?.apellido||''}"></label>
+          <label>Teléfono <input type="text" id="i_tel" value="${existing?.telefono||''}"></label>
+          <label>Foto <input type="file" id="i_foto" accept="image/*" capture="environment"></label>
+        </div>
+        <div style="margin-top:8px; display:flex; gap:8px; align-items:center">
+          <img id="i_preview" style="width:56px; height:56px; border-radius:6px; object-fit:cover; display:${existing?.foto?'block':'none'}" src="${existing?.foto||''}" alt="">
+          <button id="i_quitar" type="button">Quitar foto</button>
+          <div style="flex:1"></div>
+          <button id="i_cancelar" type="button">Cancelar</button>
+          <button id="i_guardar" type="button">${existing?'Guardar':'Crear'}</button>
+        </div>
+      </div>
+    `;
+    Modal.open(wrapper);
+
+    const i_dni = wrapper.querySelector('#i_dni');
+    const i_email = wrapper.querySelector('#i_email');
+    const i_nombre = wrapper.querySelector('#i_nombre');
+    const i_apellido = wrapper.querySelector('#i_apellido');
+    const i_tel = wrapper.querySelector('#i_tel');
+    const i_foto = wrapper.querySelector('#i_foto');
+    const i_preview = wrapper.querySelector('#i_preview');
+    const i_quitar = wrapper.querySelector('#i_quitar');
+
+    let foto = existing?.foto || null;
+    i_foto.addEventListener('change', async (e)=>{ const f = e.target.files?.[0]; if (!f) return; foto = await toDataUrl(f); i_preview.src=foto; i_preview.style.display='block'; });
+    i_quitar.addEventListener('click', ()=>{ foto=null; i_preview.src=''; i_preview.style.display='none'; i_foto.value=''; });
+
+    wrapper.querySelector('#i_cancelar').addEventListener('click', ()=>Modal.open('')); // cierra usando tu modal
+    wrapper.querySelector('#i_guardar').addEventListener('click', ()=>{
+      const dni = i_dni?.value.trim();
+      const nombre = i_nombre.value.trim();
+      const apellido = i_apellido.value.trim();
+      const telefono = i_tel.value.trim();
+      const email = i_email.value.trim();
+      if (!dni && !existing) return toast('Ingresá DNI');
+      if (!nombre || !apellido) return toast('Completá Nombre y Apellido');
+      try{
+        if (existing) api.updateInspector(existing.id, {nombre, apellido, telefono, email, foto});
+        else api.createInspector({dni, nombre, apellido, telefono, email, foto});
+        toast('Inspector guardado');
+        Modal.open('');
+        render();
+        fillInspectoresSelect();
+      }catch(err){ toast(err.message||'Error'); }
+    });
+  }
+
+  // Exponer para otros handlers
+  window.openInspectorForm = openInspectorForm;
+})();
+
+// ---- 3) Ingreso: foto obligatoria + autocompletar + selector tipo + grilla con fotos ----
+(function enhanceIngreso(){
+  const rbTipo = $$('input[name="tipoPersona"]');
+  const dniInput = document.getElementById('dni');
+  const socioInput = document.getElementById('nroSocio');
+  const nombreInput = document.getElementById('nombre');
+  const apellidoInput = document.getElementById('apellido');
+  const fotoFile = document.getElementById('fotoFile'); // input file existente en tu UI
+  const btnConfirmar = document.getElementById('btnConfirmarIngreso');
+  const btnLimpiar = document.getElementById('btnLimpiarIngreso');
+  const selInspector = document.getElementById('selectInspectorIngreso');
+  const tbodyIngresos = document.getElementById('tbodyIngresos');
+
+  let currentFoto = null;
+  if (fotoFile){
+    fotoFile.addEventListener('change', async (e)=>{ const f=e.target.files?.[0]; currentFoto = f ? await toDataUrl(f) : null; });
+  }
+
+  function setTipoUI(tipo){
+    const blockDni = dniInput?.closest('.field') || dniInput?.parentElement;
+    const blockSocio = socioInput?.closest('.field') || socioInput?.parentElement;
+    if (blockDni && blockSocio){
+      blockDni.style.display = (tipo==='INVITADO')?'':'none';
+      blockSocio.style.display = (tipo==='SOCIO')?'':'none';
+    }
+  }
+  const checked = rbTipo.find(r=>r.checked)?.value || 'INVITADO';
+  setTipoUI(checked);
+  rbTipo.forEach(r => r.addEventListener('change', ()=> setTipoUI(r.value)));
+
+  function fillInspectoresSelect(){
+    if (!selInspector) return;
+    const activos = api.listInspectores().filter(i=>i.estado==='ACTIVO');
+    selInspector.innerHTML = `<option value="">(Sin inspector)</option>` + activos.map(i=>`<option value="${i.id}">${i.apellido}, ${i.nombre}</option>`).join('');
+  }
+  fillInspectoresSelect();
+
+  async function onBlurIdentificador(){
+    const tipo = (rbTipo.find(r=>r.checked)?.value)||'INVITADO';
+    if (tipo==='INVITADO' && dniInput?.value){
+      const p = api.findPersonaByDni(dniInput.value.trim());
+      if (p){ nombreInput && (nombreInput.value=p.nombre||''); apellidoInput && (apellidoInput.value=p.apellido||''); currentFoto = p.foto || null; toast('Autocompletado por DNI'); }
+      else { currentFoto = null; }
+    }
+    if (tipo==='SOCIO' && socioInput?.value){
+      const p = api.findPersonaByNroSocio(socioInput.value.trim());
+      if (p){ nombreInput && (nombreInput.value=p.nombre||''); apellidoInput && (apellidoInput.value=p.apellido||''); currentFoto = p.foto || null; toast('Autocompletado por Nº de socio'); }
+      else { currentFoto = null; }
+    }
+  }
+  dniInput?.addEventListener('blur', onBlurIdentificador);
+  socioInput?.addEventListener('blur', onBlurIdentificador);
+
+  btnConfirmar?.addEventListener('click', ()=>{
+    const tipo = (rbTipo.find(r=>r.checked)?.value)||'INVITADO';
+    const dni = dniInput?.value.trim();
+    const nro = socioInput?.value.trim();
+    const nombre = nombreInput?.value.trim();
+    const apellido = apellidoInput?.value.trim();
+    const inspectorId = selInspector?.value ? Number(selInspector.value) : null;
+
+    if (tipo==='INVITADO' && !dni) return toast('Ingresá el DNI del invitado');
+    if (tipo==='SOCIO' && !nro) return toast('Ingresá el Nº de socio');
+    if (!nombre || !apellido) return toast('Completá Nombre y Apellido');
+
+    // Buscar persona existente
+    let persona = (tipo==='INVITADO') ? api.findPersonaByDni(dni) : api.findPersonaByNroSocio(nro);
+    const teniaFoto = !!(persona && persona.foto);
+
+    // Regla: foto obligatoria si no existe
+    if ((!persona || !teniaFoto) && !currentFoto) {
+      return toast('La foto es obligatoria (capturá o subí una imagen).');
+    }
+
+    // Guardar/actualizar persona
+    persona = api.upsertPersona({
+      dni: tipo==='INVITADO' ? dni : (persona?.dni || ''),
+      nroSocio: tipo==='SOCIO' ? nro : (persona?.nroSocio || ''),
+      nombre, apellido,
+      foto: currentFoto ?? persona?.foto ?? null
+    });
+
+    // Crear ingreso
+    api.createIngreso({
+      personaId: persona.id,
+      tipoPersona: tipo,
+      nroSocio: tipo==='SOCIO' ? persona.nroSocio : null,
+      dni: tipo==='INVITADO' ? persona.dni : null,
+      inspectorId
+    });
+
+    toast('Ingreso registrado');
+    renderIngresos();
+    btnLimpiar?.click?.();
+  });
+
+  btnLimpiar?.addEventListener('click', ()=>{
+    dniInput && (dniInput.value='');
+    socioInput && (socioInput.value='');
+    nombreInput && (nombreInput.value='');
+    apellidoInput && (apellidoInput.value='');
+    if (fotoFile) fotoFile.value='';
+    currentFoto = null;
+    // volver a Invitado si corresponde
+    const rbInv = rbTipo.find(r=>r.value==='INVITADO'); if (rbInv){ rbInv.checked = true; setTipoUI('INVITADO'); }
+  });
+
+  function renderIngresos(){
+    if (!tbodyIngresos) return;
+    const personas = DB.personas, inspectores = DB.inspectores;
+    const data = api.listIngresos().slice(0, 100);
+
+    tbodyIngresos.innerHTML = '';
+    data.forEach(ing=>{
+      const p = personas.find(x=>x.id===ing.personaId);
+      const i = inspectores.find(x=>x.id===ing.inspectorId);
+      const tr = document.createElement('tr');
+
+      // Si tu grilla ya tiene columnas, solo agregamos la foto y la chip de tipo si faltan.
+      const tdFoto = document.createElement('td'); tdFoto.appendChild(makeThumb(p?.foto, 'Foto'));
+      const tdNom = document.createElement('td'); tdNom.textContent = `${p?.apellido||''}, ${p?.nombre||''}`;
+      const tdId = document.createElement('td'); tdId.textContent = ing.tipoPersona==='SOCIO' ? `Nº ${p?.nroSocio||''}` : (p?.dni||'');
+      const tdTipo = document.createElement('td'); const chip = document.createElement('span'); chip.className='enh-chip '+(ing.tipoPersona==='SOCIO'?'socio':'invitado'); chip.textContent = ing.tipoPersona==='SOCIO'?'Socio':'Invitado'; tdTipo.appendChild(chip);
+      const tdFh = document.createElement('td'); tdFh.textContent = new Date(ing.fecha).toLocaleString();
+      const tdInsp = document.createElement('td'); tdInsp.textContent = i ? `${i.apellido}, ${i.nombre}` : '—';
+
+      tr.append(tdFoto, tdNom, tdId, tdTipo, tdFh, tdInsp);
+      tbodyIngresos.appendChild(tr);
+    });
+  }
+  renderIngresos();
+
+  // Exponer para estadísticas el select de inspectores
+  window.fillInspectoresSelect = function(){
+    if (!selInspector) return;
+    const activos = api.listInspectores().filter(i=>i.estado==='ACTIVO');
+    selInspector.innerHTML = `<option value="">(Sin inspector)</option>` + activos.map(i=>`<option value="${i.id}">${i.apellido}, ${i.nombre}</option>`).join('');
+  };
+})();
+</script>
