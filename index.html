@@ -1,261 +1,966 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>PCQ – Sistema v5.1 Unificado</title>
-<link rel="preconnect" href="https://cdn.jsdelivr.net"/>
-<style>
- :root{ --verde-oscuro:#1a3a1a;--verde-logo:#2d6e2d;--dorado:#c8a84b;--texto-oscuro:#1a1a1a;--rojo:#cc2222;}
- *{box-sizing:border-box} body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,'Open Sans',sans-serif;background:#0f2416;color:#fff;margin:0}
- header{position:sticky;top:0;background:#0b1a12;border-bottom:3px solid var(--dorado);padding:12px 14px;z-index:10}
- h1{margin:0;color:var(--dorado);font-size:1.2rem} .sub{color:#aacfaa;font-size:.9rem}
- nav{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;background:#0d1f0d;border-bottom:2px solid var(--dorado);padding:8px}
- nav button{cursor:pointer;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#cce8cc;border-radius:6px;padding:7px 12px;font-weight:600}
- nav button.activo{background:var(--dorado);color:#102010}
- main{max-width:1100px;margin:16px auto;padding:0 12px 40px}
- .seccion{display:none} .seccion.activa{display:block}
- .card{background:linear-gradient(160deg,#f5f0e8 0%,#ece8de 100%);border:2px solid var(--dorado);color:var(--texto-oscuro);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.25);padding:18px;margin:12px 0}
- .card h2{margin:0 0 10px 0;color:#153015;font-size:1.1rem} .muted{color:#657b83;font-size:.85rem}
- .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center} .rowf{display:flex;gap:10px;flex-wrap:wrap}
- label{display:flex;flex-direction:column;gap:4px;font-weight:700;color:#153015;font-size:.9rem}
- input,textarea,select{padding:9px 10px;border:1.5px solid #8aaa8a;border-radius:6px;font-size:1rem}
- .btn{cursor:pointer;border:none;border-radius:6px;padding:9px 14px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
- .btn-primary{background:#2d6e2d;color:#fff;border:2px solid #3a8a3a}
- .btn-danger{background:var(--rojo);color:#fff;border:2px solid #b11}
- .btn-gold{background:var(--dorado);color:#102010;border:2px solid #e8c86a}
- .btn-secondary{background:#4a5a4a;color:#fff;border:2px solid #5a6a5a}
- table{width:100%;border-collapse:collapse;font-size:.9rem} th,td{border-bottom:1px solid #ddd;padding:8px 10px} th{background:#153015;color:var(--dorado);text-align:left}
- .alerta{margin-top:8px;display:none;padding:8px 12px;border-radius:6px;font-weight:700}
- .alerta.show{display:block} .alerta-ok{background:#d1fae5;color:#065f46} .alerta-warn{background:#fff3cd;color:#92400e} .alerta-error{background:#fee2e2;color:#991b1b}
- .badge{background:rgba(0,0,0,.35);border:1px solid #555;border-radius:20px;padding:4px 12px;font-size:.85rem}
- #foto-ui .cam-wrap{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}
- #cam-video,#foto-preview{width:260px;height:195px;background:#000;border-radius:10px;border:2px solid var(--dorado)}
- .perfil-foto{width:120px;height:120px;border-radius:60px;border:2px solid var(--dorado);object-fit:cover;display:none}
- .mini-foto{width:36px;height:36px;border-radius:50%;border:1px solid var(--dorado);object-fit:cover;cursor:zoom-in}
- .chart-wrap{max-width:620px;margin:auto} .chart-wrap canvas{height:140px !important}
- #img-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);z-index:9999}
- #img-modal img{max-width:95vw;max-height:90vh;border-radius:10px;border:3px solid var(--dorado);box-shadow:0 10px 40px rgba(0,0,0,.6)}
-</style>
+  <meta charset="utf-8" />
+  <title>Control de Ingresos · Inspectores · Estadísticas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#0f172a;           /* slate-900 */
+      --panel:#111827;        /* gray-900 */
+      --muted:#334155;        /* slate-700 */
+      --text:#e5e7eb;         /* gray-200 */
+      --text-dim:#cbd5e1;     /* slate-300 */
+      --primary:#22c55e;      /* green-500 */
+      --primary-600:#16a34a;
+      --accent:#38bdf8;       /* sky-400 */
+      --warning:#f59e0b;
+      --danger:#ef4444;
+      --chip-socio:#22c55e;   /* verde */
+      --chip-invitado:#3b82f6;/* azul */
+      --radius:12px;
+      --gap:16px;
+      --shadow: 0 6px 30px rgba(0,0,0,.35), 0 0 1px rgba(0,0,0,.5) inset;
+    }
+
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1200px circle at 0% 100%, rgba(56,189,248,.2), transparent 40%),
+        radial-gradient(1200px circle at 100% 0%, rgba(34,197,94,.2), transparent 40%),
+        radial-gradient(700px circle at 10% 20%, rgba(236,72,153,.15), transparent 45%),
+        linear-gradient(180deg, #0b1226 0%, #0b1020 100%);
+      min-height:100%;
+    }
+
+    header{
+      position:sticky; top:0; z-index:10;
+      background: rgba(11,16,32,.75);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .container{max-width:1200px; margin:0 auto; padding:0 16px;}
+    .brand{
+      display:flex; align-items:center; gap:12px; padding:12px 0;
+    }
+    .brand .logo{
+      width:36px; height:36px; border-radius:8px;
+      background: radial-gradient(circle at 30% 30%, #7dd3fc, #22c55e);
+      box-shadow: 0 0 20px rgba(56,189,248,.45), inset 0 0 8px rgba(34,197,94,.5);
+    }
+    .brand h1{font-size:18px; margin:0; letter-spacing:.2px; font-weight:600}
+
+    nav.tabs{
+      display:flex; gap:8px; padding-bottom:12px; flex-wrap:wrap;
+    }
+    .tab-btn{
+      border:1px solid rgba(255,255,255,.12);
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      color:var(--text); padding:10px 14px; border-radius:10px; cursor:pointer;
+      transition:.2s ease; font-weight:600; letter-spacing:.3px;
+    }
+    .tab-btn:hover{transform:translateY(-1px); border-color:rgba(255,255,255,.2)}
+    .tab-btn.active{
+      background:linear-gradient(180deg, rgba(34,197,94,.35), rgba(34,197,94,.1));
+      border-color: rgba(34,197,94,.6);
+      box-shadow: 0 0 0 2px rgba(34,197,94,.15);
+    }
+
+    main{padding:18px 0 48px}
+    section.panel{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      padding:20px;
+      box-shadow: var(--shadow);
+      margin-bottom:20px;
+    }
+    .section-title{
+      display:flex; align-items:center; gap:10px; margin:0 0 14px;
+      font-size:18px; font-weight:700; letter-spacing:.3px;
+    }
+    .section-sub{
+      margin:0 0 16px; color:var(--text-dim); font-size:14px;
+    }
+
+    /* Form & inputs */
+    .form-grid{
+      display:grid; gap: var(--gap);
+      grid-template-columns: repeat(12, 1fr);
+    }
+    .col-12{grid-column: span 12}
+    .col-6{grid-column: span 6}
+    .col-4{grid-column: span 4}
+    .col-3{grid-column: span 3}
+    .field{
+      display:flex; flex-direction:column; gap:6px;
+    }
+    label{font-size:13px; color:var(--text-dim)}
+    input[type="text"], input[type="number"], input[type="date"], input[type="datetime-local"], select, textarea{
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.12);
+      color:var(--text);
+      padding:10px 12px; border-radius:10px; outline:none;
+      transition:.15s ease; width:100%;
+    }
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(56,189,248,.6);
+      box-shadow: 0 0 0 2px rgba(56,189,248,.15);
+    }
+    .row{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+
+    .radio-chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px; border-radius:999px; cursor:pointer; user-select:none;
+      border:1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      font-weight:600;
+    }
+    .radio-chip input{accent-color: var(--accent)}
+    .hint{font-size:12px; color:var(--text-dim)}
+    .chip{
+      padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; color:#041215;
+      display:inline-block; white-space:nowrap;
+    }
+    .chip.socio{background: color-mix(in oklab, var(--chip-socio) 85%, white)}
+    .chip.invitado{background: color-mix(in oklab, var(--chip-invitado) 85%, white)}
+    .chip.inactivo{background: color-mix(in oklab, #64748b 85%, white)}
+
+    .btn{
+      display:inline-flex; align-items:center; gap:8px;
+      border:1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(34,197,94,.35), rgba(34,197,94,.12));
+      padding:10px 14px; border-radius:10px; color:var(--text); font-weight:700; cursor:pointer;
+      transition:.15s ease;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn.secondary{background: linear-gradient(180deg, rgba(56,189,248,.25), rgba(56,189,248,.08)); border-color: rgba(56,189,248,.5)}
+    .btn.warn{background: linear-gradient(180deg, rgba(245,158,11,.35), rgba(245,158,11,.1)); border-color: rgba(245,158,11,.5)}
+    .btn.danger{background: linear-gradient(180deg, rgba(239,68,68,.35), rgba(239,68,68,.1)); border-color: rgba(239,68,68,.5)}
+    .btn.ghost{background: transparent}
+
+    /* Tables */
+    .table-wrap{ width:100%; overflow:auto; border-radius:12px; border:1px solid rgba(255,255,255,.08)}
+    table{
+      width:100%; border-collapse: collapse; min-width:720px;
+      background: rgba(2,6,23,.4);
+    }
+    th, td{ padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.06); text-align:left; font-size:14px}
+    thead th{ position:sticky; top:0; background: rgba(2,6,23,.8); backdrop-filter: blur(6px); z-index:1}
+    tr:hover{ background: rgba(255,255,255,.03)}
+    .thumb{
+      width:40px; height:40px; border-radius:6px; object-fit:cover; cursor:zoom-in;
+      border:1px solid rgba(255,255,255,.15)
+    }
+    .actions{ display:flex; gap:6px; flex-wrap:wrap}
+
+    /* Cards / stats */
+    .stats{
+      display:grid; gap:12px; grid-template-columns: repeat(12, 1fr);
+    }
+    .stat{
+      grid-column: span 4;
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px; padding:14px;
+    }
+    .stat .label{color:var(--text-dim); font-size:12px}
+    .stat .value{font-weight:800; font-size:24px}
+
+    /* Modal */
+    .modal{ position:fixed; inset:0; background:rgba(0,0,0,.75); display:none; align-items:center; justify-content:center; z-index:50; padding:20px}
+    .modal.open{ display:flex}
+    .modal-card{
+      background: rgba(15,23,42,.9); border:1px solid rgba(255,255,255,.12);
+      border-radius:12px; padding:12px; max-width:95vw; max-height:95vh; position:relative;
+      box-shadow: var(--shadow);
+    }
+    .modal-close{ position:absolute; top:8px; right:8px}
+    .modal img{ max-width:90vw; max-height:80vh; display:block; border-radius:10px}
+
+    /* Responsive */
+    @media (max-width: 900px){
+      .col-6{grid-column: span 12}
+      .col-4{grid-column: span 12}
+      .col-3{grid-column: span 6}
+      .stat{grid-column: span 6}
+      table{min-width: 640px}
+    }
+    @media (max-width: 420px){
+      .stat{grid-column: span 12}
+      .radio-chip{width:100%; justify-content:center}
+    }
+
+    .toast{
+      position:fixed; bottom:16px; left:50%; transform:translateX(-50%);
+      background: rgba(2,6,23,.9); border:1px solid rgba(255,255,255,.15);
+      color:var(--text); padding:10px 14px; border-radius:10px; z-index:60; display:none
+    }
+    .toast.show{display:block}
+
+    .divider{ height:1px; background: rgba(255,255,255,.08); margin:12px 0}
+  </style>
 </head>
 <body>
-<header>
-  <h1>🎣 Pejerrey Club Quilmes</h1>
-  <div class="sub">Sistema de Gestión – v5.1</div>
-  <div class="row">
-    <div id="reloj-header" class="badge">--/--/---- --:--:--</div>
-    <div id="header-inspector" class="badge">🔒 Sin inspector activo</div>
+  <header>
+    <div class="container">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <h1>Control de Ingresos · Inspectores · Estadísticas</h1>
+      </div>
+      <nav class="tabs" role="tablist" aria-label="Secciones">
+        <button class="tab-btn active" data-tab="ingreso" role="tab" aria-selected="true">Ingreso</button>
+        <button class="tab-btn" data-tab="estadisticas" role="tab" aria-selected="false">Estadísticas</button>
+        <button class="tab-btn" data-tab="inspectores" role="tab" aria-selected="false">Back‑up de Inspectores (ABM)</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- INGRESO -->
+    <section id="ingreso" class="panel" role="tabpanel" aria-labelledby="tab-ingreso">
+      <h2 class="section-title">Ingreso</h2>
+      <p class="section-sub">Seleccioná si es <strong>Socio</strong> o <strong>Invitado</strong>. Autocompleta por <em>DNI</em> o <em>Nº de socio</em>. La <strong>foto es obligatoria</strong> si no existe.</p>
+
+      <div class="form-grid" style="margin-bottom:8px">
+        <div class="col-12">
+          <div class="row" role="radiogroup" aria-label="Tipo de persona">
+            <label class="radio-chip"><input type="radio" name="tipoPersona" value="SOCIO" /> Socio</label>
+            <label class="radio-chip"><input type="radio" name="tipoPersona" value="INVITADO" checked /> Invitado</label>
+          </div>
+        </div>
+
+        <div class="col-4">
+          <div class="field" id="field-dni">
+            <label for="dni">DNI (Invitado)</label>
+            <input type="number" id="dni" inputmode="numeric" placeholder="Ej: 12345678" />
+            <small class="hint">Se autocompleta si ya existe registro.</small>
+          </div>
+          <div class="field" id="field-nrosocio" style="display:none">
+            <label for="nroSocio">Nº de socio (Socio)</label>
+            <input type="text" id="nroSocio" placeholder="Ej: 10234" />
+            <small class="hint">Se autocompleta si ya existe registro.</small>
+          </div>
+        </div>
+
+        <div class="col-4">
+          <div class="field">
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" placeholder="Nombre" />
+          </div>
+        </div>
+
+        <div class="col-4">
+          <div class="field">
+            <label for="apellido">Apellido</label>
+            <input type="text" id="apellido" placeholder="Apellido" />
+          </div>
+        </div>
+
+        <div class="col-6">
+          <div class="field">
+            <label>Foto (obligatoria si no existe)</label>
+            <div class="row">
+              <input type="file" id="fotoInput" accept="image/*" capture="environment" />
+              <button class="btn secondary" id="btnQuitarFoto" type="button">Quitar</button>
+            </div>
+            <div class="row" style="margin-top:8px; gap:12px">
+              <img id="fotoPreview" src="" alt="Previsualización de foto" class="thumb" style="width:64px;height:64px; display:none" />
+              <span id="fotoEstado" class="hint">Sin foto</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6">
+          <div class="field">
+            <label for="inspectorIngreso">Inspector</label>
+            <select id="inspectorIngreso"></select>
+            <small class="hint">Solo inspectores ACTIVO disponibles.</small>
+          </div>
+        </div>
+
+        <div class="col-12 row" style="justify-content:flex-end; gap:10px">
+          <button class="btn ghost" id="btnLimpiar" type="button">Limpiar</button>
+          <button class="btn" id="btnConfirmarIngreso" type="button">Confirmar Ingreso</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3 class="section-title" style="font-size:16px">Ingresos recientes</h3>
+      <div class="table-wrap" id="tablaIngresosWrap">
+        <table aria-label="Ingresos recientes">
+          <thead>
+            <tr>
+              <th>Foto</th>
+              <th>Nombre</th>
+              <th>Identificador</th>
+              <th>Tipo</th>
+              <th>Fecha/Hora</th>
+              <th>Inspector</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyIngresos"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ESTADISTICAS -->
+    <section id="estadisticas" class="panel" role="tabpanel" aria-labelledby="tab-estadisticas" hidden>
+      <h2 class="section-title">Estadísticas</h2>
+      <p class="section-sub">Usá los <strong>Date Pickers</strong> para filtrar por rango. La vista es <strong>mobile-friendly</strong>.</p>
+
+      <div class="form-grid">
+        <div class="col-3">
+          <div class="field">
+            <label for="desde">Desde</label>
+            <input type="date" id="desde" />
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="field">
+            <label for="hasta">Hasta</label>
+            <input type="date" id="hasta" />
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="field">
+            <label for="tipoFiltro">Tipo</label>
+            <select id="tipoFiltro">
+              <option value="TODOS">Todos</option>
+              <option value="SOCIO">Socio</option>
+              <option value="INVITADO">Invitado</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-3 row" style="align-items:flex-end">
+          <button class="btn" id="btnAplicarFiltros" type="button">Aplicar</button>
+          <button class="btn ghost" id="btnLimpiarFiltros" type="button">Limpiar</button>
+        </div>
+      </div>
+
+      <div class="stats" style="margin-top:14px">
+        <div class="stat">
+          <div class="label">Total ingresos</div>
+          <div class="value" id="statTotal">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Socios</div>
+          <div class="value" id="statSocios">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Invitados</div>
+          <div class="value" id="statInvitados">0</div>
+        </div>
+      </div>
+
+      <h3 class="section-title" style="font-size:16px; margin-top:16px">Ingresos (filtrados)</h3>
+      <div class="table-wrap">
+        <table aria-label="Ingresos filtrados">
+          <thead>
+            <tr>
+              <th>Foto</th>
+              <th>Nombre</th>
+              <th>Identificador</th>
+              <th>Tipo</th>
+              <th>Fecha/Hora</th>
+              <th>Inspector</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyIngresosFiltrados"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- INSPECTORES (ABM) -->
+    <section id="inspectores" class="panel" role="tabpanel" aria-labelledby="tab-inspectores" hidden>
+      <h2 class="section-title">Back‑up de Inspectores (ABM)</h2>
+      <p class="section-sub">Gestioná inspectores. El alta está acá (se movió desde “Agregar Inspector”). Baja lógica mediante Activar/Desactivar.</p>
+
+      <div class="row" style="justify-content:space-between; gap:10px; margin-bottom:10px">
+        <div class="row" style="gap:10px">
+          <input type="text" id="buscarInspector" placeholder="Buscar por DNI / Nombre / Apellido" style="min-width:240px" />
+          <select id="filtroEstado">
+            <option value="TODOS">Todos</option>
+            <option value="ACTIVO">Activos</option>
+            <option value="INACTIVO">Inactivos</option>
+          </select>
+          <button class="btn secondary" id="btnExportInspectores" type="button">Exportar CSV</button>
+        </div>
+        <button class="btn" id="btnAbrirAltaInspector" type="button">+ Agregar Inspector</button>
+      </div>
+
+      <div class="table-wrap">
+        <table aria-label="Inspectores">
+          <thead>
+            <tr>
+              <th>Foto</th>
+              <th>Nombre</th>
+              <th>DNI</th>
+              <th>Email</th>
+              <th>Teléfono</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyInspectores"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal genérico -->
+  <div class="modal" id="modal">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="btn modal-close" id="modalClose" type="button">Cerrar</button>
+      <div id="modalContent"></div>
+    </div>
   </div>
-</header>
-<nav>
- <button onclick="navClick('ingreso',this)" class="activo">🚪 Ingreso</button>
- <button onclick="navClick('apercibamiento',this)">⚠️ Apercibamiento</button>
- <button onclick="navClick('suspension',this)">🚫 Suspensión</button>
- <button onclick="navClick('consulta',this)">📋 Consulta</button>
- <button onclick="navClick('vencidos',this)">⏰ Vencidos</button>
- <button onclick="navClick('inspectores',this)">👮 Inspectores</button>
- <button onclick="navClick('backup',this)">🛠️ Administrar</button>
- <button onclick="navClick('estadisticas',this)">📊 Estadísticas</button>
-</nav>
-<main>
-  <section id="sec-ingreso" class="seccion activa">
-    <div class="card">
-      <h2>🚪 Registro de Ingreso</h2>
-      <div class="row"><div id="reloj-grande" style="font-size:1.6rem;color:var(--dorado);font-weight:800">--:--:--</div><div id="fecha-grande" class="badge" style="background:rgba(0,0,0,.25);border:1px solid #666">--/--/----</div></div>
-      <div class="row" style="gap:8px">
-        <label style="display:inline-flex;align-items:center;gap:8px;font-weight:700;color:#153015"><input type="radio" name="tipo-persona" id="radio-invitado" checked /> Invitado (DNI)</label>
-        <label style="display:inline-flex;align-items:center;gap:8px;font-weight:700;color:#153015"><input type="radio" name="tipo-persona" id="radio-socio" /> Socio (N° socio)</label>
-      </div>
-      <div class="rowf">
-        <label style="flex:1;min-width:180px">DNI<input id="dni-ingreso" type="text" maxlength="12" placeholder="30123456" oninput="this.value=this.value.replace(/\\D/g,'')"/></label>
-        <label style="flex:2;min-width:200px">Nombre y Apellido<input id="nombre-ingreso" type="text" placeholder="Apellido, Nombre"/></label>
-      </div>
-      <div class="row" style="gap:8px">
-        <button class="btn btn-primary" id="btn-registrar">✅ Registrar Ingreso</button>
-        <button class="btn btn-secondary" id="btn-limpiar">🧽 Limpiar</button>
-      </div>
-      <div id="alerta-ingreso" class="alerta"></div>
-      <div id="ultimos-ingresos" class="card" style="margin:14px 0 0 0;display:none">
-        <h2>Últimos 10 ingresos</h2>
-        <div class="table-wrap"><table id="tabla-ultimos"><thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Nombre</th><th>Estado</th></tr></thead><tbody></tbody></table></div>
-      </div>
-    </div>
-    <div id="foto-ui" class="card" style="margin-top:12px">
-      <h2>📸 Foto del ingreso (obligatoria)</h2>
-      <div class="cam-wrap">
-        <div>
-          <video id="cam-video" autoplay playsinline style="display:none"></video>
-          <img id="foto-preview" alt="Previa de la foto" style="display:none"/>
-          <canvas id="cam-canvas" width="320" height="240" style="display:none"></canvas>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+  // ======= Utilidades =======
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+  const Toast = {
+    el: $('#toast'),
+    show(msg, ms=2200){ this.el.textContent = msg; this.el.classList.add('show'); clearTimeout(this._t); this._t=setTimeout(()=>this.el.classList.remove('show'), ms); }
+  }
+
+  const Modal = {
+    root: $('#modal'),
+    content: $('#modalContent'),
+    closeBtn: $('#modalClose'),
+    open(html){
+      this.content.innerHTML = '';
+      if (typeof html === 'string') this.content.innerHTML = html;
+      else this.content.appendChild(html);
+      this.root.classList.add('open');
+    },
+    close(){ this.root.classList.remove('open'); this.content.innerHTML=''; }
+  }
+  Modal.closeBtn.addEventListener('click', ()=>Modal.close());
+  Modal.root.addEventListener('click', (e)=>{ if(e.target === Modal.root) Modal.close(); });
+
+  // ======= Persistencia (localStorage simulado) =======
+  const store = {
+    get(key, def){ try { return JSON.parse(localStorage.getItem(key)) ?? def; } catch { return def; } },
+    set(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+  };
+
+  // Entidades: personas, ingresos, inspectores
+  function seed() {
+    if (!store.get('inspectores')) {
+      const insp = [
+        {id:1, dni:'30000001', nombre:'Gabriela', apellido:'Paz', telefono:'11-4444-1111', email:'gpaz@club.com', foto:null, estado:'ACTIVO', updatedAt:Date.now()},
+        {id:2, dni:'30000002', nombre:'Luis', apellido:'Ortega', telefono:'11-5555-2222', email:'luiso@club.com', foto:null, estado:'INACTIVO', updatedAt:Date.now()}
+      ];
+      store.set('inspectores', insp);
+    }
+    if (!store.get('personas')) {
+      const personas = [
+        {id:1, dni:'22333444', nombre:'María', apellido:'Sosa', foto:null, nroSocio:null},
+        {id:2, dni:'27444555', nombre:'Juan',  apellido:'López', foto:null, nroSocio:'1050'},
+        {id:3, dni:'', nombre:'Silvia', apellido:'Ríos', foto:null, nroSocio:'2048'},
+      ];
+      store.set('personas', personas);
+    }
+    if (!store.get('ingresos')) store.set('ingresos', []);
+    // consecutivos
+    if (!store.get('seq')) store.set('seq', {persona:4, inspector:3, ingreso:1});
+  }
+  seed();
+
+  const seq = {
+    next(entity){
+      const s = store.get('seq'); const id = s[entity] || 1; s[entity] = id+1; store.set('seq', s); return id;
+    }
+  };
+
+  // ======= API simulada =======
+  const api = {
+    // Personas
+    findPersonaByDni(dni){ return store.get('personas', []).find(p => (p.dni||'') === String(dni)); },
+    findPersonaByNroSocio(nro){ return store.get('personas', []).find(p => (p.nroSocio||'') === String(nro)); },
+    upsertPersona({dni, nroSocio, nombre, apellido, foto}) {
+      const personas = store.get('personas', []);
+      let p = null;
+      if (nroSocio) p = personas.find(x => (x.nroSocio||'') === String(nroSocio));
+      if (!p && dni) p = personas.find(x => (x.dni||'') === String(dni));
+      if (p){
+        if (nombre) p.nombre = nombre;
+        if (apellido) p.apellido = apellido;
+        if (typeof foto !== 'undefined') p.foto = foto;
+        if (nroSocio) p.nroSocio = String(nroSocio);
+      } else {
+        p = {id: seq.next('persona'), dni: String(dni||''), nroSocio: nroSocio?String(nroSocio):null, nombre: nombre||'', apellido: apellido||'', foto: foto||null};
+        personas.push(p);
+      }
+      store.set('personas', personas);
+      return p;
+    },
+
+    // Inspectores
+    listInspectores(){ return store.get('inspectores', []); },
+    createInspector({dni, nombre, apellido, telefono, email, foto}){
+      const list = store.get('inspectores', []);
+      if (list.some(x => x.dni === String(dni))) throw new Error('El DNI de inspector ya existe');
+      const item = {id: seq.next('inspector'), dni:String(dni), nombre, apellido, telefono, email, foto: foto||null, estado:'ACTIVO', updatedAt:Date.now()};
+      list.push(item); store.set('inspectores', list); return item;
+    },
+    updateInspector(id, patch){
+      const list = store.get('inspectores', []);
+      const idx = list.findIndex(x => x.id === id);
+      if (idx<0) throw new Error('Inspector no encontrado');
+      list[idx] = {...list[idx], ...patch, updatedAt:Date.now()};
+      store.set('inspectores', list);
+      return list[idx];
+    },
+    toggleInspector(id){
+      const it = this.getInspector(id);
+      return this.updateInspector(id, {estado: it.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO'});
+    },
+    getInspector(id){ return this.listInspectores().find(x => x.id === id); },
+
+    // Ingresos
+    createIngreso({personaId, tipoPersona, nroSocio, dni, inspectorId, fecha}){
+      const ingresos = store.get('ingresos', []);
+      const item = {
+        id: seq.next('ingreso'),
+        personaId, tipoPersona,
+        nroSocio: nroSocio || null,
+        dni: dni || null,
+        inspectorId: inspectorId || null,
+        fecha: fecha || new Date().toISOString()
+      };
+      ingresos.unshift(item);
+      store.set('ingresos', ingresos);
+      return item;
+    },
+    listIngresos(){ return store.get('ingresos', []); },
+  };
+
+  // ======= Helpers UI =======
+  function toDataUrl(file){
+    return new Promise((res, rej)=>{
+      const reader = new FileReader();
+      reader.onload = () => res(reader.result);
+      reader.onerror = rej;
+      reader.readAsDataURL(file);
+    });
+  }
+  function formatDateTime(iso){
+    const d = new Date(iso); const pad = n => String(n).padStart(2,'0');
+    return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+  function makeThumb(src, alt='Foto'){
+    const img = document.createElement('img');
+    img.src = src || '';
+    img.alt = alt;
+    img.className = 'thumb';
+    if (src){
+      img.addEventListener('click', ()=> {
+        const big = document.createElement('img');
+        big.src = src;
+        big.alt = alt;
+        Modal.open(big);
+      });
+    }
+    return img;
+  }
+
+  // ======= Navegación tabs =======
+  const tabs = $$('.tab-btn');
+  const sections = {
+    ingreso: $('#ingreso'),
+    estadisticas: $('#estadisticas'),
+    inspectores: $('#inspectores')
+  };
+  tabs.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      tabs.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.dataset.tab;
+      Object.entries(sections).forEach(([k,sec])=>{
+        if (k===tab){ sec.hidden = false; }
+        else { sec.hidden = true; }
+      });
+      if (tab==='inspectores') renderInspectores();
+      if (tab==='ingreso') { renderIngresos(); fillInspectoresSelect(); }
+      if (tab==='estadisticas'){ applyFiltros(); }
+    });
+  });
+
+  // ======= Ingreso =======
+  const rbTipo = $$('input[name="tipoPersona"]');
+  const fieldDni = $('#field-dni');
+  const fieldNroSocio = $('#field-nrosocio');
+  const dniInput = $('#dni');
+  const nroSocioInput = $('#nroSocio');
+  const nombreInput = $('#nombre');
+  const apellidoInput = $('#apellido');
+  const inspectorSelect = $('#inspectorIngreso');
+  const fotoInput = $('#fotoInput');
+  const fotoPreview = $('#fotoPreview');
+  const fotoEstado = $('#fotoEstado');
+  const btnQuitarFoto = $('#btnQuitarFoto');
+  const btnConfirmarIngreso = $('#btnConfirmarIngreso');
+  const btnLimpiar = $('#btnLimpiar');
+
+  let currentFotoDataUrl = null;
+  function setTipo(tipo){
+    if (tipo==='SOCIO'){ fieldDni.style.display='none'; fieldNroSocio.style.display='block'; }
+    else { fieldDni.style.display='block'; fieldNroSocio.style.display='none'; }
+  }
+  rbTipo.forEach(r => r.addEventListener('change', ()=> setTipo(r.value)));
+  setTipo('INVITADO');
+
+  function fillInspectoresSelect(){
+    const activos = api.listInspectores().filter(i=>i.estado==='ACTIVO');
+    inspectorSelect.innerHTML = `<option value="">(Sin inspector)</option>` + activos.map(i=>`<option value="${i.id}">${i.apellido}, ${i.nombre}</option>`).join('');
+  }
+  fillInspectoresSelect();
+
+  async function handleIdentificadorBlur(){
+    const tipo = ($('input[name="tipoPersona"]:checked')||{}).value;
+    if (tipo==='INVITADO'){
+      const dni = dniInput.value.trim();
+      if (!dni) return;
+      const p = api.findPersonaByDni(dni);
+      if (p){
+        nombreInput.value = p.nombre||'';
+        apellidoInput.value = p.apellido||'';
+        if (p.foto){ currentFotoDataUrl = p.foto; fotoPreview.src = p.foto; fotoPreview.style.display='block'; fotoEstado.textContent='Foto existente'; }
+        else { currentFotoDataUrl = null; fotoPreview.style.display='none'; fotoEstado.textContent='Sin foto (requerida)'; }
+        Toast.show('Autocompletado por DNI');
+      } else {
+        fotoPreview.style.display='none'; currentFotoDataUrl=null; fotoEstado.textContent='Sin foto (requerida)';
+      }
+    } else {
+      const nro = nroSocioInput.value.trim();
+      if (!nro) return;
+      const p = api.findPersonaByNroSocio(nro);
+      if (p){
+        nombreInput.value = p.nombre||'';
+        apellidoInput.value = p.apellido||'';
+        if (p.foto){ currentFotoDataUrl = p.foto; fotoPreview.src = p.foto; fotoPreview.style.display='block'; fotoEstado.textContent='Foto existente'; }
+        else { currentFotoDataUrl = null; fotoPreview.style.display='none'; fotoEstado.textContent='Sin foto (requerida)'; }
+        Toast.show('Autocompletado por Nº de socio');
+      } else {
+        fotoPreview.style.display='none'; currentFotoDataUrl=null; fotoEstado.textContent='Sin foto (requerida)';
+      }
+    }
+  }
+  dniInput.addEventListener('blur', handleIdentificadorBlur);
+  nroSocioInput.addEventListener('blur', handleIdentificadorBlur);
+
+  fotoInput.addEventListener('change', async (e)=>{
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const dataUrl = await toDataUrl(file);
+    currentFotoDataUrl = dataUrl;
+    fotoPreview.src = dataUrl;
+    fotoPreview.style.display = 'block';
+    fotoEstado.textContent = 'Foto lista';
+  });
+  btnQuitarFoto.addEventListener('click', ()=>{
+    currentFotoDataUrl = null;
+    fotoPreview.src=''; fotoPreview.style.display='none'; fotoInput.value=''; fotoEstado.textContent = 'Sin foto';
+  });
+
+  function limpiarIngreso(){
+    dniInput.value = '';
+    nroSocioInput.value = '';
+    nombreInput.value = '';
+    apellidoInput.value = '';
+    inspectorSelect.value = '';
+    currentFotoDataUrl = null; fotoPreview.src=''; fotoPreview.style.display='none'; fotoInput.value=''; fotoEstado.textContent='Sin foto';
+    // reset tipo a Invitado
+    $$('input[name="tipoPersona"]').forEach(x=> x.checked = (x.value==='INVITADO'));
+    setTipo('INVITADO');
+  }
+  btnLimpiar.addEventListener('click', limpiarIngreso);
+
+  btnConfirmarIngreso.addEventListener('click', ()=>{
+    const tipo = ($('input[name="tipoPersona"]:checked')||{}).value;
+    const dni = dniInput.value.trim();
+    const nro = nroSocioInput.value.trim();
+    const nombre = nombreInput.value.trim();
+    const apellido = apellidoInput.value.trim();
+    const inspectorId = inspectorSelect.value ? Number(inspectorSelect.value) : null;
+
+    if (tipo==='INVITADO' && !dni) return Toast.show('Ingresá el DNI del invitado');
+    if (tipo==='SOCIO' && !nro) return Toast.show('Ingresá el Nº de socio');
+    if (!nombre || !apellido) return Toast.show('Completá Nombre y Apellido');
+
+    // Buscar persona existente
+    let persona = (tipo==='INVITADO') ? api.findPersonaByDni(dni) : api.findPersonaByNroSocio(nro);
+    const teniaFoto = !!(persona && persona.foto);
+
+    // Regla: Foto obligatoria si no existe
+    // - si persona existe y NO tiene foto -> exigir
+    // - si persona NO existe -> exigir
+    if ((!persona || !teniaFoto) && !currentFotoDataUrl) {
+      return Toast.show('La foto es obligatoria. Capturá o subí una imagen antes de confirmar.');
+    }
+
+    // upsert persona con datos + foto si cargó nueva
+    persona = api.upsertPersona({
+      dni: tipo==='INVITADO' ? dni : (persona?.dni || ''),
+      nroSocio: tipo==='SOCIO' ? nro : (persona?.nroSocio || ''),
+      nombre, apellido,
+      foto: currentFotoDataUrl ?? persona?.foto ?? null
+    });
+
+    // Crear ingreso
+    api.createIngreso({
+      personaId: persona.id,
+      tipoPersona: tipo,
+      nroSocio: tipo==='SOCIO' ? persona.nroSocio : null,
+      dni: tipo==='INVITADO' ? persona.dni : null,
+      inspectorId,
+      fecha: new Date().toISOString()
+    });
+
+    Toast.show('Ingreso registrado');
+    renderIngresos();
+    limpiarIngreso();
+  });
+
+  function renderIngresos() {
+    const tbody = $('#tbodyIngresos');
+    tbody.innerHTML = '';
+    const ingresos = api.listIngresos().slice(0, 50); // últimos 50
+    const personas = store.get('personas', []);
+    const inspectores = store.get('inspectores', []);
+    for (const ing of ingresos) {
+      const persona = personas.find(p => p.id === ing.personaId);
+      const inspector = inspectores.find(i => i.id === ing.inspectorId);
+      const tr = document.createElement('tr');
+      const fotoCell = document.createElement('td');
+      fotoCell.appendChild(makeThumb(persona?.foto, `Foto de ${persona?.nombre||''} ${persona?.apellido||''}`));
+      const nombreCell = document.createElement('td');
+      nombreCell.textContent = `${persona?.apellido||''}, ${persona?.nombre||''}`;
+      const idCell = document.createElement('td');
+      idCell.textContent = ing.tipoPersona === 'SOCIO' ? `Nº ${persona?.nroSocio||''}` : (persona?.dni||'');
+      const tipoCell = document.createElement('td');
+      const chip = document.createElement('span');
+      chip.className = 'chip ' + (ing.tipoPersona==='SOCIO'?'socio':'invitado');
+      chip.textContent = ing.tipoPersona==='SOCIO' ? 'Socio' : 'Invitado';
+      tipoCell.appendChild(chip);
+      const fechaCell = document.createElement('td'); fechaCell.textContent = formatDateTime(ing.fecha);
+      const inspCell = document.createElement('td'); inspCell.textContent = inspector ? `${inspector.apellido}, ${inspector.nombre}` : '—';
+
+      tr.append(fotoCell, nombreCell, idCell, tipoCell, fechaCell, inspCell);
+      tbody.appendChild(tr);
+    }
+  }
+  renderIngresos();
+
+  // ======= Estadísticas =======
+  const desdeInput = $('#desde');
+  const hastaInput = $('#hasta');
+  const tipoFiltro = $('#tipoFiltro');
+  const tbodyFiltrados = $('#tbodyIngresosFiltrados');
+  const statTotal = $('#statTotal');
+  const statSocios = $('#statSocios');
+  const statInvitados = $('#statInvitados');
+
+  // Default: semana actual
+  (function initDates(){
+    const now = new Date();
+    const start = new Date(now); start.setDate(now.getDate()-7);
+    const toISODate = d => d.toISOString().slice(0,10);
+    desdeInput.value = toISODate(start);
+    hastaInput.value = toISODate(now);
+  })();
+
+  function applyFiltros(){
+    const personas = store.get('personas', []);
+    const inspectores = store.get('inspectores', []);
+    const ingresos = api.listIngresos();
+
+    // Filtro por fechas
+    const dDesde = desdeInput.value ? new Date(desdeInput.value + 'T00:00:00') : null;
+    const dHasta = hastaInput.value ? new Date(hastaInput.value + 'T23:59:59') : null;
+    let data = ingresos.filter(ing => {
+      const f = new Date(ing.fecha);
+      if (dDesde && f < dDesde) return false;
+      if (dHasta && f > dHasta) return false;
+      return true;
+    });
+
+    // Filtro por tipo
+    const tf = tipoFiltro.value;
+    if (tf !== 'TODOS') data = data.filter(x => x.tipoPersona === tf);
+
+    // Stats
+    const total = data.length;
+    const socios = data.filter(x => x.tipoPersona==='SOCIO').length;
+    const invitados = data.filter(x => x.tipoPersona==='INVITADO').length;
+    statTotal.textContent = total;
+    statSocios.textContent = socios;
+    statInvitados.textContent = invitados;
+
+    // Tabla
+    tbodyFiltrados.innerHTML = '';
+    for (const ing of data) {
+      const persona = personas.find(p => p.id === ing.personaId);
+      const inspector = inspectores.find(i => i.id === ing.inspectorId);
+      const tr = document.createElement('tr');
+      const tFoto = document.createElement('td'); tFoto.appendChild(makeThumb(persona?.foto, 'Foto'));
+      const tNom  = document.createElement('td'); tNom.textContent = `${persona?.apellido||''}, ${persona?.nombre||''}`;
+      const tId   = document.createElement('td'); tId.textContent = ing.tipoPersona==='SOCIO' ? `Nº ${persona?.nroSocio||''}` : (persona?.dni||'');
+      const tTipo = document.createElement('td'); const chip = document.createElement('span'); chip.className='chip '+(ing.tipoPersona==='SOCIO'?'socio':'invitado'); chip.textContent = ing.tipoPersona==='SOCIO'?'Socio':'Invitado'; tTipo.appendChild(chip);
+      const tFh   = document.createElement('td'); tFh.textContent = formatDateTime(ing.fecha);
+      const tInsp = document.createElement('td'); tInsp.textContent = inspector ? `${inspector.apellido}, ${inspector.nombre}` : '—';
+      tr.append(tFoto, tNom, tId, tTipo, tFh, tInsp);
+      tbodyFiltrados.appendChild(tr);
+    }
+  }
+  $('#btnAplicarFiltros').addEventListener('click', applyFiltros);
+  $('#btnLimpiarFiltros').addEventListener('click', ()=>{
+    desdeInput.value=''; hastaInput.value=''; tipoFiltro.value='TODOS'; applyFiltros();
+  });
+  applyFiltros();
+
+  // ======= Inspectores (ABM) =======
+  const tbodyInspectores = $('#tbodyInspectores');
+  const buscarInspector = $('#buscarInspector');
+  const filtroEstado = $('#filtroEstado');
+  const btnExportInspectores = $('#btnExportInspectores');
+  const btnAbrirAltaInspector = $('#btnAbrirAltaInspector');
+
+  function renderInspectores(){
+    const q = buscarInspector.value.trim().toLowerCase();
+    const fe = filtroEstado.value;
+    const data = api.listInspectores().filter(it=>{
+      const matches = [it.dni, it.nombre, it.apellido].join(' ').toLowerCase().includes(q);
+      const byEstado = fe==='TODOS' ? true : it.estado===fe;
+      return matches && byEstado;
+    });
+    tbodyInspectores.innerHTML = '';
+    for (const it of data){
+      const tr = document.createElement('tr');
+
+      const tdFoto = document.createElement('td'); tdFoto.appendChild(makeThumb(it.foto, 'Foto inspector'));
+      const tdNom = document.createElement('td'); tdNom.textContent = `${it.apellido}, ${it.nombre}`;
+      const tdDni = document.createElement('td'); tdDni.textContent = it.dni;
+      const tdEmail = document.createElement('td'); tdEmail.textContent = it.email||'—';
+      const tdTel = document.createElement('td'); tdTel.textContent = it.telefono||'—';
+      const tdEstado = document.createElement('td');
+      const chip = document.createElement('span'); chip.className = 'chip ' + (it.estado==='ACTIVO'?'socio':'inactivo'); chip.textContent = it.estado;
+      tdEstado.appendChild(chip);
+      const tdAcc = document.createElement('td');
+      tdAcc.className = 'actions';
+      const bEdit = document.createElement('button'); bEdit.className='btn secondary'; bEdit.textContent='Editar'; bEdit.addEventListener('click', ()=> openInspectorForm(it));
+      const bToggle = document.createElement('button'); bToggle.className = 'btn ' + (it.estado==='ACTIVO'?'warn':''); bToggle.textContent = (it.estado==='ACTIVO'?'Desactivar':'Activar');
+      bToggle.addEventListener('click', ()=>{
+        api.toggleInspector(it.id);
+        renderInspectores();
+        Toast.show('Estado actualizado');
+        fillInspectoresSelect();
+      });
+      tdAcc.append(bEdit, bToggle);
+      tr.append(tdFoto, tdNom, tdDni, tdEmail, tdTel, tdEstado, tdAcc);
+      tbodyInspectores.appendChild(tr);
+    }
+  }
+  buscarInspector.addEventListener('input', renderInspectores);
+  filtroEstado.addEventListener('change', renderInspectores);
+  renderInspectores();
+
+  function openInspectorForm(existing){
+    const card = document.createElement('div');
+    card.innerHTML = `
+      <h3 id="modalTitle" style="margin:0 0 8px">${existing?'Editar inspector':'Agregar inspector'}</h3>
+      <div class="form-grid">
+        <div class="col-6 field"><label>DNI</label><input type="text" id="i_dni" ${existing?'disabled':''} value="${existing?.dni||''}"/></div>
+        <div class="col-6 field"><label>Email</label><input type="text" id="i_email" value="${existing?.email||''}"/></div>
+        <div class="col-6 field"><label>Nombre</label><input type="text" id="i_nombre" value="${existing?.nombre||''}"/></div>
+        <div class="col-6 field"><label>Apellido</label><input type="text" id="i_apellido" value="${existing?.apellido||''}"/></div>
+        <div class="col-6 field"><label>Teléfono</label><input type="text" id="i_tel" value="${existing?.telefono||''}"/></div>
+        <div class="col-6 field">
+          <label>Foto</label>
+          <input type="file" id="i_foto" accept="image/*" capture="environment" />
+          <div class="row" style="margin-top:8px; gap:12px">
+            <img id="i_preview" class="thumb" style="width:64px;height:64px; ${existing?.foto?'':'display:none'}" src="${existing?.foto||''}" alt="Foto"/>
+            <button class="btn ghost" id="i_quitar" type="button">Quitar foto</button>
+          </div>
         </div>
-        <div>
-          <div class="muted">Foto de perfil guardada (si existe)</div>
-          <img id="foto-perfil" class="perfil-foto" alt="Foto de perfil"/>
+        <div class="col-12 row" style="justify-content:flex-end; gap:8px">
+          <button class="btn ghost" id="i_cancelar" type="button">Cancelar</button>
+          <button class="btn" id="i_guardar" type="button">${existing?'Guardar cambios':'Crear'}</button>
         </div>
       </div>
-      <div class="row" style="gap:8px;margin-top:8px">
-        <button class="btn btn-secondary" id="btn-cam-start">🎥 Iniciar cámara</button>
-        <button class="btn btn-gold" id="btn-cam-snap" disabled>📸 Tomar foto</button>
-        <button class="btn btn-danger" id="btn-cam-clear" disabled>🗑️ Borrar foto</button>
-      </div>
-    </div>
-  </section>
+    `;
+    Modal.open(card);
 
-  <section id="sec-apercibamiento" class="seccion"><div class="card">
-    <h2>⚠️ Registrar Apercibamiento</h2>
-    <div class="rowf"><label style="flex:1;min-width:180px">DNI<input id="dni-aperc" type="text" maxlength="12" oninput="this.value=this.value.replace(/\\D/g,'')"/></label><label style="flex:2;min-width:220px">Nombre<input id="nombre-aperc" type="text"/></label></div>
-    <div class="rowf"><label style="flex:1">Motivo<textarea id="motivo-aperc" rows="3" placeholder="Describa el motivo..."></textarea></label></div>
-    <button class="btn btn-gold" id="btn-aperc">💾 Guardar</button>
-    <div id="alerta-aperc" class="alerta"></div>
-  </div><div class="card"><h2>📋 Apercibimientos</h2><table id="tabla-aperc"><thead><tr><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Motivo</th><th>Inspector</th><th></th></tr></thead><tbody></tbody></table></div></section>
+    const i_dni = $('#i_dni', card);
+    const i_email = $('#i_email', card);
+    const i_nombre = $('#i_nombre', card);
+    const i_apellido = $('#i_apellido', card);
+    const i_tel = $('#i_tel', card);
+    const i_foto = $('#i_foto', card);
+    const i_preview = $('#i_preview', card);
+    const i_quitar = $('#i_quitar', card);
 
-  <section id="sec-suspension" class="seccion"><div class="card">
-    <h2>🚫 Registrar Suspensión</h2>
-    <div class="rowf"><label style="flex:1;min-width:180px">DNI<input id="dni-susp" type="text" maxlength="12" oninput="this.value=this.value.replace(/\\D/g,'')"/></label><label style="flex:2;min-width:220px">Nombre<input id="nombre-susp" type="text"/></label></div>
-    <div class="rowf"><label>Desde<input id="susp-desde" type="date"/></label><label>Hasta<input id="susp-hasta" type="date"/></label></div>
-    <div class="rowf"><label style="flex:1">Motivo<textarea id="motivo-susp" rows="3"></textarea></label></div>
-    <button class="btn btn-danger" id="btn-susp">💾 Guardar</button>
-    <div id="alerta-susp" class="alerta"></div>
-  </div><div class="card"><h2>📋 Suspensiones</h2><table id="tabla-susp"><thead><tr><th>DNI</th><th>Nombre</th><th>Desde</th><th>Hasta</th><th>Motivo</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table></div></section>
+    let foto = existing?.foto || null;
+    i_foto.addEventListener('change', async (e)=>{
+      const file = e.target.files?.[0]; if (!file) return;
+      foto = await toDataUrl(file);
+      i_preview.src = foto; i_preview.style.display='block';
+    });
+    i_quitar.addEventListener('click', ()=>{ foto=null; i_preview.src=''; i_preview.style.display='none'; i_foto.value=''; });
 
-  <section id="sec-consulta" class="seccion"><div class="card">
-    <h2>📋 Consulta por Fechas</h2>
-    <div class="rowf"><label>Desde<input id="consulta-desde" type="date"/></label><label>Hasta<input id="consulta-hasta" type="date"/></label><label>ID (DNI/N° socio opcional)<input id="consulta-dni" type="text" oninput="this.value=this.value.replace(/\\D/g,'')"/></label></div>
-    <button class="btn btn-primary" id="btn-consultar">🔍 Consultar</button>
-    <div id="resumen-consulta" class="muted" style="margin-top:8px"></div>
-    <table id="tabla-consulta"><thead><tr><th>ID</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Estado</th></tr></thead><tbody></tbody></table>
-  </div></section>
+    $('#i_cancelar', card).addEventListener('click', ()=>Modal.close());
+    $('#i_guardar', card).addEventListener('click', ()=>{
+      const dni = i_dni.value.trim();
+      const nombre = i_nombre.value.trim();
+      const apellido = i_apellido.value.trim();
+      const telefono = i_tel.value.trim();
+      const email = i_email.value.trim();
 
-  <section id="sec-vencidos" class="seccion"><div class="card">
-    <h2>⏰ Ingresos Vencidos / Por Vencer</h2>
-    <div class="row" style="gap:8px"><button class="btn btn-primary" id="btn-venc-actualizar">🔄 Actualizar</button><button class="btn btn-danger" id="btn-venc-limpiar">🗑️ Eliminar todos los vencidos</button></div>
-    <table id="tabla-vencidos"><thead><tr><th>ID</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Transcurrido</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table>
-    <div id="alerta-vencidos" class="alerta"></div>
-  </div></section>
+      if (!dni || !nombre || !apellido) return Toast.show('Completá DNI, Nombre y Apellido');
 
-  <section id="sec-inspectores" class="seccion">
-    <div class="card"><h2>👮 Inspector de Turno</h2><div id="insp-activo" class="muted">Sin inspector activo</div><div class="row" style="gap:8px;margin-top:6px"><button class="btn btn-secondary" id="btn-insp-desact">✖ Desactivar</button></div></div>
-    <div class="card"><h2>📋 Inspectores</h2><table id="tabla-insp"><thead><tr><th>Nombre</th><th>Usuario</th><th>Tel</th><th>Obs</th><th>Acciones</th></tr></thead><tbody></tbody></table></div>
-  </section>
+      try{
+        if (existing){
+          api.updateInspector(existing.id, {nombre, apellido, telefono, email, foto});
+          Toast.show('Inspector actualizado');
+        } else {
+          api.createInspector({dni, nombre, apellido, telefono, email, foto});
+          Toast.show('Inspector creado');
+        }
+        Modal.close();
+        renderInspectores();
+        fillInspectoresSelect();
+      }catch(err){
+        Toast.show(err.message || 'Error');
+      }
+    });
+  }
+  btnAbrirAltaInspector.addEventListener('click', ()=>openInspectorForm(null));
 
-  <section id="sec-backup" class="seccion"><div class="card">
-    <h2>⚙️ Activación del sistema</h2>
-    <div class="rowf"><label style="flex:1;min-width:220px">Token (local)<input id="admin-token" type="password" placeholder="Ingresá el token"/></label><div class="row" style="gap:8px"><button class="btn btn-gold" id="btn-activar">🔓 Activar</button><button class="btn btn-secondary" id="btn-desactivar">🔒 Desactivar</button><button class="btn" id="btn-guardar-token">💾 Guardar/Actualizar token</button></div></div>
-    <div id="estado-sistema" class="badge" style="margin-top:8px"></div>
-  </div><div class="card"><h2>🗃️ Backup & Restore (local)</h2><div class="row" style="gap:8px"><button class="btn btn-primary" id="btn-backup">⬇️ Generar backup (ZIP)</button><label class="btn btn-secondary" style="cursor:pointer">⬆️ Restaurar desde ZIP<input id="zip-restore" type="file" accept=".zip" style="display:none"/></label></div><div class="muted">Incluye: ingresos, personas, apercibimientos, suspensiones, inspectores y activos (XML).</div></div></section>
+  // Export CSV Inspectores
+  btnExportInspectores.addEventListener('click', ()=>{
+    const rows = api.listInspectores().map(i => ({
+      id:i.id, dni:i.dni, nombre:i.nombre, apellido:i.apellido, telefono:i.telefono, email:i.email, estado:i.estado
+    }));
+    const header = Object.keys(rows[0] || {id:'id',dni:'dni',nombre:'nombre',apellido:'apellido',telefono:'telefono',email:'email',estado:'estado'});
+    const csv = [header.join(','), ...rows.map(r=>header.map(h=>JSON.stringify(r[h]??'')).join(','))].join('\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'inspectores.csv'; a.click(); URL.revokeObjectURL(a.href);
+  });
 
-  <section id="sec-estadisticas" class="seccion">
-    <div class="card"><h2>📊 Estadísticas</h2><div style="max-width:760px;margin:auto"><canvas id="chart-edad" height="140"></canvas></div><div id="estad-nota" class="muted" style="margin-top:8px"></div></div>
-    <div class="card" id="gh-init-card">
-      <h2>🐙 GitHub – Inicializar / Probar / Subir / Bajar</h2>
-      <div class="rowf"><label>Owner/Org<input id="gh-owner" type="text" placeholder="owner"/></label><label>Repo<input id="gh-repo" type="text" placeholder="repo"/></label><label>Branch<input id="gh-branch" type="text" placeholder="main"/></label><label>Ruta base<input id="gh-base" type="text" placeholder="live"/></label></div>
-      <div class="row" style="gap:8px;margin-top:8px"><button class="btn btn-secondary" id="gh-test">🔗 Probar conexión</button><button class="btn btn-primary" id="gh-init">🗃️ Crear XML + JSON (si faltan)</button><button class="btn btn-gold" id="gh-upload">⬆️ Subir todo</button><button class="btn" id="gh-download">⬇️ Traer todo</button></div>
-      <div class="row" style="gap:8px;margin-top:6px"><label style="display:inline-flex;align-items:center;gap:8px"><input type="checkbox" id="gh-autoinit"/> Auto-inicializar/sincronizar al abrir</label></div>
-      <div id="alerta-github" class="alerta" style="margin-top:10px"></div>
-      <div class="muted">El PAT está <b>preconfigurado</b> y se cifra en el navegador; no se te pedirá. Completá Owner/Repo/Branch/Ruta.</div>
-    </div>
-  </section>
-</main>
+  // ======= Accesibilidad básica (tecla Esc cierra modal) =======
+  document.addEventListener('keydown', (e)=>{ if (e.key==='Escape' && $('#modal').classList.contains('open')) Modal.close(); });
 
-<div id="img-modal" role="dialog" aria-label="Imagen ampliada" tabindex="-1"><img alt="Ampliación"/></div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-<script>
-// ===== Utilidades generales
-const KEYS={ingresos:'pcq_ingresos',apercibimientos:'pcq_apercibimientos',suspensiones:'pcq_suspensiones',inspectores:'pcq_inspectores',inspActivo:'pcq_inspector_activo', personas:'pcq_personas', inspActivos:'pcq_inspectores_activos'};
-const HS_VIGENCIA=24, MIN_POR_VENCER=60; let offsetMs=0;
-function ahoraReal(){return new Date(Date.now()+offsetMs)} function pad(n){return String(n).padStart(2,'0')}
-function formatFecha(dt){return `${pad(dt.getDate())}/${pad(dt.getMonth()+1)}/${dt.getFullYear()}`} function formatHora(dt){return `${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(dt.getSeconds())}`} function isoFecha(dt){return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`} function parseFechaHora(f,h){const [d,m,y]=f.split('/');return new Date(`${y}-${m}-${d}T${h}`)} function tiempoTranscurrido(ms){const h=Math.floor(ms/3600000),min=Math.floor((ms%3600000)/60000);return h>=24?`${Math.floor(h/24)}d ${h%24}h ${min}m`:`${h}h ${min}m`}
-function cargarLista(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return []}} function guardarLista(k,v){localStorage.setItem(k,JSON.stringify(v))} function cargarItem(k){return localStorage.getItem(k)} function guardarItem(k,v){localStorage.setItem(k,v)}
-
-// ===== Navegación + reloj
-function navClick(id,btn){document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('activa'));document.getElementById('sec-'+id).classList.add('activa');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('activo'));if(btn)btn.classList.add('activo');if(id==='estadisticas'){renderEstadisticas()}}
-function tick(){const n=ahoraReal(); const h=document.getElementById('reloj-header'); if(h) h.textContent=`${formatFecha(n)} ${formatHora(n)}`; const g=document.getElementById('reloj-grande'); if(g) g.textContent=formatHora(n); const f=document.getElementById('fecha-grande'); if(f) f.textContent=formatFecha(n);} setInterval(tick,1000); tick();
-
-// ===== Inspector demo al inicio
-(function(){const L=cargarLista(KEYS.inspectores); if(!L.length){const nuevo={id:Date.now(),nombre:'Inspector Demo',usuario:'demo',password:'demo',tel:'',obs:'Auto'}; L.push(nuevo); guardarLista(KEYS.inspectores,L); guardarItem(KEYS.inspActivo,String(nuevo.id)); } actualizarHeaderInspector(); })();
-function getInspectorActivo(){const id=cargarItem(KEYS.inspActivo); if(id){ const i=cargarLista(KEYS.inspectores).find(x=>String(x.id)===String(id)); if(i) return i;} return null }
-function actualizarHeaderInspector(){const i=getInspectorActivo(); const el=document.getElementById('header-inspector'); if(el) el.textContent= i? `👮 ${i.nombre}` : '🔒 Sin inspector activo';}
-
-// ===== Ingreso: cámara obligatoria + socio/invitado
-let FOTO_DATA=null, STREAM=null; function startCam(){navigator.mediaDevices.getUserMedia({video:true,audio:false}).then(st=>{STREAM=st; const v=document.getElementById('cam-video'); v.srcObject=st; v.style.display='block'; document.getElementById('foto-preview').style.display='none'; document.getElementById('btn-cam-snap').disabled=false; document.getElementById('btn-cam-clear').disabled=false; document.getElementById('btn-cam-start').disabled=true;}).catch(()=>alert('No se pudo acceder a la cámara. Usá HTTPS o localhost.'))}
-function stopCam(){ if(STREAM){STREAM.getTracks().forEach(t=>t.stop()); STREAM=null;} const v=document.getElementById('cam-video'); v.srcObject=null; v.style.display='none'; }
-function clearPhoto(){FOTO_DATA=null; const p=document.getElementById('foto-preview'); p.src=''; p.style.display='none'; stopCam(); document.getElementById('btn-cam-start').disabled=false; document.getElementById('btn-cam-snap').disabled=true; document.getElementById('btn-cam-clear').disabled=true;}
-function takePhoto(){const c=document.getElementById('cam-canvas'), v=document.getElementById('cam-video'); const w=c.width,h=c.height; const ctx=c.getContext('2d'); ctx.drawImage(v,0,0,w,h); FOTO_DATA=c.toDataURL('image/jpeg',0.85); const p=document.getElementById('foto-preview'); p.src=FOTO_DATA; p.style.display='block'; stopCam();}
-function mostrarAlerta(id,tipo,msg){const el=document.getElementById(id);if(!el)return;el.className='alerta show alerta-'+(tipo==='ok'?'ok':tipo);el.innerHTML=msg;clearTimeout(el._t);el._t=setTimeout(()=>{el.className='alerta'},6000)}
-function getPersona(dni){dni=String(dni||'').trim(); if(!dni) return null; return (cargarLista(KEYS.personas)||[]).find(p=>String(p.dni)===dni)||null}
-function upsertPersona(dni,nombre,foto){dni=String(dni||'').trim(); if(!dni) return; const L=cargarLista(KEYS.personas); let p=L.find(x=>String(x.dni)===dni); if(!p){p={dni,nombre:nombre||'',fotoPerfil:foto||null}; L.push(p)} if(nombre && (!p.nombre||!p.nombre.trim())) p.nombre=nombre; if(foto) p.fotoPerfil=foto; guardarLista(KEYS.personas,L)}
-function getUltFotoIngreso(dni){const A=cargarLista(KEYS.ingresos).filter(i=>String(i.dni)===String(dni)); return A.length?A[A.length-1].foto:null}
-function fotoParaDNI(d){const p=getPersona(d); return (p&&p.fotoPerfil)||getUltFotoIngreso(d)||null}
-
-function registrar(){const dni=(document.getElementById('dni-ingreso').value||'').trim(); const nom=(document.getElementById('nombre-ingreso').value||'').trim(); const esSocio=document.getElementById('radio-socio')?.checked||false; if(!dni) return mostrarAlerta('alerta-ingreso','error', esSocio?'Ingresá el N° de socio.':'Ingresá el DNI.'); if(!nom) return mostrarAlerta('alerta-ingreso','error','Ingresá el Nombre y Apellido.'); if(!FOTO_DATA) return mostrarAlerta('alerta-ingreso','error','📸 Tomá una foto del ingreso (obligatoria).'); const now=ahoraReal(); const reg={dni,nombre:nom,fecha:formatFecha(now),hora:formatHora(now),isoFecha:isoFecha(now),foto:FOTO_DATA,tipo:esSocio?'socio':'invitado'}; const L=cargarLista(KEYS.ingresos); L.push(reg); guardarLista(KEYS.ingresos,L); const p=getPersona(dni); if(!p||!p.fotoPerfil) upsertPersona(dni,nom,FOTO_DATA); else if(nom && (!p.nombre||!p.nombre.trim())) upsertPersona(dni,nom,null); document.getElementById('dni-ingreso').value=''; document.getElementById('nombre-ingreso').value=''; clearPhoto(); const fp=document.getElementById('foto-perfil'); if(fp){fp.style.display='none'; fp.src='';} mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado – ${esSocio?'Socio':'DNI'} ${dni}`); cargarUltimos(dni); }
-function limpiar(){document.getElementById('dni-ingreso').value=''; document.getElementById('nombre-ingreso').value=''; clearPhoto();}
-
-function cargarUltimos(id){const wrap=document.getElementById('ultimos-ingresos'); const tbody=document.querySelector('#tabla-ultimos tbody'); wrap.style.display='block'; tbody.innerHTML=''; const mis=cargarLista(KEYS.ingresos).filter(i=>i.dni===id).slice(-10).reverse(); if(!mis.length){tbody.innerHTML='<tr><td colspan="5" class="muted">Sin ingresos previos</td></tr>';return} mis.forEach((i,n)=>{ const ms=ahoraReal()-parseFechaHora(i.fecha,i.hora); let est=''; const lim=HS_VIGENCIA*3600000, prev=lim-MIN_POR_VENCER*60000; if(ms>=lim) est='⏰ Vencido'; else if(ms>=prev) est='⏳ Por vencer'; else est='✅ Vigente'; const tr=document.createElement('tr'); tr.innerHTML=`<td>${n+1}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${i.nombre||'—'}</td><td>${est}</td>`; tbody.appendChild(tr); }); }
-
-// ===== Aperc / Suspensiones / Consulta / Vencidos
-function registrarAperc(){const dni=document.getElementById('dni-aperc').value.trim();const nom=document.getElementById('nombre-aperc').value.trim();const mot=document.getElementById('motivo-aperc').value.trim();if(!dni||!mot){return mostrarAlerta('alerta-aperc','error','Completá DNI y motivo.')}const now=ahoraReal();const L=cargarLista(KEYS.apercibimientos);const insp=getInspectorActivo();L.push({id:Date.now(),dni,nombre:nom,motivo:mot,fecha:formatFecha(now),hora:formatHora(now),inspector:insp?insp.nombre:null});guardarLista(KEYS.apercibimientos,L);['dni-aperc','nombre-aperc','motivo-aperc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderTablaAperc();mostrarAlerta('alerta-aperc','ok','⚠️ Apercibimiento registrado.')}
-function renderTablaAperc(){const tb=document.querySelector('#tabla-aperc tbody'); if(!tb) return; tb.innerHTML=''; const L=cargarLista(KEYS.apercibimientos).slice().reverse(); if(!L.length){tb.innerHTML='<tr><td colspan="6" class="muted">Sin registros</td></tr>';return} L.forEach(a=>{const tr=document.createElement('tr'); tr.innerHTML=`<td>${a.dni}</td><td>${a.nombre||'—'}</td><td>${a.fecha} ${a.hora}</td><td>${a.motivo}</td><td>${a.inspector||'—'}</td><td><button class="btn btn-danger" onclick="eliminarAperc(${a.id})">🗑️</button></td>`; tb.appendChild(tr); })}
-function eliminarAperc(id){guardarLista(KEYS.apercibimientos,cargarLista(KEYS.apercibimientos).filter(x=>x.id!==id));renderTablaAperc()}
-function registrarSusp(){const dni=document.getElementById('dni-susp').value.trim();const nom=document.getElementById('nombre-susp').value.trim();const d=document.getElementById('susp-desde').value;const h=document.getElementById('susp-hasta').value;const mot=document.getElementById('motivo-susp').value.trim();if(!dni||!d||!h||!mot){return mostrarAlerta('alerta-susp','error','Completá todos los campos.')} if(h<d){return mostrarAlerta('alerta-susp','error','"Hasta" debe ser ≥ "Desde".')} const L=cargarLista(KEYS.suspensiones); L.push({id:Date.now(),dni,nombre:nom,desde:d,hasta:h,motivo:mot}); guardarLista(KEYS.suspensiones,L); ['dni-susp','nombre-susp','susp-desde','susp-hasta','motivo-susp'].forEach(id=>{const e=document.getElementById(id); if(e)e.value=''}) ;renderTablaSusp(); mostrarAlerta('alerta-susp','ok','🚫 Suspensión registrada.')}
-function renderTablaSusp(){const tb=document.querySelector('#tabla-susp tbody'); if(!tb) return; tb.innerHTML=''; const L=cargarLista(KEYS.suspensiones).slice().reverse(); if(!L.length){tb.innerHTML='<tr><td colspan="7" class="muted">Sin registros</td></tr>';return} const hoy=isoFecha(ahoraReal()); L.forEach(s=>{const act=hoy>=s.desde&&hoy<=s.hasta; const tr=document.createElement('tr'); tr.innerHTML=`<td>${s.dni}</td><td>${s.nombre||'—'}</td><td>${s.desde}</td><td>${s.hasta}</td><td>${s.motivo}</td><td>${act?'🚫 ACTIVA':'✔️ Vencida'}</td><td><button class="btn btn-danger" onclick="eliminarSusp(${s.id})">🗑️</button></td>`; tb.appendChild(tr); })}
-function eliminarSusp(id){guardarLista(KEYS.suspensiones,cargarLista(KEYS.suspensiones).filter(x=>x.id!==id));renderTablaSusp()}
-function setFechasConsulta(){const hoy=isoFecha(ahoraReal()); const d=document.getElementById('consulta-desde'); const h=document.getElementById('consulta-hasta'); if(d&&!d.value)d.value=hoy; if(h&&!h.value)h.value=hoy} setFechasConsulta();
-function consultar(){const desde=document.getElementById('consulta-desde').value; const hasta=document.getElementById('consulta-hasta').value; const dni=document.getElementById('consulta-dni').value.trim(); const tb=document.querySelector('#tabla-consulta tbody'); if(!desde||!hasta){document.getElementById('resumen-consulta').textContent='Seleccioná ambas fechas.'; tb.innerHTML=''; return} if(hasta<desde){document.getElementById('resumen-consulta').textContent='La fecha "hasta" debe ser ≥ "desde".'; tb.innerHTML=''; return} let res=cargarLista(KEYS.ingresos).filter(i=>i.isoFecha>=desde&&i.isoFecha<=hasta); if(dni) res=res.filter(i=>i.dni===dni); res.sort((a,b)=> (a.isoFecha+a.hora)>(b.isoFecha+b.hora)?-1:1); document.getElementById('resumen-consulta').textContent=`Resultados: ${res.length}`; tb.innerHTML=''; if(!res.length){tb.innerHTML='<tr><td colspan="5" class="muted">Sin resultados</td></tr>'; return} res.forEach(i=>{ const ms=ahoraReal()-parseFechaHora(i.fecha,i.hora); let est=''; const lim=HS_VIGENCIA*3600000, prev=lim-MIN_POR_VENCER*60000; if(ms>=lim) est='⏰ Vencido'; else if(ms>=prev) est='⏳ Por vencer'; else est='✅ Vigente'; const tr=document.createElement('tr'); tr.innerHTML=`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${est}</td>`; tb.appendChild(tr); })}
-function renderVencidos(){const tb=document.querySelector('#tabla-vencidos tbody'); tb.innerHTML=''; const now=ahoraReal(); const lim=HS_VIGENCIA*3600000, prev=lim-60*60000; const ing=cargarLista(KEYS.ingresos).slice().sort((a,b)=>parseFechaHora(a.fecha,a.hora)-parseFechaHora(b.fecha,b.hora)); const pv=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora); return ms>=prev && ms<lim}); const ven=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora); return ms>=lim}); const todos=[...pv,...ven]; if(!todos.length){tb.innerHTML='<tr><td colspan="7" class="muted">No hay ingresos por vencer/vencidos</td></tr>'; return} todos.forEach(i=>{const ms=now-parseFechaHora(i.fecha,i.hora); let est=''; if(ms>=lim) est='⏰ Vencido'; else if(ms>=prev) est='⏳ Por vencer'; else est='✅ Vigente'; const tr=document.createElement('tr'); tr.innerHTML=`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${tiempoTranscurrido(ms)}</td><td>${est}</td><td><button class="btn btn-danger" onclick="darBajaIngreso('${i.dni}','${i.fecha}','${i.hora}')">🗑️</button></td>`; tb.appendChild(tr); })}
-function darBajaIngreso(dni,fecha,hora){guardarLista(KEYS.ingresos,cargarLista(KEYS.ingresos).filter(i=>!(i.dni===dni&&i.fecha===fecha&&i.hora===hora))); renderVencidos()}
-
-// ===== Estadísticas
-function _edadAproxDesdeDNI(dni){const n=Number(String(dni).replace(/\D/g,''));if(!n||isNaN(n))return 0; if(n>=70000000)return 5; if(n>=50000000&&n<60000000)return 16; if(n>=40000000&&n<50000000)return 25; if(n>=30000000&&n<40000000)return 35; if(n>=20000000&&n<30000000)return 45; if(n>=10000000&&n<20000000)return 60; return 90}
-function _bucketEdad(a){if(a<18)return '<18';if(a<30)return '18–29';if(a<45)return '30–44';if(a<60)return '45–59';return '60+'}
-function calcularDistribucionEdad(){const res={'<18':0,'18–29':0,'30–44':0,'45–59':0,'60+':0};const unicos=new Set();cargarLista(KEYS.ingresos).forEach(i=>{if(i&&i.dni)unicos.add(String(i.dni))});unicos.forEach(d=>{res[_bucketEdad(_edadAproxDesdeDNI(d))]++});return{res,total:unicos.size}}
-function renderEstadisticas(){const {res}=calcularDistribucionEdad();const ctx=document.getElementById('chart-edad').getContext('2d'); if(window._chartEdad) _chartEdad.destroy(); window._chartEdad=new Chart(ctx,{type:'line',data:{labels:Object.keys(res),datasets:[{label:'',data:Object.keys(res).map(k=>res[k]),borderColor:'#2d6e2d',backgroundColor:'#2d6e2d',fill:false,tension:0.3}]},options:{plugins:{legend:{display:false},title:{display:true,text:'Distribución por rango de edad (tendencia)'}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}); addTrendCards(); }
-function addTrendCards(){ const sec=document.getElementById('sec-estadisticas'); if(!sec) return; const ids=['chart-horas','chart-dias','chart-meses']; ids.forEach(id=>{ if(document.getElementById(id)) return; const card=document.createElement('div'); card.className='card'; let title=''; if(id==='chart-horas') title='🕒 Ingresos por rangos horarios (tendencia)'; if(id==='chart-dias') title='📅 Ingresos por día de la semana (tendencia)'; if(id==='chart-meses') title='🗓️ Ingresos por mes (últimos 12, tendencia)'; card.innerHTML=`<h2>${title}</h2><div class="chart-wrap"><canvas id="${id}" height="140"></canvas></div>`; sec.appendChild(card); }); function toLine(arr,color){return {label:'',data:arr,borderColor:color,backgroundColor:color,fill:false,tension:0.3}} const BU=[{l:'00–03',f:0,t:3},{l:'04–07',f:4,t:7},{l:'08–11',f:8,t:11},{l:'12–15',f:12,t:15},{l:'16–19',f:16,t:19},{l:'20–23',f:20,t:23}]; const H=(()=>{const res={}; BU.forEach(b=>res[b.l]=0); cargarLista(KEYS.ingresos).forEach(i=>{ const h=parseInt(String(i.hora||'00').split(':')[0],10)||0; const b=BU.find(b=>h>=b.f&&h<=b.t); if(b) res[b.l]++; }); return {labels:Object.keys(res), data:Object.values(res)} })(); const D=(()=>{const L=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb']; const c=[0,0,0,0,0,0,0]; cargarLista(KEYS.ingresos).forEach(i=>{ try{ const d=parseFechaHora(i.fecha,i.hora); c[d.getDay()]++; }catch(e){} }); return {labels:L, data:c} })(); const M=(()=>{ const now=new Date(); const arr=Array.from({length:12},(_,k)=>{ const d=new Date(now.getFullYear(), now.getMonth()-11+k, 1); return {y:d.getFullYear(),m:d.getMonth()} }); const lbl=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']; const idx={}; arr.forEach((x,i)=>{ idx[`${x.y}-${x.m}`]=i }); const data=new Array(12).fill(0); cargarLista(KEYS.ingresos).forEach(i=>{ try{ let y,m; if(i.isoFecha){ const [Y,M]=i.isoFecha.split('-'); y=parseInt(Y,10); m=parseInt(M,10)-1; } else { const [d,M,yStr]=String(i.fecha||'').split('/'); y=parseInt(yStr,10); m=parseInt(M,10)-1; } const key=`${y}-${m}`; if(key in idx) data[idx[key]]++; }catch(e){} }); const labels=arr.map(x=>`${lbl[x.m]} ${String(x.y).slice(2)}`); return {labels, data} })(); const cH=document.getElementById('chart-horas').getContext('2d'); window._chartHoras&&_chartHoras.destroy(); window._chartHoras=new Chart(cH,{type:'line',data:{labels:H.labels,datasets:[toLine(H.data,'#c8a84b')]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}); const cD=document.getElementById('chart-dias').getContext('2d'); window._chartDias&&_chartDias.destroy(); window._chartDias=new Chart(cD,{type:'line',data:{labels:D.labels,datasets:[toLine(D.data,'#2d6e2d')]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}); const cM=document.getElementById('chart-meses').getContext('2d'); window._chartMeses&&_chartMeses.destroy(); window._chartMeses=new Chart(cM,{type:'line',data:{labels:M.labels,datasets:[toLine(M.data,'#8da2d7')]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}); }
-
-// ===== GitHub – preset PAT cifrado + botones
-(function(){
-  const GH='https://api.github.com';
-  const PRESET_PAT='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';
-  const PASSPHRASE='pcq_local';
-  function b64e(b){return btoa(String.fromCharCode(...new Uint8Array(b)))} function b64d(s){return Uint8Array.from(atob(s),c=>c.charCodeAt(0))}
-  async function deriveKey(pass,salt){const enc=new TextEncoder();const km=await crypto.subtle.importKey('raw',enc.encode(pass),'PBKDF2',false,['deriveKey']);return await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:200000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
-  async function encryptPAT(pat){const enc=new TextEncoder();const salt=crypto.getRandomValues(new Uint8Array(16));const iv=crypto.getRandomValues(new Uint8Array(12));const key=await deriveKey(PASSPHRASE,salt);const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,enc.encode(pat));const blob={alg:'AES-GCM',kdf:'PBKDF2',it:200000,salt:b64e(salt),iv:b64e(iv),ct:b64e(ct)};localStorage.setItem('pcq_gh_pat_enc',JSON.stringify(blob))}
-  async function decryptPAT(){const str=localStorage.getItem('pcq_gh_pat_enc');if(!str)return null;const b=JSON.parse(str);const salt=b64d(b.salt),iv=b64d(b.iv),ct=b64d(b.ct);const key=await deriveKey(PASSPHRASE,salt);const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,ct);return new TextDecoder().decode(pt)}
-  async function ensureEncrypted(){ if(!localStorage.getItem('pcq_gh_pat_enc')){ await encryptPAT(PRESET_PAT); } }
-  async function getToken(){await ensureEncrypted();return await decryptPAT()}
-  function joinPath(a,b){a=a.replace(/^\/+|\/+$/g,'');b=b.replace(/^\/+/, '');return a?(a+'/'+b):b}
-  async function ghFetch(url,token,opts){const headers={'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Authorization':'Bearer '+token};return await fetch(url,{headers,...opts})}
-  function valores(){return{owner:document.getElementById('gh-owner').value.trim(),repo:document.getElementById('gh-repo').value.trim(),branch:(document.getElementById('gh-branch').value.trim()||'main'),base:(document.getElementById('gh-base').value.trim()||'live')}}
-  function ghAlert(tipo,msg){const el=document.getElementById('alerta-github');if(!el)return;el.className='alerta show alerta-'+(tipo==='ok'?'ok':tipo);el.innerHTML=msg;clearTimeout(el._t);el._t=setTimeout(()=>{el.className='alerta'},8000)}
-  async function ghGetSHA(o,r,b,p,t){const url=`${GH}/repos/${o}/${r}/contents/${encodeURIComponent(p)}?ref=${encodeURIComponent(b)}`;const res=await ghFetch(url,t,{method:'GET'});if(res.status===404)return null;if(!res.ok)throw new Error('GET '+p+' → '+res.status);const j=await res.json();return j.sha||null}
-  async function ghPut(o,r,b,p,contentB64,msg,t,sha){const url=`${GH}/repos/${o}/${r}/contents/${encodeURIComponent(p)}`;const body={message:msg,content:contentB64,branch:b};if(sha)body.sha=sha;const res=await ghFetch(url,t,{method:'PUT',body:JSON.stringify(body)});if(!res.ok){const tx=await res.text();throw new Error('PUT '+p+' → '+res.status+' '+tx)}return true}
-  async function ghGet(o,r,b,p,t){const url=`${GH}/repos/${o}/${r}/contents/${encodeURIComponent(p)}?ref=${encodeURIComponent(b)}`;const res=await ghFetch(url,t,{method:'GET'});if(res.status===404)return null;if(!res.ok)throw new Error('GET '+p+' → '+res.status);const j=await res.json();if(j&&j.content)return atob(j.content.replace(/\n/g,''));return null}
-  function toXml(tag,arr){const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');const rows=(arr||[]).map(o=>{const inner=Object.keys(o).map(k=>`<${k}>${esc(o[k])}</${k}>`).join('');return `<row>${inner}</row>`}).join('');return `<?xml version="1.0" encoding="UTF-8"?>\n<${tag}>${rows}</${tag}>`}
-
-  async function testConn(){try{const t=await getToken();if(!t){ghAlert('error','Token no disponible');return}const v=valores();if(!v.owner||!v.repo){ghAlert('warn','Completá Owner y Repo');return}const url=`${GH}/repos/${v.owner}/${v.repo}`;const r=await ghFetch(url,t,{method:'GET'});if(!r.ok){ghAlert('error','Repo inaccesible: '+r.status);return}ghAlert('ok','✅ Conexión OK con el repo')}catch(e){ghAlert('error','Error: '+e.message)}}
-  async function initRepo(){try{const t=await getToken();if(!t){ghAlert('error','Token no disponible');return}const v=valores();if(!v.owner||!v.repo){ghAlert('warn','Completá Owner y Repo');return}const sets=[{file:'ingresos',tag:'ingresos',key:KEYS.ingresos},{file:'personas',tag:'personas',key:KEYS.personas},{file:'apercibimientos',tag:'apercibimientos',key:KEYS.apercibimientos},{file:'suspensiones',tag:'suspensiones',key:KEYS.suspensiones},{file:'inspectores',tag:'inspectores',key:KEYS.inspectores},{file:'activos',tag:'activos',key:KEYS.inspActivos}];let created=0,skipped=0;for(const it of sets){let arr=[];try{arr=JSON.parse(localStorage.getItem(it.key)||'[]')}catch{}if(it.key===KEYS.inspActivos)arr=arr.map(id=>({id}));const xml=toXml(it.tag,arr);const json=JSON.stringify(arr,null,2);const pXML=joinPath(v.base,`${it.file}.xml`);const sXML=await ghGetSHA(v.owner,v.repo,v.branch,pXML,t);if(!sXML){await ghPut(v.owner,v.repo,v.branch,pXML,btoa(unescape(encodeURIComponent(xml))),`feat(init): ${it.file}.xml`,t,null);created++;}else skipped++;const pJSON=joinPath(joinPath(v.base,'json'),`${it.file}.json`);const sJSON=await ghGetSHA(v.owner,v.repo,v.branch,pJSON,t);if(!sJSON){await ghPut(v.owner,v.repo,v.branch,pJSON,btoa(unescape(encodeURIComponent(json))),`feat(init): ${it.file}.json`,t,null);created++;}else skipped++;}ghAlert('ok',`Inicialización OK. Creados: ${created}, ya existían: ${skipped}`)}catch(e){ghAlert('error','Error: '+e.message)}}
-  async function uploadAll(){try{const t=await getToken();if(!t){ghAlert('error','Token no disponible');return}const v=valores();if(!v.owner||!v.repo){ghAlert('warn','Completá Owner y Repo');return}const sets=[{file:'ingresos',tag:'ingresos',key:KEYS.ingresos},{file:'personas',tag:'personas',key:KEYS.personas},{file:'apercibimientos',tag:'apercibimientos',key:KEYS.apercibimientos},{file:'suspensiones',tag:'suspensiones',key:KEYS.suspensiones},{file:'inspectores',tag:'inspectores',key:KEYS.inspectores},{file:'activos',tag:'activos',key:KEYS.inspActivos}];let ok=0;for(const it of sets){let arr=[];try{arr=JSON.parse(localStorage.getItem(it.key)||'[]')}catch{}if(it.key===KEYS.inspActivos)arr=arr.map(id=>({id}));const xml=toXml(it.tag,arr);const pXML=joinPath(v.base,`${it.file}.xml`);const sXML=await ghGetSHA(v.owner,v.repo,v.branch,pXML,t);await ghPut(v.owner,v.repo,v.branch,pXML,btoa(unescape(encodeURIComponent(xml))),`feat(sync): ${it.file}.xml`,t,sXML);ok++;}ghAlert('ok',`Subidos ${ok}/${sets.length} XML`)}catch(e){ghAlert('error','Error: '+e.message)}}
-  async function downloadAll(){try{const t=await getToken();if(!t){ghAlert('error','Token no disponible');return}const v=valores();if(!v.owner||!v.repo){ghAlert('warn','Completá Owner y Repo');return}const map=[{k:KEYS.ingresos,p:'ingresos.xml'},{k:KEYS.personas,p:'personas.xml'},{k:KEYS.apercibimientos,p:'apercibimientos.xml'},{k:KEYS.suspensiones,p:'suspensiones.xml'},{k:KEYS.inspectores,p:'inspectores.xml'},{k:KEYS.inspActivos,p:'activos.xml',activos:true}];let ok=0,miss=[];for(const m of map){const path=joinPath(v.base,m.p);const xml=await ghGet(v.owner,v.repo,v.branch,path,t);if(!xml){miss.push(m.p);continue}const doc=new DOMParser().parseFromString(xml,'application/xml');const rows=Array.from(doc.getElementsByTagName('row')).map(r=>{const o={};Array.from(r.children).forEach(n=>o[n.tagName]=n.textContent);return o});if(m.activos){localStorage.setItem(m.k,JSON.stringify(rows.map(r=>r.id)))}else{guardarLista(m.k,rows)}ok++;}ghAlert('ok',`Descargados ${ok}/${map.length}. ${miss.length?('Sin archivo: '+miss.join(', ')):''}`)}catch(e){ghAlert('error','Error: '+e.message)}}
-  document.addEventListener('DOMContentLoaded',()=>{ensureEncrypted();const _aiKey='pcq_gh_autoinit';
-const _ai=document.getElementById('gh-autoinit'); if(_ai){ _ai.checked=(localStorage.getItem(_aiKey)==='1'); _ai.addEventListener('change',()=>localStorage.setItem(_aiKey,_ai.checked?'1':'0')); }
-// Auto-init + auto-sync al abrir si está habilitado y hay owner/repo
-try{ const _owner=(document.getElementById('gh-owner')||{}).value?.trim()||''; const _repo=(document.getElementById('gh-repo')||{}).value?.trim()||'';
-  if(localStorage.getItem(_aiKey)==='1' && _owner && _repo){ ghAlert('warn','⏳ Auto-inicializando (GitHub)...'); (async()=>{ try{ await initRepo(); await uploadAll(); ghAlert('ok','✅ Auto-inicialización OK.'); } catch(e){ ghAlert('error','Auto-init error: '+e.message); } })(); }
-}catch(e){}
-document.getElementById('gh-test')?.addEventListener('click',testConn);document.getElementById('gh-init')?.addEventListener('click',initRepo);document.getElementById('gh-upload')?.addEventListener('click',uploadAll);document.getElementById('gh-download')?.addEventListener('click',downloadAll);});
-})();
-
-// ===== Zoom modal
-(function(){const modal=document.getElementById('img-modal');const modalImg=modal.querySelector('img');function hide(){modal.style.display='none';modalImg.src='';}modal.addEventListener('click',hide);document.addEventListener('keydown',e=>{if(e.key==='Escape')hide();});document.addEventListener('click',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('mini-foto')){const src=t.getAttribute('src');if(src){modalImg.src=src;modal.style.display='flex';}}});})();
-
-// ===== Admin básico
-const SYS_KEY='pcq_system_enabled'; function isEnabled(){return cargarItem(SYS_KEY)==='1'} function setEnabled(v){guardarItem(SYS_KEY,v?'1':'0'); refreshEnableUI()} function refreshEnableUI(){const b=document.getElementById('estado-sistema'); if(!b) return; const on=isEnabled(); b.textContent=on?'✅ Sistema ACTIVO':'⛔ Sistema INACTIVO'}
-
-// ===== Listeners globales
-document.addEventListener('DOMContentLoaded',()=>{document.getElementById('btn-cam-start')?.addEventListener('click',startCam);document.getElementById('btn-cam-snap')?.addEventListener('click',takePhoto);document.getElementById('btn-cam-clear')?.addEventListener('click',clearPhoto);document.getElementById('btn-registrar')?.addEventListener('click',registrar);document.getElementById('btn-limpiar')?.addEventListener('click',limpiar);document.getElementById('btn-aperc')?.addEventListener('click',registrarAperc);document.getElementById('btn-susp')?.addEventListener('click',registrarSusp);document.getElementById('btn-consultar')?.addEventListener('click',consultar);document.getElementById('btn-venc-actualizar')?.addEventListener('click',renderVencidos);document.getElementById('btn-venc-limpiar')?.addEventListener('click',function(){const now=ahoraReal(),lim=HS_VIGENCIA*3600000;const ing=cargarLista(KEYS.ingresos);const vig=ing.filter(i=>now-parseFechaHora(i.fecha,i.hora)<lim);guardarLista(KEYS.ingresos,vig);renderVencidos();mostrarAlerta('alerta-vencidos','ok','✅ Vencidos eliminados.');});});
-
-// ===== Error handler
-window.addEventListener('error',e=>{console.error(e.message);const a=document.getElementById('alerta-github');if(a){a.className='alerta show alerta-warn';a.textContent='Error JS: '+e.message;}});
-</script>
-</body></html>
+  </script>
+</body>
+</html>
