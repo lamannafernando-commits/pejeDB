@@ -2092,18 +2092,34 @@ async function iniciarSyncConGitHub(){
   finalizarInit();
 }
 
+
 (async function init(){
-  document.getElementById('sync-loading').classList.add('show');
-  document.getElementById('sync-loading-txt').textContent='🕐 Sincronizando hora..';
-  await Promise.race([sincronizarHora(),new Promise(r=>setTimeout(r,5000))]);
-  tickReloj();setInterval(tickReloj,1000);setInterval(sincronizarHora,5*60*1000);
-  if(!getToken()){
-    document.getElementById('sync-loading').classList.remove('show');
-    document.getElementById('token-modal').classList.add('show');
-  } else {
-    await iniciarSyncConGitHub();
+  try{ document.getElementById('sync-loading').classList.add('show'); }catch(e){}
+  // Sincronizar hora con timeout breve
+  try{
+    document.getElementById('sync-loading-txt').textContent = '🕐 Sincronizando hora...';
+  }catch(e){}
+  try{ await Promise.race([sincronizarHora(), new Promise(r=>setTimeout(r,5000))]); }catch(e){}
+  try{
+    tickReloj(); setInterval(tickReloj, 1000); setInterval(sincronizarHora, 5*60*1000);
+  }catch(e){}
+
+  var hasToken = false; try{ hasToken = !!getToken(); }catch(e){}
+
+  // **No bloqueamos la UI**: ocultamos overlay y mostramos lo que corresponda
+  try{ document.getElementById('sync-loading').classList.remove('show'); }catch(e){}
+  if(!hasToken){
+    try{ document.getElementById('token-modal').classList.add('show'); }catch(e){}
   }
+  try{ finalizarInit(); }catch(e){}
+
+  // Sincronización en 2do plano si hay token
+  if(hasToken){ try{ iniciarSyncConGitHub(); }catch(e){} }
+
+  // Failsafe: nunca quedarse "Cargando..."
+  setTimeout(()=>{ try{ document.getElementById('sync-loading').classList.remove('show'); }catch(e){} }, 2500);
 })();
+
 </script>
 
 <!-- MODAL CAMBIO PASS INSPECTOR -->
