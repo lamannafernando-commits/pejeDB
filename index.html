@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1065,19 +1066,18 @@ function getInspectorActivo(){
   return cargarDatos(KEYS.inspectores).find(i=>String(i.id)===String(id))||null;
 }
 function actualizarEstadoBloqueo(){
-  const ok=!!getInspectorActivo();
-  document.getElementById('bloqueo-overlay').classList[ok?'remove':'add']('show');
-  ['btn-nav-ingreso','btn-nav-apercibamiento','btn-nav-suspension','btn-nav-consulta','btn-nav-vencidos','btn-nav-backup'].forEach(id=>{
-    const b=document.getElementById(id);if(b)b.classList[ok?'remove':'add']('nav-bloqueado');
-  });
+  var ov=document.getElementById('bloqueo-overlay'); if(ov) ov.classList.remove('show');
+  ['btn-nav-ingreso','btn-nav-apercibamiento','btn-nav-suspension','btn-nav-consulta','btn-nav-vencidos','btn-nav-backup','btn-nav-inspectores']
+    .forEach(function(id){ var b=document.getElementById(id); if(b) b.classList.remove('nav-bloqueado'); });
 }
+
 function irAInspectores(){
   document.getElementById('bloqueo-overlay').classList.remove('show');
   document.getElementById('banner-activar').style.display='block';
   _navegarSeccion('inspectores',document.getElementById('btn-nav-inspectores'));
   window.scrollTo({top:0,behavior:'smooth'});
 }
-function navClick(id,btn){if(!getInspectorActivo()&&id!=='inspectores')return;_navegarSeccion(id,btn);}
+function navClick(id,btn){_navegarSeccion(id,btn);}
 function _navegarSeccion(id,btn){
   document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('activa'));
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('activo'));
@@ -1168,8 +1168,7 @@ async function confirmarDesactivar(){
   mostrarAlerta('alerta-modal-cierre','info','⏳ Sincronizando cierre...');
   await guardarEnGitHub(false);
   actualizarUIInspectorActivo();actualizarEstadoBloqueo();renderInspectores();
-  cerrarModalCierre();document.getElementById('banner-activar').style.display='block';
-  _navegarSeccion('inspectores',document.getElementById('btn-nav-inspectores'));
+  cerrarModalCierre();document.getElementById('banner-activar').style.display='none'; _navegarSeccion('ingreso',document.getElementById('btn-nav-ingreso'));
   setTimeout(()=>window.open(`https://wa.me/${WA_NUMERO}?text=${encodeURIComponent(armarMensajeWA(insp,turno))}`,'_blank'),800);
 }
 function generarXMLTurno(insp,turno,now){
@@ -1559,12 +1558,8 @@ function restaurarBackup(){
 function finalizarInit(){
   document.getElementById('sync-loading').classList.remove('show');
   actualizarUIInspectorActivo();actualizarEstadoBloqueo();actualizarTokenStatusCard();_initZoomEvents();
-  if(getInspectorActivo()){
-    _navegarSeccion('ingreso',document.getElementById('btn-nav-ingreso'));
-  } else {
-    document.getElementById('banner-activar').style.display='block';
-    _navegarSeccion('inspectores',document.getElementById('btn-nav-inspectores'));
-  }
+  document.getElementById('banner-activar').style.display='none';
+  _navegarSeccion('ingreso',document.getElementById('btn-nav-ingreso'));
   setInterval(async()=>{if(!_syncEnCurso&&getToken())await sincronizarDesdeGitHub(false);},SYNC_INTERVAL);
 }
 async function iniciarSyncConGitHub(){
@@ -1626,6 +1621,10 @@ async function iniciarSyncConGitHub(){
     await iniciarSyncConGitHub();
   }
 })();
+
+// Forzar URL limpia sin hash al iniciar (evita #inspectores en el arranque)
+try { if (location.hash) { history.replaceState(null,'',location.pathname + location.search); } } catch(e) { try { location.hash=''; } catch(_e){} }
+
 </script>
 </body>
 </html>
