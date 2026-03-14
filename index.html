@@ -636,7 +636,7 @@
  <div class="card">
       <h2>👮 Inspector de Turno Activo</h2>
       <div id="insp-activo-panel" class="inspector-activo-panel sin-inspector">
-        <div class="ia-icono">👮</div>
+        <div class="ia-icono">👮<div class="lista-inspectores" id="lista-inspectores"></div></div>
         <div class="ia-info">
           <span class="ia-nombre" id="insp-activo-nombre">Sin inspector activo</span>
           <span class="ia-sub" id="insp-activo-sub">Seleccioná un inspector y presioná "Activar"</span>
@@ -2231,6 +2231,86 @@ async function iniciarSyncConGitHub(){
 
   // Asegurar botón de alta funciona aunque se pierda el onclick
   document.addEventListener('DOMContentLoaded', function(){ var b=$('adm-insp-crear'); if(b){ b.addEventListener('click', function(ev){ ev.preventDefault(); try{ adminSolicitarAltaInspector(); }catch(_){ } }); } });
+})();
+</script>
+
+
+<script id="pcq-v1293-active-gating">
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function qsa(sel, root){ return Array.from((root||document).querySelectorAll(sel)); }
+  function keyInspectores(){ return (window.KEYS && KEYS.inspectores) ? KEYS.inspectores : 'pcq_inspectores'; }
+  function loadInspectores(){ try{ return JSON.parse(localStorage.getItem(keyInspectores())||'[]'); }catch(_){ return []; } }
+  function getInspectorActivo(){
+    try{
+      if(typeof window._getInspectorActivo==='function') return _getInspectorActivo();
+      if(typeof window.getInspectorActivo==='function') return getInspectorActivo();
+    }catch(_){ }
+    try{
+      // Fallback: buscar id activo en localStorage
+      var id = localStorage.getItem('pcq_insp_activo') || localStorage.getItem('insp_activo_id');
+      if(id){ id = parseInt(id,10); var lst = loadInspectores(); return lst.find(function(i){ return i.id===id; }) || null; }
+    }catch(_){ }
+    return null;
+  }
+
+  // Reliable render for Inspectores (fallback)
+  function renderInspectoresFallback(){
+    var cont = $('lista-inspectores');
+    if(!cont){ var sec=$('sec-inspectores'); if(sec){ var card=sec.querySelector('.card')||sec; cont=document.createElement('div'); cont.id='lista-inspectores'; cont.className='lista-inspectores'; card.appendChild(cont);} }
+    if(!cont) return;
+    var data = loadInspectores();
+    if(!Array.isArray(data) || data.length===0){ cont.innerHTML='<p style="opacity:.7">No hay inspectores registrados.</p>'; return; }
+    var html='\n<table class="tabla" id="tabla-inspectores"><thead><tr><th>Nombre</th><th>Teléfono</th><th>Usuario</th><th>Obs.</th></tr></thead><tbody>';
+    data.forEach(function(i){ html+='<tr><td>'+ (i.nombre||'') +'</td><td>'+ (i.tel||'') +'</td><td>'+ (i.usuario||'') +'</td><td>'+ (i.obs||'') +'</td></tr>'; });
+    html+='</tbody></table>';
+    cont.innerHTML = html;
+  }
+  var _origRender = window.renderInspectores;
+  window.renderInspectores = function(){ try{ if(typeof _origRender==='function'){ _origRender(); return; } }catch(_){ } renderInspectoresFallback(); };
+
+  // Ensure Administrar button click is wired
+  document.addEventListener('DOMContentLoaded', function(){
+    try{ var b=$('btn-nav-backup'); if(b){ b.textContent='⚙️ Administrar'; b.addEventListener('click', function(){ try{ window.navClick('backup', b); }catch(_){ location.hash='#backup'; } }); } }catch(_){ }
+  });
+
+  // Gate: if NO inspector activo => only Inspectores enabled and visible
+  function applyActiveGate(){
+    var activo = !!getInspectorActivo();
+    var buttons = qsa('nav button');
+    if(!activo){
+      // Disable all except Inspectores
+      buttons.forEach(function(btn){ if((btn.id||'')==='btn-nav-inspectores'){ btn.classList.remove('nav-bloqueado'); } else { btn.classList.add('nav-bloqueado'); } });
+      // Show only Inspectores section
+      qsa('section[id^="sec-"]').forEach(function(sec){ if(sec.id==='sec-inspectores'){ sec.style.display='block'; } else { sec.style.display='none'; } });
+      // Hide overlays that bloquean
+      try{ $('bloqueo-overlay')?.classList.remove('show'); }catch(_){ }
+      // Force to Inspectores
+      try{ if(typeof _navegarSeccion==='function') _navegarSeccion('inspectores', $('btn-nav-inspectores')); else { location.hash='#inspectores'; } }catch(_){ }
+    } else {
+      // Enable all and show sections normally
+      buttons.forEach(function(btn){ btn.classList.remove('nav-bloqueado'); });
+      qsa('section[id^="sec-"]').forEach(function(sec){ sec.style.display=''; });
+    }
+  }
+
+  // Override navClick to respect the gate
+  (function(){
+    var _origNav = window.navClick;
+    window.navClick = function(id, btn){
+      var activo = !!getInspectorActivo();
+      if(!activo){ if(id!=='inspectores') return; }
+      try{ if(typeof _origNav==='function') return _origNav(id, btn); }catch(_){ }
+      try{ if(typeof _navegarSeccion==='function') _navegarSeccion(id, btn); else { location.hash='#'+id; } }catch(_){ }
+    };
+  })();
+
+  // Keep lists updated
+  function refreshLists(){ try{ if(location.hash==='#inspectores') window.renderInspectores(); }catch(_){ renderInspectoresFallback(); } }
+
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ applyActiveGate(); refreshLists(); }, 180); });
+  window.addEventListener('hashchange', function(){ applyActiveGate(); refreshLists(); });
+
 })();
 </script>
 
