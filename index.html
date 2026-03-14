@@ -2433,5 +2433,26 @@ setTimeout(function(){ try{ document.getElementById('sync-loading') && document.
 })();
 </script>
 
+
+<script id="pcq-offline-v1283">
+// v12.8.3 — Modo offline estable: sin llamadas de red para hora; badge estable
+(function(){
+  try{ window.PCQ_OFFLINE = true; }catch(_){ }
+
+  // Override sincronizarHora para usar hora local sin red
+  try{
+    window.sincronizarHora = async function(){
+      try{ window.offsetMs = 0; }catch(_){ }
+      try{ var el = document.getElementById('fuente-hora'); if(el) el.textContent = '🕐 Hora local del dispositivo'; }catch(_){ }
+      return;
+    };
+  }catch(_){ }
+
+  // Ejecutar una vez y mantener badge en OK periódicamente
+  try{ if(typeof window.sincronizarHora==='function') window.sincronizarHora(); }catch(_){ }
+  try{ setInterval(function(){ try{ setSyncBadge('ok','✅ Activado'); }catch(_){ } }, 30000); }catch(_){ }
+})();
+</script>
+
 </body>
 </html>
