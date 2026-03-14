@@ -392,11 +392,7 @@
   <button class="btn btn-danger btn-sm" id="btn-cam-stop" type="button" onclick="detenerCamara()" style="display:none">✖ Detener cámara</button>
   <button class="btn btn-danger btn-sm" id="btn-borrar-foto" onclick="borrarFoto()" style="display:none">🗑️ Borrar foto</button>
 </div>
-        <div id="cam-wrap" style="display:none;margin-top:8px;">
-  <video id="cam-video" autoplay playsinline style="width:260px;height:260px;border-radius:10px;border:3px solid var(--dorado);background:#000;object-fit:cover"></video>
-  <canvas id="cam-canvas" width="320" height="320" style="display:none"></canvas>
-</div>
-<div id="foto-preview-wrap">
+        <div id="cam-wrap" style="display:none;margin-top:8px;"><video id="cam-video" autoplay playsinline style="width:260px;height:260px;border-radius:10px;border:3px solid var(--dorado);background:#000;object-fit:cover"></video><canvas id="cam-canvas" width="320" height="320" style="display:none"></canvas></div><div id="foto-preview-wrap">
           <img id="foto-preview" src="" alt="Foto del invitado" onclick="verFotoGrandePreview()"/>
           <span class="foto-dni-label" id="foto-preview-dni">ID: --</span>
         </div>
@@ -867,9 +863,8 @@ function _abrirModalFoto(src,info){
 function cerrarModalFoto(){document.getElementById('modal-foto').classList.remove('show');_zoomDragging=false;}
 function verFotoGrande(dni){const f=getFoto(String(dni));if(f)_abrirModalFoto(f,'DNI: '+dni);}
 function verFotoGrandePreview(){
-  const id=getIdentificadorIngreso();
-  const label = id ? (getTipoIngreso()==='socio' ? 'Socio N°: '+id : 'DNI: '+id) : 'Foto';
-  _abrirModalFoto(document.getElementById('foto-preview').src, label);
+  _abrirModalFoto(document.getElementById('foto-preview').src,
+    document.getElementById('dni-ingreso').value.trim()?'DNI: '+document.getElementById('dni-ingreso').value.trim():'Foto del invitado');
 }
 
 /* ══ AUTOCOMPLETAR NOMBRE ══ */
@@ -1145,12 +1140,7 @@ function setFoto(dni,b64){const f=cargarFotos();f[String(dni)]=b64;guardarFotos(
 function deleteFoto(dni){const f=cargarFotos();delete f[String(dni)];guardarFotos(f);}
 
 /* ══ HORA ══ */
-async function sincronizarHora(){
-  // Usar hora del dispositivo (sin internet)
-  offsetMs = 0;
-  const el = document.getElementById('fuente-hora');
-  if (el) el.textContent = '⏱️ Usando hora local del dispositivo';
-},5000);if(!r.ok)continue;
+async function sincronizarHora(){ offsetMs=0; const el=document.getElementById('fuente-hora'); if(el) el.textContent='⏱️ Usando hora local del dispositivo'; },5000);if(!r.ok)continue;
       const d=await r.json();const raw=d.dateTime||d.datetime;if(!raw)continue;
       const dt=new Date(raw);if(isNaN(dt))continue;
       offsetMs=dt.getTime()-Date.now();
@@ -1204,35 +1194,28 @@ async function _guardarFoto(b64){
   document.getElementById('foto-preview-wrap').classList.add('show');
   document.getElementById('btn-borrar-foto').style.display='inline-flex';
   document.getElementById('alerta-foto').className='alerta';
-  const id=getIdentificadorIngreso();
-  if(id){
-    setFoto(id,b64); document.getElementById('foto-preview-dni').textContent='ID: '+id+' ✅';
+  const dni=document.getElementById('dni-ingreso').value.trim();
+  if(dni){
+    setFoto(dni,b64);document.getElementById('foto-preview-dni').textContent='DNI: '+dni+' ✅';
     mostrarAlerta('alerta-foto','info','📤 Guardando foto...');
-    await guardarEnGitHub(true); mostrarAlerta('alerta-foto','ok','✅ Foto guardada para ID '+id+'.');
+    await guardarEnGitHub(true);mostrarAlerta('alerta-foto','ok','✅ Foto guardada para DNI '+dni+'.');
   } else {
-    document.getElementById('foto-preview-dni').textContent='⚠️ Ingresá el identificador (DNI o N° de socio) para asociar la foto';
-    mostrarAlerta('alerta-foto','warn','⚠️ Ingresá el identificador para asociar la foto.');
+    document.getElementById('foto-preview-dni').textContent='⚠️ Ingresá el DNI para asociar la foto';
+    mostrarAlerta('alerta-foto','warn','⚠️ Ingresá el DNI del invitado para asociar la foto.');
   }
 }
-}
 async function borrarFoto(){
-  const id=getIdentificadorIngreso();
-  if(id && getFoto(id)){ if(!confirm(`¿Eliminar la foto del ID ${id}?`)) return; deleteFoto(id); await guardarEnGitHub(true);}
-  document.getElementById('foto-preview').src='';
-  document.getElementById('foto-preview-wrap').classList.remove('show');
-  document.getElementById('btn-borrar-foto').style.display='none';
-  document.getElementById('foto-preview-dni').textContent='ID: --';
-  mostrarAlerta('alerta-foto','warn','🗑️ Foto eliminada.');
-}
+  const dni=document.getElementById('dni-ingreso').value.trim();
+  if(dni&&getFoto(dni)){if(!confirm(`¿Eliminar la foto del DNI ${dni}?`))return;deleteFoto(dni);await guardarEnGitHub(true);}
   document.getElementById('foto-preview').src='';
   document.getElementById('foto-preview-wrap').classList.remove('show');
   document.getElementById('btn-borrar-foto').style.display='none';
   document.getElementById('foto-preview-dni').textContent='DNI: --';
   mostrarAlerta('alerta-foto','warn','🗑️ Foto eliminada.');
 }
-function asociarFotoAlRegistrarID(id){
+function asociarFotoAlRegistrar(dni){
   const s=document.getElementById('foto-preview').src;
-  if(s && s!==window.location.href && !getFoto(id)) setFoto(id,s);
+  if(s&&s!==window.location.href&&!getFoto(dni))setFoto(dni,s);
 }
 function fotoThumb(dni,cls){
   const f=getFoto(String(dni));
@@ -1247,8 +1230,7 @@ function getInspectorActivo(){
   return cargarDatos(KEYS.inspectores).find(i=>String(i.id)===String(id))||null;
 }
 function actualizarEstadoBloqueo(){
-  const overlay=document.getElementById('bloqueo-overlay');
-  if(overlay) overlay.classList.remove('show');
+  const overlay=document.getElementById('bloqueo-overlay'); if(overlay) overlay.classList.remove('show');
   const ids=['btn-nav-ingreso','btn-nav-apercibamiento','btn-nav-suspension','btn-nav-consulta','btn-nav-vencidos','btn-nav-estadisticas','btn-nav-backup'];
   ids.forEach(id=>{ const b=document.getElementById(id); if(b) b.classList.remove('nav-bloqueado'); });
 }
@@ -1273,7 +1255,6 @@ function _navegarSeccion(id,btn){
   if(id==='vencidos')renderVencidos();
   if(id==='consulta')setFechasConsultaHoy();
   if(id==='estadisticas')inicializarEstadisticas();
- if(id==='ingreso')toggleIngresoFields();
 }
 
 /* ══ INSPECTOR UI ══ */
@@ -1522,55 +1503,6 @@ const mostrarAlertaEl=mostrarAlerta;
 
 /* ══ INGRESO ══ */
 
-// === Cámara: captura obligatoria desde el dispositivo ===
-let _camStream = null;
-async function iniciarCamara(){
-  try{
-    if(!_camStream){
-      _camStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}, audio:false});
-    }
-    const v = document.getElementById('cam-video');
-    v.srcObject = _camStream; v.play();
-    document.getElementById('cam-wrap').style.display='block';
-    document.getElementById('btn-cam-start').style.display='none';
-    document.getElementById('btn-cam-shot').style.display='inline-flex';
-    document.getElementById('btn-cam-stop').style.display='inline-flex';
-    mostrarAlerta('alerta-foto','info','🎥 Cámara iniciada. Encadrá y presioná "Tomar foto".');
-  }catch(e){
-    console.warn(e);
-    mostrarAlerta('alerta-foto','error','❌ No se pudo acceder a la cámara. Verificá permisos.');
-  }
-}
-function tomarFoto(){
-  const v = document.getElementById('cam-video');
-  const c = document.getElementById('cam-canvas');
-  const ctx = c.getContext('2d');
-  // recorte cuadrado centrado
-  const vw = v.videoWidth, vh = v.videoHeight;
-  if(!vw || !vh){ mostrarAlerta('alerta-foto','warn','⚠️ Esperando a que la cámara inicie...'); return; }
-  const size = Math.min(vw, vh);
-  const sx = Math.floor((vw - size)/2), sy = Math.floor((vh - size)/2);
-  c.width = 320; c.height = 320;
-  ctx.drawImage(v, sx, sy, size, size, 0, 0, 320, 320);
-  const data = c.toDataURL('image/jpeg', 0.9);
-  _guardarFoto(data);
-}
-function detenerCamara(){
-  try{
-    if(_camStream){
-      _camStream.getTracks().forEach(t=>t.stop());
-      _camStream = null;
-    }
-  }catch(e){}
-  const v = document.getElementById('cam-video');
-  if(v) v.srcObject = null;
-  document.getElementById('cam-wrap').style.display='none';
-  document.getElementById('btn-cam-start').style.display='inline-flex';
-  document.getElementById('btn-cam-shot').style.display='none';
-  document.getElementById('btn-cam-stop').style.display='none';
-}
-
-
 // === Helpers Ingreso: tipo/identificador y UI ===
 function getTipoIngreso(){
   const r=document.querySelector('input[name="tipo-ingreso"]:checked');
@@ -1583,10 +1515,8 @@ function getIdentificadorIngreso(){
 }
 function toggleIngresoFields(){
   const t=getTipoIngreso();
-  const wrapD=document.getElementById('wrap-dni-ingreso');
-  const wrapS=document.getElementById('wrap-socio-ingreso');
-  if(wrapD) wrapD.style.display=(t==='invitado')?'':'none';
-  if(wrapS) wrapS.style.display=(t==='socio')?'':'none';
+  document.getElementById('wrap-dni-ingreso').style.display = (t==='invitado')? '' : 'none';
+  document.getElementById('wrap-socio-ingreso').style.display = (t==='socio')? '' : 'none';
   const nombre=document.getElementById('nombre-ingreso');
   if(nombre) nombre.placeholder = t==='invitado' ? 'Apellido, Nombre (obligatorio)' : 'Apellido, Nombre (opcional)';
   onIdentificadorChange();
@@ -1625,76 +1555,124 @@ function onIdentificadorChange(){
 }
 function onDniIngresoChange(){ onIdentificadorChange(); }
 
+// === Cámara (solo captura) ===
+let _camStream = null;
+async function iniciarCamara(){
+  try{
+    if(!_camStream){ _camStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}, audio:false}); }
+    const v = document.getElementById('cam-video');
+    v.srcObject = _camStream; v.play();
+    document.getElementById('cam-wrap').style.display='block';
+    document.getElementById('btn-cam-start').style.display='none';
+    document.getElementById('btn-cam-shot').style.display='inline-flex';
+    document.getElementById('btn-cam-stop').style.display='inline-flex';
+    mostrarAlerta('alerta-foto','info','🎥 Cámara iniciada. Encadrá y presioná "Tomar foto".');
+  }catch(e){ console.warn(e); mostrarAlerta('alerta-foto','error','❌ No se pudo acceder a la cámara. Verificá permisos.'); }
+}
+function tomarFoto(){
+  const v = document.getElementById('cam-video');
+  const c = document.getElementById('cam-canvas');
+  const ctx = c.getContext('2d');
+  const vw = v.videoWidth, vh = v.videoHeight;
+  if(!vw || !vh){ mostrarAlerta('alerta-foto','warn','⚠️ Esperando a que la cámara inicie...'); return; }
+  const size = Math.min(vw, vh), sx = Math.floor((vw-size)/2), sy = Math.floor((vh-size)/2);
+  c.width = 320; c.height = 320; ctx.drawImage(v, sx, sy, size, size, 0, 0, 320, 320);
+  const data = c.toDataURL('image/jpeg', 0.9);
+  _guardarFoto(data);
+}
+function detenerCamara(){
+  try{ if(_camStream){ _camStream.getTracks().forEach(t=>t.stop()); _camStream=null; } }catch(e){}
+  const v = document.getElementById('cam-video'); if(v) v.srcObject=null;
+  document.getElementById('cam-wrap').style.display='none';
+  document.getElementById('btn-cam-start').style.display='inline-flex';
+  document.getElementById('btn-cam-shot').style.display='none';
+  document.getElementById('btn-cam-stop').style.display='none';
+}
+
+// === Token no bloqueante ===
+function abrirTokenModal(){
+  try{ const modal=document.getElementById('token-modal'); modal.classList.add('show'); const inp=document.getElementById('token-input-modal'); if(inp){ setTimeout(()=>inp.focus(),100);} }catch(e){}
+}
+function sugerirTokenNoBloqueante(){
+  try{
+    if(getToken()) return; if(document.getElementById('token-nb-banner')) return;
+    const main = document.querySelector('main')||document.body; const div=document.createElement('div'); div.id='token-nb-banner';
+    div.style.cssText='background:rgba(200,168,75,.12);border:2px solid var(--dorado);color:var(--dorado);border-radius:10px;padding:10px 14px;margin:10px 14px;font-family:Oswald,Segoe UI,sans-serif;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;';
+    div.innerHTML='<span>🔑 Para sincronizar con la nube, configurá tu Token de GitHub.</span>'+
+      '<span style="display:flex;gap:8px;flex-wrap:wrap;">'+
+      '<button class="btn btn-gold btn-sm" type="button" onclick="abrirTokenModal()">Configurar token</button>'+
+      '<button class="btn btn-secondary btn-sm" type="button" onclick="this.closest('div').remove()">Ahora no</button>'+
+      '</span>';
+    main.prepend(div);
+  }catch(e){}
+}
+
 function buscarInvitado(){
-  const tipo=getTipoIngreso();
-  const id=getIdentificadorIngreso();
-  if(!id){mostrarAlerta('alerta-ingreso','error', tipo==='invitado' ? 'Ingresá el DNI.' : 'Ingresá el N° de socio.');return;}
+  const dni=document.getElementById('dni-ingreso').value.trim();
+  if(!dni){mostrarAlerta('alerta-ingreso','error','Ingresá el número de documento.');return;}
   const ing=cargarDatos(KEYS.ingresos),ap=cargarDatos(KEYS.apercibimientos),su=cargarDatos(KEYS.suspensiones);
   const hoy=isoFecha(ahoraReal()),now=ahoraReal();
   const lim=HS_VIGENCIA*3600000,prev=lim-MIN_POR_VENCER*60000;
-  const misIng=ing.filter(i=>i.dni===id).slice(-10).reverse();
-  const misAp=ap.filter(a=>a.dni===id);
-  const misSuAct=su.filter(s=>s.dni===id && hoy>=s.desde && hoy<=s.hasta);
-  const ultimo=ing.filter(i=>i.dni===id).slice(-1)[0];
-  const msU=ultimo? now.getTime()-parseFechaHora(ultimo.fecha,ultimo.hora).getTime() : -1;
-  const tieneVen=msU>=lim, tienePV=msU>=prev && msU<lim;
+  const miIng=ing.filter(i=>i.dni===dni).slice(-10).reverse();
+  const miAp=ap.filter(a=>a.dni===dni);
+  const miSuAct=su.filter(s=>s.dni===dni&&hoy>=s.desde&&hoy<=s.hasta);
+  const ultimo=ing.filter(i=>i.dni===dni).slice(-1)[0];
+  const msU=ultimo?now.getTime()-parseFechaHora(ultimo.fecha,ultimo.hora).getTime():-1;
+  const tieneVen=msU>=lim,tienePV=msU>=prev&&msU<lim;
   const panel=document.getElementById('panel-estado');
   const badges=document.getElementById('estado-badges');
   const detalles=document.getElementById('estado-detalles');
   const fotoC=document.getElementById('estado-foto-contenedor');
-  panel.classList.add('show');
-  const etiqueta=(tipo==='socio'?'Socio N°: ':'DNI: ');
-  document.getElementById('estado-nombre').textContent=etiqueta+id;
-  badges.innerHTML='';detalles.innerHTML='';fotoC.innerHTML='';
-  let tipoAl='info', msg=`✅ ${tipo==='socio'?'Socio':'Invitado'} <strong>${id}</strong> sin restricciones.`, fotoClase='';
-  if(misSuAct.length){
-    const s=misSuAct[0];
+  panel.classList.add('show');document.getElementById('estado-nombre').textContent='DNI: '+dni;
+  badges.innerHTML='';fotoC.innerHTML='';
+  let tipo='info',msg=`✅ Invitado DNI <strong>${dni}</strong> sin restricciones.`,fotoClase='';
+  if(miSuAct.length){
+    const s=miSuAct[0];
     badges.innerHTML+=`<span class="badge badge-rojo">🚫 SUSPENDIDO hasta ${s.hasta}</span>`;
     detalles.innerHTML=`<strong>Motivo:</strong> ${s.motivo}`;
-    tipoAl='error'; msg=`🚫 <strong>SUSPENDIDO</strong> – No puede ingresar. Vigente hasta <strong>${s.hasta}</strong>.`;
-    panel.style.borderColor='var(--rojo)'; fotoClase='foto-suspendido';
-  } else if(misAp.length){
-    badges.innerHTML+=`<span class="badge badge-naranja">⚠️ ${misAp.length} apercibamiento(s)</span>`;
-    if(tieneVen) badges.innerHTML+=`<span class="badge badge-rojo">⏰ Ingreso vencido</span>`;
-    else if(tienePV){ const rm=Math.ceil((lim-msU)/60000); badges.innerHTML+=`<span class="badge badge-naranja">⏳ Vence en ${rm} min</span>`; }
-    detalles.innerHTML=misAp.map(a=>`<div>• ${a.fecha} – ${a.motivo}${a.inspector?` <span class="badge badge-azul">👮 ${a.inspector}</span>`:''}</div>`).join('');
-    tipoAl='warn'; msg=`⚠️ Tiene <strong>${misAp.length} apercibamiento(s)</strong>. Puede ingresar con advertencia.`;
-    panel.style.borderColor='var(--naranja)'; fotoClase='foto-apercibido';
+    tipo='error';msg=`🚫 <strong>SUSPENDIDO</strong> – No puede ingresar. Vigente hasta <strong>${s.hasta}</strong>.`;
+    panel.style.borderColor='var(--rojo)';fotoClase='foto-suspendido';
+  } else if(miAp.length){
+    badges.innerHTML+=`<span class="badge badge-naranja">⚠️ ${miAp.length} apercibamiento(s)</span>`;
+    if(tieneVen)badges.innerHTML+=`<span class="badge badge-rojo">⏰ Ingreso vencido</span>`;
+    else if(tienePV){const rm=Math.ceil((lim-msU)/60000);badges.innerHTML+=`<span class="badge badge-naranja">⏳ Vence en ${rm} min</span>`;}
+    detalles.innerHTML=miAp.map(a=>`<div>• ${a.fecha} – ${a.motivo}${a.inspector?` <span class="badge badge-azul">👮 ${a.inspector}</span>`:''}</div>`).join('');
+    tipo='warn';msg=`⚠️ El invitado tiene <strong>${miAp.length} apercibamiento(s)</strong>. Puede ingresar con advertencia.`;
+    panel.style.borderColor='var(--naranja)';fotoClase='foto-apercibido';
   } else if(tieneVen){
     badges.innerHTML+=`<span class="badge badge-rojo">⏰ Ingreso vencido</span>`;
     detalles.innerHTML='<span style="color:#991b1b;">Tiene un ingreso vencido (más de 24hs).</span>';
-    tipoAl='warn'; msg='⏰ Tiene un <strong>ingreso vencido</strong>.';
-    panel.style.borderColor='#888'; fotoClase='foto-vencido';
+    tipo='warn';msg=`⏰ El invitado tiene un <strong>ingreso vencido</strong>.`;
+    panel.style.borderColor='#888';fotoClase='foto-vencido';
   } else if(tienePV){
     const rm=Math.ceil((lim-msU)/60000);
     badges.innerHTML+=`<span class="badge badge-naranja">⏳ Vence en ${rm} min</span>`;
-    detalles.innerHTML=`<span style=\"color:#92400e;\">El ingreso vence en ${rm} minutos.</span>`;
-    tipoAl='warn'; msg=`⏳ Ingreso que <strong>vence en ${rm} minutos</strong>.`;
-    panel.style.borderColor='var(--naranja)'; fotoClase='foto-por-vencer';
+    detalles.innerHTML=`<span style="color:#92400e;">El ingreso vence en ${rm} minutos.</span>`;
+    tipo='warn';msg=`⏳ Ingreso que <strong>vence en ${rm} minutos</strong>.`;
+    panel.style.borderColor='var(--naranja)';fotoClase='foto-por-vencer';
   } else {
-    badges.innerHTML='<span class="badge badge-verde">✅ Sin restricciones</span>';
-    detalles.innerHTML=''; panel.style.borderColor='var(--dorado)';
+    badges.innerHTML=`<span class="badge badge-verde">✅ Sin restricciones</span>`;
+    detalles.innerHTML='';panel.style.borderColor='var(--dorado)';
   }
-  const foto=getFoto(id);
-  if(foto) fotoC.innerHTML = `<div class="estado-foto-wrap"><img src="${foto}" class="estado-foto ${fotoClase}" onclick="verFotoGrande('${id}')" title="🔍 Click para ampliar"/><span class="estado-foto-label">📷 ID ${id}</span></div>`;
-  mostrarAlerta('alerta-ingreso', tipoAl, msg);
+  const foto=getFoto(dni);
+  if(foto)fotoC.innerHTML=`<div class="estado-foto-wrap"><img src="${foto}" class="estado-foto ${fotoClase}" onclick="verFotoGrande('${dni}')" title="🔍 Click para ampliar"/><span class="estado-foto-label">📷 DNI ${dni}</span></div>`;
+  mostrarAlerta('alerta-ingreso',tipo,msg);
   const wrap=document.getElementById('ultimos-ingresos'),tbody=document.querySelector('#tabla-ultimos tbody');
-  tbody.innerHTML=''; wrap.style.display='block';
-  if(misIng.length){
-    misIng.forEach((i,n)=>{
-      const est=estadoIngreso(i); const tr=document.createElement('tr'); if(est.fila) tr.className=est.fila;
-      tr.innerHTML = `<td>${n+1}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${i.nombre||'—'}</td><td><span class="badge ${est.clase}">${est.texto}</span></td>`;
+  tbody.innerHTML='';wrap.style.display='block';
+  if(miIng.length){
+    miIng.forEach((i,n)=>{
+      const est=estadoIngreso(i);const tr=document.createElement('tr');if(est.fila)tr.className=est.fila;
+      tr.innerHTML=`<td>${n+1}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${i.nombre||'—'}</td><td><span class="badge ${est.clase}">${est.texto}</span></td>`;
       tbody.appendChild(tr);
     });
-  } else tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#aaa;">Sin ingresos previos</td></tr>';
+  } else tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#aaa;">Sin ingresos previos</td></tr>';
   if(foto){
     document.getElementById('foto-preview').src=foto;
     document.getElementById('foto-preview-wrap').classList.add('show');
     document.getElementById('btn-borrar-foto').style.display='inline-flex';
-    document.getElementById('foto-preview-dni').textContent='ID: '+id+' ✅';
+    document.getElementById('foto-preview-dni').textContent='DNI: '+dni+' ✅';
   }
 }
-
 async function registrarIngreso(){
   const dni=document.getElementById('dni-ingreso').value.trim();
   const nombre=document.getElementById('nombre-ingreso').value.trim();
@@ -2185,14 +2163,10 @@ function _renderTablaTopVisitantes(ing){
 /* ══ INIT ══ */
 function finalizarInit(){
   document.getElementById('sync-loading').classList.remove('show');
-  actualizarUIInspectorActivo();
-  actualizarEstadoBloqueo();
-  actualizarTokenStatusCard();
-  _initZoomEvents();
-  const banner=document.getElementById('banner-activar');
-  if(banner) banner.style.display='none';
+  actualizarUIInspectorActivo(); actualizarEstadoBloqueo(); actualizarTokenStatusCard(); _initZoomEvents();
+  const banner=document.getElementById('banner-activar'); if(banner) banner.style.display='none';
   _navegarSeccion('ingreso',document.getElementById('btn-nav-ingreso'));
-  setInterval(async()=>{if(! _syncEnCurso && getToken()) await sincronizarDesdeGitHub(false);}, SYNC_INTERVAL);
+  setInterval(async()=>{ if(!_syncEnCurso && getToken()) await sincronizarDesdeGitHub(false); }, SYNC_INTERVAL);
 }
  else {
     document.getElementById('banner-activar').style.display='block';
@@ -2254,7 +2228,7 @@ async function iniciarSyncConGitHub(){
   tickReloj();setInterval(tickReloj,1000);setInterval(sincronizarHora,5*60*1000);
   if(!getToken()){
     document.getElementById('sync-loading').classList.remove('show');
-    /* token modal deshabilitado en init */
+    document.getElementById('token-modal').classList.add('show');
   } else {
     await iniciarSyncConGitHub();
   }
