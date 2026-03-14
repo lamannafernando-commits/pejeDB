@@ -3,125 +3,83 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Pejerrey Club Quilmes – Sistema v5 Unificado</title>
+<title>PCQ – Sistema v5.1 Unificado</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
 <style>
- :root{
- --verde-oscuro:#1a3a1a;--verde-medio:#1e5c1e;--verde-logo:#2d6e2d;--verde-claro:#3a8a3a;
- --dorado:#c8a84b;--dorado-claro:#e8c86a;--blanco:#ffffff;--crema:#f5f0e8;
- --gris-claro:#e8ede8;--texto-oscuro:#1a1a1a;--rojo:#cc2222;--naranja:#d4841a;
- }
- *{box-sizing:border-box}
- body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,'Open Sans',sans-serif;background:linear-gradient(160deg,#0d1f0d 0%,#1a3a1a 40%,#0d2a1a 100%);color:#fff;min-height:100vh;margin:0}
- header{position:sticky;top:0;background:linear-gradient(180deg,#0a1a0a 0%,#1a3a1a 100%);border-bottom:3px solid var(--dorado);padding:12px 14px;z-index:10}
- h1{margin:0;color:var(--dorado);font-size:1.2rem;letter-spacing:1px}
- .sub{color:#aacfaa;font-size:.9rem}
- .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
- .badge{background:rgba(0,0,0,.35);border:1px solid #555;border-radius:20px;padding:4px 12px;font-size:.85rem}
- #sync-badge.sync-ok{background:rgba(26,107,26,.6);border-color:#2a8a2a}
- #sync-badge.sync-error{background:rgba(180,30,30,.5);border-color:#b33}
- #sync-badge.sync-syncing{background:rgba(26,90,138,.5);border-color:#2a7aaa}
- nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;background:#0d1f0d;border-bottom:2px solid var(--dorado);padding:8px}
+ :root{ --verde-oscuro:#1a3a1a;--verde-logo:#2d6e2d;--dorado:#c8a84b;--texto-oscuro:#1a1a1a;--rojo:#cc2222;}
+ *{box-sizing:border-box} body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,'Open Sans',sans-serif;background:#0f2416;color:#fff;margin:0}
+ header{position:sticky;top:0;background:#0b1a12;border-bottom:3px solid var(--dorado);padding:12px 14px;z-index:10}
+ h1{margin:0;color:var(--dorado);font-size:1.2rem} .sub{color:#aacfaa;font-size:.9rem}
+ nav{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;background:#0d1f0d;border-bottom:2px solid var(--dorado);padding:8px}
  nav button{cursor:pointer;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#cce8cc;border-radius:6px;padding:7px 12px;font-weight:600}
  nav button.activo{background:var(--dorado);color:#102010}
- main{max-width:980px;margin:16px auto;padding:0 12px 40px}
- .seccion{display:none}
- .seccion.activa{display:block}
+ main{max-width:1100px;margin:16px auto;padding:0 12px 40px}
+ .seccion{display:none} .seccion.activa{display:block}
  .card{background:linear-gradient(160deg,#f5f0e8 0%,#ece8de 100%);border:2px solid var(--dorado);color:var(--texto-oscuro);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.25);padding:18px;margin:12px 0}
- .card h2{margin:0 0 10px 0;color:var(--verde-oscuro);font-size:1.1rem}
- label{display:flex;flex-direction:column;gap:4px;font-weight:700;color:var(--verde-oscuro);font-size:.9rem}
+ .card h2{margin:0 0 10px 0;color:#153015;font-size:1.1rem} .muted{color:#657b83;font-size:.85rem}
+ .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center} .rowf{display:flex;gap:10px;flex-wrap:wrap}
+ label{display:flex;flex-direction:column;gap:4px;font-weight:700;color:#153015;font-size:.9rem}
  input,textarea,select{padding:9px 10px;border:1.5px solid #8aaa8a;border-radius:6px;font-size:1rem}
- .rowf{display:flex;flex-wrap:wrap;gap:10px}
  .btn{cursor:pointer;border:none;border-radius:6px;padding:9px 14px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
- .btn-primary{background:var(--verde-logo);color:#fff;border:2px solid var(--verde-claro)}
+ .btn-primary{background:#2d6e2d;color:#fff;border:2px solid #3a8a3a}
  .btn-danger{background:var(--rojo);color:#fff;border:2px solid #b11}
- .btn-gold{background:var(--dorado);color:#102010;border:2px solid var(--dorado-claro)}
+ .btn-gold{background:var(--dorado);color:#102010;border:2px solid #e8c86a}
  .btn-secondary{background:#4a5a4a;color:#fff;border:2px solid #5a6a5a}
- table{width:100%;border-collapse:collapse;font-size:.9rem}
- th,td{border-bottom:1px solid #ddd;padding:8px 10px}
- th{background:#153015;color:var(--dorado);text-align:left}
+ table{width:100%;border-collapse:collapse;font-size:.9rem} th,td{border-bottom:1px solid #ddd;padding:8px 10px} th{background:#153015;color:var(--dorado);text-align:left}
  .alerta{margin-top:8px;display:none;padding:8px 12px;border-radius:6px;font-weight:700}
- .alerta.show{display:block}
- .alerta-ok{background:#d1fae5;color:#065f46}
- .alerta-warn{background:#fff3cd;color:#92400e}
- .alerta-error{background:#fee2e2;color:#991b1b}
- .muted{color:#657b83;font-size:.85rem}
- /* Cámara / fotos / charts / zoom */
- #foto-ui{margin-top:8px}
- #foto-ui .cam-wrap{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start}
- #cam-video, #foto-preview{width:260px;height:195px;background:#000;border-radius:10px;border:2px solid var(--dorado)}
+ .alerta.show{display:block} .alerta-ok{background:#d1fae5;color:#065f46} .alerta-warn{background:#fff3cd;color:#92400e} .alerta-error{background:#fee2e2;color:#991b1b}
+ .badge{background:rgba(0,0,0,.35);border:1px solid #555;border-radius:20px;padding:4px 12px;font-size:.85rem}
+ #foto-ui .cam-wrap{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}
+ #cam-video,#foto-preview{width:260px;height:195px;background:#000;border-radius:10px;border:2px solid var(--dorado)}
  .perfil-foto{width:120px;height:120px;border-radius:60px;border:2px solid var(--dorado);object-fit:cover;display:none}
  .mini-foto{width:36px;height:36px;border-radius:50%;border:1px solid var(--dorado);object-fit:cover;cursor:zoom-in}
- .chart-wrap{max-width:560px;margin:auto}
- .chart-wrap canvas{height:140px !important}
+ .chart-wrap{max-width:620px;margin:auto} .chart-wrap canvas{height:140px !important}
  #img-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);z-index:9999}
  #img-modal img{max-width:95vw;max-height:90vh;border-radius:10px;border:3px solid var(--dorado);box-shadow:0 10px 40px rgba(0,0,0,.6)}
- @media(max-width:640px){ nav{justify-content:flex-start;overflow:auto} }
 </style>
 </head>
 <body>
 <header>
- <h1>🎣 Pejerrey Club Quilmes</h1>
- <div class="sub">Sistema de Gestión – v5 Unificado</div>
- <div class="row">
-  <div id="reloj-header" class="badge">--/--/---- --:--:--</div>
-  <div id="header-inspector" class="badge">🔒 Sin inspector activo</div>
-  <div id="sync-badge" class="badge sync-ok"><span id="sync-txt">Local</span></div>
- </div>
+  <h1>🎣 Pejerrey Club Quilmes</h1>
+  <div class="sub">Sistema de Gestión – v5.1</div>
+  <div class="row">
+    <div id="reloj-header" class="badge">--/--/---- --:--:--</div>
+    <div id="header-inspector" class="badge">🔒 Sin inspector activo</div>
+  </div>
 </header>
 <nav>
- <button id="btn-nav-ingreso" onclick="navClick('ingreso',this)" class="activo">🚪 Ingreso</button>
- <button id="btn-nav-apercibamiento" onclick="navClick('apercibamiento',this)">⚠️ Apercibamiento</button>
- <button id="btn-nav-suspension" onclick="navClick('suspension',this)">🚫 Suspensión</button>
- <button id="btn-nav-consulta" onclick="navClick('consulta',this)">📋 Consulta</button>
- <button id="btn-nav-vencidos" onclick="navClick('vencidos',this)">⏰ Vencidos</button>
- <button id="btn-nav-inspectores" onclick="navClick('inspectores',this)">👮 Inspectores</button>
- <button id="btn-nav-backup" onclick="navClick('backup',this)">🛠️ Administrar</button>
- <button id="btn-nav-estadisticas" onclick="navClick('estadisticas',this)">📊 Estadísticas</button>
+ <button onclick="navClick('ingreso',this)" class="activo">🚪 Ingreso</button>
+ <button onclick="navClick('apercibamiento',this)">⚠️ Apercibamiento</button>
+ <button onclick="navClick('suspension',this)">🚫 Suspensión</button>
+ <button onclick="navClick('consulta',this)">📋 Consulta</button>
+ <button onclick="navClick('vencidos',this)">⏰ Vencidos</button>
+ <button onclick="navClick('inspectores',this)">👮 Inspectores</button>
+ <button onclick="navClick('backup',this)">🛠️ Administrar</button>
+ <button onclick="navClick('estadisticas',this)">📊 Estadísticas</button>
 </nav>
 <main>
-  <!-- ===== INGRESO ===== -->
   <section id="sec-ingreso" class="seccion activa">
     <div class="card">
       <h2>🚪 Registro de Ingreso</h2>
-      <div class="row">
-        <div id="reloj-grande" style="font-size:1.8rem;color:var(--dorado);font-weight:800">--:--:--</div>
-        <div id="fecha-grande" class="badge" style="background:rgba(0,0,0,.25);border:1px solid #666">--/--/----</div>
-      </div>
-      <div id="fuente-hora" class="muted">🕒 Usando hora local del dispositivo</div>
-      <br/>
-      <!-- Socio / Invitado -->
+      <div class="row"><div id="reloj-grande" style="font-size:1.6rem;color:var(--dorado);font-weight:800">--:--:--</div><div id="fecha-grande" class="badge" style="background:rgba(0,0,0,.25);border:1px solid #666">--/--/----</div></div>
       <div class="row" style="gap:8px">
-        <label style="display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--verde-oscuro)">
-          <input type="radio" name="tipo-persona" id="radio-invitado" checked /> Invitado (DNI)
-        </label>
-        <label style="display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--verde-oscuro)">
-          <input type="radio" name="tipo-persona" id="radio-socio" /> Socio (N° socio)
-        </label>
+        <label style="display:inline-flex;align-items:center;gap:8px;font-weight:700;color:#153015"><input type="radio" name="tipo-persona" id="radio-invitado" checked /> Invitado (DNI)</label>
+        <label style="display:inline-flex;align-items:center;gap:8px;font-weight:700;color:#153015"><input type="radio" name="tipo-persona" id="radio-socio" /> Socio (N° socio)</label>
       </div>
       <div class="rowf">
-        <label style="flex:1;min-width:180px">DNI
-          <input id="dni-ingreso" type="text" maxlength="12" placeholder="30123456" oninput="this.value=this.value.replace(/\D/g,'')"/>
-        </label>
-        <label style="flex:2;min-width:200px">Nombre y Apellido
-          <input id="nombre-ingreso" type="text" placeholder="Apellido, Nombre"/>
-        </label>
+        <label style="flex:1;min-width:180px">DNI<input id="dni-ingreso" type="text" maxlength="12" placeholder="30123456" oninput="this.value=this.value.replace(/\\D/g,'')"/></label>
+        <label style="flex:2;min-width:200px">Nombre y Apellido<input id="nombre-ingreso" type="text" placeholder="Apellido, Nombre"/></label>
       </div>
       <div class="row" style="gap:8px">
-        <button class="btn btn-primary" onclick="registrarIngreso()">✅ Registrar Ingreso</button>
-        <button class="btn btn-secondary" onclick="limpiarCamposIngreso()">🧽 Limpiar</button>
+        <button class="btn btn-primary" id="btn-registrar">✅ Registrar Ingreso</button>
+        <button class="btn btn-secondary" id="btn-limpiar">🧽 Limpiar</button>
       </div>
       <div id="alerta-ingreso" class="alerta"></div>
-      <!-- Últimos del dni/socio -->
       <div id="ultimos-ingresos" class="card" style="margin:14px 0 0 0;display:none">
-        <h2>Últimos 10 ingresos del ID</h2>
-        <div class="muted">Estado basado en 24 h de vigencia.</div>
-        <div class="table-wrap">
-          <table id="tabla-ultimos"><thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Nombre</th><th>Estado</th></tr></thead><tbody></tbody></table>
-        </div>
+        <h2>Últimos 10 ingresos</h2>
+        <div class="table-wrap"><table id="tabla-ultimos"><thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Nombre</th><th>Estado</th></tr></thead><tbody></tbody></table></div>
       </div>
     </div>
-    <!-- Cámara obligatoria -->
     <div id="foto-ui" class="card" style="margin-top:12px">
       <h2>📸 Foto del ingreso (obligatoria)</h2>
       <div class="cam-wrap">
@@ -140,395 +98,164 @@
         <button class="btn btn-gold" id="btn-cam-snap" disabled>📸 Tomar foto</button>
         <button class="btn btn-danger" id="btn-cam-clear" disabled>🗑️ Borrar foto</button>
       </div>
-      <div class="muted" style="margin-top:6px">La foto se adjunta al registro y, si no hay foto de perfil, se guarda como tal.</div>
     </div>
   </section>
 
-  <!-- ===== APERCIBIMIENTO ===== -->
-  <section id="sec-apercibamiento" class="seccion">
-    <div class="card">
-      <h2>⚠️ Registrar Apercibamiento</h2>
-      <div class="rowf">
-        <label style="flex:1;min-width:180px">DNI<input id="dni-aperc" type="text" maxlength="12" oninput="this.value=this.value.replace(/\D/g,'')"/></label>
-        <label style="flex:2;min-width:220px">Nombre<input id="nombre-aperc" type="text"/></label>
-      </div>
-      <div class="rowf"><label style="flex:1">Motivo<textarea id="motivo-aperc" rows="3" placeholder="Describa el motivo..."></textarea></label></div>
-      <button class="btn btn-gold" onclick="registrarApercibamiento()">💾 Guardar</button>
-      <div id="alerta-aperc" class="alerta"></div>
-    </div>
-    <div class="card">
-      <h2>📋 Apercibimientos</h2>
-      <table id="tabla-aperc"><thead><tr><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Motivo</th><th>Inspector</th><th></th></tr></thead><tbody></tbody></table>
-    </div>
-  </section>
+  <section id="sec-apercibamiento" class="seccion"><div class="card">
+    <h2>⚠️ Registrar Apercibamiento</h2>
+    <div class="rowf"><label style="flex:1;min-width:180px">DNI<input id="dni-aperc" type="text" maxlength="12" oninput="this.value=this.value.replace(/\\D/g,'')"/></label><label style="flex:2;min-width:220px">Nombre<input id="nombre-aperc" type="text"/></label></div>
+    <div class="rowf"><label style="flex:1">Motivo<textarea id="motivo-aperc" rows="3" placeholder="Describa el motivo..."></textarea></label></div>
+    <button class="btn btn-gold" id="btn-aperc">💾 Guardar</button>
+    <div id="alerta-aperc" class="alerta"></div>
+  </div><div class="card"><h2>📋 Apercibimientos</h2><table id="tabla-aperc"><thead><tr><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Motivo</th><th>Inspector</th><th></th></tr></thead><tbody></tbody></table></div></section>
 
-  <!-- ===== SUSPENSIÓN ===== -->
-  <section id="sec-suspension" class="seccion">
-    <div class="card">
-      <h2>🚫 Registrar Suspensión</h2>
-      <div class="rowf">
-        <label style="flex:1;min-width:180px">DNI<input id="dni-susp" type="text" maxlength="12" oninput="this.value=this.value.replace(/\D/g,'')"/></label>
-        <label style="flex:2;min-width:220px">Nombre<input id="nombre-susp" type="text"/></label>
-      </div>
-      <div class="rowf">
-        <label>Desde<input id="susp-desde" type="date"/></label>
-        <label>Hasta<input id="susp-hasta" type="date"/></label>
-      </div>
-      <div class="rowf"><label style="flex:1">Motivo<textarea id="motivo-susp" rows="3"></textarea></label></div>
-      <button class="btn btn-danger" onclick="registrarSuspension()">💾 Guardar</button>
-      <div id="alerta-susp" class="alerta"></div>
-    </div>
-    <div class="card">
-      <h2>📋 Suspensiones</h2>
-      <table id="tabla-susp"><thead><tr><th>DNI</th><th>Nombre</th><th>Desde</th><th>Hasta</th><th>Motivo</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table>
-    </div>
-  </section>
+  <section id="sec-suspension" class="seccion"><div class="card">
+    <h2>🚫 Registrar Suspensión</h2>
+    <div class="rowf"><label style="flex:1;min-width:180px">DNI<input id="dni-susp" type="text" maxlength="12" oninput="this.value=this.value.replace(/\\D/g,'')"/></label><label style="flex:2;min-width:220px">Nombre<input id="nombre-susp" type="text"/></label></div>
+    <div class="rowf"><label>Desde<input id="susp-desde" type="date"/></label><label>Hasta<input id="susp-hasta" type="date"/></label></div>
+    <div class="rowf"><label style="flex:1">Motivo<textarea id="motivo-susp" rows="3"></textarea></label></div>
+    <button class="btn btn-danger" id="btn-susp">💾 Guardar</button>
+    <div id="alerta-susp" class="alerta"></div>
+  </div><div class="card"><h2>📋 Suspensiones</h2><table id="tabla-susp"><thead><tr><th>DNI</th><th>Nombre</th><th>Desde</th><th>Hasta</th><th>Motivo</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table></div></section>
 
-  <!-- ===== CONSULTA ===== -->
-  <section id="sec-consulta" class="seccion">
-    <div class="card">
-      <h2>📋 Consulta por Fechas</h2>
-      <div class="rowf">
-        <label>Desde<input id="consulta-desde" type="date"/></label>
-        <label>Hasta<input id="consulta-hasta" type="date"/></label>
-        <label>ID (DNI/N° socio opcional)<input id="consulta-dni" type="text" oninput="this.value=this.value.replace(/\D/g,'')"/></label>
-      </div>
-      <button class="btn btn-primary" onclick="consultarIngresos()">🔍 Consultar</button>
-      <div id="resumen-consulta" class="muted" style="margin-top:8px"></div>
-      <table id="tabla-consulta"><thead><tr><th>ID</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Estado</th></tr></thead><tbody></tbody></table>
-    </div>
-  </section>
+  <section id="sec-consulta" class="seccion"><div class="card">
+    <h2>📋 Consulta por Fechas</h2>
+    <div class="rowf"><label>Desde<input id="consulta-desde" type="date"/></label><label>Hasta<input id="consulta-hasta" type="date"/></label><label>ID (DNI/N° socio opcional)<input id="consulta-dni" type="text" oninput="this.value=this.value.replace(/\\D/g,'')"/></label></div>
+    <button class="btn btn-primary" id="btn-consultar">🔍 Consultar</button>
+    <div id="resumen-consulta" class="muted" style="margin-top:8px"></div>
+    <table id="tabla-consulta"><thead><tr><th>ID</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Estado</th></tr></thead><tbody></tbody></table>
+  </div></section>
 
-  <!-- ===== VENCIDOS ===== -->
-  <section id="sec-vencidos" class="seccion">
-    <div class="card">
-      <h2>⏰ Ingresos Vencidos / Por Vencer</h2>
-      <div class="row" style="gap:8px">
-        <button class="btn btn-primary" onclick="renderVencidos()">🔄 Actualizar</button>
-        <button class="btn btn-danger" onclick="limpiarVencidos()">🗑️ Eliminar todos los vencidos</button>
-      </div>
-      <table id="tabla-vencidos"><thead><tr><th>ID</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Transcurrido</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table>
-      <div id="alerta-vencidos" class="alerta"></div>
-    </div>
-  </section>
+  <section id="sec-vencidos" class="seccion"><div class="card">
+    <h2>⏰ Ingresos Vencidos / Por Vencer</h2>
+    <div class="row" style="gap:8px"><button class="btn btn-primary" id="btn-venc-actualizar">🔄 Actualizar</button><button class="btn btn-danger" id="btn-venc-limpiar">🗑️ Eliminar todos los vencidos</button></div>
+    <table id="tabla-vencidos"><thead><tr><th>ID</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Transcurrido</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table>
+    <div id="alerta-vencidos" class="alerta"></div>
+  </div></section>
 
-  <!-- ===== INSPECTORES ===== -->
   <section id="sec-inspectores" class="seccion">
-    <div class="card">
-      <h2>👮 Inspector de Turno</h2>
-      <div id="insp-activo" class="muted">Sin inspector activo</div>
-      <div class="row" style="gap:8px;margin-top:6px">
-        <button class="btn btn-secondary" onclick="desactivarInspector()">✖ Desactivar</button>
-      </div>
-    </div>
-    <div class="card">
-      <h2>📋 Inspectores</h2>
-      <table id="tabla-insp"><thead><tr><th>Nombre</th><th>Usuario</th><th>Tel</th><th>Obs</th><th>Acciones</th></tr></thead><tbody></tbody></table>
-    </div>
+    <div class="card"><h2>👮 Inspector de Turno</h2><div id="insp-activo" class="muted">Sin inspector activo</div><div class="row" style="gap:8px;margin-top:6px"><button class="btn btn-secondary" id="btn-insp-desact">✖ Desactivar</button></div></div>
+    <div class="card"><h2>📋 Inspectores</h2><table id="tabla-insp"><thead><tr><th>Nombre</th><th>Usuario</th><th>Tel</th><th>Obs</th><th>Acciones</th></tr></thead><tbody></tbody></table></div>
   </section>
 
-  <!-- ===== ADMIN (token + backup/restore local) ===== -->
-  <section id="sec-backup" class="seccion">
-    <div class="card">
-      <h2>⚙️ Activación del sistema</h2>
-      <div class="rowf">
-        <label style="flex:1;min-width:220px">Token (local)
-          <input id="admin-token" type="password" placeholder="Ingresá el token"/>
-        </label>
-        <div class="row" style="gap:8px">
-          <button class="btn btn-gold" id="btn-activar">🔓 Activar</button>
-          <button class="btn btn-secondary" id="btn-desactivar">🔒 Desactivar</button>
-          <button class="btn" id="btn-guardar-token">💾 Guardar/Actualizar token</button>
-        </div>
-      </div>
-      <div id="estado-sistema" class="badge" style="margin-top:8px"></div>
-    </div>
-    <div class="card">
-      <h2>🗃️ Backup & Restore (local)</h2>
-      <div class="row" style="gap:8px">
-        <button class="btn btn-primary" id="btn-backup">⬇️ Generar backup (ZIP)</button>
-        <label class="btn btn-secondary" style="cursor:pointer">⬆️ Restaurar desde ZIP
-          <input id="zip-restore" type="file" accept=".zip" style="display:none"/>
-        </label>
-      </div>
-      <div class="muted">Incluye: ingresos, personas, apercibimientos, suspensiones, inspectores y activos. Formato XML por archivo.</div>
-    </div>
-  </section>
+  <section id="sec-backup" class="seccion"><div class="card">
+    <h2>⚙️ Activación del sistema</h2>
+    <div class="rowf"><label style="flex:1;min-width:220px">Token (local)<input id="admin-token" type="password" placeholder="Ingresá el token"/></label><div class="row" style="gap:8px"><button class="btn btn-gold" id="btn-activar">🔓 Activar</button><button class="btn btn-secondary" id="btn-desactivar">🔒 Desactivar</button><button class="btn" id="btn-guardar-token">💾 Guardar/Actualizar token</button></div></div>
+    <div id="estado-sistema" class="badge" style="margin-top:8px"></div>
+  </div><div class="card"><h2>🗃️ Backup & Restore (local)</h2><div class="row" style="gap:8px"><button class="btn btn-primary" id="btn-backup">⬇️ Generar backup (ZIP)</button><label class="btn btn-secondary" style="cursor:pointer">⬆️ Restaurar desde ZIP<input id="zip-restore" type="file" accept=".zip" style="display:none"/></label></div><div class="muted">Incluye: ingresos, personas, apercibimientos, suspensiones, inspectores y activos (XML).</div></div></section>
 
-  <!-- ===== ESTADÍSTICAS ===== -->
   <section id="sec-estadisticas" class="seccion">
-    <div class="card">
-      <h2>📊 Estadísticas</h2>
-      <div style="max-width:760px;margin:auto"><canvas id="chart-edad" height="140"></canvas></div>
-      <div id="estad-nota" class="muted" style="margin-top:8px"></div>
-    </div>
-    <!-- Card de inicialización GitHub (XML + JSON) sin tocar Admin -->
+    <div class="card"><h2>📊 Estadísticas</h2><div style="max-width:760px;margin:auto"><canvas id="chart-edad" height="140"></canvas></div><div id="estad-nota" class="muted" style="margin-top:8px"></div></div>
     <div class="card" id="gh-init-card">
-      <h2>🆕 Inicializar persistencia en GitHub</h2>
-      <div class="row" style="gap:8px">
-        <button class="btn btn-primary" id="btn-gh-init-xmljson">🗃️ Crear XML + JSON (si faltan)</button>
-      </div>
-      <div class="muted" style="margin-top:8px">Crea los archivos necesarios en el repositorio remoto si no existen: <code>live/*.xml</code> y <code>live/json/*.json</code>. El PAT se cifra en el navegador (AES‑GCM) y se solicita una frase para su uso.</div>
+      <h2>🐙 GitHub – Inicializar / Probar / Subir / Bajar</h2>
+      <div class="rowf"><label>Owner/Org<input id="gh-owner" type="text" placeholder="owner"/></label><label>Repo<input id="gh-repo" type="text" placeholder="repo"/></label><label>Branch<input id="gh-branch" type="text" placeholder="main"/></label><label>Ruta base<input id="gh-base" type="text" placeholder="live"/></label></div>
+      <div class="row" style="gap:8px;margin-top:8px"><button class="btn btn-secondary" id="gh-test">🔗 Probar conexión</button><button class="btn btn-primary" id="gh-init">🗃️ Crear XML + JSON (si faltan)</button><button class="btn btn-gold" id="gh-upload">⬆️ Subir todo</button><button class="btn" id="gh-download">⬇️ Traer todo</button></div>
+      <div class="row" style="gap:8px;margin-top:6px"><label style="display:inline-flex;align-items:center;gap:8px"><input type="checkbox" id="gh-autoinit"/> Auto-inicializar/sincronizar al abrir</label></div>
+      <div id="alerta-github" class="alerta" style="margin-top:10px"></div>
+      <div class="muted">El PAT está <b>preconfigurado</b> y se cifra en el navegador; no se te pedirá. Completá Owner/Repo/Branch/Ruta.</div>
     </div>
   </section>
 </main>
 
-<!-- Modal zoom -->
-<div id="img-modal" role="dialog" aria-label="Imagen ampliada" tabindex="-1" style="display:none"><img alt="Ampliación"/></div>
+<div id="img-modal" role="dialog" aria-label="Imagen ampliada" tabindex="-1"><img alt="Ampliación"/></div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
-// =========================
-// CONFIG / CONSTANTES
-// =========================
+// ===== Utilidades generales
 const KEYS={ingresos:'pcq_ingresos',apercibimientos:'pcq_apercibimientos',suspensiones:'pcq_suspensiones',inspectores:'pcq_inspectores',inspActivo:'pcq_inspector_activo', personas:'pcq_personas', inspActivos:'pcq_inspectores_activos'};
-const HS_VIGENCIA=24, MIN_POR_VENCER=60; // 24h
-let offsetMs=0; // hora local
+const HS_VIGENCIA=24, MIN_POR_VENCER=60; let offsetMs=0;
+function ahoraReal(){return new Date(Date.now()+offsetMs)} function pad(n){return String(n).padStart(2,'0')}
+function formatFecha(dt){return `${pad(dt.getDate())}/${pad(dt.getMonth()+1)}/${dt.getFullYear()}`} function formatHora(dt){return `${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(dt.getSeconds())}`} function isoFecha(dt){return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`} function parseFechaHora(f,h){const [d,m,y]=f.split('/');return new Date(`${y}-${m}-${d}T${h}`)} function tiempoTranscurrido(ms){const h=Math.floor(ms/3600000),min=Math.floor((ms%3600000)/60000);return h>=24?`${Math.floor(h/24)}d ${h%24}h ${min}m`:`${h}h ${min}m`}
+function cargarLista(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return []}} function guardarLista(k,v){localStorage.setItem(k,JSON.stringify(v))} function cargarItem(k){return localStorage.getItem(k)} function guardarItem(k,v){localStorage.setItem(k,v)}
 
-// =========================
-// UTILIDADES HORA
-// =========================
-function ahoraReal(){return new Date(Date.now()+offsetMs)}
-function pad(n){return String(n).padStart(2,'0')}
-function formatFecha(dt){return `${pad(dt.getDate())}/${pad(dt.getMonth()+1)}/${dt.getFullYear()}`}
-function formatHora(dt){return `${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(dt.getSeconds())}`}
-function isoFecha(dt){return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`}
-function parseFechaHora(f,h){const [d,m,y]=f.split('/');return new Date(`${y}-${m}-${d}T${h}`)}
-function tiempoTranscurrido(ms){const h=Math.floor(ms/3600000),min=Math.floor((ms%3600000)/60000);return h>=24?`${Math.floor(h/24)}d ${h%24}h ${min}m`:`${h}h ${min}m`}
+// ===== Navegación + reloj
+function navClick(id,btn){document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('activa'));document.getElementById('sec-'+id).classList.add('activa');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('activo'));if(btn)btn.classList.add('activo');if(id==='estadisticas'){renderEstadisticas()}}
+function tick(){const n=ahoraReal(); const h=document.getElementById('reloj-header'); if(h) h.textContent=`${formatFecha(n)} ${formatHora(n)}`; const g=document.getElementById('reloj-grande'); if(g) g.textContent=formatHora(n); const f=document.getElementById('fecha-grande'); if(f) f.textContent=formatFecha(n);} setInterval(tick,1000); tick();
 
-// =========================
-// LOCAL STORAGE
-// =========================
-function cargarDatos(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return []}}
-function guardarDatos(k,v){localStorage.setItem(k,JSON.stringify(v))}
-function cargarItem(k){return localStorage.getItem(k)}
-function guardarItem(k,v){localStorage.setItem(k,v)}
+// ===== Inspector demo al inicio
+(function(){const L=cargarLista(KEYS.inspectores); if(!L.length){const nuevo={id:Date.now(),nombre:'Inspector Demo',usuario:'demo',password:'demo',tel:'',obs:'Auto'}; L.push(nuevo); guardarLista(KEYS.inspectores,L); guardarItem(KEYS.inspActivo,String(nuevo.id)); } actualizarHeaderInspector(); })();
+function getInspectorActivo(){const id=cargarItem(KEYS.inspActivo); if(id){ const i=cargarLista(KEYS.inspectores).find(x=>String(x.id)===String(id)); if(i) return i;} return null }
+function actualizarHeaderInspector(){const i=getInspectorActivo(); const el=document.getElementById('header-inspector'); if(el) el.textContent= i? `👮 ${i.nombre}` : '🔒 Sin inspector activo';}
 
-// Alias consistentes
-function cargarLista(k){return cargarDatos(k)}
-function guardarLista(k,v){guardarDatos(k,v)}
-
-// =========================
-// UI BASICA
-// =========================
-function setSyncBadge(e,t){const b=document.getElementById('sync-badge');if(b)b.className='badge sync-'+(e||'ok');const s=document.getElementById('sync-txt');if(s)s.textContent=t||'Local'}
-function tickReloj(){const now=ahoraReal();document.getElementById('reloj-header').textContent=`${formatFecha(now)} ${formatHora(now)}`;document.getElementById('reloj-grande').textContent=formatHora(now);document.getElementById('fecha-grande').textContent=formatFecha(now)}
-setInterval(tickReloj,1000);tickReloj();
-function navClick(id,btn){_navegarSeccion(id,btn)}
-function _navegarSeccion(id,btn){document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('activa'));document.getElementById('sec-'+id).classList.add('activa');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('activo'));if(btn)btn.classList.add('activo');if(id==='estadisticas')renderEstadisticas();if(id==='vencidos')renderVencidos();if(id==='inspectores')renderInspectoresUI()}
-
-// =========================
-// INSPECTORES
-// =========================
-function getInspectorActivo(){const id=cargarItem(KEYS.inspActivo);if(id){const uno=cargarDatos(KEYS.inspectores).find(i=>String(i.id)===String(id));if(uno)return uno}
-// Soporte multi-activo
-try{const act=JSON.parse(localStorage.getItem(KEYS.inspActivos)||'[]');if(act.length){const lista=cargarDatos(KEYS.inspectores);const primero=lista.find(i=>String(i.id)===String(act[0]));if(primero)return primero}}catch{}
-return null}
-function actualizarHeaderInspector(){const i=getInspectorActivo();const el=document.getElementById('header-inspector');if(i)el.textContent=`👮 ${i.nombre}`;else el.textContent='🔒 Sin inspector activo'}
-function guardarInspector(){const nombre=document.getElementById('insp-nombre')?.value?.trim();const usuario=document.getElementById('insp-usuario')?.value?.trim();const pass=document.getElementById('insp-pass')?.value?.trim();const tel=document.getElementById('insp-tel')?.value?.trim();const obs=document.getElementById('insp-obs')?.value?.trim();if(!nombre||!usuario||!pass){return mostrarAlerta('alerta-insp','error','Completá nombre/usuario/contraseña.')}const lista=cargarDatos(KEYS.inspectores);if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase())){return mostrarAlerta('alerta-insp','error','Ya existe un inspector con ese nombre.')}lista.push({id:Date.now(),nombre,usuario,password:pass,tel,obs});guardarDatos(KEYS.inspectores,lista);['insp-nombre','insp-usuario','insp-pass','insp-tel','insp-obs'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderInspectoresUI();mostrarAlerta('alerta-insp','ok','✅ Inspector registrado.')}
-function renderInspectoresUI(){const tbody=document.querySelector('#tabla-insp tbody');if(!tbody)return;tbody.innerHTML='';const lista=cargarDatos(KEYS.inspectores);if(!lista.length){tbody.innerHTML='<tr><td colspan="5" class="muted">No hay inspectores</td></tr>';return}lista.forEach(insp=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${insp.nombre}</td><td>${insp.usuario||'—'}</td><td>${insp.tel||'—'}</td><td>${insp.obs||'—'}</td><td><button class="btn btn-gold" onclick="activarInspector(${insp.id})">⚡ Activar</button> <button class="btn btn-danger" onclick="eliminarInspector(${insp.id})">🗑️</button></td>`;tbody.appendChild(tr)});const act=getInspectorActivo();document.getElementById('insp-activo').textContent=act?`Activo: ${act.nombre}`:'Sin inspector activo';actualizarHeaderInspector()}
-function activarInspector(id){guardarItem(KEYS.inspActivo,String(id));renderInspectoresUI();mostrarAlerta('alerta-insp','ok','✅ Inspector activado.');}
-function desactivarInspector(){localStorage.removeItem(KEYS.inspActivo);renderInspectoresUI();mostrarAlerta('alerta-insp','warn','Inspector desactivado.');}
-function eliminarInspector(id){const lista=cargarDatos(KEYS.inspectores).filter(i=>i.id!==id);if(String(cargarItem(KEYS.inspActivo))===String(id)){localStorage.removeItem(KEYS.inspActivo)}guardarDatos(KEYS.inspectores,lista);renderInspectoresUI()}
-
-// Demo inspector al iniciar si no hay
-(function ensureDemoInspector(){const lista=cargarDatos(KEYS.inspectores);if(!lista.length){const nuevo={id:Date.now(),nombre:'Inspector Demo',usuario:'demo',password:'demo',tel:'',obs:'Generado automáticamente'};lista.push(nuevo);guardarDatos(KEYS.inspectores,lista);guardarItem(KEYS.inspActivo,String(nuevo.id));}})();
-
-// =========================
-// ALERTAS
-// =========================
+// ===== Ingreso: cámara obligatoria + socio/invitado
+let FOTO_DATA=null, STREAM=null; function startCam(){navigator.mediaDevices.getUserMedia({video:true,audio:false}).then(st=>{STREAM=st; const v=document.getElementById('cam-video'); v.srcObject=st; v.style.display='block'; document.getElementById('foto-preview').style.display='none'; document.getElementById('btn-cam-snap').disabled=false; document.getElementById('btn-cam-clear').disabled=false; document.getElementById('btn-cam-start').disabled=true;}).catch(()=>alert('No se pudo acceder a la cámara. Usá HTTPS o localhost.'))}
+function stopCam(){ if(STREAM){STREAM.getTracks().forEach(t=>t.stop()); STREAM=null;} const v=document.getElementById('cam-video'); v.srcObject=null; v.style.display='none'; }
+function clearPhoto(){FOTO_DATA=null; const p=document.getElementById('foto-preview'); p.src=''; p.style.display='none'; stopCam(); document.getElementById('btn-cam-start').disabled=false; document.getElementById('btn-cam-snap').disabled=true; document.getElementById('btn-cam-clear').disabled=true;}
+function takePhoto(){const c=document.getElementById('cam-canvas'), v=document.getElementById('cam-video'); const w=c.width,h=c.height; const ctx=c.getContext('2d'); ctx.drawImage(v,0,0,w,h); FOTO_DATA=c.toDataURL('image/jpeg',0.85); const p=document.getElementById('foto-preview'); p.src=FOTO_DATA; p.style.display='block'; stopCam();}
 function mostrarAlerta(id,tipo,msg){const el=document.getElementById(id);if(!el)return;el.className='alerta show alerta-'+(tipo==='ok'?'ok':tipo);el.innerHTML=msg;clearTimeout(el._t);el._t=setTimeout(()=>{el.className='alerta'},6000)}
+function getPersona(dni){dni=String(dni||'').trim(); if(!dni) return null; return (cargarLista(KEYS.personas)||[]).find(p=>String(p.dni)===dni)||null}
+function upsertPersona(dni,nombre,foto){dni=String(dni||'').trim(); if(!dni) return; const L=cargarLista(KEYS.personas); let p=L.find(x=>String(x.dni)===dni); if(!p){p={dni,nombre:nombre||'',fotoPerfil:foto||null}; L.push(p)} if(nombre && (!p.nombre||!p.nombre.trim())) p.nombre=nombre; if(foto) p.fotoPerfil=foto; guardarLista(KEYS.personas,L)}
+function getUltFotoIngreso(dni){const A=cargarLista(KEYS.ingresos).filter(i=>String(i.dni)===String(dni)); return A.length?A[A.length-1].foto:null}
+function fotoParaDNI(d){const p=getPersona(d); return (p&&p.fotoPerfil)||getUltFotoIngreso(d)||null}
 
-// =========================
-// INGRESOS / APERC / SUSP
-// =========================
-function estadoIngreso(ing){const ms=ahoraReal().getTime()-parseFechaHora(ing.fecha,ing.hora).getTime();const lim=HS_VIGENCIA*3600000,prev=lim-MIN_POR_VENCER*60000;if(ms>=lim)return{texto:'⏰ Vencido',clase:'vencido'};if(ms>=prev)return{texto:'⏳ Por vencer',clase:'por-vencer'};return{texto:'✅ Vigente',clase:'vigente'}}
-function registrarIngreso(){/* reemplazado en inyección */}
-function limpiarCamposIngreso(){['dni-ingreso','nombre-ingreso'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''})}
-function cargarUltimos(id){const wrap=document.getElementById('ultimos-ingresos');const tbody=document.querySelector('#tabla-ultimos tbody');wrap.style.display='block';tbody.innerHTML='';const mis=cargarDatos(KEYS.ingresos).filter(i=>i.dni===id).slice(-10).reverse();if(!mis.length){tbody.innerHTML='<tr><td colspan="5" class="muted">Sin ingresos previos</td></tr>';return}mis.forEach((i,n)=>{const est=estadoIngreso(i);const tr=document.createElement('tr');tr.innerHTML=`<td>${n+1}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${i.nombre||'—'}</td><td>${est.texto}</td>`;tbody.appendChild(tr)})}
-function registrarApercibamiento(){const dni=document.getElementById('dni-aperc').value.trim();const nombre=document.getElementById('nombre-aperc').value.trim();const motivo=document.getElementById('motivo-aperc').value.trim();if(!dni||!motivo){return mostrarAlerta('alerta-aperc','error','Completá DNI y motivo.')}const now=ahoraReal();const lista=cargarDatos(KEYS.apercibimientos);const insp=getInspectorActivo();lista.push({id:Date.now(),dni,nombre,motivo,fecha:formatFecha(now),hora:formatHora(now),inspector:insp?insp.nombre:null});guardarDatos(KEYS.apercibimientos,lista);['dni-aperc','nombre-aperc','motivo-aperc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderTablaAperc();mostrarAlerta('alerta-aperc','ok','⚠️ Apercibimiento registrado.')}
-function renderTablaAperc(){const tbody=document.querySelector('#tabla-aperc tbody');if(!tbody)return;tbody.innerHTML='';const lista=cargarDatos(KEYS.apercibimientos).slice().reverse();if(!lista.length){tbody.innerHTML='<tr><td colspan="6" class="muted">Sin registros</td></tr>';return}lista.forEach(a=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${a.dni}</td><td>${a.nombre||'—'}</td><td>${a.fecha} ${a.hora}</td><td>${a.motivo}</td><td>${a.inspector||'—'}</td><td><button class="btn btn-danger" onclick="eliminarAperc(${a.id})">🗑️</button></td>`;tbody.appendChild(tr)})}
-function eliminarAperc(id){guardarDatos(KEYS.apercibimientos,cargarDatos(KEYS.apercibimientos).filter(a=>a.id!==id));renderTablaAperc()}
-function registrarSuspension(){const dni=document.getElementById('dni-susp').value.trim();const nombre=document.getElementById('nombre-susp').value.trim();const desde=document.getElementById('susp-desde').value;const hasta=document.getElementById('susp-hasta').value;const motivo=document.getElementById('motivo-susp').value.trim();if(!dni||!desde||!hasta||!motivo){return mostrarAlerta('alerta-susp','error','Completá todos los campos.')}if(hasta<desde){return mostrarAlerta('alerta-susp','error','"Hasta" debe ser ≥ "Desde".')}const lista=cargarDatos(KEYS.suspensiones);lista.push({id:Date.now(),dni,nombre,desde,hasta,motivo});guardarDatos(KEYS.suspensiones,lista);['dni-susp','nombre-susp','susp-desde','susp-hasta','motivo-susp'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderTablaSusp();mostrarAlerta('alerta-susp','ok','🚫 Suspensión registrada.')}
-function renderTablaSusp(){const tbody=document.querySelector('#tabla-susp tbody');if(!tbody)return;tbody.innerHTML='';const lista=cargarDatos(KEYS.suspensiones).slice().reverse();if(!lista.length){tbody.innerHTML='<tr><td colspan="7" class="muted">Sin registros</td></tr>';return}const hoy=isoFecha(ahoraReal());lista.forEach(s=>{const act=hoy>=s.desde&&hoy<=s.hasta;const tr=document.createElement('tr');tr.innerHTML=`<td>${s.dni}</td><td>${s.nombre||'—'}</td><td>${s.desde}</td><td>${s.hasta}</td><td>${s.motivo}</td><td>${act?'🚫 ACTIVA':'✔️ Vencida'}</td><td><button class="btn btn-danger" onclick="eliminarSusp(${s.id})">🗑️</button></td>`;tbody.appendChild(tr)})}
-function eliminarSusp(id){guardarDatos(KEYS.suspensiones,cargarDatos(KEYS.suspensiones).filter(s=>s.id!==id));renderTablaSusp()}
+function registrar(){const dni=(document.getElementById('dni-ingreso').value||'').trim(); const nom=(document.getElementById('nombre-ingreso').value||'').trim(); const esSocio=document.getElementById('radio-socio')?.checked||false; if(!dni) return mostrarAlerta('alerta-ingreso','error', esSocio?'Ingresá el N° de socio.':'Ingresá el DNI.'); if(!nom) return mostrarAlerta('alerta-ingreso','error','Ingresá el Nombre y Apellido.'); if(!FOTO_DATA) return mostrarAlerta('alerta-ingreso','error','📸 Tomá una foto del ingreso (obligatoria).'); const now=ahoraReal(); const reg={dni,nombre:nom,fecha:formatFecha(now),hora:formatHora(now),isoFecha:isoFecha(now),foto:FOTO_DATA,tipo:esSocio?'socio':'invitado'}; const L=cargarLista(KEYS.ingresos); L.push(reg); guardarLista(KEYS.ingresos,L); const p=getPersona(dni); if(!p||!p.fotoPerfil) upsertPersona(dni,nom,FOTO_DATA); else if(nom && (!p.nombre||!p.nombre.trim())) upsertPersona(dni,nom,null); document.getElementById('dni-ingreso').value=''; document.getElementById('nombre-ingreso').value=''; clearPhoto(); const fp=document.getElementById('foto-perfil'); if(fp){fp.style.display='none'; fp.src='';} mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado – ${esSocio?'Socio':'DNI'} ${dni}`); cargarUltimos(dni); }
+function limpiar(){document.getElementById('dni-ingreso').value=''; document.getElementById('nombre-ingreso').value=''; clearPhoto();}
 
-// =========================
-// VENCIDOS
-// =========================
-function renderVencidos(){const tbody=document.querySelector('#tabla-vencidos tbody');tbody.innerHTML='';const now=ahoraReal();const lim=HS_VIGENCIA*3600000,prev=lim-MIN_POR_VENCER*60000;const ing=cargarDatos(KEYS.ingresos).slice().sort((a,b)=>parseFechaHora(a.fecha,a.hora)-parseFechaHora(b.fecha,b.hora));const pv=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);return ms>=prev&&ms<lim});const ven=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);return ms>=lim});const todos=[...pv,...ven];if(!todos.length){tbody.innerHTML='<tr><td colspan="7" class="muted">No hay ingresos por vencer/vencidos</td></tr>';return}todos.forEach(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);let est='';if(ms>=lim)est='⏰ Vencido';else if(ms>=prev)est='⏳ Por vencer';else est='✅ Vigente';const tr=document.createElement('tr');tr.innerHTML=`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${tiempoTranscurrido(ms)}</td><td>${est}</td><td><button class="btn btn-danger" onclick="darBajaIngreso('${i.dni}','${i.fecha}','${i.hora}')">🗑️</button></td>`;tbody.appendChild(tr)})}
-function darBajaIngreso(dni,fecha,hora){guardarDatos(KEYS.ingresos,cargarDatos(KEYS.ingresos).filter(i=>!(i.dni===dni&&i.fecha===fecha&&i.hora===hora)));renderVencidos()}
-function limpiarVencidos(){const now=ahoraReal(),lim=HS_VIGENCIA*3600000;const ing=cargarDatos(KEYS.ingresos);const vig=ing.filter(i=>now-parseFechaHora(i.fecha,i.hora)<lim);guardarDatos(KEYS.ingresos,vig);renderVencidos();mostrarAlerta('alerta-vencidos','ok','✅ Vencidos eliminados.')}
+function cargarUltimos(id){const wrap=document.getElementById('ultimos-ingresos'); const tbody=document.querySelector('#tabla-ultimos tbody'); wrap.style.display='block'; tbody.innerHTML=''; const mis=cargarLista(KEYS.ingresos).filter(i=>i.dni===id).slice(-10).reverse(); if(!mis.length){tbody.innerHTML='<tr><td colspan="5" class="muted">Sin ingresos previos</td></tr>';return} mis.forEach((i,n)=>{ const ms=ahoraReal()-parseFechaHora(i.fecha,i.hora); let est=''; const lim=HS_VIGENCIA*3600000, prev=lim-MIN_POR_VENCER*60000; if(ms>=lim) est='⏰ Vencido'; else if(ms>=prev) est='⏳ Por vencer'; else est='✅ Vigente'; const tr=document.createElement('tr'); tr.innerHTML=`<td>${n+1}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${i.nombre||'—'}</td><td>${est}</td>`; tbody.appendChild(tr); }); }
 
-// =========================
-// CONSULTA
-// =========================
-(function setFechasConsultaHoy(){const hoy=isoFecha(ahoraReal());const d=document.getElementById('consulta-desde');const h=document.getElementById('consulta-hasta');if(d&&!d.value)d.value=hoy;if(h&&!h.value)h.value=hoy})();
-function consultarIngresos(){const desde=document.getElementById('consulta-desde').value;const hasta=document.getElementById('consulta-hasta').value;const dni=document.getElementById('consulta-dni').value.trim();const tbody=document.querySelector('#tabla-consulta tbody');if(!desde||!hasta){document.getElementById('resumen-consulta').textContent='Seleccioná ambas fechas.';tbody.innerHTML='';return}if(hasta<desde){document.getElementById('resumen-consulta').textContent='La fecha "hasta" debe ser ≥ "desde".';tbody.innerHTML='';return}let res=cargarDatos(KEYS.ingresos).filter(i=>i.isoFecha>=desde&&i.isoFecha<=hasta);if(dni)res=res.filter(i=>i.dni===dni);res.sort((a,b)=> (a.isoFecha+a.hora)>(b.isoFecha+b.hora)?-1:1);document.getElementById('resumen-consulta').textContent=`Resultados: ${res.length}`;tbody.innerHTML='';if(!res.length){tbody.innerHTML='<tr><td colspan="5" class="muted">Sin resultados</td></tr>';return}res.forEach(i=>{const est=estadoIngreso(i);const tr=document.createElement('tr');tr.innerHTML=`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${est.texto}</td>`;tbody.appendChild(tr)})}
+// ===== Aperc / Suspensiones / Consulta / Vencidos
+function registrarAperc(){const dni=document.getElementById('dni-aperc').value.trim();const nom=document.getElementById('nombre-aperc').value.trim();const mot=document.getElementById('motivo-aperc').value.trim();if(!dni||!mot){return mostrarAlerta('alerta-aperc','error','Completá DNI y motivo.')}const now=ahoraReal();const L=cargarLista(KEYS.apercibimientos);const insp=getInspectorActivo();L.push({id:Date.now(),dni,nombre:nom,motivo:mot,fecha:formatFecha(now),hora:formatHora(now),inspector:insp?insp.nombre:null});guardarLista(KEYS.apercibimientos,L);['dni-aperc','nombre-aperc','motivo-aperc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderTablaAperc();mostrarAlerta('alerta-aperc','ok','⚠️ Apercibimiento registrado.')}
+function renderTablaAperc(){const tb=document.querySelector('#tabla-aperc tbody'); if(!tb) return; tb.innerHTML=''; const L=cargarLista(KEYS.apercibimientos).slice().reverse(); if(!L.length){tb.innerHTML='<tr><td colspan="6" class="muted">Sin registros</td></tr>';return} L.forEach(a=>{const tr=document.createElement('tr'); tr.innerHTML=`<td>${a.dni}</td><td>${a.nombre||'—'}</td><td>${a.fecha} ${a.hora}</td><td>${a.motivo}</td><td>${a.inspector||'—'}</td><td><button class="btn btn-danger" onclick="eliminarAperc(${a.id})">🗑️</button></td>`; tb.appendChild(tr); })}
+function eliminarAperc(id){guardarLista(KEYS.apercibimientos,cargarLista(KEYS.apercibimientos).filter(x=>x.id!==id));renderTablaAperc()}
+function registrarSusp(){const dni=document.getElementById('dni-susp').value.trim();const nom=document.getElementById('nombre-susp').value.trim();const d=document.getElementById('susp-desde').value;const h=document.getElementById('susp-hasta').value;const mot=document.getElementById('motivo-susp').value.trim();if(!dni||!d||!h||!mot){return mostrarAlerta('alerta-susp','error','Completá todos los campos.')} if(h<d){return mostrarAlerta('alerta-susp','error','"Hasta" debe ser ≥ "Desde".')} const L=cargarLista(KEYS.suspensiones); L.push({id:Date.now(),dni,nombre:nom,desde:d,hasta:h,motivo:mot}); guardarLista(KEYS.suspensiones,L); ['dni-susp','nombre-susp','susp-desde','susp-hasta','motivo-susp'].forEach(id=>{const e=document.getElementById(id); if(e)e.value=''}) ;renderTablaSusp(); mostrarAlerta('alerta-susp','ok','🚫 Suspensión registrada.')}
+function renderTablaSusp(){const tb=document.querySelector('#tabla-susp tbody'); if(!tb) return; tb.innerHTML=''; const L=cargarLista(KEYS.suspensiones).slice().reverse(); if(!L.length){tb.innerHTML='<tr><td colspan="7" class="muted">Sin registros</td></tr>';return} const hoy=isoFecha(ahoraReal()); L.forEach(s=>{const act=hoy>=s.desde&&hoy<=s.hasta; const tr=document.createElement('tr'); tr.innerHTML=`<td>${s.dni}</td><td>${s.nombre||'—'}</td><td>${s.desde}</td><td>${s.hasta}</td><td>${s.motivo}</td><td>${act?'🚫 ACTIVA':'✔️ Vencida'}</td><td><button class="btn btn-danger" onclick="eliminarSusp(${s.id})">🗑️</button></td>`; tb.appendChild(tr); })}
+function eliminarSusp(id){guardarLista(KEYS.suspensiones,cargarLista(KEYS.suspensiones).filter(x=>x.id!==id));renderTablaSusp()}
+function setFechasConsulta(){const hoy=isoFecha(ahoraReal()); const d=document.getElementById('consulta-desde'); const h=document.getElementById('consulta-hasta'); if(d&&!d.value)d.value=hoy; if(h&&!h.value)h.value=hoy} setFechasConsulta();
+function consultar(){const desde=document.getElementById('consulta-desde').value; const hasta=document.getElementById('consulta-hasta').value; const dni=document.getElementById('consulta-dni').value.trim(); const tb=document.querySelector('#tabla-consulta tbody'); if(!desde||!hasta){document.getElementById('resumen-consulta').textContent='Seleccioná ambas fechas.'; tb.innerHTML=''; return} if(hasta<desde){document.getElementById('resumen-consulta').textContent='La fecha "hasta" debe ser ≥ "desde".'; tb.innerHTML=''; return} let res=cargarLista(KEYS.ingresos).filter(i=>i.isoFecha>=desde&&i.isoFecha<=hasta); if(dni) res=res.filter(i=>i.dni===dni); res.sort((a,b)=> (a.isoFecha+a.hora)>(b.isoFecha+b.hora)?-1:1); document.getElementById('resumen-consulta').textContent=`Resultados: ${res.length}`; tb.innerHTML=''; if(!res.length){tb.innerHTML='<tr><td colspan="5" class="muted">Sin resultados</td></tr>'; return} res.forEach(i=>{ const ms=ahoraReal()-parseFechaHora(i.fecha,i.hora); let est=''; const lim=HS_VIGENCIA*3600000, prev=lim-MIN_POR_VENCER*60000; if(ms>=lim) est='⏰ Vencido'; else if(ms>=prev) est='⏳ Por vencer'; else est='✅ Vigente'; const tr=document.createElement('tr'); tr.innerHTML=`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${est}</td>`; tb.appendChild(tr); })}
+function renderVencidos(){const tb=document.querySelector('#tabla-vencidos tbody'); tb.innerHTML=''; const now=ahoraReal(); const lim=HS_VIGENCIA*3600000, prev=lim-60*60000; const ing=cargarLista(KEYS.ingresos).slice().sort((a,b)=>parseFechaHora(a.fecha,a.hora)-parseFechaHora(b.fecha,b.hora)); const pv=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora); return ms>=prev && ms<lim}); const ven=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora); return ms>=lim}); const todos=[...pv,...ven]; if(!todos.length){tb.innerHTML='<tr><td colspan="7" class="muted">No hay ingresos por vencer/vencidos</td></tr>'; return} todos.forEach(i=>{const ms=now-parseFechaHora(i.fecha,i.hora); let est=''; if(ms>=lim) est='⏰ Vencido'; else if(ms>=prev) est='⏳ Por vencer'; else est='✅ Vigente'; const tr=document.createElement('tr'); tr.innerHTML=`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${tiempoTranscurrido(ms)}</td><td>${est}</td><td><button class="btn btn-danger" onclick="darBajaIngreso('${i.dni}','${i.fecha}','${i.hora}')">🗑️</button></td>`; tb.appendChild(tr); })}
+function darBajaIngreso(dni,fecha,hora){guardarLista(KEYS.ingresos,cargarLista(KEYS.ingresos).filter(i=>!(i.dni===dni&&i.fecha===fecha&&i.hora===hora))); renderVencidos()}
 
-// =========================
-// ESTADÍSTICAS (Chart.js)
-// =========================
-let _chartEdad=null;
+// ===== Estadísticas
 function _edadAproxDesdeDNI(dni){const n=Number(String(dni).replace(/\D/g,''));if(!n||isNaN(n))return 0; if(n>=70000000)return 5; if(n>=50000000&&n<60000000)return 16; if(n>=40000000&&n<50000000)return 25; if(n>=30000000&&n<40000000)return 35; if(n>=20000000&&n<30000000)return 45; if(n>=10000000&&n<20000000)return 60; return 90}
 function _bucketEdad(a){if(a<18)return '<18';if(a<30)return '18–29';if(a<45)return '30–44';if(a<60)return '45–59';return '60+'}
-function calcularDistribucionEdad(){const res={'<18':0,'18–29':0,'30–44':0,'45–59':0,'60+':0};const unicos=new Set();cargarDatos(KEYS.ingresos).forEach(i=>{if(i&&i.dni)unicos.add(String(i.dni))});unicos.forEach(d=>{res[_bucketEdad(_edadAproxDesdeDNI(d))]++});return{res,total:unicos.size}}
-function renderEstadisticas(){const {res,total}=calcularDistribucionEdad();const ctx=document.getElementById('chart-edad').getContext('2d');if(_chartEdad){_chartEdad.destroy()}_chartEdad=new Chart(ctx,{type:'line',data:{labels:Object.keys(res),datasets:[{label:'',data:Object.keys(res).map(k=>res[k]),borderColor:'#2d6e2d',backgroundColor:'#2d6e2d',fill:false,tension:0.3}]},options:{plugins:{legend:{display:false},title:{display:true,text:'Distribución por rango de edad (tendencia)'}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}});document.getElementById('estad-nota').textContent=''}
+function calcularDistribucionEdad(){const res={'<18':0,'18–29':0,'30–44':0,'45–59':0,'60+':0};const unicos=new Set();cargarLista(KEYS.ingresos).forEach(i=>{if(i&&i.dni)unicos.add(String(i.dni))});unicos.forEach(d=>{res[_bucketEdad(_edadAproxDesdeDNI(d))]++});return{res,total:unicos.size}}
+function renderEstadisticas(){const {res}=calcularDistribucionEdad();const ctx=document.getElementById('chart-edad').getContext('2d'); if(window._chartEdad) _chartEdad.destroy(); window._chartEdad=new Chart(ctx,{type:'line',data:{labels:Object.keys(res),datasets:[{label:'',data:Object.keys(res).map(k=>res[k]),borderColor:'#2d6e2d',backgroundColor:'#2d6e2d',fill:false,tension:0.3}]},options:{plugins:{legend:{display:false},title:{display:true,text:'Distribución por rango de edad (tendencia)'}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}); addTrendCards(); }
+function addTrendCards(){ const sec=document.getElementById('sec-estadisticas'); if(!sec) return; const ids=['chart-horas','chart-dias','chart-meses']; ids.forEach(id=>{ if(document.getElementById(id)) return; const card=document.createElement('div'); card.className='card'; let title=''; if(id==='chart-horas') title='🕒 Ingresos por rangos horarios (tendencia)'; if(id==='chart-dias') title='📅 Ingresos por día de la semana (tendencia)'; if(id==='chart-meses') title='🗓️ Ingresos por mes (últimos 12, tendencia)'; card.innerHTML=`<h2>${title}</h2><div class="chart-wrap"><canvas id="${id}" height="140"></canvas></div>`; sec.appendChild(card); }); function toLine(arr,color){return {label:'',data:arr,borderColor:color,backgroundColor:color,fill:false,tension:0.3}} const BU=[{l:'00–03',f:0,t:3},{l:'04–07',f:4,t:7},{l:'08–11',f:8,t:11},{l:'12–15',f:12,t:15},{l:'16–19',f:16,t:19},{l:'20–23',f:20,t:23}]; const H=(()=>{const res={}; BU.forEach(b=>res[b.l]=0); cargarLista(KEYS.ingresos).forEach(i=>{ const h=parseInt(String(i.hora||'00').split(':')[0],10)||0; const b=BU.find(b=>h>=b.f&&h<=b.t); if(b) res[b.l]++; }); return {labels:Object.keys(res), data:Object.values(res)} })(); const D=(()=>{const L=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb']; const c=[0,0,0,0,0,0,0]; cargarLista(KEYS.ingresos).forEach(i=>{ try{ const d=parseFechaHora(i.fecha,i.hora); c[d.getDay()]++; }catch(e){} }); return {labels:L, data:c} })(); const M=(()=>{ const now=new Date(); const arr=Array.from({length:12},(_,k)=>{ const d=new Date(now.getFullYear(), now.getMonth()-11+k, 1); return {y:d.getFullYear(),m:d.getMonth()} }); const lbl=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']; const idx={}; arr.forEach((x,i)=>{ idx[`${x.y}-${x.m}`]=i }); const data=new Array(12).fill(0); cargarLista(KEYS.ingresos).forEach(i=>{ try{ let y,m; if(i.isoFecha){ const [Y,M]=i.isoFecha.split('-'); y=parseInt(Y,10); m=parseInt(M,10)-1; } else { const [d,M,yStr]=String(i.fecha||'').split('/'); y=parseInt(yStr,10); m=parseInt(M,10)-1; } const key=`${y}-${m}`; if(key in idx) data[idx[key]]++; }catch(e){} }); const labels=arr.map(x=>`${lbl[x.m]} ${String(x.y).slice(2)}`); return {labels, data} })(); const cH=document.getElementById('chart-horas').getContext('2d'); window._chartHoras&&_chartHoras.destroy(); window._chartHoras=new Chart(cH,{type:'line',data:{labels:H.labels,datasets:[toLine(H.data,'#c8a84b')]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}); const cD=document.getElementById('chart-dias').getContext('2d'); window._chartDias&&_chartDias.destroy(); window._chartDias=new Chart(cD,{type:'line',data:{labels:D.labels,datasets:[toLine(D.data,'#2d6e2d')]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}); const cM=document.getElementById('chart-meses').getContext('2d'); window._chartMeses&&_chartMeses.destroy(); window._chartMeses=new Chart(cM,{type:'line',data:{labels:M.labels,datasets:[toLine(M.data,'#8da2d7')]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}); }
 
-// =========================
-// ADMIN: token local + backup ZIP local
-// =========================
-const SYS_KEY='pcq_system_enabled';
-function isEnabled(){ return cargarItem(SYS_KEY)==='1' }
-function setEnabled(v){ guardarItem(SYS_KEY, v?'1':'0'); refreshEnableUI(); }
-function refreshEnableUI(){
-  const badge=document.getElementById('estado-sistema'); if(!badge) return;
-  const on = isEnabled();
-  badge.textContent = on? '✅ Sistema ACTIVO' : '⛔ Sistema INACTIVO';
-  const criticalBtns = [
-    document.querySelector('#sec-ingreso .btn.btn-primary'),
-    document.querySelector('#sec-apercibamiento .btn.btn-gold'),
-    document.querySelector('#sec-suspension .btn.btn-danger')
-  ];
-  criticalBtns.forEach(b=>{ if(b){ b.disabled = !on; b.title = on? '' : 'Activá el sistema en 🛠️ Administrar'; } });
-  const sync = document.getElementById('sync-badge'); if(sync){ sync.className = 'badge ' + (on? 'sync-ok' : 'sync-error'); const t=document.getElementById('sync-txt'); if(t){ t.textContent = on? 'Activo' : 'Inactivo'; } }
-}
-// Listeners admin
+// ===== GitHub – preset PAT cifrado + botones
 (function(){
-  document.addEventListener('DOMContentLoaded',()=>{
-    const sA=document.getElementById('btn-activar'); if(sA)sA.addEventListener('click',()=>{
-      const t = (document.getElementById('admin-token').value||'').trim();
-      const saved = cargarItem('pcq_admin_token')||'';
-      if(!saved){ alert('No hay token guardado. Guardá un token primero.'); return; }
-      if(t && t===saved){ setEnabled(true); } else { alert('Token inválido.'); }
-    });
-    const sD=document.getElementById('btn-desactivar'); if(sD)sD.addEventListener('click',()=> setEnabled(false));
-    const sG=document.getElementById('btn-guardar-token'); if(sG)sG.addEventListener('click',()=>{
-      const t=(document.getElementById('admin-token').value||'').trim(); if(!t){ alert('Ingresá un token.'); return; } guardarItem('pcq_admin_token', t); alert('Token guardado.');
-    });
-    refreshEnableUI();
-  });
+  const GH='https://api.github.com';
+  const PRESET_PAT='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';
+  const PASSPHRASE='pcq_local';
+  function b64e(b){return btoa(String.fromCharCode(...new Uint8Array(b)))} function b64d(s){return Uint8Array.from(atob(s),c=>c.charCodeAt(0))}
+  async function deriveKey(pass,salt){const enc=new TextEncoder();const km=await crypto.subtle.importKey('raw',enc.encode(pass),'PBKDF2',false,['deriveKey']);return await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:200000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+  async function encryptPAT(pat){const enc=new TextEncoder();const salt=crypto.getRandomValues(new Uint8Array(16));const iv=crypto.getRandomValues(new Uint8Array(12));const key=await deriveKey(PASSPHRASE,salt);const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,enc.encode(pat));const blob={alg:'AES-GCM',kdf:'PBKDF2',it:200000,salt:b64e(salt),iv:b64e(iv),ct:b64e(ct)};localStorage.setItem('pcq_gh_pat_enc',JSON.stringify(blob))}
+  async function decryptPAT(){const str=localStorage.getItem('pcq_gh_pat_enc');if(!str)return null;const b=JSON.parse(str);const salt=b64d(b.salt),iv=b64d(b.iv),ct=b64d(b.ct);const key=await deriveKey(PASSPHRASE,salt);const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,ct);return new TextDecoder().decode(pt)}
+  async function ensureEncrypted(){ if(!localStorage.getItem('pcq_gh_pat_enc')){ await encryptPAT(PRESET_PAT); } }
+  async function getToken(){await ensureEncrypted();return await decryptPAT()}
+  function joinPath(a,b){a=a.replace(/^\/+|\/+$/g,'');b=b.replace(/^\/+/, '');return a?(a+'/'+b):b}
+  async function ghFetch(url,token,opts){const headers={'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Authorization':'Bearer '+token};return await fetch(url,{headers,...opts})}
+  function valores(){return{owner:document.getElementById('gh-owner').value.trim(),repo:document.getElementById('gh-repo').value.trim(),branch:(document.getElementById('gh-branch').value.trim()||'main'),base:(document.getElementById('gh-base').value.trim()||'live')}}
+  function ghAlert(tipo,msg){const el=document.getElementById('alerta-github');if(!el)return;el.className='alerta show alerta-'+(tipo==='ok'?'ok':tipo);el.innerHTML=msg;clearTimeout(el._t);el._t=setTimeout(()=>{el.className='alerta'},8000)}
+  async function ghGetSHA(o,r,b,p,t){const url=`${GH}/repos/${o}/${r}/contents/${encodeURIComponent(p)}?ref=${encodeURIComponent(b)}`;const res=await ghFetch(url,t,{method:'GET'});if(res.status===404)return null;if(!res.ok)throw new Error('GET '+p+' → '+res.status);const j=await res.json();return j.sha||null}
+  async function ghPut(o,r,b,p,contentB64,msg,t,sha){const url=`${GH}/repos/${o}/${r}/contents/${encodeURIComponent(p)}`;const body={message:msg,content:contentB64,branch:b};if(sha)body.sha=sha;const res=await ghFetch(url,t,{method:'PUT',body:JSON.stringify(body)});if(!res.ok){const tx=await res.text();throw new Error('PUT '+p+' → '+res.status+' '+tx)}return true}
+  async function ghGet(o,r,b,p,t){const url=`${GH}/repos/${o}/${r}/contents/${encodeURIComponent(p)}?ref=${encodeURIComponent(b)}`;const res=await ghFetch(url,t,{method:'GET'});if(res.status===404)return null;if(!res.ok)throw new Error('GET '+p+' → '+res.status);const j=await res.json();if(j&&j.content)return atob(j.content.replace(/\n/g,''));return null}
+  function toXml(tag,arr){const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');const rows=(arr||[]).map(o=>{const inner=Object.keys(o).map(k=>`<${k}>${esc(o[k])}</${k}>`).join('');return `<row>${inner}</row>`}).join('');return `<?xml version="1.0" encoding="UTF-8"?>\n<${tag}>${rows}</${tag}>`}
+
+  async function testConn(){try{const t=await getToken();if(!t){ghAlert('error','Token no disponible');return}const v=valores();if(!v.owner||!v.repo){ghAlert('warn','Completá Owner y Repo');return}const url=`${GH}/repos/${v.owner}/${v.repo}`;const r=await ghFetch(url,t,{method:'GET'});if(!r.ok){ghAlert('error','Repo inaccesible: '+r.status);return}ghAlert('ok','✅ Conexión OK con el repo')}catch(e){ghAlert('error','Error: '+e.message)}}
+  async function initRepo(){try{const t=await getToken();if(!t){ghAlert('error','Token no disponible');return}const v=valores();if(!v.owner||!v.repo){ghAlert('warn','Completá Owner y Repo');return}const sets=[{file:'ingresos',tag:'ingresos',key:KEYS.ingresos},{file:'personas',tag:'personas',key:KEYS.personas},{file:'apercibimientos',tag:'apercibimientos',key:KEYS.apercibimientos},{file:'suspensiones',tag:'suspensiones',key:KEYS.suspensiones},{file:'inspectores',tag:'inspectores',key:KEYS.inspectores},{file:'activos',tag:'activos',key:KEYS.inspActivos}];let created=0,skipped=0;for(const it of sets){let arr=[];try{arr=JSON.parse(localStorage.getItem(it.key)||'[]')}catch{}if(it.key===KEYS.inspActivos)arr=arr.map(id=>({id}));const xml=toXml(it.tag,arr);const json=JSON.stringify(arr,null,2);const pXML=joinPath(v.base,`${it.file}.xml`);const sXML=await ghGetSHA(v.owner,v.repo,v.branch,pXML,t);if(!sXML){await ghPut(v.owner,v.repo,v.branch,pXML,btoa(unescape(encodeURIComponent(xml))),`feat(init): ${it.file}.xml`,t,null);created++;}else skipped++;const pJSON=joinPath(joinPath(v.base,'json'),`${it.file}.json`);const sJSON=await ghGetSHA(v.owner,v.repo,v.branch,pJSON,t);if(!sJSON){await ghPut(v.owner,v.repo,v.branch,pJSON,btoa(unescape(encodeURIComponent(json))),`feat(init): ${it.file}.json`,t,null);created++;}else skipped++;}ghAlert('ok',`Inicialización OK. Creados: ${created}, ya existían: ${skipped}`)}catch(e){ghAlert('error','Error: '+e.message)}}
+  async function uploadAll(){try{const t=await getToken();if(!t){ghAlert('error','Token no disponible');return}const v=valores();if(!v.owner||!v.repo){ghAlert('warn','Completá Owner y Repo');return}const sets=[{file:'ingresos',tag:'ingresos',key:KEYS.ingresos},{file:'personas',tag:'personas',key:KEYS.personas},{file:'apercibimientos',tag:'apercibimientos',key:KEYS.apercibimientos},{file:'suspensiones',tag:'suspensiones',key:KEYS.suspensiones},{file:'inspectores',tag:'inspectores',key:KEYS.inspectores},{file:'activos',tag:'activos',key:KEYS.inspActivos}];let ok=0;for(const it of sets){let arr=[];try{arr=JSON.parse(localStorage.getItem(it.key)||'[]')}catch{}if(it.key===KEYS.inspActivos)arr=arr.map(id=>({id}));const xml=toXml(it.tag,arr);const pXML=joinPath(v.base,`${it.file}.xml`);const sXML=await ghGetSHA(v.owner,v.repo,v.branch,pXML,t);await ghPut(v.owner,v.repo,v.branch,pXML,btoa(unescape(encodeURIComponent(xml))),`feat(sync): ${it.file}.xml`,t,sXML);ok++;}ghAlert('ok',`Subidos ${ok}/${sets.length} XML`)}catch(e){ghAlert('error','Error: '+e.message)}}
+  async function downloadAll(){try{const t=await getToken();if(!t){ghAlert('error','Token no disponible');return}const v=valores();if(!v.owner||!v.repo){ghAlert('warn','Completá Owner y Repo');return}const map=[{k:KEYS.ingresos,p:'ingresos.xml'},{k:KEYS.personas,p:'personas.xml'},{k:KEYS.apercibimientos,p:'apercibimientos.xml'},{k:KEYS.suspensiones,p:'suspensiones.xml'},{k:KEYS.inspectores,p:'inspectores.xml'},{k:KEYS.inspActivos,p:'activos.xml',activos:true}];let ok=0,miss=[];for(const m of map){const path=joinPath(v.base,m.p);const xml=await ghGet(v.owner,v.repo,v.branch,path,t);if(!xml){miss.push(m.p);continue}const doc=new DOMParser().parseFromString(xml,'application/xml');const rows=Array.from(doc.getElementsByTagName('row')).map(r=>{const o={};Array.from(r.children).forEach(n=>o[n.tagName]=n.textContent);return o});if(m.activos){localStorage.setItem(m.k,JSON.stringify(rows.map(r=>r.id)))}else{guardarLista(m.k,rows)}ok++;}ghAlert('ok',`Descargados ${ok}/${map.length}. ${miss.length?('Sin archivo: '+miss.join(', ')):''}`)}catch(e){ghAlert('error','Error: '+e.message)}}
+  document.addEventListener('DOMContentLoaded',()=>{ensureEncrypted();const _aiKey='pcq_gh_autoinit';
+const _ai=document.getElementById('gh-autoinit'); if(_ai){ _ai.checked=(localStorage.getItem(_aiKey)==='1'); _ai.addEventListener('change',()=>localStorage.setItem(_aiKey,_ai.checked?'1':'0')); }
+// Auto-init + auto-sync al abrir si está habilitado y hay owner/repo
+try{ const _owner=(document.getElementById('gh-owner')||{}).value?.trim()||''; const _repo=(document.getElementById('gh-repo')||{}).value?.trim()||'';
+  if(localStorage.getItem(_aiKey)==='1' && _owner && _repo){ ghAlert('warn','⏳ Auto-inicializando (GitHub)...'); (async()=>{ try{ await initRepo(); await uploadAll(); ghAlert('ok','✅ Auto-inicialización OK.'); } catch(e){ ghAlert('error','Auto-init error: '+e.message); } })(); }
+}catch(e){}
+document.getElementById('gh-test')?.addEventListener('click',testConn);document.getElementById('gh-init')?.addEventListener('click',initRepo);document.getElementById('gh-upload')?.addEventListener('click',uploadAll);document.getElementById('gh-download')?.addEventListener('click',downloadAll);});
 })();
 
-// Backup/Restore XML ZIP (local)
-function toXml(tag, objArr){ const enc = (s)=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); const rows = objArr.map(o=>{ const inner = Object.keys(o).map(k=>`<${k}>${enc(o[k])}</${k}>`).join(''); return `<row>${inner}</row>` }).join(''); return `<?xml version="1.0" encoding="UTF-8"?>\n<${tag}>${rows}</${tag}>`; }
-function parseXmlRows(xmlText){ const doc = new DOMParser().parseFromString(xmlText,'application/xml'); const rows = Array.from(doc.getElementsByTagName('row')); return rows.map(r=>{ const obj={}; Array.from(r.children).forEach(n=>{ obj[n.tagName]=n.textContent }); return obj; }); }
-async function doBackupZip(){ try{ const zip = new JSZip(); zip.file('ingresos.xml', toXml('ingresos', cargarLista(KEYS.ingresos))); zip.file('personas.xml', toXml('personas', cargarLista(KEYS.personas))); zip.file('apercibimientos.xml', toXml('apercibimientos', cargarLista(KEYS.apercibimientos))); zip.file('suspensiones.xml', toXml('suspensiones', cargarLista(KEYS.suspensiones))); zip.file('inspectores.xml', toXml('inspectores', cargarLista(KEYS.inspectores))); zip.file('activos.xml', toXml('activos', (JSON.parse(localStorage.getItem(KEYS.inspActivos)||'[]')).map(id=>({id})))); const blob = await zip.generateAsync({type:'blob'}); const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='pcq_backup.zip'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);}catch(e){ alert('Error generando backup: '+e.message); } }
-async function onRestoreZip(ev){ const file = ev.target.files && ev.target.files[0]; if(!file) return; try{ const data = await file.arrayBuffer(); const zip = await JSZip.loadAsync(data); async function readXml(name){ const f = zip.file(name); if(!f) return null; return await f.async('string'); } const map = { [KEYS.ingresos]: 'ingresos.xml', [KEYS.personas]: 'personas.xml', [KEYS.apercibimientos]: 'apercibimientos.xml', [KEYS.suspensiones]: 'suspensiones.xml', [KEYS.inspectores]: 'inspectores.xml' }; for(const k in map){ const xml=await readXml(map[k]); if(xml){ const rows=parseXmlRows(xml); guardarLista(k, rows); } } const actXml = await readXml('activos.xml'); if(actXml){ const rows=parseXmlRows(actXml); localStorage.setItem(KEYS.inspActivos, JSON.stringify(rows.map(r=>r.id))); } alert('Backup restaurado.'); renderInspectoresUI(); refreshEnableUI(); }catch(e){ alert('Error restaurando backup: '+e.message); } finally{ ev.target.value=''; } }
-(function(){ document.addEventListener('DOMContentLoaded',()=>{ const b=document.getElementById('btn-backup'); if(b) b.addEventListener('click', doBackupZip); const r=document.getElementById('zip-restore'); if(r) r.addEventListener('change', onRestoreZip); }); })();
+// ===== Zoom modal
+(function(){const modal=document.getElementById('img-modal');const modalImg=modal.querySelector('img');function hide(){modal.style.display='none';modalImg.src='';}modal.addEventListener('click',hide);document.addEventListener('keydown',e=>{if(e.key==='Escape')hide();});document.addEventListener('click',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('mini-foto')){const src=t.getAttribute('src');if(src){modalImg.src=src;modal.style.display='flex';}}});})();
 
-// =========================
-// INYECCIONES v5: Cámara obligatoria + Socio/Invitado + Fotos/zoom + Tendencias H/D/M + GH init
-// =========================
-(function v5(){
-  // Personas helpers (perfil)
-  function getPersona(dni){dni=String(dni||'').trim(); if(!dni) return null; return cargarLista(KEYS.personas).find(p=>String(p.dni)===dni)||null}
-  function upsertPersona(dni, nombre, fotoPerfil){dni=String(dni||'').trim(); if(!dni) return; const lista=cargarLista(KEYS.personas); let p=lista.find(x=>String(x.dni)===dni); if(!p){p={dni, nombre:nombre||'', fotoPerfil:fotoPerfil||null}; lista.push(p)} if(nombre && (!p.nombre||!p.nombre.trim())) p.nombre=nombre; if(fotoPerfil) p.fotoPerfil=fotoPerfil; guardarLista(KEYS.personas, lista);}
-  function getUltFotoIngreso(dni){const arr=cargarLista(KEYS.ingresos).filter(i=>String(i.dni)===String(dni)); if(!arr.length) return null; return arr[arr.length-1].foto||null}
-  function fotoParaDNI(dni){const p=getPersona(dni); return (p&&p.fotoPerfil)||getUltFotoIngreso(dni)||null}
+// ===== Admin básico
+const SYS_KEY='pcq_system_enabled'; function isEnabled(){return cargarItem(SYS_KEY)==='1'} function setEnabled(v){guardarItem(SYS_KEY,v?'1':'0'); refreshEnableUI()} function refreshEnableUI(){const b=document.getElementById('estado-sistema'); if(!b) return; const on=isEnabled(); b.textContent=on?'✅ Sistema ACTIVO':'⛔ Sistema INACTIVO'}
 
-  // Adaptar etiqueta DNI según socio/invitado
-  document.addEventListener('DOMContentLoaded', ()=>{
-    const lblDni=document.querySelector('#sec-ingreso label input#dni-ingreso')?.closest('label');
-    function setInv(){ if(lblDni){ lblDni.childNodes[0].textContent='DNI ' } const i=document.getElementById('dni-ingreso'); if(i){ i.placeholder='30123456'; i.value=i.value.replace(/\D/g,''); } }
-    function setSoc(){ if(lblDni){ lblDni.childNodes[0].textContent='N° de socio ' } const i=document.getElementById('dni-ingreso'); if(i){ i.placeholder='12345'; i.value=i.value.replace(/\D/g,''); } }
-    const rInv=document.getElementById('radio-invitado'); const rSoc=document.getElementById('radio-socio'); if(rInv) rInv.addEventListener('change',e=>{ if(e.target.checked) setInv(); }); if(rSoc) rSoc.addEventListener('change',e=>{ if(e.target.checked) setSoc(); });
-  });
+// ===== Listeners globales
+document.addEventListener('DOMContentLoaded',()=>{document.getElementById('btn-cam-start')?.addEventListener('click',startCam);document.getElementById('btn-cam-snap')?.addEventListener('click',takePhoto);document.getElementById('btn-cam-clear')?.addEventListener('click',clearPhoto);document.getElementById('btn-registrar')?.addEventListener('click',registrar);document.getElementById('btn-limpiar')?.addEventListener('click',limpiar);document.getElementById('btn-aperc')?.addEventListener('click',registrarAperc);document.getElementById('btn-susp')?.addEventListener('click',registrarSusp);document.getElementById('btn-consultar')?.addEventListener('click',consultar);document.getElementById('btn-venc-actualizar')?.addEventListener('click',renderVencidos);document.getElementById('btn-venc-limpiar')?.addEventListener('click',function(){const now=ahoraReal(),lim=HS_VIGENCIA*3600000;const ing=cargarLista(KEYS.ingresos);const vig=ing.filter(i=>now-parseFechaHora(i.fecha,i.hora)<lim);guardarLista(KEYS.ingresos,vig);renderVencidos();mostrarAlerta('alerta-vencidos','ok','✅ Vencidos eliminados.');});});
 
-  // Cámara UI
-  (function(){ let stream=null, fotoData=null; const $=id=>document.getElementById(id);
-    function startCam(){ navigator.mediaDevices.getUserMedia({video:true,audio:false}).then(st=>{stream=st; const v=$('cam-video'); v.srcObject=stream; v.style.display='block'; $('foto-preview').style.display='none'; $('btn-cam-snap').disabled=false; $('btn-cam-clear').disabled=false; $('btn-cam-start').disabled=true;}).catch(()=>alert('No se pudo acceder a la cámara. Usá HTTPS o localhost y aceptá permisos.')); }
-    function stopCam(){ if(stream){stream.getTracks().forEach(t=>t.stop()); stream=null;} const v=$('cam-video'); v.srcObject=null; v.style.display='none'; }
-    function clearPhoto(){ fotoData=null; const p=$('foto-preview'); p.src=''; p.style.display='none'; stopCam(); $('btn-cam-start').disabled=false; $('btn-cam-snap').disabled=true; $('btn-cam-clear').disabled=true; }
-    function takePhoto(){ const c=$('cam-canvas'), v=$('cam-video'); const w=c.width,h=c.height; const ctx=c.getContext('2d'); ctx.drawImage(v,0,0,w,h); fotoData=c.toDataURL('image/jpeg',0.85); const p=$('foto-preview'); p.src=fotoData; p.style.display='block'; stopCam(); }
-    document.addEventListener('DOMContentLoaded',()=>{ const s=$('btn-cam-start'),p=$('btn-cam-snap'),c=$('btn-cam-clear'); if(s){ s.addEventListener('click',startCam); } if(p){ p.addEventListener('click',takePhoto); } if(c){ c.addEventListener('click',clearPhoto); } });
-    window.__pcq_getFotoIngreso=()=>fotoData; window.__pcq_clearFotoIngreso=clearPhoto;
-  })();
-
-  // Autocompletar nombre+foto al tipear ID
-  (function(){ const dniEl=document.getElementById('dni-ingreso'); const nomEl=document.getElementById('nombre-ingreso'); const fotoEl=document.getElementById('foto-perfil'); if(!dniEl) return; dniEl.addEventListener('input',()=>{ const id=dniEl.value.trim(); if(id.length<4){ if(fotoEl) fotoEl.style.display='none'; return; } const p=getPersona(id); if(p && nomEl && (!nomEl.value||!nomEl.value.trim())){ if(p.nombre) nomEl.value=p.nombre; } const f=fotoParaDNI(id); if(fotoEl){ if(f){ fotoEl.src=f; fotoEl.style.display='block'; } else { fotoEl.style.display='none'; } } }); })();
-
-  // Reemplazar registrarIngreso para exigir foto + limpiar campos
-  (function(){ const original=window.registrarIngreso; window.registrarIngreso=function(){ const dni=(document.getElementById('dni-ingreso').value||'').trim(); const nombre=(document.getElementById('nombre-ingreso').value||'').trim(); const esSocio=document.getElementById('radio-socio')?.checked||false; if(!dni) return mostrarAlerta('alerta-ingreso','error', esSocio?'Ingresá el N° de socio.':'Ingresá el DNI.'); if(!nombre) return mostrarAlerta('alerta-ingreso','error','Ingresá el Nombre y Apellido.'); const foto=(typeof window.__pcq_getFotoIngreso==='function')?window.__pcq_getFotoIngreso():null; if(!foto) return mostrarAlerta('alerta-ingreso','error','📸 Tomá una foto del ingreso (obligatoria).'); const now=ahoraReal(); const nuevo={dni, nombre, fecha:formatFecha(now), hora:formatHora(now), isoFecha:isoFecha(now), foto, tipo: esSocio?'socio':'invitado'}; const lista=cargarLista(KEYS.ingresos); lista.push(nuevo); guardarLista(KEYS.ingresos,lista); const p=getPersona(dni); if(!p || !p.fotoPerfil){ upsertPersona(dni,nombre,foto) } else if(nombre && (!p.nombre||!p.nombre.trim())){ upsertPersona(dni,nombre,null) } ['dni-ingreso','nombre-ingreso'].forEach(id=>{const e=document.getElementById(id); if(e) e.value=''}) ; if(typeof window.__pcq_clearFotoIngreso==='function') window.__pcq_clearFotoIngreso(); const fp=document.getElementById('foto-perfil'); if(fp){fp.style.display='none'; fp.src='';} mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado – ${esSocio?'Socio':'DNI'} ${dni}`); if(typeof window.cargarUltimos==='function'){ window.cargarUltimos(dni); } } })();
-
-  // Fotos en grillas + zoom
-  (function(){ function ensureHeaderFoto(sel){ const th=document.querySelector(sel+' thead tr'); if(!th) return; const ok=Array.from(th.children).some(c=>/foto/i.test(c.textContent||'')); if(!ok){ const cell=document.createElement('th'); cell.textContent='Foto'; th.insertBefore(cell, th.firstChild); } }
-    function tdFoto(dni,fb){ const src=(function(d){ const p=(cargarLista(KEYS.personas)||[]).find(pp=>String(pp.dni)===String(d)); return (p&&p.fotoPerfil)|| (function(){ const arr=cargarLista(KEYS.ingresos).filter(i=>String(i.dni)===String(d)); if(!arr.length) return null; return arr[arr.length-1].foto||null })() })(dni) || fb || ''; return `<td>${src?`<img class=\"mini-foto\" src=\"${src}\" alt=\"foto\"/>`:''}</td>` }
-    // Consulta
-    const origCons=window.consultarIngresos; if(typeof origCons==='function'){ window.consultarIngresos=function(){ const desde=document.getElementById('consulta-desde').value; const hasta=document.getElementById('consulta-hasta').value; const dni=document.getElementById('consulta-dni').value.trim(); const tbody=document.querySelector('#tabla-consulta tbody'); if(!desde||!hasta){document.getElementById('resumen-consulta').textContent='Seleccioná ambas fechas.';tbody.innerHTML='';return} if(hasta<desde){document.getElementById('resumen-consulta').textContent='La fecha "hasta" debe ser ≥ "desde".';tbody.innerHTML='';return} let res=cargarLista(KEYS.ingresos).filter(i=>i.isoFecha>=desde&&i.isoFecha<=hasta); if(dni)res=res.filter(i=>i.dni===dni); res.sort((a,b)=>(a.isoFecha+a.hora)>(b.isoFecha+b.hora)?-1:1); document.getElementById('resumen-consulta').textContent=`Resultados: ${res.length}`; tbody.innerHTML=''; if(!res.length){tbody.innerHTML='<tr><td colspan="6" class="muted">Sin resultados</td></tr>';return} res.forEach(i=>{ const est=estadoIngreso(i); const tr=document.createElement('tr'); tr.innerHTML=tdFoto(i.dni,i.foto)+`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${est.texto}</td>`; tbody.appendChild(tr); }); } }
-    // Últimos
-    const origUlt=window.cargarUltimos; if(typeof origUlt==='function'){ window.cargarUltimos=function(dni){ const wrap=document.getElementById('ultimos-ingresos'); const tbody=document.querySelector('#tabla-ultimos tbody'); if(!wrap||!tbody){ return origUlt(dni) } wrap.style.display='block'; tbody.innerHTML=''; const mis=cargarLista(KEYS.ingresos).filter(i=>i.dni===dni).slice(-10).reverse(); if(!mis.length){tbody.innerHTML='<tr><td colspan="6" class="muted">Sin ingresos previos</td></tr>';return} mis.forEach((i,n)=>{ const est=estadoIngreso(i); const tr=document.createElement('tr'); tr.innerHTML=tdFoto(i.dni,i.foto)+`<td>${n+1}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${i.nombre||'—'}</td><td>${est.texto}</td>`; tbody.appendChild(tr); }); } }
-    // Vencidos
-    const origVen=window.renderVencidos; if(typeof origVen==='function'){ window.renderVencidos=function(){ const tbody=document.querySelector('#tabla-vencidos tbody'); tbody.innerHTML=''; const now=ahoraReal(); const lim=24*3600000, prev=lim-60*60000; const ing=cargarLista(KEYS.ingresos).slice().sort((a,b)=>parseFechaHora(a.fecha,a.hora)-parseFechaHora(b.fecha,b.hora)); const pv=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);return ms>=prev&&ms<lim}); const ven=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);return ms>=lim}); const todos=[...pv,...ven]; if(!todos.length){tbody.innerHTML='<tr><td colspan="8" class="muted">No hay ingresos por vencer/vencidos</td></tr>';return} todos.forEach(i=>{ const ms=now-parseFechaHora(i.fecha,i.hora); let est=''; if(ms>=lim) est='⏰ Vencido'; else if(ms>=prev) est='⏳ Por vencer'; else est='✅ Vigente'; const tr=document.createElement('tr'); tr.innerHTML=tdFoto(i.dni,i.foto)+`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${tiempoTranscurrido(ms)}</td><td>${est}</td><td><button class=\"btn btn-danger\" onclick=\"darBajaIngreso('${i.dni}','${i.fecha}','${i.hora}')\">🗑️</button></td>`; tbody.appendChild(tr); }); } }
-    // Aperc
-    window.renderTablaAperc=function(){ const tbody=document.querySelector('#tabla-aperc tbody'); if(!tbody) return; tbody.innerHTML=''; const lista=cargarLista(KEYS.apercibimientos).slice().reverse(); if(!lista.length){tbody.innerHTML='<tr><td colspan="7" class="muted">Sin registros</td></tr>';return} lista.forEach(a=>{ const tr=document.createElement('tr'); tr.innerHTML=tdFoto(a.dni,null)+`<td>${a.dni}</td><td>${a.nombre||'—'}</td><td>${a.fecha} ${a.hora}</td><td>${a.motivo}</td><td>${a.inspector||'—'}</td><td><button class=\"btn btn-danger\" onclick=\"eliminarAperc(${a.id})\">🗑️</button></td>`; tbody.appendChild(tr); }); }
-    // Susp
-    window.renderTablaSusp=function(){ const tbody=document.querySelector('#tabla-susp tbody'); if(!tbody) return; tbody.innerHTML=''; const lista=cargarLista(KEYS.suspensiones).slice().reverse(); if(!lista.length){tbody.innerHTML='<tr><td colspan="8" class="muted">Sin registros</td></tr>';return} const hoy=isoFecha(ahoraReal()); lista.forEach(s=>{ const act=hoy>=s.desde&&hoy<=s.hasta; const tr=document.createElement('tr'); tr.innerHTML=tdFoto(s.dni,null)+`<td>${s.dni}</td><td>${s.nombre||'—'}</td><td>${s.desde}</td><td>${s.hasta}</td><td>${s.motivo}</td><td>${act?'🚫 ACTIVA':'✔️ Vencida'}</td><td><button class=\"btn btn-danger\" onclick=\"eliminarSusp(${s.id})\">🗑️</button></td>`; tbody.appendChild(tr); }); }
-    // Col headers
-    ['#tabla-consulta','#tabla-ultimos','#tabla-vencidos','#tabla-aperc','#tabla-susp'].forEach(ensureHeaderFoto);
-  })();
-
-  // Zoom modal
-  (function(){ const modal=document.getElementById('img-modal'); const modalImg=modal.querySelector('img'); function hide(){ modal.style.display='none'; modalImg.src=''; } modal.addEventListener('click', hide); document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ hide(); } }); document.addEventListener('click', function(ev){ const t=ev.target; if(t && t.classList && t.classList.contains('mini-foto')){ const src=t.getAttribute('src'); if(src){ modalImg.src=src; modal.style.display='flex'; } } }); })();
-
-  // Tendencias adicionales: horas, días, meses
-  (function(){
-    function toLine(arr,color){ return {label:'', data:arr, borderColor:color, backgroundColor:color, fill:false, tension:0.3} }
-    function countsPorHoras(){ const B=[{l:'00–03',f:0,t:3},{l:'04–07',f:4,t:7},{l:'08–11',f:8,t:11},{l:'12–15',f:12,t:15},{l:'16–19',f:16,t:19},{l:'20–23',f:20,t:23}]; const res={}; B.forEach(b=>res[b.l]=0); cargarLista(KEYS.ingresos).forEach(i=>{ const h=parseInt(String(i.hora||'00').split(':')[0],10)||0; const b=B.find(b=>h>=b.f&&h<=b.t); if(b) res[b.l]++; }); return {labels:Object.keys(res), data:Object.values(res)} }
-    function countsPorDia(){ const L=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb']; const c=[0,0,0,0,0,0,0]; cargarLista(KEYS.ingresos).forEach(i=>{ try{ const d=parseFechaHora(i.fecha,i.hora); c[d.getDay()]++; }catch(e){} }); return {labels:L, data:c} }
-    function countsPorMes(){ const now=new Date(); const arr=Array.from({length:12},(_,k)=>{ const d=new Date(now.getFullYear(), now.getMonth()-11+k, 1); return {y:d.getFullYear(),m:d.getMonth()} }); const lbl=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']; const idx={}; arr.forEach((x,i)=>{ idx[`${x.y}-${x.m}`]=i }); const data=new Array(12).fill(0); cargarLista(KEYS.ingresos).forEach(i=>{ try{ let y,m; if(i.isoFecha){ const [Y,M]=i.isoFecha.split('-'); y=parseInt(Y,10); m=parseInt(M,10)-1; } else { const [d,M,yStr]=String(i.fecha||'').split('/'); y=parseInt(yStr,10); m=parseInt(M,10)-1; } const key=`${y}-${m}`; if(key in idx) data[idx[key]]++; }catch(e){} }); const labels=arr.map(x=>`${lbl[x.m]} ${String(x.y).slice(2)}`); return {labels, data} }
-    function renderTrends(){ const H=countsPorHoras(); const h=document.createElement('div'); h.className='card'; h.innerHTML='<h2>🕒 Ingresos por rangos horarios (tendencia)</h2><div class="chart-wrap"><canvas id="chart-horas" height="140"></canvas></div>'; document.getElementById('sec-estadisticas').appendChild(h); const ctxH=document.getElementById('chart-horas').getContext('2d'); window._chartHoras&&_chartHoras.destroy(); window._chartHoras=new Chart(ctxH,{type:'line',data:{labels:H.labels,datasets:[toLine(H.data,'#c8a84b')]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}); const D=countsPorDia(); const d=document.createElement('div'); d.className='card'; d.innerHTML='<h2>📅 Ingresos por día de la semana (tendencia)</h2><div class="chart-wrap"><canvas id="chart-dias" height="140"></canvas></div>'; document.getElementById('sec-estadisticas').appendChild(d); const ctxD=document.getElementById('chart-dias').getContext('2d'); window._chartDias&&_chartDias.destroy(); window._chartDias=new Chart(ctxD,{type:'line',data:{labels:D.labels,datasets:[toLine(D.data,'#2d6e2d')]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}); const M=countsPorMes(); const m=document.createElement('div'); m.className='card'; m.innerHTML='<h2>🗓️ Ingresos por mes (últimos 12, tendencia)</h2><div class="chart-wrap"><canvas id="chart-meses" height="140"></canvas></div>'; document.getElementById('sec-estadisticas').appendChild(m); const ctxM=document.getElementById('chart-meses').getContext('2d'); window._chartMeses&&_chartMeses.destroy(); window._chartMeses=new Chart(ctxM,{type:'line',data:{labels:M.labels,datasets:[toLine(M.data,'#8da2d7')]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}); }
-    // Hook al render principal
-    const _orig=window.renderEstadisticas; window.renderEstadisticas=function(){ if(_orig) _orig(); // quita nota de fuente si existiera
-      const note=document.querySelector('#sec-estadisticas p.muted'); if(note) note.style.display='none'; renderTrends(); }
-  })();
-
-  // Inicialización GitHub (crear XML/JSON si faltan) con cifrado del PAT
-  (function(){
-    function b64e(b){ return btoa(String.fromCharCode(...new Uint8Array(b))) }
-    function b64d(s){ return Uint8Array.from(atob(s), c=>c.charCodeAt(0)) }
-    async function deriveKey(pass, salt){ const enc=new TextEncoder(); const km=await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']); return await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:250000,hash:'SHA-256'}, km, {name:'AES-GCM',length:256}, false, ['encrypt','decrypt']); }
-    async function encryptPAT(pat, pass){ const enc=new TextEncoder(); const salt=crypto.getRandomValues(new Uint8Array(16)); const iv=crypto.getRandomValues(new Uint8Array(12)); const key=await deriveKey(pass,salt); const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv}, key, enc.encode(pat)); const blob={alg:'AES-GCM',kdf:'PBKDF2',it:250000,salt:b64e(salt),iv:b64e(iv),ct:b64e(ct)}; localStorage.setItem('pcq_gh_pat_enc', JSON.stringify(blob)); }
-    async function decryptPAT(pass){ const str=localStorage.getItem('pcq_gh_pat_enc'); if(!str) return null; const b=JSON.parse(str); const salt=b64d(b.salt), iv=b64d(b.iv), ct=b64d(b.ct); const key=await deriveKey(pass,salt); const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv}, key, ct); return new TextDecoder().decode(pt); }
-    const GH='https://api.github.com';
-    async function ghFetch(url, token, opts){ const headers={'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Authorization':'Bearer '+token}; return await fetch(url,{headers,...opts}); }
-    function joinPath(a,b){ a=a.replace(/^\/+|\/+$/g,''); b=b.replace(/^\/+/,''); return a? (a+'/'+b) : b }
-    function xmlEscape(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
-    function toXml(tag, arr){ const rows=(arr||[]).map(o=>{ const inner=Object.keys(o).map(k=>`<${k}>${xmlEscape(o[k])}</${k}>`).join(''); return `<row>${inner}</row>` }).join(''); return `<?xml version="1.0" encoding="UTF-8"?>\n<${tag}>${rows}</${tag}>`; }
-    function strToB64(s){ return btoa(unescape(encodeURIComponent(s))) }
-    async function ghGetSHA(owner,repo,branch,path,token){ const url=`${GH}/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`; const r=await ghFetch(url,token,{method:'GET'}); if(r.status===404)return null; if(!r.ok) throw new Error('GET '+path+' → '+r.status); const j=await r.json(); return j.sha||null; }
-    async function ghPut(owner,repo,branch,path,contentB64,message,token,sha){ const url=`${GH}/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`; const body={message,content:contentB64,branch}; if(sha) body.sha=sha; const r=await ghFetch(url,token,{method:'PUT',body:JSON.stringify(body)}); if(!r.ok){ const t=await r.text(); throw new Error('PUT '+path+' → '+r.status+' '+t); } return true; }
-
-    async function initGithubFiles(){
-      try{
-        const owner = localStorage.getItem('pcq_gh_owner') || prompt('Owner/Org del repo GitHub'); if(!owner) return;
-        const repo  = localStorage.getItem('pcq_gh_repo')  || prompt('Nombre del repo'); if(!repo) return;
-        const branch= localStorage.getItem('pcq_gh_branch')|| prompt('Branch', 'main') || 'main';
-        const base  = localStorage.getItem('pcq_gh_base')  || prompt('Ruta base', 'live') || 'live';
-        let tokenEnc = localStorage.getItem('pcq_gh_pat_enc'); let token=null;
-        if(!tokenEnc){ const pat=prompt('Pegá tu token de GitHub (Contents: write)'); if(!pat) return; const pass=prompt('Definí una frase para proteger el token'); if(!pass) return; await encryptPAT(pat,pass); token=pat; } else { const pass=prompt('Ingresá tu frase para desencriptar el token'); if(!pass) return; token=await decryptPAT(pass); }
-        if(!token){ alert('No se pudo obtener el token.'); return; }
-        const sets=[
-          {file:'ingresos', tag:'ingresos', key:KEYS.ingresos},
-          {file:'personas', tag:'personas', key:KEYS.personas},
-          {file:'apercibimientos', tag:'apercibimientos', key:KEYS.apercibimientos},
-          {file:'suspensiones', tag:'suspensiones', key:KEYS.suspensiones},
-          {file:'inspectores', tag:'inspectores', key:KEYS.inspectores},
-          {file:'activos', tag:'activos', key:KEYS.inspActivos}
-        ];
-        let createdXML=0, createdJSON=0, skipped=0;
-        for(const it of sets){ let arr=[]; try{ arr=JSON.parse(localStorage.getItem(it.key)||'[]'); }catch(e){} if(it.key===KEYS.inspActivos){ arr=arr.map(id=>({id})) }
-          const xml=toXml(it.tag, arr); const json=JSON.stringify(arr,null,2);
-          const pXML=joinPath(base, `${it.file}.xml`); const shaXML=await ghGetSHA(owner,repo,branch,pXML,token); if(!shaXML){ await ghPut(owner,repo,branch,pXML, strToB64(xml), `feat(init): ${it.file}.xml`, token, null); createdXML++; } else { skipped++; }
-          const pJSON=joinPath(joinPath(base,'json'), `${it.file}.json`); const shaJSON=await ghGetSHA(owner,repo,branch,pJSON,token); if(!shaJSON){ await ghPut(owner,repo,branch,pJSON, strToB64(json), `feat(init): ${it.file}.json`, token, null); createdJSON++; } else { skipped++; }
-        }
-        alert(`Inicialización OK. XML creados: ${createdXML}, JSON creados: ${createdJSON}, ya existentes: ${skipped}.`);
-      }catch(e){ console.error(e); alert('Error al inicializar: '+e.message); }
-    }
-    document.addEventListener('DOMContentLoaded',()=>{ const btn=document.getElementById('btn-gh-init-xmljson'); if(btn) btn.addEventListener('click', initGithubFiles); });
-  })();
-})();
+// ===== Error handler
+window.addEventListener('error',e=>{console.error(e.message);const a=document.getElementById('alerta-github');if(a){a.className='alerta show alerta-warn';a.textContent='Error JS: '+e.message;}});
 </script>
-</body>
-</html>
+</body></html>
