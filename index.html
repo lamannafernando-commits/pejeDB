@@ -230,10 +230,7 @@
       <label>Token
         <input type="text" id="token-input-modal" placeholder="ghp_...">
       </label>
-      <label>Repo (owner/repo)
-        <input type="text" id="repo-input-modal" placeholder="owner/repo">
-      </label>
-    </div>
+          </div>
     <div class="grupo-botones" style="margin-top:10px">
       <button class="btn" onclick="guardarToken()">Guardar</button>
       <button class="btn btn-warn" onclick="cerrarTokenModal()">Cerrar</button>
@@ -247,7 +244,7 @@
 
   <script>
   // ======= BASE =======
-  const KEYS={ingresos:'app_ingresos',fotos:'app_fotos',token:'app_token',repo:'app_repo'};
+  const KEYS={ingresos:'app_ingresos',fotos:'app_fotos',token:'app_token'};
   let offsetMs=0;
 
 function setSyncBadge(state,text){
@@ -260,8 +257,7 @@ function setSyncBadge(state,text){
   else if(state==='err') el.classList.add('err');
 }
 function getToken(){ return localStorage.getItem(KEYS.token)||''; }
-function getRepo(){ return localStorage.getItem(KEYS.repo)||''; }
-function estaOnline(){ return (typeof navigator!=='undefined' && 'onLine' in navigator) ? navigator.onLine : true; }
+function function estaOnline(){ return (typeof navigator!=='undefined' && 'onLine' in navigator) ? navigator.onLine : true; }
 
   function cargarDatos(k){ try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return []} }
   function guardarDatos(k,v){ localStorage.setItem(k,JSON.stringify(v)); }
@@ -318,12 +314,12 @@ function estaOnline(){ return (typeof navigator!=='undefined' && 'onLine' in nav
 // ======= TOKEN (no bloqueante) + VALIDACIÓN =======
 function mostrarBannerToken(){ const b=document.getElementById('token-ask-banner'); if(b) b.style.display='block'; }
 function ocultarBannerToken(){ const b=document.getElementById('token-ask-banner'); if(b) b.style.display='none'; }
-function abrirTokenModal(){ const m=document.getElementById('token-modal'); if(!m) return; (document.getElementById('token-input-modal')||{}).value=getToken(); (document.getElementById('repo-input-modal')||{}).value=getRepo(); m.style.display='flex'; }
+function abrirTokenModal(){ const m=document.getElementById('token-modal'); if(!m) return; (document.getElementById('token-input-modal')||{}).value=getToken(); m.style.display='flex'; }
 function cerrarTokenModal(){ const m=document.getElementById('token-modal'); if(m) m.style.display='none'; }
-function guardarToken(){ const t=(document.getElementById('token-input-modal').value||'').trim(); const r=(document.getElementById('repo-input-modal').value||'').trim(); if(!t||!r){ alert('Completá Token y Repo.'); return; } localStorage.setItem(KEYS.token,t); localStorage.setItem(KEYS.repo,r); ocultarBannerToken(); setSyncBadge('ok','☁️ ✔️ Token guardado'); cerrarTokenModal(); if(estaOnline()){ validarTokenYRepo().then(res=>{ if(res&&res.ok){ setSyncBadge('ok','☁️ ✔️ Listo'); } else { setSyncBadge('err','☁️ ❌ '+(res.error||'Token inválido')); mostrarBannerToken(); } }).catch(()=> setSyncBadge('err','☁️ ❌ Error')); } else { setSyncBadge('err','☁️ ⚡ Guardado (validación pendiente)'); } }
+function guardarToken(){ const t=(document.getElementById('token-input-modal').value||'').trim(); if(!t){ alert('Ingresá el Token.'); return; } localStorage.setItem(KEYS.token,t); ocultarBannerToken(); setSyncBadge('ok','☁️ ✔️ Token guardado'); cerrarTokenModal(); if(estaOnline()){ validarTokenYRepo().then(res=>{ if(res&&res.ok){ setSyncBadge('ok','☁️ ✔️ Listo'); } else { setSyncBadge('err','☁️ ❌ '+(res.error||'Token inválido')); mostrarBannerToken(); } }).catch(()=> setSyncBadge('err','☁️ ❌ Error')); } else { setSyncBadge('err','☁️ ⚡ Guardado (validación pendiente)'); } }
 function ghHeaders(token){ return { 'Accept':'application/vnd.github+json', 'Authorization':'Bearer '+token, 'X-GitHub-Api-Version':'2022-11-28' }; }
 function tieneScopeRepo(scopesStr){ const s=(scopesStr||'').split(',').map(x=>x.trim().toLowerCase()); return s.includes('repo') || s.includes('public_repo'); }
-async function validarTokenYRepo(){ if(!estaOnline()) return {ok:true,modo:'local'}; const token=getToken(); const repo=getRepo(); if(!token||!repo) return {ok:false,error:'Falta token o repo'}; try{ setSyncBadge('syncing','☁️ 🔄 Validando token...'); const rUser=await fetch('https://api.github.com/user',{headers:ghHeaders(token)}); if(rUser.status===401) return {ok:false,error:'Token inválido (401)'}; if(rUser.status===403) return {ok:false,error:'Acceso denegado (403)'}; if(rUser.status<200||rUser.status>299) return {ok:false,error:'Error usuario: '+rUser.status}; const scopes = rUser.headers.get('x-oauth-scopes')||''; const rRepo=await fetch('https://api.github.com/repos/'+repo,{headers:ghHeaders(token)}); if(rRepo.status===404) return {ok:false,error:'Repo no encontrado (404)'}; if(rRepo.status===401) return {ok:false,error:'Token inválido para el repo (401)'}; if(rRepo.status===403) return {ok:false,error:'Sin permisos al repo (403)'}; if(rRepo.status<200||rRepo.status>299) return {ok:false,error:'Error repo: '+rRepo.status}; const repoJson=await rRepo.json(); const necesitaRepoScope=!!repoJson.private; const okScope = necesitaRepoScope ? scopes.toLowerCase().includes('repo') : tieneScopeRepo(scopes); if(!okScope) return {ok:false,error:'Scope insuficiente'}; return {ok:true,scopes,repoPrivado:necesitaRepoScope}; }catch(e){ return {ok:false,error:'Error de red/validación'}; } }
+async function validarToken(){ if(!estaOnline()) return {ok:true,modo:'local'}; const token=getToken(); if(!token) return {ok:false,error:'Falta token'}; try{ setSyncBadge('syncing','☁️ ������ Validando token...'); const rUser=await fetch('https://api.github.com/user',{headers:ghHeaders(token)}); if(rUser.status===401) return {ok:false,error:'Token inválido (401)'}; if(rUser.status===403) return {ok:false,error:'Acceso denegado (403)'}; if(rUser.status<200||rUser.status>299) return {ok:false,error:'Error usuario: '+rUser.status}; const scopes = rUser.headers.get('x-oauth-scopes')||''; return {ok:true,scopes}; }catch(e){ return {ok:false,error:'Error de red/validación'}; } }; const token=getToken(); const repo=getRepo(); if(!token||!repo) return {ok:false,error:'Falta token o repo'}; try{ setSyncBadge('syncing','☁️ 🔄 Validando token...'); const rUser=await fetch('https://api.github.com/user',{headers:ghHeaders(token)}); if(rUser.status===401) return {ok:false,error:'Token inválido (401)'}; if(rUser.status===403) return {ok:false,error:'Acceso denegado (403)'}; if(rUser.status<200||rUser.status>299) return {ok:false,error:'Error usuario: '+rUser.status}; const scopes = rUser.headers.get('x-oauth-scopes')||''; const rRepo=await fetch('https://api.github.com/repos/'+repo,{headers:ghHeaders(token)}); if(rRepo.status===404) return {ok:false,error:'Repo no encontrado (404)'}; if(rRepo.status===401) return {ok:false,error:'Token inválido para el repo (401)'}; if(rRepo.status===403) return {ok:false,error:'Sin permisos al repo (403)'}; if(rRepo.status<200||rRepo.status>299) return {ok:false,error:'Error repo: '+rRepo.status}; const repoJson=await rRepo.json(); const necesitaRepoScope=!!repoJson.private; const okScope = necesitaRepoScope ? scopes.toLowerCase().includes('repo') : tieneScopeRepo(scopes); if(!okScope) return {ok:false,error:'Scope insuficiente'}; return {ok:true,scopes,repoPrivado:necesitaRepoScope}; }catch(e){ return {ok:false,error:'Error de red/validación'}; } }
 
   // ======= BACKUP =======
   function exportarJSON(){ const data={ ingresos:cargarDatos(KEYS.ingresos), fotos:getFotosMap() }; const txt=JSON.stringify(data,null,2); document.getElementById('backup-json').value=txt; document.getElementById('backup-alert').textContent='Exportado a la caja de texto.'; }
@@ -343,7 +339,7 @@ async function validarTokenYRepo(){ if(!estaOnline()) return {ok:true,modo:'loca
     mostrarBannerToken();
     try{ abrirTokenModal(); }catch(e){}
   } else {
-    validarTokenYRepo().then(r=>{
+    validarToken().then(r=>{
       if(r && r.ok) setSyncBadge('ok','☁️ ✔️ Listo');
       else { setSyncBadge('err','☁️ ❌ '+(r.error||'Token inválido')); mostrarBannerToken(); }
     }).catch(()=> setSyncBadge('err','☁️ ❌ Error'));
