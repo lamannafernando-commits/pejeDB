@@ -2254,7 +2254,7 @@ async function iniciarSyncConGitHub(){
   tickReloj();setInterval(tickReloj,1000);setInterval(sincronizarHora,5*60*1000);
   if(!getToken()){
     document.getElementById('sync-loading').classList.remove('show');
-    document.getElementById('token-modal').classList.add('show');
+    /* token modal deshabilitado en init */
   } else {
     await iniciarSyncConGitHub();
   }
