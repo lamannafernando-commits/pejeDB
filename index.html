@@ -2,117 +2,347 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Gestión de Ingreso — SAFE MODE</title>
-<style>
-:root{--dorado:#c8a84b;--borde:#2d6e2d;--txt:#f8fff8;--panel:#112411}
-*{box-sizing:border-box}
-body{margin:0;background:#0f1f0f;color:var(--txt);font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif}
-header{position:sticky;top:0;z-index:10;background:#0b1b0b;border-bottom:3px solid var(--dorado);padding:10px 14px}
-h1{margin:0;font-size:1.1rem;color:var(--dorado)}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
-.chip{border:1px solid var(--borde);border-radius:999px;padding:4px 10px;background:#0a140a}
-.badge{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid #555;margin-right:6px}
-main{padding:14px}
-.card{background:var(--panel);border:1px solid var(--borde);border-radius:10px;padding:12px;margin-bottom:14px}
-.btn{cursor:pointer;border-radius:8px;border:1px solid #2f5f2f;background:#184718;color:#fff;padding:8px 12px}
-.alerta{margin-top:8px;padding:8px 10px;border-radius:8px;border:1px solid #3a3a3a;background:#101010;color:#eee}
-#float-token{position:fixed;right:12px;bottom:12px;z-index:9999;border:1px solid var(--dorado);background:#2a2a0a}
-/* Debug */
-#debug{position:fixed;left:12px;bottom:12px;background:#0b1b0b;color:#cfe9cf;border:1px solid #2d6e2d;border-radius:8px;padding:6px 8px;font-size:12px;z-index:9999;max-width:50vw}
-#debug pre{white-space:pre-wrap;word-break:break-word;margin:6px 0 0 0}
-</style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Gestión de Ingreso — Full (unblocked)</title>
+  <style>
+    :root{
+      --verde:#1e5c1e;--dorado:#c8a84b;--rojo:#c62828;--naranja:#d4841a;--bg:#0d1f0d;--panel:#112411;--borde:#2d6e2d;--txt:#f8fff8;--sub:#cfe9cf;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(160deg,#0b1c0b,#143414);color:var(--txt);font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif}
+    header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,#0a1a0a,#143414);border-bottom:3px solid var(--dorado);padding:10px 14px}
+    h1{margin:0;font-size:1.2rem;letter-spacing:.5px;color:var(--dorado)}
+    .sub{color:var(--sub);font-size:.85rem}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px}
+    .chip{border:1px solid var(--borde);border-radius:999px;padding:4px 10px;background:#0a140a}
+    #sync-badge{display:inline-flex;gap:6px;align-items:center}
+    #sync-badge.syncing{border-color:#2a7aaa;background:#0c2130}
+    #sync-badge.ok{border-color:#2a8a2a;background:#0f2410}
+    #sync-badge.err{border-color:#7a2a2a;background:#2a0f0f}
+    nav{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;border-bottom:2px solid var(--dorado);background:#0b1b0b}
+    nav button{background:#0e2210;border:1px solid #2a4a2a;color:#e6ffe6;padding:6px 10px;border-radius:6px;cursor:pointer}
+    nav button.act{outline:2px solid var(--dorado)}
+    main{padding:14px}
+    .card{background:var(--panel);border:1px solid var(--borde);border-radius:10px;padding:12px;margin-bottom:14px}
+    .form-row{display:flex;gap:12px;flex-wrap:wrap}
+    label{display:flex;flex-direction:column;gap:6px;min-width:220px;flex:1}
+    input[type=text]{padding:8px;border-radius:8px;border:1px solid #365e36;background:#0a1a0a;color:var(--txt)}
+    .btn{cursor:pointer;border-radius:8px;border:1px solid #2f5f2f;background:#184718;color:#fff;padding:8px 12px}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn-warn{background:#5a3a0c;border-color:#b06f18}
+    .btn-danger{background:#701818;border-color:#b03b3b}
+    .alerta{margin-top:8px;padding:8px 10px;border-radius:8px;border:1px solid #3a3a3a;background:#101010;color:#eee}
+    .alerta.ok{border-color:#2d7a2d;background:#0f2a0f}
+    .alerta.warn{border-color:#b06f18;background:#2a1a0a}
+    .alerta.error{border-color:#b03b3b;background:#2a0f0f}
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid #555;margin-right:6px}
+    .badge-verde{border-color:#2a8a2a;background:#103010}
+    .badge-naranja{border-color:#b06f18;background:#2a1a0a}
+    .badge-rojo{border-color:#b03b3b;background:#2a0f0f}
+    /* Cámara & foto */
+    #cam-wrap{display:none;margin:8px 0}
+    #cam-video{width:260px;height:260px;border-radius:10px;border:3px solid var(--dorado);background:#000;object-fit:cover}
+    #foto-preview-wrap{display:none;margin-top:8px}
+    #foto-preview{width:260px;height:260px;border-radius:10px;border:3px solid var(--dorado);object-fit:cover;background:#000}
+    .grupo-botones{display:flex;gap:10px;flex-wrap:wrap}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{padding:6px 8px;border-bottom:1px solid #244}
+    /* Consulta: thumbs y modal */
+    .thumb{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--dorado);cursor:zoom-in;background:#000}
+    #img-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:1000}
+    #img-modal img{max-width:90vw;max-height:90vh;border:3px solid var(--dorado);border-radius:10px}
+    /* Banner token (no bloqueante) */
+    #token-ask-banner{display:none;background:rgba(200,168,75,.12);border:2px solid var(--dorado);color:var(--dorado);padding:10px 14px;margin:10px 14px;border-radius:10px}
+    /* Overlay desactivado por diseño */
+    #bloqueo-overlay{display:none !important; pointer-events:none !important;}
+    /* Debug */
+    #debug{position:fixed;left:12px;bottom:12px;background:#0b1b0b;color:#cfe9cf;border:1px solid #2d6e2d;border-radius:8px;padding:6px 8px;font-size:12px;z-index:1300;max-width:60vw}
+    #debug pre{white-space:pre-wrap;word-break:break-word;margin:6px 0 0 0}
+  </style>
 </head>
 <body>
-<header>
-  <h1>Gestión de Ingreso — SAFE MODE</h1>
-  <div class="row">
-    <div class="chip" id="reloj">--:--:-- — --/--/----</div>
-    <div class="chip" id="sync-badge">☁️ Modo local</div>
-    <div class="chip">🛡️ Safe: sin overlay/bloqueos</div>
-  </div>
-</header>
-
-<main>
-  <section class="card">
-    <h2>Prueba de reloj</h2>
-    <div class="alerta">Si esta hora no cambia, tu entorno no está ejecutando JavaScript.</div>
-  </section>
-  <section class="card">
-    <h2>Ingreso (demo mínimo)</h2>
-    <button class="btn" onclick="alert('UI habilitada. Este modo es solo prueba visual.')">Probar botón</button>
-  </section>
-</main>
-
-<!-- Modal Token simple -->
-<div id="token-modal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,.55)">
-  <div style="background:#0c1c0c;border:1px solid var(--dorado);border-radius:12px;padding:16px;max-width:520px;width:calc(100% - 32px)">
-    <h3>Configurar Token de GitHub</h3>
-    <div class="row" style="gap:12px;flex-wrap:wrap">
-      <label style="flex:1;min-width:220px">Token
-        <input type="text" id="token-input" style="width:100%;padding:8px;border-radius:8px;border:1px solid #365e36;background:#0a1a0a;color:var(--txt)" placeholder="ghp_...">
-      </label>
-      <label style="flex:1;min-width:220px">Repo (owner/repo)
-        <input type="text" id="repo-input" style="width:100%;padding:8px;border-radius:8px;border:1px solid #365e36;background:#0a1a0a;color:var(--txt)" placeholder="owner/repo">
-      </label>
+  <header>
+    <h1>Gestión de Ingreso — Full (unblocked)</h1>
+    <div class="row">
+      <div class="chip" id="reloj">--:--:-- — --/--/----</div>
+      <div class="chip" id="sync-badge">☁️ Estado</div>
+      <div class="chip">🛡️ Sin bloqueos</div>
     </div>
-    <div class="row" style="margin-top:10px">
-      <button class="btn" onclick="guardarTokenSafe()">Guardar</button>
-      <button class="btn" onclick="cerrarTokenSafe()">Cerrar</button>
+  </header>
+
+  <nav>
+    <button id="btn-nav-ingreso" class="act" onclick="navClick('ingreso',this)">Ingreso</button>
+    <button id="btn-nav-consulta" onclick="navClick('consulta',this)">Consulta</button>
+    <button id="btn-nav-estadisticas" onclick="navClick('estadisticas',this)">Estadísticas</button>
+    <button id="btn-nav-backup" onclick="navClick('backup',this)">Backup</button>
+  </nav>
+
+  <!-- Banner token no bloqueante -->
+  <div id="token-ask-banner">
+    <strong>🔑 Falta configurar Token y Repo para activar la nube.</strong>
+    <div class="grupo-botones" style="margin-top:8px">
+      <button class="btn" onclick="abrirTokenModal()">Configurar token</button>
+      <button class="btn btn-warn" onclick="ocultarBannerToken()">Ocultar</button>
     </div>
   </div>
-</div>
 
-<button id="float-token" class="btn" onclick="abrirTokenSafe()">🔑 Configurar token</button>
+  <main>
+    <!-- Sección Ingreso -->
+    <section id="sec-ingreso" class="card">
+      <h2>Ingreso</h2>
+      <div class="form-row" id="row-tipo-ingreso">
+        <label style="flex:1;min-width:220px">Tipo de ingreso
+          <div class="row" style="padding:6px 2px">
+            <label style="display:inline-flex;align-items:center;gap:6px"><input type="radio" name="tipo-ingreso" value="invitado" onchange="toggleIngresoFields()" checked> Invitado</label>
+            <label style="display:inline-flex;align-items:center;gap:6px"><input type="radio" name="tipo-ingreso" value="socio" onchange="toggleIngresoFields()"> Socio</label>
+          </div>
+        </label>
+      </div>
 
-<div id="debug">Estado: <span id="dbg-online">?</span> · Token: <span id="dbg-token">?</span>
-  <pre id="dbg-log"></pre>
-</div>
+      <div class="form-row" id="row-identificadores">
+        <label id="wrap-dni-ingreso">Nº Documento (DNI)
+          <input type="text" id="dni-ingreso" placeholder="Ej: 30123456" maxlength="12"
+                 oninput="this.value=this.value.replace(/\D/g,'');onIdentificadorChange()"
+                 onkeydown="if(event.key==='Enter')buscarInvitado()">
+        </label>
+        <label id="wrap-socio-ingreso" style="display:none">N° de socio
+          <input type="text" id="nroSocio-ingreso" placeholder="Ej: S-12345" maxlength="20"
+                 oninput="onIdentificadorChange()"
+                 onkeydown="if(event.key==='Enter')buscarInvitado()">
+        </label>
+      </div>
 
-<script>
-(function(){
+      <div class="form-row" id="row-nombre">
+        <label>Nombre
+          <input type="text" id="nombre-ingreso" placeholder="Apellido, Nombre" onkeydown="if(event.key==='Enter')registrarIngreso()">
+          <span class="sub" id="nombre-autocomplete-hint"></span>
+        </label>
+      </div>
+
+      <div class="grupo-botones" style="margin-top:8px">
+        <button class="btn" onclick="buscarInvitado()">Buscar / Estado</button>
+        <button class="btn" onclick="registrarIngreso()">Registrar ingreso</button>
+      </div>
+      <div id="alerta-ingreso" class="alerta" role="alert"></div>
+
+      <!-- Cámara y foto -->
+      <div class="card" style="margin-top:12px">
+        <h3>Foto (obligatoria si no existe)</h3>
+        <div class="grupo-botones">
+          <button class="btn" id="btn-cam-start" type="button" onclick="iniciarCamara()">🎥 Iniciar cámara</button>
+          <button class="btn" id="btn-cam-shot" type="button" onclick="tomarFoto()" style="display:none">📸 Tomar foto</button>
+          <button class="btn btn-danger" id="btn-cam-stop" type="button" onclick="detenerCamara()" style="display:none">✖ Detener cámara</button>
+          <button class="btn btn-danger" id="btn-borrar-foto" onclick="borrarFoto()" style="display:none">🗑️ Borrar foto</button>
+        </div>
+        <div id="cam-wrap">
+          <video id="cam-video" autoplay playsinline></video>
+          <canvas id="cam-canvas" width="320" height="320" style="display:none"></canvas>
+        </div>
+        <div id="foto-preview-wrap">
+          <img id="foto-preview" alt="Foto"/>
+          <div class="sub" id="foto-preview-dni">ID: --</div>
+        </div>
+        <div id="alerta-foto" class="alerta"></div>
+      </div>
+
+      <div id="panel-estado" class="card" style="display:none">
+        <h3>Estado</h3>
+        <div class="row">
+          <div id="estado-badges"></div>
+        </div>
+        <div id="estado-detalles" class="sub" style="margin-top:6px"></div>
+      </div>
+
+      <div id="ultimos-ingresos" class="card" style="display:none">
+        <h3>Últimos ingresos</h3>
+        <table id="tabla-ultimos">
+          <thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Nombre</th><th>Estado</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Sección Consulta -->
+    <section id="sec-consulta" class="card" style="display:none">
+      <h2>Consulta</h2>
+      <div class="form-row">
+        <label>Identificador (DNI o N° socio)
+          <input type="text" id="consulta-id" onkeydown="if(event.key==='Enter')consulta()">
+        </label>
+      </div>
+      <div class="form-row" id="consulta-fechas">
+        <label>Desde (dd/mm/yyyy)
+          <input type="text" id="consulta-desde" placeholder="dd/mm/yyyy" oninput="mascaraFecha(this)" onkeydown="if(event.key==='Enter')consulta()">
+        </label>
+        <label>Hasta (dd/mm/yyyy)
+          <input type="text" id="consulta-hasta" placeholder="dd/mm/yyyy" oninput="mascaraFecha(this)" onkeydown="if(event.key==='Enter')consulta()">
+        </label>
+      </div>
+      <div class="grupo-botones" style="margin-top:8px">
+        <button class="btn" onclick="consulta()">Buscar</button>
+        <button class="btn btn-warn" onclick="limpiarConsulta()">Limpiar</button>
+      </div>
+      <div id="consulta-res" class="alerta" role="alert"></div>
+      <div id="consulta-tabla-wrap" style="margin-top:8px;display:none">
+        <table id="consulta-tabla">
+          <thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>ID</th><th>Nombre</th><th>Tipo</th><th>Foto</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Sección Estadísticas -->
+    <section id="sec-estadisticas" class="card" style="display:none">
+      <h2>Estadísticas (local)</h2>
+      <div id="stats-res" class="sub">Aún sin datos.</div>
+    </section>
+
+    <!-- Sección Backup -->
+    <section id="sec-backup" class="card" style="display:none">
+      <h2>Backup</h2>
+      <div class="sub">Operando en local. Configurá el token si querés sincronizar con GitHub.</div>
+      <div class="grupo-botones" style="margin-top:8px">
+        <button class="btn" onclick="abrirTokenModal()">Configurar token</button>
+        <button class="btn" onclick="exportarJSON()">Exportar JSON</button>
+        <button class="btn" onclick="importarJSON()">Importar JSON</button>
+      </div>
+      <textarea id="backup-json" style="width:100%;height:160px;margin-top:8px;background:#081508;color:#e8ffe8;border:1px solid #335a33;border-radius:8px"></textarea>
+      <div id="backup-alert" class="alerta"></div>
+    </section>
+  </main>
+
+  <!-- Modal Token -->
+  <div id="token-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);align-items:center;justify-content:center;z-index:1000">
+    <div class="box" style="background:#0c1c0c;border:1px solid var(--dorado);border-radius:12px;padding:16px;max-width:520px;width:calc(100% - 32px)">
+      <h3>Configurar Token de GitHub</h3>
+      <div class="form-row" style="margin-top:6px">
+        <label>Token
+          <input type="text" id="token-input-modal" placeholder="ghp_...">
+        </label>
+        <label>Repo (owner/repo)
+          <input type="text" id="repo-input-modal" placeholder="owner/repo">
+        </label>
+      </div>
+      <div class="grupo-botones" style="margin-top:10px">
+        <button class="btn" onclick="guardarToken()">Guardar</button>
+        <button class="btn btn-warn" onclick="cerrarTokenModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="img-modal" onclick="cerrarImgModal()"><img id="img-modal-img" alt="Foto"/></div>
+  <div id="bloqueo-overlay"></div>
+
+  <div id="debug">Estado: <span id="dbg-online">?</span> · Token: <span id="dbg-token">?</span>
+    <pre id="dbg-log"></pre>
+  </div>
+
+  <script>
+  // ===================== UTILIDADES BÁSICAS =====================
+  const KEYS={ingresos:'app_ingresos',apercib:'app_apercibimientos',sosp:'app_suspensiones',fotos:'app_fotos',token:'app_token',repo:'app_repo'};
+  let offsetMs=0; // hora local
+  function cargarDatos(k){try{return JSON.parse(localStorage.getItem(k)||'[]');}catch{return[]}}
+  function guardarDatos(k,v){localStorage.setItem(k,JSON.stringify(v));}
+  function getToken(){return localStorage.getItem(KEYS.token)||''}
+  function getRepo(){return localStorage.getItem(KEYS.repo)||''}
+  function setSyncBadge(state,text){const el=document.getElementById('sync-badge');el.textContent=text;el.className='chip';if(state==='syncing')el.classList.add('syncing');else if(state==='ok')el.classList.add('ok');else if(state==='err')el.classList.add('err');}
+  function ahoraReal(){return new Date(Date.now()+offsetMs)}
+  function isoFecha(d){return d.toISOString().slice(0,10)}
   function dos(n){return n<10?('0'+n):(''+n)}
-  function tick(){
-    try{
-      const d=new Date();
-      document.getElementById('reloj').textContent=`${dos(d.getHours())}:${dos(d.getMinutes())}:${dos(d.getSeconds())} — ${dos(d.getDate())}/${dos(d.getMonth()+1)}/${d.getFullYear()}`;
-    }catch(e){}
-  }
-  tick(); setInterval(tick,1000);
+  function formatFecha(d){return[dos(d.getDate()),dos(d.getMonth()+1),d.getFullYear()].join('/')}
+  function formatHora(d){return[dos(d.getHours()),dos(d.getMinutes()),dos(d.getSeconds())].join(':')}
+  function tickReloj(){const d=ahoraReal();const el=document.getElementById('reloj');if(el)el.textContent=formatHora(d)+' — '+formatFecha(d);}
+  async function sincronizarHora(){offsetMs=0}
 
-  // Debug online/token
-  function upd(){
-    try{ document.getElementById('dbg-online').textContent = (navigator.onLine?'online':'offline'); }catch(e){}
-    try{ document.getElementById('dbg-token').textContent = localStorage.getItem('app_token')? 'presente':'faltante'; }catch(e){}
-  }
-  upd(); window.addEventListener('online',upd); window.addEventListener('offline',upd);
+  // ===================== FOTO =====================
+  function getFotosMap(){try{return JSON.parse(localStorage.getItem(KEYS.fotos)||'{}');}catch{return{}}}
+  function setFotosMap(m){localStorage.setItem(KEYS.fotos,JSON.stringify(m));}
+  function getFoto(id){const m=getFotosMap();return m[id]||''}
+  function setFoto(id,b64){const m=getFotosMap();m[id]=b64;setFotosMap(m)}
+  function deleteFoto(id){const m=getFotosMap();delete m[id];setFotosMap(m)}
+  let _camStream=null;
+  async function iniciarCamara(){try{if(!_camStream){_camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});}
+    const v=document.getElementById('cam-video');v.srcObject=_camStream;v.play();
+    document.getElementById('cam-wrap').style.display='block';
+    document.getElementById('btn-cam-start').style.display='none';
+    document.getElementById('btn-cam-shot').style.display='inline-flex';
+    document.getElementById('btn-cam-stop').style.display='inline-flex';
+    mostrarAlerta('alerta-foto','info','🎥 Cámara iniciada.');
+  }catch(e){console.warn(e);mostrarAlerta('alerta-foto','error','❌ No se pudo acceder a la cámara.');}}
+  function tomarFoto(){const v=document.getElementById('cam-video');const c=document.getElementById('cam-canvas');const ctx=c.getContext('2d');const vw=v.videoWidth,vh=v.videoHeight;if(!vw||!vh){mostrarAlerta('alerta-foto','warn','⚠️ Esperando cámara...');return;}const size=Math.min(vw,vh),sx=Math.floor((vw-size)/2),sy=Math.floor((vh-size)/2);c.width=320;c.height=320;ctx.drawImage(v,sx,sy,size,size,0,0,320,320);const data=c.toDataURL('image/jpeg',0.9);_guardarFoto(data)}
+  function _guardarFoto(b64){document.getElementById('foto-preview').src=b64;document.getElementById('foto-preview-wrap').style.display='block';document.getElementById('btn-borrar-foto').style.display='inline-flex';const id=getIdentificadorIngreso();if(id){setFoto(id,b64);document.getElementById('foto-preview-dni').textContent='ID: '+id+' ✅';mostrarAlerta('alerta-foto','ok','✅ Foto guardada para '+id);}else{document.getElementById('foto-preview-dni').textContent='ID: --';mostrarAlerta('alerta-foto','warn','⚠️ Ingresá el identificador para asociar la foto.');}}
+  async function borrarFoto(){const id=getIdentificadorIngreso();if(id && getFoto(id)){if(!confirm('¿Eliminar la foto del ID '+id+'?'))return;deleteFoto(id);}document.getElementById('foto-preview').src='';document.getElementById('foto-preview-wrap').style.display='none';document.getElementById('btn-borrar-foto').style.display='none';document.getElementById('foto-preview-dni').textContent='ID: --';mostrarAlerta('alerta-foto','warn','🗑️ Foto eliminada.');}
+  function detenerCamara(){try{if(_camStream){_camStream.getTracks().forEach(t=>t.stop());_camStream=null;}}catch(e){};const v=document.getElementById('cam-video');if(v)v.srcObject=null;document.getElementById('cam-wrap').style.display='none';document.getElementById('btn-cam-start').style.display='inline-flex';document.getElementById('btn-cam-shot').style.display='none';document.getElementById('btn-cam-stop').style.display='none';}
 
-  // Token modal helpers
-  window.abrirTokenSafe = function(){ document.getElementById('token-modal').style.display='flex';
-    try{document.getElementById('token-input').value=localStorage.getItem('app_token')||'';}catch(e){}
-    try{document.getElementById('repo-input').value=localStorage.getItem('app_repo')||'';}catch(e){}
-  }
-  window.cerrarTokenSafe = function(){ document.getElementById('token-modal').style.display='none'; }
-  window.guardarTokenSafe = function(){
-    try{
-      const t=document.getElementById('token-input').value.trim();
-      const r=document.getElementById('repo-input').value.trim();
-      if(!t||!r){ alert('Completá Token y Repo'); return; }
-      localStorage.setItem('app_token', t);
-      localStorage.setItem('app_repo', r);
-      document.getElementById('dbg-token').textContent='presente';
-      document.getElementById('dbg-log').textContent='Token guardado en localStorage. (Validación real deshabilitada en SAFE MODE)';
-      cerrarTokenSafe();
-    }catch(e){ document.getElementById('dbg-log').textContent='Error guardando token: '+e; }
-  }
+  // ===================== UI INGRESO =====================
+  function getTipoIngreso(){const r=document.querySelector('input[name="tipo-ingreso"]:checked');return r? r.value : 'invitado'}
+  function getIdentificadorIngreso(){const t=getTipoIngreso();return t==='socio'?(document.getElementById('nroSocio-ingreso')?.value||'').trim():(document.getElementById('dni-ingreso')?.value||'').trim()}
+  function toggleIngresoFields(){const t=getTipoIngreso();document.getElementById('wrap-dni-ingreso').style.display=(t==='invitado')?'':'none';document.getElementById('wrap-socio-ingreso').style.display=(t==='socio')?'':'none';const nombre=document.getElementById('nombre-ingreso');if(nombre)nombre.placeholder=t==='invitado'?'Apellido, Nombre (obligatorio)':'Apellido, Nombre (opcional)';onIdentificadorChange()}
+  function buscarNombrePorDni(id){const ing=cargarDatos(KEYS.ingresos).filter(x=>x.dni===id).slice(-1)[0];return ing?(ing.nombre||''):''}
+  function onIdentificadorChange(){const id=getIdentificadorIngreso();const campoNombre=document.getElementById('nombre-ingreso');const hint=document.getElementById('nombre-autocomplete-hint');const foto=id?getFoto(id):null;if(foto){document.getElementById('foto-preview').src=foto;document.getElementById('foto-preview-wrap').style.display='block';document.getElementById('btn-borrar-foto').style.display='inline-flex';document.getElementById('foto-preview-dni').textContent='ID: '+id+' ✅';}else{if(document.getElementById('cam-wrap').style.display==='none'){document.getElementById('foto-preview-wrap').style.display='none';document.getElementById('btn-borrar-foto').style.display='none';}document.getElementById('foto-preview-dni').textContent='ID: --';}
+    if(id && id.length>=3){const n=buscarNombrePorDni(id); if(n){ if(!campoNombre.value.trim()||campoNombre.classList.contains('autocompletado')){campoNombre.value=n;campoNombre.classList.add('autocompletado');hint.textContent='✅ Nombre encontrado en registros anteriores';}else hint.textContent='';}else{if(campoNombre.classList.contains('autocompletado')){campoNombre.value='';campoNombre.classList.remove('autocompletado');}hint.textContent='';}}
+    else{if(campoNombre.classList.contains('autocompletado')){campoNombre.value='';campoNombre.classList.remove('autocompletado');}hint.textContent='';}}
+  function mostrarAlerta(id,tipo,html){const el=document.getElementById(id);el.className='alerta';if(tipo==='ok')el.classList.add('ok');else if(tipo==='warn')el.classList.add('warn');else if(tipo==='error')el.classList.add('error');el.innerHTML=html||''}
+  function estadoIngreso(i){return{texto:'Registrado',clase:'badge-verde',fila:''}}
+  function buscarInvitado(){const tipo=getTipoIngreso();const id=getIdentificadorIngreso();if(!id){mostrarAlerta('alerta-ingreso','error',tipo==='invitado'?'Ingresá el DNI.':'Ingresá el N° de socio.');return;}const ing=cargarDatos(KEYS.ingresos),ap=cargarDatos(KEYS.apercib),su=cargarDatos(KEYS.sosp);const hoy=isoFecha(ahoraReal());const misIng=ing.filter(x=>x.dni===id).slice(-10).reverse();const misAp=ap.filter(a=>a.dni===id);const misSuAct=su.filter(s=>s.dni===id && hoy>=s.desde && hoy<=s.hasta);const panel=document.getElementById('panel-estado');const badges=document.getElementById('estado-badges');const detalles=document.getElementById('estado-detalles');panel.style.display='block';badges.innerHTML='';detalles.innerHTML='';let tipoAl='ok',msg=`✅ ${tipo==='socio'?'Socio':'Invitado'} <strong>${id}</strong> sin restricciones.`;if(misSuAct.length){const s=misSuAct[0];badges.innerHTML+=`<span class="badge badge-rojo">🚫 SUSPENDIDO hasta ${s.hasta}</span>`;detalles.innerHTML=`<strong>Motivo:</strong> ${s.motivo||'-'}`;tipoAl='error';msg=`🚫 <strong>SUSPENDIDO</strong> – No puede ingresar. Vigente hasta <strong>${s.hasta}</strong>.`}
+    else if(misAp.length){badges.innerHTML+=`<span class="badge badge-naranja">⚠️ ${misAp.length} apercibimiento(s)</span>`;detalles.innerHTML=misAp.map(a=>`<div>• ${a.fecha} – ${a.motivo||'-'}</div>`).join('');tipoAl='warn';msg=`⚠️ Tiene <strong>${misAp.length} apercibimiento(s)</strong>. Puede ingresar con advertencia.`}
+    else{badges.innerHTML='<span class="badge badge-verde">✅ Sin restricciones</span>'}
+    mostrarAlerta('alerta-ingreso',tipoAl==='ok'?'ok':(tipoAl==='warn'?'warn':'error'),msg);
+    const wrap=document.getElementById('ultimos-ingresos'),tbody=document.querySelector('#tabla-ultimos tbody');wrap.style.display='block';tbody.innerHTML='';if(misIng.length){misIng.forEach((i,n)=>{const est=estadoIngreso(i);const tr=document.createElement('tr');if(est.fila)tr.className=est.fila;tr.innerHTML=`<td>${n+1}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${i.nombre||'—'}</td><td><span class="badge ${est.clase}">${est.texto}</span></td>`;tbody.appendChild(tr);});}else{tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#9bb">Sin ingresos previos</td></tr>'}
+    const foto=getFoto(id);if(foto){document.getElementById('foto-preview').src=foto;document.getElementById('foto-preview-wrap').style.display='block';document.getElementById('btn-borrar-foto').style.display='inline-flex';document.getElementById('foto-preview-dni').textContent='ID: '+id+' ✅';}}
+  async function registrarIngreso(){const tipo=getTipoIngreso();const id=getIdentificadorIngreso();const nombre=(document.getElementById('nombre-ingreso').value||'').trim();if(tipo==='invitado'){if(!id){mostrarAlerta('alerta-ingreso','error','Ingresá el DNI.');return;}if(!/^\d{6,10}$/.test(id)){mostrarAlerta('alerta-ingreso','error','El DNI debe tener entre 6 y 10 dígitos.');return;}if(!nombre){mostrarAlerta('alerta-ingreso','error','El nombre del invitado es obligatorio.');return;}}else{if(!id){mostrarAlerta('alerta-ingreso','error','Ingresá el N° de socio.');return;}if(!/^[A-Za-z0-9\-]{3,20}$/.test(id)){mostrarAlerta('alerta-ingreso','error','El N° de socio debe tener entre 3 y 20 caracteres (letras/números/guiones).');return;}}
+    const existeFoto=!!getFoto(id);const prevSrc=document.getElementById('foto-preview').src;const hayNueva=prevSrc && prevSrc.startsWith('data:image/');if(!existeFoto && !hayNueva){mostrarAlerta('alerta-ingreso','error','Debe tomar una foto con la cámara para completar el ingreso.');return;}if(!existeFoto && hayNueva){setFoto(id,prevSrc);}const now=ahoraReal();const lista=cargarDatos(KEYS.ingresos);lista.push({dni:id,tipo,nombre,fecha:formatFecha(now),hora:formatHora(now),isoFecha:isoFecha(now)});guardarDatos(KEYS.ingresos,lista);mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado – ${tipo==='socio'?'Socio N°':'DNI'} <strong>${id}</strong>${nombre?' '+nombre:''} ${formatFecha(now)} ${formatHora(now)}`);document.getElementById('nombre-ingreso').classList.remove('autocompletado');document.getElementById('nombre-autocomplete-hint').textContent='';buscarInvitado();document.getElementById('nombre-ingreso').value='';}
 
-  // Error catcher
-  window.addEventListener('error', function(e){
-    try{ document.getElementById('dbg-log').textContent = 'Error JS: '+ (e.message||e); }catch(_){}
-  });
-})();
-</script>
-<noscript><div class="alerta" style="margin:12px">⚠️ Tu navegador tiene JavaScript deshabilitado. Activalo para continuar.</div></noscript>
+  // ===================== CONSULTA =====================
+  function mascaraFecha(input){let v=(input.value||'').replace(/\D/g,'').slice(0,8);let out='';if(v.length>=2){out+=v.slice(0,2);}if(v.length>=4){out+=(out?'/':'')+v.slice(2,4);}if(v.length>=8){out+='/'+v.slice(4,8);}input.value=out;}
+  function parseDDMMYYYY(s){const m=/(\d{2})\/(\d{2})\/(\d{4})$/.exec(s||'');if(!m)return null;const dd=+m[1],mm=+m[2],yyyy=+m[3];const dt=new Date(yyyy,mm-1,dd);if(dt.getFullYear()!==yyyy||dt.getMonth()!==mm-1||dt.getDate()!==dd)return null;return dt.toISOString().slice(0,10)}
+  function toISO(fechaDDMMYYYY){if(!fechaDDMMYYYY)return'0001-01-01';const p=fechaDDMMYYYY.split('/');if(p.length!==3)return'0001-01-01';const dd=+p[0],mm=+p[1],yyyy=+p[2];const d=new Date(yyyy,mm-1,dd);return d.toISOString().slice(0,10)}
+  function abrirImgModal(src){const m=document.getElementById('img-modal');const i=document.getElementById('img-modal-img');i.src=src;m.style.display='flex'}
+  function cerrarImgModal(){const m=document.getElementById('img-modal');if(m)m.style.display='none'}
+  function limpiarConsulta(){['consulta-id','consulta-desde','consulta-hasta'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});const res=document.getElementById('consulta-res');res.className='alerta';res.innerHTML='';const wrap=document.getElementById('consulta-tabla-wrap');if(wrap)wrap.style.display='none';const tbody=document.querySelector('#consulta-tabla tbody');if(tbody)tbody.innerHTML='';}
+  function consulta(){const id=(document.getElementById('consulta-id').value||'').trim();const desdeStr=(document.getElementById('consulta-desde').value||'').trim();const hastaStr=(document.getElementById('consulta-hasta').value||'').trim();const res=document.getElementById('consulta-res');const wrap=document.getElementById('consulta-tabla-wrap');const tbody=document.querySelector('#consulta-tabla tbody');res.className='alerta';res.innerHTML='';wrap.style.display='none';tbody.innerHTML='';const ing=cargarDatos(KEYS.ingresos);if(!id && !desdeStr && !hastaStr){res.classList.add('warn');res.innerHTML='⚠️ Ingresá un identificador y/o un rango de fechas.';return;}let isoDesde=desdeStr?parseDDMMYYYY(desdeStr):null;let isoHasta=hastaStr?parseDDMMYYYY(hastaStr):null;if(desdeStr && !isoDesde){res.classList.add('error');res.innerHTML='❌ Fecha "Desde" inválida. Usá dd/mm/yyyy.';return;}if(hastaStr && !isoHasta){res.classList.add('error');res.innerHTML='❌ Fecha "Hasta" inválida. Usá dd/mm/yyyy.';return;}if(isoDesde && !isoHasta) isoHasta='9999-12-31';if(!isoDesde && isoHasta) isoDesde='0001-01-01';let filas=ing.filter(x=>{const okId=id?x.dni===id:true;const f=x.isoFecha||toISO(x.fecha);const okFecha=(isoDesde?f>=isoDesde:true)&&(isoHasta?f<=isoHasta:true);return okId && okFecha;});filas.sort((a,b)=>{const ka=(a.isoFecha||toISO(a.fecha))+' '+(a.hora||'00:00:00');const kb=(b.isoFecha||toISO(b.fecha))+' '+(b.hora||'00:00:00');return kb.localeCompare(ka)});if(!filas.length){res.classList.add('warn');res.innerHTML='😕 Sin registros para los filtros aplicados.';return;}wrap.style.display='block';filas.forEach((x,i)=>{const tr=document.createElement('tr');const foto=getFoto(x.dni);tr.innerHTML=`<td>${i+1}</td><td>${x.fecha||'—'}</td><td>${x.hora||'—'}</td><td>${x.dni}</td><td>${x.nombre||'—'}</td><td>${x.tipo||'—'}</td><td>${foto?`<img class="thumb" src="${foto}" alt="Foto" onclick="abrirImgModal('${foto.replace(/'/g,"&#39;")}')">`:'—'}</td>`;tbody.appendChild(tr);});res.classList.add('ok');res.innerHTML=`✅ ${filas.length} registro(s) encontrado(s).`+(id?` ID: <strong>${id}</strong>.`:'');}
+
+  // ===================== BACKUP =====================
+  function exportarJSON(){const data={ingresos:cargarDatos(KEYS.ingresos),apercibimientos:cargarDatos(KEYS.apercib),suspensiones:cargarDatos(KEYS.sosp),fotos:getFotosMap()};const txt=JSON.stringify(data,null,2);document.getElementById('backup-json').value=txt;document.getElementById('backup-alert').textContent='Exportado a la caja de texto. Copiá y guardá el JSON.'}
+  function importarJSON(){try{const txt=document.getElementById('backup-json').value||'{}';const data=JSON.parse(txt);if(data.ingresos)guardarDatos(KEYS.ingresos,data.ingresos);if(data.apercibimientos)guardarDatos(KEYS.apercib,data.apercibimientos);if(data.suspensiones)guardarDatos(KEYS.sosp,data.suspensiones);if(data.fotos)setFotosMap(data.fotos);document.getElementById('backup-alert').textContent='Importación OK.';}catch(e){document.getElementById('backup-alert').textContent='Error al importar JSON.'}}
+
+  // ===================== TOKEN & VALIDACIÓN =====================
+  function abrirTokenModal(){const m=document.getElementById('token-modal');document.getElementById('token-input-modal').value=getToken();document.getElementById('repo-input-modal').value=getRepo();m.style.display='flex'}
+  function cerrarTokenModal(){document.getElementById('token-modal').style.display='none'}
+  function guardarToken(){const t=(document.getElementById('token-input-modal').value||'').trim();const r=(document.getElementById('repo-input-modal').value||'').trim();if(!t||!r){alert('Completá Token y Repo.');return;}localStorage.setItem(KEYS.token,t);localStorage.setItem(KEYS.repo,r);ocultarBannerToken();setSyncBadge('ok','☁️ ✔️ Token guardado');cerrarTokenModal(); if(navigator.onLine){validarTokenYRepo().then(res=>{if(res&&res.ok){setSyncBadge('ok','☁️ ✔️ Listo');}else{setSyncBadge('err','☁️ ❌ '+(res.error||'Token inválido'));mostrarBannerToken();}}).catch(()=>setSyncBadge('err','☁️ ❌ Error'));}else{setSyncBadge('err','☁️ ⚡ Guardado (validación pendiente)')}}
+  function mostrarBannerToken(){const b=document.getElementById('token-ask-banner');if(b)b.style.display='block'}
+  function ocultarBannerToken(){const b=document.getElementById('token-ask-banner');if(b)b.style.display='none'}
+  function estaOnline(){return (typeof navigator!=='undefined' && 'onLine' in navigator)? navigator.onLine : true}
+  function ghHeaders(token){return {'Accept':'application/vnd.github+json','Authorization':'Bearer '+token,'X-GitHub-Api-Version':'2022-11-28'}}
+  function tieneScopeRepo(scopesStr){const s=(scopesStr||'').split(',').map(x=>x.trim().toLowerCase());return s.includes('repo')||s.includes('public_repo')}
+  async function validarTokenYRepo(){if(!estaOnline())return{ok:true,modo:'local'};const token=getToken(),repo=getRepo();if(!token||!repo)return{ok:false,error:'Falta token o repo'};try{setSyncBadge('syncing','☁️ 🔄 Validando token...');const rUser=await fetch('https://api.github.com/user',{headers:ghHeaders(token)});if(rUser.status===401)return{ok:false,error:'Token inválido (401)'};if(rUser.status===403)return{ok:false,error:'Acceso denegado (403)'};if(rUser.status<200||rUser.status>299)return{ok:false,error:'Error usuario: '+rUser.status};const scopes=rUser.headers.get('x-oauth-scopes')||'';const rRepo=await fetch('https://api.github.com/repos/'+repo,{headers:ghHeaders(token)});if(rRepo.status===404)return{ok:false,error:'Repo no encontrado (404)'};if(rRepo.status===401)return{ok:false,error:'Token inválido para el repo (401)'};if(rRepo.status===403)return{ok:false,error:'Sin permisos al repo (403)'};if(rRepo.status<200||rRepo.status>299)return{ok:false,error:'Error repo: '+rRepo.status};const repoJson=await rRepo.json();const necesitaRepoScope=!!repoJson.private;const okScope=necesitaRepoScope? scopes.toLowerCase().includes('repo'): tieneScopeRepo(scopes);if(!okScope)return{ok:false,error:'Scope insuficiente'};return{ok:true,scopes,repoPrivado:necesitaRepoScope};}catch(e){return{ok:false,error:'Error de red/validación'}}}
+
+  // ===================== NAVEGACIÓN =====================
+  function navClick(id,btn){document.querySelectorAll('nav button').forEach(b=>b.classList.remove('act'));btn.classList.add('act');document.querySelectorAll('main > section').forEach(s=>s.style.display='none');document.getElementById('sec-'+id).style.display='block';if(id==='estadisticas')inicializarEstadisticas();if(id==='ingreso')toggleIngresoFields();}
+  function inicializarEstadisticas(){const ing=cargarDatos(KEYS.ingresos);document.getElementById('stats-res').textContent=`Registros locales: ${ing.length}`}
+
+  // ===================== INIT =====================
+  (async function init(){
+    try{await sincronizarHora();}catch(e){offsetMs=0}
+    tickReloj(); setInterval(tickReloj,1000);
+    try{document.getElementById('dbg-online').textContent=estaOnline()?'online':'offline';}catch(e){}
+    try{document.getElementById('dbg-token').textContent=getToken()?'presente':'faltante';}catch(e){}
+
+    const online=estaOnline(); const hayToken=!!getToken();
+    if(!hayToken){ setSyncBadge('err','☁️ ❌ Sin token'); mostrarBannerToken(); try{abrirTokenModal();}catch(e){} }
+    else { ocultarBannerToken(); }
+
+    if(online && hayToken){ try{ const r=await validarTokenYRepo(); if(r&&r.ok){ setSyncBadge('ok','☁️ ✔️ Listo'); } else { setSyncBadge('err','☁️ ❌ '+(r.error||'Token inválido')); mostrarBannerToken(); } } catch{ setSyncBadge('err','☁️ ❌ Error'); } }
+    if(!online){ setSyncBadge('err','☁️ ⚡ Local (sin internet)'); }
+
+    navClick('ingreso', document.getElementById('btn-nav-ingreso'));
+  })();
+
+  // ===================== DEBUG ERRORS =====================
+  window.addEventListener('error', (e)=>{ try{ document.getElementById('dbg-log').textContent = 'Error JS: '+(e.message||e); }catch(_){} });
+  window.addEventListener('online',()=>{ try{ document.getElementById('dbg-online').textContent='online'; }catch(e){} });
+  window.addEventListener('offline',()=>{ try{ document.getElementById('dbg-online').textContent='offline'; }catch(e){} });
+  </script>
 </body>
 </html>
