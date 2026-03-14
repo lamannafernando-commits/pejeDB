@@ -2232,5 +2232,50 @@ function navigateHome(){ try{ if(typeof _navegarSeccion==='function'){ const btn
 (function patchEliminarBoton(){ try{ window.eliminarInspector && (window.solicitarPassEliminarInspector = solicitarPassEliminarInspector); }catch(e){} })();
 </script>
 
+
+<script>
+// === PCQ ULTIMATE SAFE PATCH v12.5 ===
+(function(){
+  if (window._pcqSafeApplied) return; window._pcqSafeApplied = true;
+  function $(id){ return document.getElementById(id); }
+  function hideOverlay(){ try{ $('sync-loading')?.classList.remove('show'); }catch(e){} }
+  function showTokenModal(){ try{ $('token-modal')?.classList.add('show'); }catch(e){} }
+  // Fallback getToken
+  if (typeof window.getToken !== 'function'){
+    window.getToken = function(){ try{ return localStorage.getItem('pcq_gh_token') || ''; }catch(e){ return ''; } };
+  }
+  // Fallback navegarSeccion y navClick
+  if (typeof window._navegarSeccion !== 'function'){
+    window._navegarSeccion = function(id, btn){
+      try{
+        document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('activa'));
+        const sec = document.getElementById('sec-' + id); if(sec) sec.classList.add('activa');
+        document.querySelectorAll('nav button').forEach(b=>b.classList.remove('activo'));
+        if(btn) btn.classList.add('activo');
+      }catch(e){}
+    };
+  }
+  if (typeof window.navClick !== 'function'){
+    window.navClick = function(id, btn){ try{ _navegarSeccion(id, btn); }catch(e){} };
+  }
+  // Force-enable all nav buttons if previous code disabled them
+  try{ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('nav-bloqueado')); }catch(e){}
+
+  // DOM Ready fallback
+  document.addEventListener('DOMContentLoaded', function(){
+    // Always hide overlay after a short delay
+    hideOverlay(); setTimeout(hideOverlay, 1200);
+    // If no token -> show modal; otherwise go to Ingreso
+    try{
+      if(!getToken()) showTokenModal(); else {
+        var btn = document.getElementById('btn-nav-ingreso');
+        _navegarSeccion('ingreso', btn);
+        window.scrollTo({top:0, behavior:'instant'});
+      }
+    }catch(e){}
+  });
+})();
+</script>
+
 </body>
 </html>
