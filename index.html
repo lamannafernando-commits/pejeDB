@@ -257,6 +257,7 @@
     <p>Para sincronizar datos entre dispositivos necesitás un <strong style="color:var(--dorado)">Personal Access Token</strong> de GitHub.</p>
     <input type="password" id="token-input-modal" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off"/>
     <div class="token-btns">
+      <button class="btn btn-info" onclick="solicitarActivacionWhatsApp()">📨 Solicitar activación del sistema</button>
       <button class="btn btn-gold" onclick="guardarTokenModal()">💾 Guardar y continuar</button>
     </div>
     <div id="alerta-token-modal" class="alerta" style="margin-top:12px;"></div>
@@ -671,13 +672,7 @@
       <div id="alerta-token-backup" class="alerta"></div>
       <p style="font-size:.78rem;color:#4a6a4a;margin-top:6px;">El token se guarda solo en este dispositivo (localStorage). </p>
     </div>
-    <div class="card">
-      <h2>☁️ Sincronización en la Nube</h2>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-        <button class="btn btn-primary" onclick="sincronizarDesdeGitHub(true)">🔄 Sincronizar ahora</button>
-        <button class="btn btn-info" onclick="verificarConexionGitHub()">🔍 Verificar conexión</button>
-      </div>
-      <div id="alerta-github" class="alerta"></div>
+          <div id="alerta-github" class="alerta"></div>
       <div id="ultimo-sync-info" style="font-size:.82rem;color:#4a6a4a;margin-top:8px;"></div>
     </div>
     <div class="card">
@@ -746,12 +741,16 @@
 </div>
 
 <script>
-/* ══ GITHUB CONFIG ══ */
-const GH={
-  owner:'lamannafernando-commits',repo:'peje',
-  branch:'main',dataFile:'data/pcq_data.json',
-  get token(){return localStorage.getItem('pcq_gh_token')||'';}
-};
+/* SIN GITHUB: stubs seguros */
+const GH={owner:'',repo:'',branch:'',dataFile:''};
+function fetchConTimeout(u,o,ms){ return fetch(u,o); }
+function utf8ToBase64(s){return btoa(unescape(encodeURIComponent(s)));}
+function base64ToUtf8(b){return decodeURIComponent(escape(atob(b)));}
+async function ghGetFile(){ return {sha:null,content:null}; }
+async function ghPutFile(){ return {ok:true,sha:null}; }
+async function guardarEnGitHub(){ return { ok:true }; }
+async function sincronizarDesdeGitHub(){ return; }
+async function verificarConexionGitHub(){ return; }
 
 /* ══ CONSTANTES ══ */
 const KEYS={
@@ -929,8 +928,17 @@ function getToken(){return localStorage.getItem('pcq_gh_token')||'';}
 function setToken(t){localStorage.setItem('pcq_gh_token',t);}
 function clearToken(){localStorage.removeItem('pcq_gh_token');}
 function guardarTokenModal(){
-  const v=document.getElementById('token-input-modal').value.trim();
-  if(!v){mostrarAlertaEl('alerta-token-modal','error','Ingresá el token.');return;}
+  var el1=document.getElementById('token-input-modal');
+  var el2=document.getElementById('token-modal-input');
+  var v=(el1?el1.value.trim():'' ) || (el2?el2.value.trim():'' );
+  if(!v){ var a=document.getElementById('alerta-token-modal')||document.getElementById('token-modal-alerta'); if(a){ a.className='alerta show alerta-error'; a.textContent='Ingresá el token.';} return; }
+  try{ localStorage.setItem('pcq_gh_token', v); }catch(e){}
+  try{ document.getElementById('token-modal').classList.remove('show'); }catch(e){}
+  try{ document.getElementById('token-input-modal') && (document.getElementById('token-input-modal').value=''); }catch(e){}
+  try{ document.getElementById('token-modal-input') && (document.getElementById('token-modal-input').value=''); }catch(e){}
+  try{ setSyncBadge('ok','✅ Activado'); }catch(e){}
+  try{ navigateHome(); }catch(e){}
+}
   setToken(v);document.getElementById('token-modal').classList.remove('show');
   document.getElementById('token-input-modal').value='';
   actualizarTokenStatusCard();iniciarSyncConGitHub();
@@ -940,8 +948,15 @@ function continuarSinToken(){
   setSyncBadge('error','❌ Sin token');finalizarInit();
 }
 function guardarTokenBackup(){
-  const v=document.getElementById('token-campo-backup').value.trim();
-  if(!v){mostrarAlerta('alerta-token-backup','error','Ingresá el token.');return;}
+  var i=document.getElementById('token-campo-backup'); var v=i?i.value.trim():'';
+  if(!v){ mostrarAlerta('alerta-token-backup','error','Ingresá el token.'); return; }
+  try{ localStorage.setItem('pcq_gh_token', v); }catch(e){}
+  if(i) i.value='';
+  try{ actualizarTokenStatusCard(); }catch(e){}
+  mostrarAlerta('alerta-token-backup','ok','✅ Token guardado.');
+  try{ setSyncBadge('ok','✅ Activado'); }catch(e){}
+  try{ navigateHome(); }catch(e){}
+}
   setToken(v);document.getElementById('token-campo-backup').value='';
   actualizarTokenStatusCard();mostrarAlerta('alerta-token-backup','ok','✅ Token guardado. Sincronizando..');
   sincronizarDesdeGitHub(false);
@@ -955,9 +970,11 @@ function toggleVerTokenBackup(){
   const i=document.getElementById('token-campo-backup');i.type=i.type==='password'?'text':'password';
 }
 function actualizarTokenStatusCard(){
-  const el=document.getElementById('token-status-card');if(!el)return;
-  const t=getToken();
-  if(t){el.className='token-status ok';el.textContent='✅ Token configurado: '+t.substring(0,8)+'••••'+t.slice(-4);}
+  const el=document.getElementById('token-status-card'); if(!el) return;
+  const t=(function(){ try{return localStorage.getItem('pcq_gh_token');}catch(e){return '';} })();
+  if(t){ el.className='token-status ok'; el.textContent='✅ Dispositivo activado'; }
+  else{ el.className='token-status error'; el.textContent='❌ Dispositivo no activado'; }
+}
   else{el.className='token-status error';el.textContent='❌ No hay token configurado';}
 }
 
@@ -966,9 +983,10 @@ function utf8ToBase64(s){const b=new TextEncoder().encode(s);let r='';b.forEach(
 function base64ToUtf8(b64){const bin=atob(b64);const b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);return new TextDecoder().decode(b);}
 
 /* ══ SYNC BADGE ══ */
-function setSyncBadge(e,t){
-  document.getElementById('sync-badge').className='sync-'+e;
-  document.getElementById('sync-txt').textContent=t;
+function setSyncBadge(state, txt){
+  try{ var b=document.getElementById('sync-badge'); var t=document.getElementById('sync-txt'); var d=document.getElementById('sync-dot');
+    if(b) b.className=''; if(t) t.textContent=txt||''; if(d && state==='ok'){ d.style.background='#4aff4a'; }
+  }catch(e){}
 }
 
 /* ══ GITHUB API ══ */
@@ -1402,7 +1420,7 @@ function renderInspectores(){
     <div class="ic-acciones">
       ${!esAct?`<button class="btn btn-gold btn-sm" onclick="activarInspector(${insp.id})">⚡ Activar</button>`:`<button class="btn btn-secondary btn-sm" onclick="desactivarInspector()">✖ Desactivar</button>`}
       <button class="btn btn-warning btn-sm" onclick="editarInspector(${insp.id})">✏️ Editar</button>
-      <button class="btn btn-danger btn-sm" onclick="solicitarPassEliminarInspector(${insp.id})">🗑️ Eliminar</button>
+      <button class="btn btn-danger btn-sm" onclick="eliminarInspector(${insp.id})">🗑️ Eliminar</button>
     </div>`;
     grid.appendChild(card);
   });
@@ -2035,11 +2053,12 @@ function _renderTablaTopVisitantes(ing){
 
 /* ══ INIT ══ */
 function finalizarInit(){
-  document.getElementById('sync-loading').classList.remove('show');
-  actualizarUIInspectorActivo();actualizarEstadoBloqueo();actualizarTokenStatusCard();_initZoomEvents();
-  if(getInspectorActivo()){
-    _navegarSeccion('ingreso',document.getElementById('btn-nav-ingreso'));
-  } else {
+  try{ document.getElementById('sync-loading').classList.remove('show'); }catch(e){}
+  try{ actualizarUIInspectorActivo(); actualizarEstadoBloqueo(); actualizarTokenStatusCard(); _initZoomEvents(); }catch(e){}
+  try{ var hasToken = !!localStorage.getItem('pcq_gh_token'); setSyncBadge(hasToken?'ok':'error', hasToken?'✅ Activado':'❌ Sin activar'); }catch(e){}
+  try{ if(getInspectorActivo()){ _navegarSeccion('ingreso', document.getElementById('btn-nav-ingreso')); } else { document.getElementById('banner-activar').style.display='block'; _navegarSeccion('inspectores', document.getElementById('btn-nav-inspectores')); } }catch(e){}
+  try{ setInterval(function(){}, 30000); }catch(e){}
+} else {
     document.getElementById('banner-activar').style.display='block';
     _navegarSeccion('inspectores',document.getElementById('btn-nav-inspectores'));
   }
@@ -2092,189 +2111,24 @@ async function iniciarSyncConGitHub(){
   finalizarInit();
 }
 
-
 (async function init(){
-  try{ document.getElementById('sync-loading').classList.add('show'); }catch(e){}
-  // Sincronizar hora con timeout breve
-  try{
-    document.getElementById('sync-loading-txt').textContent = '🕐 Sincronizando hora...';
-  }catch(e){}
-  try{ await Promise.race([sincronizarHora(), new Promise(r=>setTimeout(r,5000))]); }catch(e){}
-  try{
-    tickReloj(); setInterval(tickReloj, 1000); setInterval(sincronizarHora, 5*60*1000);
-  }catch(e){}
-
-  var hasToken = false; try{ hasToken = !!getToken(); }catch(e){}
-
-  // **No bloqueamos la UI**: ocultamos overlay y mostramos lo que corresponda
-  try{ document.getElementById('sync-loading').classList.remove('show'); }catch(e){}
-  if(!hasToken){
-    try{ document.getElementById('token-modal').classList.add('show'); }catch(e){}
+  document.getElementById('sync-loading').classList.add('show');
+  document.getElementById('sync-loading-txt').textContent='🕐 Sincronizando hora..';
+  await Promise.race([sincronizarHora(),new Promise(r=>setTimeout(r,5000))]);
+  tickReloj();setInterval(tickReloj,1000);setInterval(sincronizarHora,5*60*1000);
+  if(!getToken()){
+    document.getElementById('sync-loading').classList.remove('show');
+    document.getElementById('token-modal').classList.add('show');
+  } else {
+    await iniciarSyncConGitHub();
   }
-  try{ finalizarInit(); }catch(e){}
-
-  // Sincronización en 2do plano si hay token
-  if(hasToken){ try{ iniciarSyncConGitHub(); }catch(e){} }
-
-  // Failsafe: nunca quedarse "Cargando..."
-  setTimeout(()=>{ try{ document.getElementById('sync-loading').classList.remove('show'); }catch(e){} }, 2500);
 })();
-
 </script>
 
-<!-- MODAL CAMBIO PASS INSPECTOR -->
-<div class="modal-overlay" id="modal-pass-insp">
-  <div class="modal-box">
-    <h3>🔒 Cambiar contraseña del inspector</h3>
-    <div class="form-row"><label>Nueva contraseña<input type="password" id="m-insp-pass-new"/></label></div>
-    <div id="alerta-modal-pass-insp" class="alerta"></div>
-    <div class="modal-acciones">
-      <button class="btn btn-secondary" onclick="cerrarCambioPassInspector()">✖ Cancelar</button>
-      <button class="btn btn-gold" onclick="guardarCambioPassInspector()">✅ Confirmar</button>
-    </div>
-  </div>
-</div>
-
-
 <script>
-// ===== HASH SHA-256 para contraseña maestra (con fallback JS) =====
-const BACKUP_PASS_HASH = '1fb7a3bd8d40467330802747455603080831e724a5d2a9cb8d89670303b1861d'; // hash de 'gustavopeje'
-async function sha256Hex(str){const enc=new TextEncoder().encode(str);const buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');}
-function sha256HexFallback(ascii){function R(v,a){return (v>>>a)|(v<<(32-a));}var M=Math.pow(2,32),r='',w=[],i,j,L=ascii.length*8,h=sha256HexFallback.h=sha256HexFallback.h||[],k=sha256HexFallback.k=sha256HexFallback.k||[],p=k.length,c={};function f(x){return x-Math.floor(x)}if(!p){for(var q=2;p<64;q++)if(!c[q]){for(i=0;i<313;i+=q)c[i]=q;h[p]=(f(Math.sqrt(q))*M)|0;k[p++]=(f(Math.cbrt(q))*M)|0}}ascii+='';while(ascii.length%64-56)ascii+=' ';for(i=0;i<ascii.length;i++){j=ascii.charCodeAt(i);w[i>>2]|=j<<((3-i)%4)*8}w[w.length]=(L/M)|0;w[w.length]=L;for(j=0;j<w.length;){var W=w.slice(j,j+=16),H=h.slice(0),a=h[0],b=h[1],c2=h[2],d=h[3],e=h[4],f2=h[5],g=h[6],h2=h[7];for(i=0;i<64;i++){var w15=W[i-15],w2=W[i-2],s0=(w15>>>7 ^ w15>>>18 ^ w15>>>3),s1=(w2>>>17 ^ w2>>>19 ^ w2>>>10);W[i]=i<16?W[i]:(W[i-16]+s0+W[i-7]+s1)|0;var ch=e&f2 ^ ~e&g,maj=a&b ^ a&c2 ^ b&c2,S0=(a>>>2 ^ a>>>13 ^ a>>>22),S1=(e>>>6 ^ e>>>11 ^ e>>>25);var t1=(h2+S1+ch+k[i]+W[i])|0,t2=(S0+maj)|0;h2=g;g=f2;f2=e;e=(d+t1)|0;d=c2;c2=b;b=a;a=(t1+t2)|0}h[0]=(h[0]+a)|0;h[1]=(h[1]+b)|0;h[2]=(h[2]+c2)|0;h[3]=(h[3]+d)|0;h[4]=(h[4]+e)|0;h[5]=(h[5]+f2)|0;h[6]=(h[6]+g)|0;h[7]=(h[7]+h2)|0}for(i=0;i<h.length;i++)for(j=3;j+1;j--){var B=(h[i]>>> (j*8))&255;r+=((B<16)?'0':'')+B.toString(16)}return r}
-async function sha256HexSafe(str){try{if(window.crypto&&crypto.subtle){return await sha256Hex(str);}}catch(e){}return sha256HexFallback(str)}
-async function checkMasterPass(input){try{return (await sha256HexSafe(input))===BACKUP_PASS_HASH;}catch(e){return false;}}
-
-// ===== Acciones protegidas (Alta/Baja Inspector, Solicitar activación) =====
-var _pendingInspectorAlta=null; var _pendingDeleteInspectorId=null;
-function solicitarPassAltaInspector(){try{var data={nombre:document.getElementById('insp-nombre').value.trim(),tel:document.getElementById('insp-tel').value.trim(),obs:document.getElementById('insp-obs').value.trim(),usuario:(document.getElementById('insp-user')||{}).value?.trim()||'',pass:(document.getElementById('insp-pass')||{}).value||''}; if(!data.nombre||!data.usuario||!data.pass){mostrarAlerta('alerta-insp','error','Completar Nombre, Usuario y Contraseña.');return;} _pendingInspectorAlta=data; pedirPassBackup('alta-inspector');}catch(e){}}
-function solicitarPassEliminarInspector(id){ _pendingDeleteInspectorId=id; pedirPassBackup('eliminar-inspector'); }
-function solicitarActivacionWhatsApp(){ _pendingPassAction='solicitar-activacion'; document.getElementById('pass-titulo').textContent='🔒 Confirmá para solicitar activación'; document.getElementById('pass-subtitulo').textContent='Ingresá la contraseña maestra para continuar y enviar la solicitud por WhatsApp.'; document.getElementById('pass-input').value=''; var a=document.getElementById('alerta-pass'); a.className='alerta'; a.textContent=''; document.getElementById('modal-pass').classList.add('show'); }
-
-// ===== Extender pedirPassBackup/confirmarPass =====
-(function(){
-  // Extiende textos del modal
-  if (typeof pedirPassBackup === 'function'){
-    var _old = pedirPassBackup;
-    pedirPassBackup = function(accion){
-      _pendingPassAction = accion;
-      var titulos={descargar:'🔒 Contraseña para descargar',restaurar:'🔒 Contraseña para restaurar','alta-inspector':'🔒 Confirmá el alta del inspector','eliminar-inspector':'🔒 Confirmá la eliminación','solicitar-activacion':'🔒 Confirmá para solicitar activación'};
-      var subs={descargar:'Ingresá la contraseña para descargar el backup XML.',restaurar:'Ingresá la contraseña para restaurar el backup XML.','alta-inspector':'Ingresá la contraseña maestra para dar de alta el inspector.','eliminar-inspector':'Ingresá la contraseña maestra para eliminar el inspector.','solicitar-activacion':'Ingresá la contraseña maestra para abrir WhatsApp.'};
-      document.getElementById('pass-titulo').textContent = titulos[accion] || '🔒 Contraseña requerida';
-      document.getElementById('pass-subtitulo').textContent = subs[accion] || 'Ingresá la contraseña para continuar.';
-      document.getElementById('pass-input').value=''; var a=document.getElementById('alerta-pass'); a.className='alerta'; a.textContent='';
-      document.getElementById('modal-pass').style.display='flex';
-      setTimeout(()=>document.getElementById('pass-input').focus(),120);
-    }
-  }
-  // Reemplaza confirmarPass por versión con hash y acciones nuevas
-  if (typeof confirmarPass === 'function'){
-    confirmarPass = async function(){
-      const val = document.getElementById('pass-input').value;
-      const ok = await checkMasterPass(val);
-      if(!ok){ const el=document.getElementById('alerta-pass'); el.className='alerta show alerta-error'; el.textContent='❌ Contraseña incorrecta.'; document.getElementById('pass-input').value=''; document.getElementById('pass-input').focus(); return; }
-      const accion = _pendingPassAction; cerrarModalPass();
-      setTimeout(async ()=>{
-        try{
-          if(accion==='descargar') generarBackup();
-          else if(accion==='restaurar') restaurarBackup();
-          else if(accion==='alta-inspector' && _pendingInspectorAlta){
-            var lista=cargarDatos(KEYS.inspectores);
-            if(lista.find(i=>i.usuario && i.usuario.toLowerCase()===_pendingInspectorAlta.usuario.toLowerCase())){ mostrarAlerta('alerta-insp','error','Ya existe un inspector con ese usuario.'); return; }
-            lista.push({ id:Date.now(), nombre:_pendingInspectorAlta.nombre, tel:_pendingInspectorAlta.tel, obs:_pendingInspectorAlta.obs, usuario:_pendingInspectorAlta.usuario, pass:_pendingInspectorAlta.pass });
-            guardarDatos(KEYS.inspectores, lista);
-            try{ await guardarEnGitHub(false);}catch(e){}
-            ['insp-nombre','insp-tel','insp-obs','insp-user','insp-pass'].forEach(id=>{ var el=document.getElementById(id); if(el) el.value=''; });
-            renderInspectores(); mostrarAlerta('alerta-insp','ok','✅ Inspector dado de alta.'); _pendingInspectorAlta=null;
-          }
-          else if(accion==='eliminar-inspector' && _pendingDeleteInspectorId!=null){
-            var lista2=cargarDatos(KEYS.inspectores); var idx=lista2.findIndex(i=>i.id===_pendingDeleteInspectorId);
-            if(idx>-1){ lista2.splice(idx,1); guardarDatos(KEYS.inspectores, lista2); try{ await guardarEnGitHub(false);}catch(e){} }
-            actualizarUIInspectorActivo(); actualizarEstadoBloqueo(); renderInspectores(); mostrarAlerta('alerta-insp','ok','🗑️ Inspector eliminado.'); _pendingDeleteInspectorId=null;
-          }
-          else if(accion==='solicitar-activacion'){
-            const now=new Date(); const msg='Hola, solicito *activación del sistema* PCQ para este dispositivo. Fecha/Hora: '+ now.toLocaleString();
-            window.open('https://wa.me/541162544509?text='+encodeURIComponent(msg),'_blank');
-          }
-        }catch(e){}
-      },150);
-    }
-  }
-})();
-
-// ===== Cambio de contraseña del inspector =====
-function abrirCambioPassInspector(){ if(typeof _editInspId==='undefined' || _editInspId==null){ const a=document.getElementById('alerta-modal-insp'); if(a){a.className='alerta show alerta-error'; a.textContent='Seleccioná un inspector para editar.';} return;} document.getElementById('m-insp-pass-new').value=''; const a2=document.getElementById('alerta-modal-pass-insp'); if(a2){a2.className='alerta'; a2.textContent='';} document.getElementById('modal-pass-insp').classList.add('show'); }
-function cerrarCambioPassInspector(){ document.getElementById('modal-pass-insp').classList.remove('show'); }
-async function guardarCambioPassInspector(){ const pass=document.getElementById('m-insp-pass-new').value; if(!pass){ const a=document.getElementById('alerta-modal-pass-insp'); if(a){a.className='alerta show alerta-error'; a.textContent='Ingresá la nueva contraseña.';} return; } try{ var lista=cargarDatos(KEYS.inspectores); var idx=lista.findIndex(i=>i.id===_editInspId); if(idx>-1){ lista[idx]={...lista[idx], pass}; guardarDatos(KEYS.inspectores, lista); try{ await guardarEnGitHub(false);}catch(e){} } cerrarCambioPassInspector(); var msg=document.getElementById('alerta-insp'); if(msg){ msg.className='alerta show alerta-ok'; msg.textContent='✅ Contraseña actualizada.'; } }catch(e){} }
-
-// ===== Redirección al Home después de guardar token =====
 function navigateHome(){ try{ if(typeof _navegarSeccion==='function'){ const btn=document.getElementById('btn-nav-ingreso'); _navegarSeccion('ingreso', btn); } else { location.hash='#ingreso'; window.scrollTo({top:0,behavior:'instant'}); } }catch(e){} }
-(function patchGuardarToken(){
-  if (typeof guardarTokenModal === 'function'){
-    const _orig = guardarTokenModal;
-    guardarTokenModal = function(){
-      try{
-        _orig();
-      }catch(e){ /* si falla, seguimos */ }
-      // Ir a la sección principal
-      navigateHome();
-    }
-  }
-  if (typeof guardarTokenBackup === 'function'){
-    const _orig2 = guardarTokenBackup;
-    guardarTokenBackup = function(){
-      try{ _orig2(); }catch(e){}
-      navigateHome();
-    }
-  }
-})();
-
-// ===== Reemplazar botón Eliminar por flujo con pass maestra =====
-(function patchEliminarBoton(){ try{ window.eliminarInspector && (window.solicitarPassEliminarInspector = solicitarPassEliminarInspector); }catch(e){} })();
-</script>
-
-
-<script>
-// === PCQ ULTIMATE SAFE PATCH v12.5 ===
-(function(){
-  if (window._pcqSafeApplied) return; window._pcqSafeApplied = true;
-  function $(id){ return document.getElementById(id); }
-  function hideOverlay(){ try{ $('sync-loading')?.classList.remove('show'); }catch(e){} }
-  function showTokenModal(){ try{ $('token-modal')?.classList.add('show'); }catch(e){} }
-  // Fallback getToken
-  if (typeof window.getToken !== 'function'){
-    window.getToken = function(){ try{ return localStorage.getItem('pcq_gh_token') || ''; }catch(e){ return ''; } };
-  }
-  // Fallback navegarSeccion y navClick
-  if (typeof window._navegarSeccion !== 'function'){
-    window._navegarSeccion = function(id, btn){
-      try{
-        document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('activa'));
-        const sec = document.getElementById('sec-' + id); if(sec) sec.classList.add('activa');
-        document.querySelectorAll('nav button').forEach(b=>b.classList.remove('activo'));
-        if(btn) btn.classList.add('activo');
-      }catch(e){}
-    };
-  }
-  if (typeof window.navClick !== 'function'){
-    window.navClick = function(id, btn){ try{ _navegarSeccion(id, btn); }catch(e){} };
-  }
-  // Force-enable all nav buttons if previous code disabled them
-  try{ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('nav-bloqueado')); }catch(e){}
-
-  // DOM Ready fallback
-  document.addEventListener('DOMContentLoaded', function(){
-    // Always hide overlay after a short delay
-    hideOverlay(); setTimeout(hideOverlay, 1200);
-    // If no token -> show modal; otherwise go to Ingreso
-    try{
-      if(!getToken()) showTokenModal(); else {
-        var btn = document.getElementById('btn-nav-ingreso');
-        _navegarSeccion('ingreso', btn);
-        window.scrollTo({top:0, behavior:'instant'});
-      }
-    }catch(e){}
-  });
-})();
+(function(){ try{ if (typeof guardarTokenModal === 'function'){ const _orig = guardarTokenModal; window.guardarTokenModal = function(){ try{ _orig(); }catch(e){} navigateHome(); }; } }catch(e){}
+try{ if (typeof guardarTokenBackup === 'function'){ const _orig2 = guardarTokenBackup; window.guardarTokenBackup = function(){ try{ _orig2(); }catch(e){} navigateHome(); }; } }catch(e){} })();
 </script>
 
 </body>
