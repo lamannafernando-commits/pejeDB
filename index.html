@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -254,17 +253,8 @@
 <!-- TOKEN MODAL -->
 <div id="token-modal">
   <div class="token-box">
-    <h2>🔑 Token de GitHub requerido</h2>
+    <h2>🔑 Token requerido</h2>
     <p>Para sincronizar datos entre dispositivos necesitás un <strong style="color:var(--dorado)">Personal Access Token</strong> de GitHub.</p>
-    <div class="pasos">
-      <strong>Cómo obtenerlo:</strong><br/>
-      1. Entrá a <strong>github.com</strong> → tu perfil<br/>
-      2. <strong>Settings → Developer settings</strong><br/>
-      3. <strong>Personal access tokens → Tokens (classic)</strong><br/>
-      4. <strong>Generate new token (classic)</strong><br/>
-      5. Permiso: ✅ <strong>repo</strong> | Expiración: <strong>No expiration</strong><br/>
-      6. Copiá el token (empieza con <strong>ghp_</strong>)
-    </div>
     <input type="password" id="token-input-modal" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off"/>
     <div class="token-btns">
       <button class="btn btn-gold" onclick="guardarTokenModal()">💾 Guardar y continuar</button>
@@ -680,7 +670,7 @@
         <button class="btn btn-danger btn-sm" onclick="borrarTokenBackup()">🗑️ Borrar</button>
       </div>
       <div id="alerta-token-backup" class="alerta"></div>
-      <p style="font-size:.78rem;color:#4a6a4a;margin-top:6px;">El token se guarda solo en este dispositivo (localStorage). Generalo en GitHub con permiso <strong>repo</strong>.</p>
+      <p style="font-size:.78rem;color:#4a6a4a;margin-top:6px;">El token se guarda solo en este dispositivo (localStorage).</p>
     </div>
     <div class="card">
       <h2>☁️ Sincronización en la Nube</h2>
@@ -910,8 +900,8 @@ function onDniIngresoChange(){
 /* ══ PASSWORD MODAL ══ */
 function pedirPassBackup(accion){
   _pendingPassAction=accion;
-  const titulos={descargar:'🔒 Contraseña para descargar',restaurar:'🔒 Contraseña para restaurar'};
-  const subs={descargar:'Ingresá la contraseña para descargar el backup XML.',restaurar:'Ingresá la contraseña para restaurar el backup XML.'};
+  const titulos={descargar:'🔒 Contraseña para descargar',restaurar:'🔒 Contraseña para restaurar','entrar-inspectores':'👮 Acceso a Inspectores','entrar-backup':'💾 Acceso a Backup','solicitar-token':'🔒 Confirmá para solicitar token'};
+ const subs={descargar:'Ingresá la contraseña para descargar el backup XML.',restaurar:'Ingresá la contraseña para restaurar el backup XML.','entrar-inspectores':'Ingresá la contraseña maestra para acceder a Inspectores.','entrar-backup':'Ingresá la contraseña maestra para acceder a Backup.','solicitar-token':'Ingresá la contraseña maestra para abrir WhatsApp.'};
   document.getElementById('pass-titulo').textContent=titulos[accion]||'🔒 Contraseña requerida';
   document.getElementById('pass-subtitulo').textContent=subs[accion]||'Ingresá la contraseña para continuar.';
   document.getElementById('pass-input').value='';
@@ -932,7 +922,19 @@ function confirmarPass(){
     document.getElementById('pass-input').value='';document.getElementById('pass-input').focus();return;
   }
   const accion=_pendingPassAction;cerrarModalPass();
-  setTimeout(()=>{if(accion==='descargar')generarBackup();else if(accion==='restaurar')restaurarBackup();},150);
+  setTimeout(()=>{
+  if(accion==='descargar') generarBackup();
+  else if(accion==='restaurar') restaurarBackup();
+  else if(accion==='entrar-inspectores'){ _navegarSeccion('inspectores', document.getElementById('btn-nav-inspectores')); }
+  else if(accion==='entrar-backup'){ _navegarSeccion('backup', document.getElementById('btn-nav-backup')); }
+  else if(accion==='solicitar-token'){
+    try{
+      const now = (typeof ahoraReal==='function') ? ahoraReal() : new Date();
+      const msg = 'Hola, necesito el token de sincronización para el sistema PCQ. Fecha/Hora: ' + (now.toLocaleString ? now.toLocaleString() : now.toString()) + '.';
+      window.open('https://wa.me/541162544509?text=' + encodeURIComponent(msg), '_blank');
+    }catch(e){ window.open('https://wa.me/541162544509?text=' + encodeURIComponent('Hola, necesito el token de sincronización para el sistema PCQ.'), '_blank'); }
+  }
+},150);
 }
 
 /* ══ TOKEN ══ */
@@ -1231,7 +1233,7 @@ function irAInspectores(){
   _navegarSeccion('inspectores',document.getElementById('btn-nav-inspectores'));
   window.scrollTo({top:0,behavior:'smooth'});
 }
-function navClick(id,btn){if(!getInspectorActivo()&&id!=='inspectores')return;_navegarSeccion(id,btn);}
+function navClick(id,btn){ if(id==='inspectores'){ pedirPassBackup('entrar-inspectores'); return; } if(id==='backup'){ pedirPassBackup('entrar-backup'); return; } if(!getInspectorActivo()) return; _navegarSeccion(id,btn);}
 function _navegarSeccion(id,btn){
   document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('activa'));
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('activo'));
@@ -2115,6 +2117,17 @@ async function iniciarSyncConGitHub(){
     await iniciarSyncConGitHub();
   }
 })();
+
+function solicitarTokenWhatsApp(){
+  _pendingPassAction = 'solicitar-token';
+  document.getElementById('pass-titulo').textContent = '🔒 Confirmá para solicitar token';
+  document.getElementById('pass-subtitulo').textContent = 'Ingresá la contraseña maestra para continuar y abrir WhatsApp.';
+  document.getElementById('pass-input').value = '';
+  const a = document.getElementById('alerta-pass'); a.className='alerta'; a.textContent='';
+  document.getElementById('modal-pass').style.display='flex';
+  setTimeout(()=>document.getElementById('pass-input').focus(),120);
+}
+
 </script>
 </body>
 </html>
