@@ -3,73 +3,84 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Pejerrey Club Quilmes – Sistema (FIX hora local + Admin + Estadísticas)</title>
+<title>Pejerrey Club Quilmes – Sistema v5 Unificado</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
 <style>
-  :root{
-    --verde-oscuro:#1a3a1a;--verde-medio:#1e5c1e;--verde-logo:#2d6e2d;--verde-claro:#3a8a3a;
-    --dorado:#c8a84b;--dorado-claro:#e8c86a;--blanco:#ffffff;--crema:#f5f0e8;
-    --gris-claro:#e8ede8;--texto-oscuro:#1a1a1a;--rojo:#cc2222;--naranja:#d4841a;
-  }
-  *{box-sizing:border-box}
-  body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,'Open Sans',sans-serif;background:linear-gradient(160deg,#0d1f0d 0%,#1a3a1a 40%,#0d2a1a 100%);color:#fff;min-height:100vh;margin:0}
-  header{position:sticky;top:0;background:linear-gradient(180deg,#0a1a0a 0%,#1a3a1a 100%);border-bottom:3px solid var(--dorado);padding:12px 14px;z-index:10}
-  h1{margin:0;color:var(--dorado);font-size:1.2rem;letter-spacing:1px}
-  .sub{color:#aacfaa;font-size:.9rem}
-  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
-  .badge{background:rgba(0,0,0,.35);border:1px solid #555;border-radius:20px;padding:4px 12px;font-size:.85rem}
-  #sync-badge.sync-ok{background:rgba(26,107,26,.6);border-color:#2a8a2a}
-  #sync-badge.sync-error{background:rgba(180,30,30,.5);border-color:#b33}
-  #sync-badge.sync-syncing{background:rgba(26,90,138,.5);border-color:#2a7aaa}
-  nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;background:#0d1f0d;border-bottom:2px solid var(--dorado);padding:8px}
-  nav button{cursor:pointer;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#cce8cc;border-radius:6px;padding:7px 12px;font-weight:600}
-  nav button.activo{background:var(--dorado);color:#102010}
-  main{max-width:980px;margin:16px auto;padding:0 12px 40px}
-  .seccion{display:none}
-  .seccion.activa{display:block}
-  .card{background:linear-gradient(160deg,#f5f0e8 0%,#ece8de 100%);border:2px solid var(--dorado);color:var(--texto-oscuro);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.25);padding:18px;margin:12px 0}
-  .card h2{margin:0 0 10px 0;color:var(--verde-oscuro);font-size:1.1rem}
-  label{display:flex;flex-direction:column;gap:4px;font-weight:700;color:var(--verde-oscuro);font-size:.9rem}
-  input,textarea,select{padding:9px 10px;border:1.5px solid #8aaa8a;border-radius:6px;font-size:1rem}
-  .rowf{display:flex;flex-wrap:wrap;gap:10px}
-  .btn{cursor:pointer;border:none;border-radius:6px;padding:9px 14px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
-  .btn-primary{background:var(--verde-logo);color:#fff;border:2px solid var(--verde-claro)}
-  .btn-danger{background:var(--rojo);color:#fff;border:2px solid #b11}
-  .btn-gold{background:var(--dorado);color:#102010;border:2px solid var(--dorado-claro)}
-  .btn-secondary{background:#4a5a4a;color:#fff;border:2px solid #5a6a5a}
-  table{width:100%;border-collapse:collapse;font-size:.9rem}
-  th,td{border-bottom:1px solid #ddd;padding:8px 10px}
-  th{background:#153015;color:var(--dorado);text-align:left}
-  .alerta{margin-top:8px;display:none;padding:8px 12px;border-radius:6px;font-weight:700}
-  .alerta.show{display:block}
-  .alerta-ok{background:#d1fae5;color:#065f46}
-  .alerta-warn{background:#fff3cd;color:#92400e}
-  .alerta-error{background:#fee2e2;color:#991b1b}
-  .muted{color:#657b83;font-size:.85rem}
-  @media(max-width:640px){ nav{justify-content:flex-start;overflow:auto} }
+ :root{
+ --verde-oscuro:#1a3a1a;--verde-medio:#1e5c1e;--verde-logo:#2d6e2d;--verde-claro:#3a8a3a;
+ --dorado:#c8a84b;--dorado-claro:#e8c86a;--blanco:#ffffff;--crema:#f5f0e8;
+ --gris-claro:#e8ede8;--texto-oscuro:#1a1a1a;--rojo:#cc2222;--naranja:#d4841a;
+ }
+ *{box-sizing:border-box}
+ body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,'Open Sans',sans-serif;background:linear-gradient(160deg,#0d1f0d 0%,#1a3a1a 40%,#0d2a1a 100%);color:#fff;min-height:100vh;margin:0}
+ header{position:sticky;top:0;background:linear-gradient(180deg,#0a1a0a 0%,#1a3a1a 100%);border-bottom:3px solid var(--dorado);padding:12px 14px;z-index:10}
+ h1{margin:0;color:var(--dorado);font-size:1.2rem;letter-spacing:1px}
+ .sub{color:#aacfaa;font-size:.9rem}
+ .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+ .badge{background:rgba(0,0,0,.35);border:1px solid #555;border-radius:20px;padding:4px 12px;font-size:.85rem}
+ #sync-badge.sync-ok{background:rgba(26,107,26,.6);border-color:#2a8a2a}
+ #sync-badge.sync-error{background:rgba(180,30,30,.5);border-color:#b33}
+ #sync-badge.sync-syncing{background:rgba(26,90,138,.5);border-color:#2a7aaa}
+ nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;background:#0d1f0d;border-bottom:2px solid var(--dorado);padding:8px}
+ nav button{cursor:pointer;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#cce8cc;border-radius:6px;padding:7px 12px;font-weight:600}
+ nav button.activo{background:var(--dorado);color:#102010}
+ main{max-width:980px;margin:16px auto;padding:0 12px 40px}
+ .seccion{display:none}
+ .seccion.activa{display:block}
+ .card{background:linear-gradient(160deg,#f5f0e8 0%,#ece8de 100%);border:2px solid var(--dorado);color:var(--texto-oscuro);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.25);padding:18px;margin:12px 0}
+ .card h2{margin:0 0 10px 0;color:var(--verde-oscuro);font-size:1.1rem}
+ label{display:flex;flex-direction:column;gap:4px;font-weight:700;color:var(--verde-oscuro);font-size:.9rem}
+ input,textarea,select{padding:9px 10px;border:1.5px solid #8aaa8a;border-radius:6px;font-size:1rem}
+ .rowf{display:flex;flex-wrap:wrap;gap:10px}
+ .btn{cursor:pointer;border:none;border-radius:6px;padding:9px 14px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
+ .btn-primary{background:var(--verde-logo);color:#fff;border:2px solid var(--verde-claro)}
+ .btn-danger{background:var(--rojo);color:#fff;border:2px solid #b11}
+ .btn-gold{background:var(--dorado);color:#102010;border:2px solid var(--dorado-claro)}
+ .btn-secondary{background:#4a5a4a;color:#fff;border:2px solid #5a6a5a}
+ table{width:100%;border-collapse:collapse;font-size:.9rem}
+ th,td{border-bottom:1px solid #ddd;padding:8px 10px}
+ th{background:#153015;color:var(--dorado);text-align:left}
+ .alerta{margin-top:8px;display:none;padding:8px 12px;border-radius:6px;font-weight:700}
+ .alerta.show{display:block}
+ .alerta-ok{background:#d1fae5;color:#065f46}
+ .alerta-warn{background:#fff3cd;color:#92400e}
+ .alerta-error{background:#fee2e2;color:#991b1b}
+ .muted{color:#657b83;font-size:.85rem}
+ /* Cámara / fotos / charts / zoom */
+ #foto-ui{margin-top:8px}
+ #foto-ui .cam-wrap{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start}
+ #cam-video, #foto-preview{width:260px;height:195px;background:#000;border-radius:10px;border:2px solid var(--dorado)}
+ .perfil-foto{width:120px;height:120px;border-radius:60px;border:2px solid var(--dorado);object-fit:cover;display:none}
+ .mini-foto{width:36px;height:36px;border-radius:50%;border:1px solid var(--dorado);object-fit:cover;cursor:zoom-in}
+ .chart-wrap{max-width:560px;margin:auto}
+ .chart-wrap canvas{height:140px !important}
+ #img-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);z-index:9999}
+ #img-modal img{max-width:95vw;max-height:90vh;border-radius:10px;border:3px solid var(--dorado);box-shadow:0 10px 40px rgba(0,0,0,.6)}
+ @media(max-width:640px){ nav{justify-content:flex-start;overflow:auto} }
 </style>
 </head>
 <body>
 <header>
-  <h1>🎣 Pejerrey Club Quilmes</h1>
-  <div class="sub">Sistema de Gestión – FIX hora local + Admin + Estadísticas</div>
-  <div class="row">
-    <div id="reloj-header" class="badge">--/--/---- --:--:--</div>
-    <div id="header-inspector" class="badge">🔒 Sin inspector activo</div>
-    <div id="sync-badge" class="badge sync-ok"><span id="sync-txt">Local</span></div>
-  </div>
+ <h1>🎣 Pejerrey Club Quilmes</h1>
+ <div class="sub">Sistema de Gestión – v5 Unificado</div>
+ <div class="row">
+  <div id="reloj-header" class="badge">--/--/---- --:--:--</div>
+  <div id="header-inspector" class="badge">🔒 Sin inspector activo</div>
+  <div id="sync-badge" class="badge sync-ok"><span id="sync-txt">Local</span></div>
+ </div>
 </header>
 <nav>
-  <button id="btn-nav-ingreso" onclick="navClick('ingreso',this)" class="activo">🚪 Ingreso</button>
-  <button id="btn-nav-apercibamiento" onclick="navClick('apercibamiento',this)">⚠️ Apercibamiento</button>
-  <button id="btn-nav-suspension" onclick="navClick('suspension',this)">🚫 Suspensión</button>
-  <button id="btn-nav-consulta" onclick="navClick('consulta',this)">📋 Consulta</button>
-  <button id="btn-nav-vencidos" onclick="navClick('vencidos',this)">⏰ Vencidos</button>
-  <button id="btn-nav-inspectores" onclick="navClick('inspectores',this)">👮 Inspectores</button>
-  <button id="btn-nav-backup" onclick="navClick('backup',this)">🛠️ Administrar Inspectores</button>
-  <button id="btn-nav-estadisticas" onclick="navClick('estadisticas',this)">📊 Estadísticas</button>
+ <button id="btn-nav-ingreso" onclick="navClick('ingreso',this)" class="activo">🚪 Ingreso</button>
+ <button id="btn-nav-apercibamiento" onclick="navClick('apercibamiento',this)">⚠️ Apercibamiento</button>
+ <button id="btn-nav-suspension" onclick="navClick('suspension',this)">🚫 Suspensión</button>
+ <button id="btn-nav-consulta" onclick="navClick('consulta',this)">📋 Consulta</button>
+ <button id="btn-nav-vencidos" onclick="navClick('vencidos',this)">⏰ Vencidos</button>
+ <button id="btn-nav-inspectores" onclick="navClick('inspectores',this)">👮 Inspectores</button>
+ <button id="btn-nav-backup" onclick="navClick('backup',this)">🛠️ Administrar</button>
+ <button id="btn-nav-estadisticas" onclick="navClick('estadisticas',this)">📊 Estadísticas</button>
 </nav>
 <main>
+  <!-- ===== INGRESO ===== -->
   <section id="sec-ingreso" class="seccion activa">
     <div class="card">
       <h2>🚪 Registro de Ingreso</h2>
@@ -79,11 +90,20 @@
       </div>
       <div id="fuente-hora" class="muted">🕒 Usando hora local del dispositivo</div>
       <br/>
+      <!-- Socio / Invitado -->
+      <div class="row" style="gap:8px">
+        <label style="display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--verde-oscuro)">
+          <input type="radio" name="tipo-persona" id="radio-invitado" checked /> Invitado (DNI)
+        </label>
+        <label style="display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--verde-oscuro)">
+          <input type="radio" name="tipo-persona" id="radio-socio" /> Socio (N° socio)
+        </label>
+      </div>
       <div class="rowf">
         <label style="flex:1;min-width:180px">DNI
           <input id="dni-ingreso" type="text" maxlength="12" placeholder="30123456" oninput="this.value=this.value.replace(/\D/g,'')"/>
         </label>
-        <label style="flex:2;min-width:200px">Nombre (opcional)
+        <label style="flex:2;min-width:200px">Nombre y Apellido
           <input id="nombre-ingreso" type="text" placeholder="Apellido, Nombre"/>
         </label>
       </div>
@@ -92,16 +112,39 @@
         <button class="btn btn-secondary" onclick="limpiarCamposIngreso()">🧽 Limpiar</button>
       </div>
       <div id="alerta-ingreso" class="alerta"></div>
+      <!-- Últimos del dni/socio -->
       <div id="ultimos-ingresos" class="card" style="margin:14px 0 0 0;display:none">
-        <h2>Últimos 10 ingresos del DNI</h2>
+        <h2>Últimos 10 ingresos del ID</h2>
         <div class="muted">Estado basado en 24 h de vigencia.</div>
         <div class="table-wrap">
           <table id="tabla-ultimos"><thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Nombre</th><th>Estado</th></tr></thead><tbody></tbody></table>
         </div>
       </div>
     </div>
+    <!-- Cámara obligatoria -->
+    <div id="foto-ui" class="card" style="margin-top:12px">
+      <h2>📸 Foto del ingreso (obligatoria)</h2>
+      <div class="cam-wrap">
+        <div>
+          <video id="cam-video" autoplay playsinline style="display:none"></video>
+          <img id="foto-preview" alt="Previa de la foto" style="display:none"/>
+          <canvas id="cam-canvas" width="320" height="240" style="display:none"></canvas>
+        </div>
+        <div>
+          <div class="muted">Foto de perfil guardada (si existe)</div>
+          <img id="foto-perfil" class="perfil-foto" alt="Foto de perfil"/>
+        </div>
+      </div>
+      <div class="row" style="gap:8px;margin-top:8px">
+        <button class="btn btn-secondary" id="btn-cam-start">🎥 Iniciar cámara</button>
+        <button class="btn btn-gold" id="btn-cam-snap" disabled>📸 Tomar foto</button>
+        <button class="btn btn-danger" id="btn-cam-clear" disabled>🗑️ Borrar foto</button>
+      </div>
+      <div class="muted" style="margin-top:6px">La foto se adjunta al registro y, si no hay foto de perfil, se guarda como tal.</div>
+    </div>
   </section>
 
+  <!-- ===== APERCIBIMIENTO ===== -->
   <section id="sec-apercibamiento" class="seccion">
     <div class="card">
       <h2>⚠️ Registrar Apercibamiento</h2>
@@ -114,11 +157,12 @@
       <div id="alerta-aperc" class="alerta"></div>
     </div>
     <div class="card">
-      <h2>📋 Apercibamientos</h2>
+      <h2>📋 Apercibimientos</h2>
       <table id="tabla-aperc"><thead><tr><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Motivo</th><th>Inspector</th><th></th></tr></thead><tbody></tbody></table>
     </div>
   </section>
 
+  <!-- ===== SUSPENSIÓN ===== -->
   <section id="sec-suspension" class="seccion">
     <div class="card">
       <h2>🚫 Registrar Suspensión</h2>
@@ -140,20 +184,22 @@
     </div>
   </section>
 
+  <!-- ===== CONSULTA ===== -->
   <section id="sec-consulta" class="seccion">
     <div class="card">
       <h2>📋 Consulta por Fechas</h2>
       <div class="rowf">
         <label>Desde<input id="consulta-desde" type="date"/></label>
         <label>Hasta<input id="consulta-hasta" type="date"/></label>
-        <label>DNI (opcional)<input id="consulta-dni" type="text" oninput="this.value=this.value.replace(/\D/g,'')"/></label>
+        <label>ID (DNI/N° socio opcional)<input id="consulta-dni" type="text" oninput="this.value=this.value.replace(/\D/g,'')"/></label>
       </div>
       <button class="btn btn-primary" onclick="consultarIngresos()">🔍 Consultar</button>
       <div id="resumen-consulta" class="muted" style="margin-top:8px"></div>
-      <table id="tabla-consulta"><thead><tr><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Estado</th></tr></thead><tbody></tbody></table>
+      <table id="tabla-consulta"><thead><tr><th>ID</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Estado</th></tr></thead><tbody></tbody></table>
     </div>
   </section>
 
+  <!-- ===== VENCIDOS ===== -->
   <section id="sec-vencidos" class="seccion">
     <div class="card">
       <h2>⏰ Ingresos Vencidos / Por Vencer</h2>
@@ -161,11 +207,12 @@
         <button class="btn btn-primary" onclick="renderVencidos()">🔄 Actualizar</button>
         <button class="btn btn-danger" onclick="limpiarVencidos()">🗑️ Eliminar todos los vencidos</button>
       </div>
-      <table id="tabla-vencidos"><thead><tr><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Transcurrido</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table>
+      <table id="tabla-vencidos"><thead><tr><th>ID</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Transcurrido</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table>
       <div id="alerta-vencidos" class="alerta"></div>
     </div>
   </section>
 
+  <!-- ===== INSPECTORES ===== -->
   <section id="sec-inspectores" class="seccion">
     <div class="card">
       <h2>👮 Inspector de Turno</h2>
@@ -180,44 +227,67 @@
     </div>
   </section>
 
+  <!-- ===== ADMIN (token + backup/restore local) ===== -->
   <section id="sec-backup" class="seccion">
-    <div class="card"><h2>🛠️ Administrar / Alta de Inspectores</h2>
+    <div class="card">
+      <h2>⚙️ Activación del sistema</h2>
       <div class="rowf">
-        <label style="flex:1;min-width:200px">Nombre<input id="insp-nombre" type="text" placeholder="Apellido, Nombre"/></label>
-        <label style="flex:1;min-width:160px">Usuario (obligatorio)<input id="insp-usuario" type="text"/></label>
-        <label style="flex:1;min-width:160px">Contraseña (obligatoria)<input id="insp-pass" type="password"/></label>
+        <label style="flex:1;min-width:220px">Token (local)
+          <input id="admin-token" type="password" placeholder="Ingresá el token"/>
+        </label>
+        <div class="row" style="gap:8px">
+          <button class="btn btn-gold" id="btn-activar">🔓 Activar</button>
+          <button class="btn btn-secondary" id="btn-desactivar">🔒 Desactivar</button>
+          <button class="btn" id="btn-guardar-token">💾 Guardar/Actualizar token</button>
+        </div>
       </div>
-      <div class="rowf">
-        <label style="flex:1;min-width:180px">Teléfono<input id="insp-tel" type="text"/></label>
-        <label style="flex:2;min-width:220px">Observaciones<input id="insp-obs" type="text"/></label>
+      <div id="estado-sistema" class="badge" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <h2>🗃️ Backup & Restore (local)</h2>
+      <div class="row" style="gap:8px">
+        <button class="btn btn-primary" id="btn-backup">⬇️ Generar backup (ZIP)</button>
+        <label class="btn btn-secondary" style="cursor:pointer">⬆️ Restaurar desde ZIP
+          <input id="zip-restore" type="file" accept=".zip" style="display:none"/>
+        </label>
       </div>
-      <div class="row" style="gap:8px"><button class="btn btn-gold" onclick="guardarInspector()">💾 Guardar Inspector</button></div>
-      <div id="alerta-insp" class="alerta"></div>
-      <div class="muted" style="margin-top:8px">Los datos se guardan en este dispositivo (LocalStorage).</div>
+      <div class="muted">Incluye: ingresos, personas, apercibimientos, suspensiones, inspectores y activos. Formato XML por archivo.</div>
     </div>
   </section>
 
+  <!-- ===== ESTADÍSTICAS ===== -->
   <section id="sec-estadisticas" class="seccion">
     <div class="card">
       <h2>📊 Estadísticas</h2>
-      <p class="muted">Gráfico por rango de edad estimado a partir del número de DNI (aproximación por rangos históricos y RN 70M desde 09/2023). Fuente: Chart.js por CDN. <a target="_blank" href="https://www.chartjs.org/docs/latest/getting-started/">Doc</a>.</p>
-      <div style="max-width:760px;margin:auto"><canvas id="chart-edad" height="220"></canvas></div>
+      <div style="max-width:760px;margin:auto"><canvas id="chart-edad" height="140"></canvas></div>
       <div id="estad-nota" class="muted" style="margin-top:8px"></div>
+    </div>
+    <!-- Card de inicialización GitHub (XML + JSON) sin tocar Admin -->
+    <div class="card" id="gh-init-card">
+      <h2>🆕 Inicializar persistencia en GitHub</h2>
+      <div class="row" style="gap:8px">
+        <button class="btn btn-primary" id="btn-gh-init-xmljson">🗃️ Crear XML + JSON (si faltan)</button>
+      </div>
+      <div class="muted" style="margin-top:8px">Crea los archivos necesarios en el repositorio remoto si no existen: <code>live/*.xml</code> y <code>live/json/*.json</code>. El PAT se cifra en el navegador (AES‑GCM) y se solicita una frase para su uso.</div>
     </div>
   </section>
 </main>
 
+<!-- Modal zoom -->
+<div id="img-modal" role="dialog" aria-label="Imagen ampliada" tabindex="-1" style="display:none"><img alt="Ampliación"/></div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
 // =========================
-//  CONFIG / CONSTANTES
+// CONFIG / CONSTANTES
 // =========================
-const KEYS={ingresos:'pcq_ingresos',apercibimientos:'pcq_apercibimientos',suspensiones:'pcq_suspensiones',inspectores:'pcq_inspectores',inspActivo:'pcq_inspector_activo'};
-const HS_VIGENCIA=24, MIN_POR_VENCER=60; // 24h vigencia
-let offsetMs=0; // FIX: siempre hora local
+const KEYS={ingresos:'pcq_ingresos',apercibimientos:'pcq_apercibimientos',suspensiones:'pcq_suspensiones',inspectores:'pcq_inspectores',inspActivo:'pcq_inspector_activo', personas:'pcq_personas', inspActivos:'pcq_inspectores_activos'};
+const HS_VIGENCIA=24, MIN_POR_VENCER=60; // 24h
+let offsetMs=0; // hora local
 
 // =========================
-//  UTILIDADES HORA
+// UTILIDADES HORA
 // =========================
 function ahoraReal(){return new Date(Date.now()+offsetMs)}
 function pad(n){return String(n).padStart(2,'0')}
@@ -228,144 +298,237 @@ function parseFechaHora(f,h){const [d,m,y]=f.split('/');return new Date(`${y}-${
 function tiempoTranscurrido(ms){const h=Math.floor(ms/3600000),min=Math.floor((ms%3600000)/60000);return h>=24?`${Math.floor(h/24)}d ${h%24}h ${min}m`:`${h}h ${min}m`}
 
 // =========================
-//  LOCAL STORAGE
+// LOCAL STORAGE
 // =========================
 function cargarDatos(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return []}}
 function guardarDatos(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function cargarItem(k){return localStorage.getItem(k)}
 function guardarItem(k,v){localStorage.setItem(k,v)}
 
+// Alias consistentes
+function cargarLista(k){return cargarDatos(k)}
+function guardarLista(k,v){guardarDatos(k,v)}
+
 // =========================
-//  UI BASICA
+// UI BASICA
 // =========================
 function setSyncBadge(e,t){const b=document.getElementById('sync-badge');if(b)b.className='badge sync-'+(e||'ok');const s=document.getElementById('sync-txt');if(s)s.textContent=t||'Local'}
 function tickReloj(){const now=ahoraReal();document.getElementById('reloj-header').textContent=`${formatFecha(now)} ${formatHora(now)}`;document.getElementById('reloj-grande').textContent=formatHora(now);document.getElementById('fecha-grande').textContent=formatFecha(now)}
 setInterval(tickReloj,1000);tickReloj();
-
 function navClick(id,btn){_navegarSeccion(id,btn)}
 function _navegarSeccion(id,btn){document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('activa'));document.getElementById('sec-'+id).classList.add('activa');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('activo'));if(btn)btn.classList.add('activo');if(id==='estadisticas')renderEstadisticas();if(id==='vencidos')renderVencidos();if(id==='inspectores')renderInspectoresUI()}
 
 // =========================
-//  INSPECTORES
+// INSPECTORES
 // =========================
-function getInspectorActivo(){const id=cargarItem(KEYS.inspActivo);if(!id)return null;return cargarDatos(KEYS.inspectores).find(i=>String(i.id)===String(id))||null}
+function getInspectorActivo(){const id=cargarItem(KEYS.inspActivo);if(id){const uno=cargarDatos(KEYS.inspectores).find(i=>String(i.id)===String(id));if(uno)return uno}
+// Soporte multi-activo
+try{const act=JSON.parse(localStorage.getItem(KEYS.inspActivos)||'[]');if(act.length){const lista=cargarDatos(KEYS.inspectores);const primero=lista.find(i=>String(i.id)===String(act[0]));if(primero)return primero}}catch{}
+return null}
 function actualizarHeaderInspector(){const i=getInspectorActivo();const el=document.getElementById('header-inspector');if(i)el.textContent=`👮 ${i.nombre}`;else el.textContent='🔒 Sin inspector activo'}
-function guardarInspector(){const nombre=document.getElementById('insp-nombre').value.trim();const usuario=document.getElementById('insp-usuario').value.trim();const pass=document.getElementById('insp-pass').value.trim();const tel=document.getElementById('insp-tel').value.trim();const obs=document.getElementById('insp-obs').value.trim();if(!nombre){return mostrarAlerta('alerta-insp','error','Ingresá el nombre.')}if(!usuario){return mostrarAlerta('alerta-insp','error','Ingresá el usuario (obligatorio).')}if(!pass){return mostrarAlerta('alerta-insp','error','Ingresá la contraseña (obligatoria).')}const lista=cargarDatos(KEYS.inspectores);if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase())){return mostrarAlerta('alerta-insp','error','Ya existe un inspector con ese nombre.')}lista.push({id:Date.now(),nombre,usuario,password:pass,tel,obs});guardarDatos(KEYS.inspectores,lista);['insp-nombre','insp-usuario','insp-pass','insp-tel','insp-obs'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderInspectoresUI();mostrarAlerta('alerta-insp','ok','✅ Inspector registrado.')}
+function guardarInspector(){const nombre=document.getElementById('insp-nombre')?.value?.trim();const usuario=document.getElementById('insp-usuario')?.value?.trim();const pass=document.getElementById('insp-pass')?.value?.trim();const tel=document.getElementById('insp-tel')?.value?.trim();const obs=document.getElementById('insp-obs')?.value?.trim();if(!nombre||!usuario||!pass){return mostrarAlerta('alerta-insp','error','Completá nombre/usuario/contraseña.')}const lista=cargarDatos(KEYS.inspectores);if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase())){return mostrarAlerta('alerta-insp','error','Ya existe un inspector con ese nombre.')}lista.push({id:Date.now(),nombre,usuario,password:pass,tel,obs});guardarDatos(KEYS.inspectores,lista);['insp-nombre','insp-usuario','insp-pass','insp-tel','insp-obs'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderInspectoresUI();mostrarAlerta('alerta-insp','ok','✅ Inspector registrado.')}
 function renderInspectoresUI(){const tbody=document.querySelector('#tabla-insp tbody');if(!tbody)return;tbody.innerHTML='';const lista=cargarDatos(KEYS.inspectores);if(!lista.length){tbody.innerHTML='<tr><td colspan="5" class="muted">No hay inspectores</td></tr>';return}lista.forEach(insp=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${insp.nombre}</td><td>${insp.usuario||'—'}</td><td>${insp.tel||'—'}</td><td>${insp.obs||'—'}</td><td><button class="btn btn-gold" onclick="activarInspector(${insp.id})">⚡ Activar</button> <button class="btn btn-danger" onclick="eliminarInspector(${insp.id})">🗑️</button></td>`;tbody.appendChild(tr)});const act=getInspectorActivo();document.getElementById('insp-activo').textContent=act?`Activo: ${act.nombre}`:'Sin inspector activo';actualizarHeaderInspector()}
 function activarInspector(id){guardarItem(KEYS.inspActivo,String(id));renderInspectoresUI();mostrarAlerta('alerta-insp','ok','✅ Inspector activado.');}
 function desactivarInspector(){localStorage.removeItem(KEYS.inspActivo);renderInspectoresUI();mostrarAlerta('alerta-insp','warn','Inspector desactivado.');}
 function eliminarInspector(id){const lista=cargarDatos(KEYS.inspectores).filter(i=>i.id!==id);if(String(cargarItem(KEYS.inspActivo))===String(id)){localStorage.removeItem(KEYS.inspActivo)}guardarDatos(KEYS.inspectores,lista);renderInspectoresUI()}
 
+// Demo inspector al iniciar si no hay
+(function ensureDemoInspector(){const lista=cargarDatos(KEYS.inspectores);if(!lista.length){const nuevo={id:Date.now(),nombre:'Inspector Demo',usuario:'demo',password:'demo',tel:'',obs:'Generado automáticamente'};lista.push(nuevo);guardarDatos(KEYS.inspectores,lista);guardarItem(KEYS.inspActivo,String(nuevo.id));}})();
+
 // =========================
-//  ALERTAS
+// ALERTAS
 // =========================
 function mostrarAlerta(id,tipo,msg){const el=document.getElementById(id);if(!el)return;el.className='alerta show alerta-'+(tipo==='ok'?'ok':tipo);el.innerHTML=msg;clearTimeout(el._t);el._t=setTimeout(()=>{el.className='alerta'},6000)}
 
 // =========================
-//  INGRESOS / APERC / SUSP
+// INGRESOS / APERC / SUSP
 // =========================
 function estadoIngreso(ing){const ms=ahoraReal().getTime()-parseFechaHora(ing.fecha,ing.hora).getTime();const lim=HS_VIGENCIA*3600000,prev=lim-MIN_POR_VENCER*60000;if(ms>=lim)return{texto:'⏰ Vencido',clase:'vencido'};if(ms>=prev)return{texto:'⏳ Por vencer',clase:'por-vencer'};return{texto:'✅ Vigente',clase:'vigente'}}
-function registrarIngreso(){const dni=document.getElementById('dni-ingreso').value.trim();const nombre=document.getElementById('nombre-ingreso').value.trim();if(!dni){return mostrarAlerta('alerta-ingreso','error','Ingresá el DNI.')}const now=ahoraReal();const lista=cargarDatos(KEYS.ingresos);lista.push({dni,nombre,fecha:formatFecha(now),hora:formatHora(now),isoFecha:isoFecha(now)});guardarDatos(KEYS.ingresos,lista);document.getElementById('nombre-ingreso').value='';mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado – DNI ${dni}`);cargarUltimos(dni)}
+function registrarIngreso(){/* reemplazado en inyección */}
 function limpiarCamposIngreso(){['dni-ingreso','nombre-ingreso'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''})}
-function cargarUltimos(dni){const wrap=document.getElementById('ultimos-ingresos');const tbody=document.querySelector('#tabla-ultimos tbody');wrap.style.display='block';tbody.innerHTML='';const mis=cargarDatos(KEYS.ingresos).filter(i=>i.dni===dni).slice(-10).reverse();if(!mis.length){tbody.innerHTML='<tr><td colspan="5" class="muted">Sin ingresos previos</td></tr>';return}mis.forEach((i,n)=>{const est=estadoIngreso(i);const tr=document.createElement('tr');tr.innerHTML=`<td>${n+1}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${i.nombre||'—'}</td><td>${est.texto}</td>`;tbody.appendChild(tr)})}
-
-function registrarApercibamiento(){const dni=document.getElementById('dni-aperc').value.trim();const nombre=document.getElementById('nombre-aperc').value.trim();const motivo=document.getElementById('motivo-aperc').value.trim();if(!dni||!motivo){return mostrarAlerta('alerta-aperc','error','Completá DNI y motivo.')}const now=ahoraReal();const lista=cargarDatos(KEYS.apercibimientos);const insp=getInspectorActivo();lista.push({id:Date.now(),dni,nombre,motivo,fecha:formatFecha(now),hora:formatHora(now),inspector:insp?insp.nombre:null});guardarDatos(KEYS.apercibimientos,lista);['dni-aperc','nombre-aperc','motivo-aperc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderTablaAperc();mostrarAlerta('alerta-aperc','ok','⚠️ Apercibamiento registrado.')}
+function cargarUltimos(id){const wrap=document.getElementById('ultimos-ingresos');const tbody=document.querySelector('#tabla-ultimos tbody');wrap.style.display='block';tbody.innerHTML='';const mis=cargarDatos(KEYS.ingresos).filter(i=>i.dni===id).slice(-10).reverse();if(!mis.length){tbody.innerHTML='<tr><td colspan="5" class="muted">Sin ingresos previos</td></tr>';return}mis.forEach((i,n)=>{const est=estadoIngreso(i);const tr=document.createElement('tr');tr.innerHTML=`<td>${n+1}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${i.nombre||'—'}</td><td>${est.texto}</td>`;tbody.appendChild(tr)})}
+function registrarApercibamiento(){const dni=document.getElementById('dni-aperc').value.trim();const nombre=document.getElementById('nombre-aperc').value.trim();const motivo=document.getElementById('motivo-aperc').value.trim();if(!dni||!motivo){return mostrarAlerta('alerta-aperc','error','Completá DNI y motivo.')}const now=ahoraReal();const lista=cargarDatos(KEYS.apercibimientos);const insp=getInspectorActivo();lista.push({id:Date.now(),dni,nombre,motivo,fecha:formatFecha(now),hora:formatHora(now),inspector:insp?insp.nombre:null});guardarDatos(KEYS.apercibimientos,lista);['dni-aperc','nombre-aperc','motivo-aperc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderTablaAperc();mostrarAlerta('alerta-aperc','ok','⚠️ Apercibimiento registrado.')}
 function renderTablaAperc(){const tbody=document.querySelector('#tabla-aperc tbody');if(!tbody)return;tbody.innerHTML='';const lista=cargarDatos(KEYS.apercibimientos).slice().reverse();if(!lista.length){tbody.innerHTML='<tr><td colspan="6" class="muted">Sin registros</td></tr>';return}lista.forEach(a=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${a.dni}</td><td>${a.nombre||'—'}</td><td>${a.fecha} ${a.hora}</td><td>${a.motivo}</td><td>${a.inspector||'—'}</td><td><button class="btn btn-danger" onclick="eliminarAperc(${a.id})">🗑️</button></td>`;tbody.appendChild(tr)})}
 function eliminarAperc(id){guardarDatos(KEYS.apercibimientos,cargarDatos(KEYS.apercibimientos).filter(a=>a.id!==id));renderTablaAperc()}
-
 function registrarSuspension(){const dni=document.getElementById('dni-susp').value.trim();const nombre=document.getElementById('nombre-susp').value.trim();const desde=document.getElementById('susp-desde').value;const hasta=document.getElementById('susp-hasta').value;const motivo=document.getElementById('motivo-susp').value.trim();if(!dni||!desde||!hasta||!motivo){return mostrarAlerta('alerta-susp','error','Completá todos los campos.')}if(hasta<desde){return mostrarAlerta('alerta-susp','error','"Hasta" debe ser ≥ "Desde".')}const lista=cargarDatos(KEYS.suspensiones);lista.push({id:Date.now(),dni,nombre,desde,hasta,motivo});guardarDatos(KEYS.suspensiones,lista);['dni-susp','nombre-susp','susp-desde','susp-hasta','motivo-susp'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderTablaSusp();mostrarAlerta('alerta-susp','ok','🚫 Suspensión registrada.')}
 function renderTablaSusp(){const tbody=document.querySelector('#tabla-susp tbody');if(!tbody)return;tbody.innerHTML='';const lista=cargarDatos(KEYS.suspensiones).slice().reverse();if(!lista.length){tbody.innerHTML='<tr><td colspan="7" class="muted">Sin registros</td></tr>';return}const hoy=isoFecha(ahoraReal());lista.forEach(s=>{const act=hoy>=s.desde&&hoy<=s.hasta;const tr=document.createElement('tr');tr.innerHTML=`<td>${s.dni}</td><td>${s.nombre||'—'}</td><td>${s.desde}</td><td>${s.hasta}</td><td>${s.motivo}</td><td>${act?'🚫 ACTIVA':'✔️ Vencida'}</td><td><button class="btn btn-danger" onclick="eliminarSusp(${s.id})">🗑️</button></td>`;tbody.appendChild(tr)})}
 function eliminarSusp(id){guardarDatos(KEYS.suspensiones,cargarDatos(KEYS.suspensiones).filter(s=>s.id!==id));renderTablaSusp()}
 
 // =========================
-//  VENCIDOS
+// VENCIDOS
 // =========================
 function renderVencidos(){const tbody=document.querySelector('#tabla-vencidos tbody');tbody.innerHTML='';const now=ahoraReal();const lim=HS_VIGENCIA*3600000,prev=lim-MIN_POR_VENCER*60000;const ing=cargarDatos(KEYS.ingresos).slice().sort((a,b)=>parseFechaHora(a.fecha,a.hora)-parseFechaHora(b.fecha,b.hora));const pv=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);return ms>=prev&&ms<lim});const ven=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);return ms>=lim});const todos=[...pv,...ven];if(!todos.length){tbody.innerHTML='<tr><td colspan="7" class="muted">No hay ingresos por vencer/vencidos</td></tr>';return}todos.forEach(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);let est='';if(ms>=lim)est='⏰ Vencido';else if(ms>=prev)est='⏳ Por vencer';else est='✅ Vigente';const tr=document.createElement('tr');tr.innerHTML=`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${tiempoTranscurrido(ms)}</td><td>${est}</td><td><button class="btn btn-danger" onclick="darBajaIngreso('${i.dni}','${i.fecha}','${i.hora}')">🗑️</button></td>`;tbody.appendChild(tr)})}
 function darBajaIngreso(dni,fecha,hora){guardarDatos(KEYS.ingresos,cargarDatos(KEYS.ingresos).filter(i=>!(i.dni===dni&&i.fecha===fecha&&i.hora===hora)));renderVencidos()}
-function limpiarVencidos(){const now=ahoraReal(),lim=HS_VIGENCIA*3600000;const ing=cargarDatos(KEYS.ingresos);const vig=ing.filter(i=>now-parseFechaHora(i.fecha,i.hora)<lim);guardarDatos(KEYS.ingresos,vig);renderVencidos();mostrarAlerta('alerta-vencidos','ok','✅ Vencidos eliminados.')} 
+function limpiarVencidos(){const now=ahoraReal(),lim=HS_VIGENCIA*3600000;const ing=cargarDatos(KEYS.ingresos);const vig=ing.filter(i=>now-parseFechaHora(i.fecha,i.hora)<lim);guardarDatos(KEYS.ingresos,vig);renderVencidos();mostrarAlerta('alerta-vencidos','ok','✅ Vencidos eliminados.')}
 
 // =========================
-//  CONSULTA
+// CONSULTA
 // =========================
 (function setFechasConsultaHoy(){const hoy=isoFecha(ahoraReal());const d=document.getElementById('consulta-desde');const h=document.getElementById('consulta-hasta');if(d&&!d.value)d.value=hoy;if(h&&!h.value)h.value=hoy})();
 function consultarIngresos(){const desde=document.getElementById('consulta-desde').value;const hasta=document.getElementById('consulta-hasta').value;const dni=document.getElementById('consulta-dni').value.trim();const tbody=document.querySelector('#tabla-consulta tbody');if(!desde||!hasta){document.getElementById('resumen-consulta').textContent='Seleccioná ambas fechas.';tbody.innerHTML='';return}if(hasta<desde){document.getElementById('resumen-consulta').textContent='La fecha "hasta" debe ser ≥ "desde".';tbody.innerHTML='';return}let res=cargarDatos(KEYS.ingresos).filter(i=>i.isoFecha>=desde&&i.isoFecha<=hasta);if(dni)res=res.filter(i=>i.dni===dni);res.sort((a,b)=> (a.isoFecha+a.hora)>(b.isoFecha+b.hora)?-1:1);document.getElementById('resumen-consulta').textContent=`Resultados: ${res.length}`;tbody.innerHTML='';if(!res.length){tbody.innerHTML='<tr><td colspan="5" class="muted">Sin resultados</td></tr>';return}res.forEach(i=>{const est=estadoIngreso(i);const tr=document.createElement('tr');tr.innerHTML=`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${est.texto}</td>`;tbody.appendChild(tr)})}
 
 // =========================
-//  ESTADÍSTICAS (Chart.js por CDN)
-//  Doc oficial: https://www.chartjs.org/docs/latest/getting-started/  
-//  CDN jsDelivr: https://cdn.jsdelivr.net/npm/chart.js  
+// ESTADÍSTICAS (Chart.js)
 // =========================
 let _chartEdad=null;
 function _edadAproxDesdeDNI(dni){const n=Number(String(dni).replace(/\D/g,''));if(!n||isNaN(n))return 0; if(n>=70000000)return 5; if(n>=50000000&&n<60000000)return 16; if(n>=40000000&&n<50000000)return 25; if(n>=30000000&&n<40000000)return 35; if(n>=20000000&&n<30000000)return 45; if(n>=10000000&&n<20000000)return 60; return 90}
 function _bucketEdad(a){if(a<18)return '<18';if(a<30)return '18–29';if(a<45)return '30–44';if(a<60)return '45–59';return '60+'}
 function calcularDistribucionEdad(){const res={'<18':0,'18–29':0,'30–44':0,'45–59':0,'60+':0};const unicos=new Set();cargarDatos(KEYS.ingresos).forEach(i=>{if(i&&i.dni)unicos.add(String(i.dni))});unicos.forEach(d=>{res[_bucketEdad(_edadAproxDesdeDNI(d))]++});return{res,total:unicos.size}}
-function renderEstadisticas(){const {res,total}=calcularDistribucionEdad();const ctx=document.getElementById('chart-edad').getContext('2d');if(_chartEdad){_chartEdad.destroy()}_chartEdad=new Chart(ctx,{type:'bar',data:{labels:Object.keys(res),datasets:[{label:'Personas (DNIs únicos)',data:Object.keys(res).map(k=>res[k]),backgroundColor:'#2d6e2d'}]},options:{plugins:{legend:{display:false},title:{display:true,text:'Distribución por rango de edad (aprox.)'}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});document.getElementById('estad-nota').textContent='Estimación por rango de DNI (numeración secuencial + RN 70M desde 09/2023).'}
+function renderEstadisticas(){const {res,total}=calcularDistribucionEdad();const ctx=document.getElementById('chart-edad').getContext('2d');if(_chartEdad){_chartEdad.destroy()}_chartEdad=new Chart(ctx,{type:'line',data:{labels:Object.keys(res),datasets:[{label:'',data:Object.keys(res).map(k=>res[k]),borderColor:'#2d6e2d',backgroundColor:'#2d6e2d',fill:false,tension:0.3}]},options:{plugins:{legend:{display:false},title:{display:true,text:'Distribución por rango de edad (tendencia)'}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}});document.getElementById('estad-nota').textContent=''}
 
 // =========================
-//  INIT
+// ADMIN: token local + backup ZIP local
 // =========================
-(function init(){
-  // Hora SIEMPRE local (no dependemos de internet)
-  offsetMs=0; setSyncBadge('ok','Local'); actualizarHeaderInspector(); renderInspectoresUI(); // arranque básico
-})();
-</script>
-
-<!-- ====== INYECTADO v4 (standalone): Persistencia en GitHub (XML) ====== -->
-<script>
+const SYS_KEY='pcq_system_enabled';
+function isEnabled(){ return cargarItem(SYS_KEY)==='1' }
+function setEnabled(v){ guardarItem(SYS_KEY, v?'1':'0'); refreshEnableUI(); }
+function refreshEnableUI(){
+  const badge=document.getElementById('estado-sistema'); if(!badge) return;
+  const on = isEnabled();
+  badge.textContent = on? '✅ Sistema ACTIVO' : '⛔ Sistema INACTIVO';
+  const criticalBtns = [
+    document.querySelector('#sec-ingreso .btn.btn-primary'),
+    document.querySelector('#sec-apercibamiento .btn.btn-gold'),
+    document.querySelector('#sec-suspension .btn.btn-danger')
+  ];
+  criticalBtns.forEach(b=>{ if(b){ b.disabled = !on; b.title = on? '' : 'Activá el sistema en 🛠️ Administrar'; } });
+  const sync = document.getElementById('sync-badge'); if(sync){ sync.className = 'badge ' + (on? 'sync-ok' : 'sync-error'); const t=document.getElementById('sync-txt'); if(t){ t.textContent = on? 'Activo' : 'Inactivo'; } }
+}
+// Listeners admin
 (function(){
-  // Pegamos solo la tarjeta y funciones GitHub; usa KEYS.* si existe, o claves por defecto
-  function ensureGithubCard(){
-    let sec = document.getElementById('sec-admin');
-    if(!sec){ const main=document.querySelector('main'); sec=document.createElement('section'); sec.id='sec-admin'; sec.className='seccion'; main.appendChild(sec); const nav=document.querySelector('nav'); if(nav && !document.getElementById('btn-nav-admin')){ const btn=document.createElement('button'); btn.id='btn-nav-admin'; btn.textContent='⚙️ Administrar'; btn.onclick=function(){ _navegarSeccion('admin', this) }; nav.appendChild(btn);} }
-    if(document.getElementById('gh-card')) return;
-    const card=document.createElement('div'); card.className='card'; card.id='gh-card';
-    card.innerHTML = `
-      <h2>🐙 GitHub (persistencia en XML)</h2>
-      <div class="rowf">
-        <label style="flex:1">Owner/Org<input id="gh-owner" type="text" placeholder="owner"/></label>
-        <label style="flex:1">Repo<input id="gh-repo" type="text" placeholder="repo"/></label>
-        <label style="flex:1">Branch<input id="gh-branch" type="text" placeholder="main"/></label>
-        <label style="flex:1">Ruta base<input id="gh-base" type="text" placeholder="live"/></label>
-      </div>
-      <div class="rowf" style="margin-top:8px">
-        <label style="flex:1">Token GitHub (PAT)<input id="gh-pat" type="password" placeholder="token contents:write"/></label>
-        <label style="align-items:center;flex-direction:row;gap:8px"><input id="gh-remember" type="checkbox"/> Recordar token (inseguro)</label>
-      </div>
-      <div class="row" style="gap:8px;margin-top:8px">
-        <button class="btn btn-primary" id="gh-upload">⬆️ Subir XMLs a GitHub</button>
-        <button class="btn btn-secondary" id="gh-download">⬇️ Traer XMLs de GitHub</button>
-        <button class="btn" id="gh-test">🧪 Probar conexión</button>
-        <button class="btn btn-gold" id="gh-save">💾 Guardar config</button>
-      </div>
-      <div id="alerta-github" class="alerta" style="margin-top:10px"></div>
-    `;
-    sec.appendChild(card);
-  }
-  function ghAlert(tipo,msg){ const el=document.getElementById('alerta-github'); if(!el) return; el.className='alerta show alerta-'+(tipo==='ok'?'ok':tipo); el.innerHTML=msg; clearTimeout(el._t); el._t=setTimeout(()=>{ el.className='alerta' }, 8000); }
-  function val(id){ const e=document.getElementById(id); return e?e.value.trim():'' }
-  function setVal(id,v){ const e=document.getElementById(id); if(e) e.value=v||'' }
-  function ensureCfg(){ const cfg={ owner:localStorage.getItem('pcq_gh_owner')||'', repo:localStorage.getItem('pcq_gh_repo')||'', branch:localStorage.getItem('pcq_gh_branch')||'main', base:localStorage.getItem('pcq_gh_base')||'live' }; setVal('gh-owner',cfg.owner); setVal('gh-repo',cfg.repo); setVal('gh-branch',cfg.branch); setVal('gh-base',cfg.base); const remember=localStorage.getItem('pcq_gh_remember')==='1'; const pat=remember?(localStorage.getItem('pcq_gh_pat')||''):(sessionStorage.getItem('pcq_gh_pat')||''); const chk=document.getElementById('gh-remember'); if(chk) chk.checked=remember; setVal('gh-pat', pat); }
-  function readCfg(){ return { owner:val('gh-owner'), repo:val('gh-repo'), branch:val('gh-branch')||'main', base:val('gh-base')||'live', pat:(function(){ const t=val('gh-pat'); const remember=document.getElementById('gh-remember')?.checked; if(remember){ localStorage.setItem('pcq_gh_pat',t); localStorage.setItem('pcq_gh_remember','1'); } else { localStorage.removeItem('pcq_gh_pat'); localStorage.setItem('pcq_gh_remember','0'); sessionStorage.setItem('pcq_gh_pat',t); } return t; })() }; }
-  function saveCfgOnly(){ localStorage.setItem('pcq_gh_owner',val('gh-owner')); localStorage.setItem('pcq_gh_repo',val('gh-repo')); localStorage.setItem('pcq_gh_branch',val('gh-branch')||'main'); localStorage.setItem('pcq_gh_base',val('gh-base')||'live'); const remember=document.getElementById('gh-remember')?.checked; localStorage.setItem('pcq_gh_remember', remember?'1':'0'); if(!remember){ localStorage.removeItem('pcq_gh_pat'); } ghAlert('ok','✅ Config guardada'); }
+  document.addEventListener('DOMContentLoaded',()=>{
+    const sA=document.getElementById('btn-activar'); if(sA)sA.addEventListener('click',()=>{
+      const t = (document.getElementById('admin-token').value||'').trim();
+      const saved = cargarItem('pcq_admin_token')||'';
+      if(!saved){ alert('No hay token guardado. Guardá un token primero.'); return; }
+      if(t && t===saved){ setEnabled(true); } else { alert('Token inválido.'); }
+    });
+    const sD=document.getElementById('btn-desactivar'); if(sD)sD.addEventListener('click',()=> setEnabled(false));
+    const sG=document.getElementById('btn-guardar-token'); if(sG)sG.addEventListener('click',()=>{
+      const t=(document.getElementById('admin-token').value||'').trim(); if(!t){ alert('Ingresá un token.'); return; } guardarItem('pcq_admin_token', t); alert('Token guardado.');
+    });
+    refreshEnableUI();
+  });
+})();
 
-  const GH='https://api.github.com';
-  async function ghFetch(url, cfg, opts){ const headers={'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Authorization':'Bearer '+cfg.pat}; return await fetch(url,{headers,...opts}); }
-  function joinPath(a,b){ a=a.replace(/^\/+|\/+$/g,''); b=b.replace(/^\/+/,''); return a?(a+'/'+b):b }
-  async function ghGetSHA(path,cfg){ const url=`${GH}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(cfg.branch)}`; const r=await ghFetch(url,cfg,{method:'GET'}); if(r.status===404) return null; if(!r.ok) throw new Error('GET contents '+r.status); const j=await r.json(); return j.sha||null; }
-  function toBase64(s){ return btoa(unescape(encodeURIComponent(s))) }
-  function fromBase64(b64){ try{ return decodeURIComponent(escape(atob(b64))) }catch(e){ return atob(b64) } }
-  function xmlEscape(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
-  function toXml(tag, arr){ const rows=(arr||[]).map(o=>{ const inner=Object.keys(o).map(k=>`<${k}>${xmlEscape(o[k])}</${k}>`).join(''); return `<row>${inner}</row>` }).join(''); return `<?xml version="1.0" encoding="UTF-8"?>\n<${tag}>${rows}</${tag}>`; }
-  function parseXmlRows(xml){ const doc=new DOMParser().parseFromString(xml,'application/xml'); return Array.from(doc.getElementsByTagName('row')).map(r=>{ const obj={}; Array.from(r.children).forEach(n=>obj[n.tagName]=n.textContent); return obj; }); }
-  async function ghPutXml(filename, rootTag, dataArr, cfg){ const xml=toXml(rootTag,dataArr); const path=joinPath(cfg.base||'live', filename); const sha=await ghGetSHA(path,cfg); const body={ message:`feat(data): sync ${filename} (${new Date().toISOString()})`, content:toBase64(xml), branch:cfg.branch }; if(sha) body.sha=sha; const url=`${GH}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(path)}`; const r=await ghFetch(url,cfg,{method:'PUT', body:JSON.stringify(body)}); if(!r.ok){ const t=await r.text(); throw new Error('PUT '+filename+' → '+r.status+' '+t); } return true; }
-  async function ghGetXml(filename,cfg){ const path=joinPath(cfg.base||'live', filename); const url=`${GH}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(cfg.branch)}`; let r=await ghFetch(url,cfg,{method:'GET'}); if(r.status===404) return null; if(!r.ok) throw new Error('GET '+filename+' → '+r.status); const j=await r.json(); if(j && j.content){ return fromBase64(j.content.replace(/\n/g,'')); } const r2=await fetch(url,{headers:{'Accept':'application/vnd.github.raw+json','Authorization':'Bearer '+cfg.pat,'X-GitHub-Api-Version':'2022-11-28'}}); if(!r2.ok) throw new Error('RAW '+filename+' → '+r2.status); return await r2.text(); }
-  async function uploadAll(){ const cfg=readCfg(); if(!cfg.owner||!cfg.repo||!cfg.pat){ ghAlert('error','Completá Owner, Repo y Token.'); return; } const map=[ {k:window.KEYS?KEYS.ingresos:'pcq_ingresos',file:'ingresos.xml',tag:'ingresos'}, {k:window.KEYS?KEYS.personas:'pcq_personas',file:'personas.xml',tag:'personas'}, {k:window.KEYS?KEYS.apercibimientos:'pcq_apercibimientos',file:'apercibimientos.xml',tag:'apercibimientos'}, {k:window.KEYS?KEYS.suspensiones:'pcq_suspensiones',file:'suspensiones.xml',tag:'suspensiones'}, {k:window.KEYS?KEYS.inspectores:'pcq_inspectores',file:'inspectores.xml',tag:'inspectores'}, {k:window.KEYS?KEYS.inspActivos:'pcq_inspectores_activos',file:'activos.xml',tag:'activos'} ]; let ok=0,fail=[]; for(const m of map){ try{ const raw=localStorage.getItem(m.k)||'[]'; const data = (m.k.indexOf('activos')!==-1) ? (JSON.parse(raw).map(id=>({id}))) : JSON.parse(raw); await ghPutXml(m.file,m.tag,data,cfg); ok++; }catch(e){ console.error(e); fail.push(m.file+': '+e.message);} } if(fail.length){ ghAlert('warn',`Subido ${ok}/${map.length}. Errores:<br/>• ${fail.join('<br/>• ')}`);} else { ghAlert('ok',`✅ Subido ${ok}/${map.length} XML a GitHub.`);} }
-  async function downloadAll(){ const cfg=readCfg(); if(!cfg.owner||!cfg.repo||!cfg.pat){ ghAlert('error','Completá Owner, Repo y Token.'); return; } const map=[ {k:window.KEYS?KEYS.ingresos:'pcq_ingresos',file:'ingresos.xml'}, {k:window.KEYS?KEYS.personas:'pcq_personas',file:'personas.xml'}, {k:window.KEYS?KEYS.apercibimientos:'pcq_apercibimientos',file:'apercibimientos.xml'}, {k:window.KEYS?KEYS.suspensiones:'pcq_suspensiones',file:'suspensiones.xml'}, {k:window.KEYS?KEYS.inspectores:'pcq_inspectores',file:'inspectores.xml'}, {k:window.KEYS?KEYS.inspActivos:'pcq_inspectores_activos',file:'activos.xml'} ]; let ok=0,miss=[],fail=[]; for(const m of map){ try{ const xml=await ghGetXml(m.file,cfg); if(!xml){ miss.push(m.file); continue; } const rows=parseXmlRows(xml); localStorage.setItem(m.k, JSON.stringify( (m.k.indexOf('activos')!==-1) ? rows.map(r=>r.id) : rows)); ok++; }catch(e){ console.error(e); fail.push(m.file+': '+e.message);} } try{ window.renderInspectoresUI&&renderInspectoresUI(); window.renderTablaAperc&&renderTablaAperc(); window.renderTablaSusp&&renderTablaSusp(); window.renderVencidos&&renderVencidos(); }catch(e){} ghAlert(fail.length?'warn':'ok',`Descargado ${ok}/${map.length}. ${miss.length?'Sin archivo: '+miss.join(', '):'Listo.'}${fail.length?'<br/>Errores:<br/>• '+fail.join('<br/>• '):''}`); }
-  async function testConn(){ const cfg=readCfg(); if(!cfg.owner||!cfg.repo||!cfg.pat){ ghAlert('error','Completá Owner, Repo y Token.'); return; } const url=`${GH}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(cfg.base||'live')}?ref=${encodeURIComponent(cfg.branch)}`; const r=await ghFetch(url,cfg,{method:'GET'}); if(r.status===404){ ghAlert('warn','La ruta base no existe (se creará al subir). Conexión OK.'); return; } if(!r.ok){ ghAlert('error','Error conexión: '+r.status); return; } ghAlert('ok','✅ Conexión OK'); }
+// Backup/Restore XML ZIP (local)
+function toXml(tag, objArr){ const enc = (s)=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); const rows = objArr.map(o=>{ const inner = Object.keys(o).map(k=>`<${k}>${enc(o[k])}</${k}>`).join(''); return `<row>${inner}</row>` }).join(''); return `<?xml version="1.0" encoding="UTF-8"?>\n<${tag}>${rows}</${tag}>`; }
+function parseXmlRows(xmlText){ const doc = new DOMParser().parseFromString(xmlText,'application/xml'); const rows = Array.from(doc.getElementsByTagName('row')); return rows.map(r=>{ const obj={}; Array.from(r.children).forEach(n=>{ obj[n.tagName]=n.textContent }); return obj; }); }
+async function doBackupZip(){ try{ const zip = new JSZip(); zip.file('ingresos.xml', toXml('ingresos', cargarLista(KEYS.ingresos))); zip.file('personas.xml', toXml('personas', cargarLista(KEYS.personas))); zip.file('apercibimientos.xml', toXml('apercibimientos', cargarLista(KEYS.apercibimientos))); zip.file('suspensiones.xml', toXml('suspensiones', cargarLista(KEYS.suspensiones))); zip.file('inspectores.xml', toXml('inspectores', cargarLista(KEYS.inspectores))); zip.file('activos.xml', toXml('activos', (JSON.parse(localStorage.getItem(KEYS.inspActivos)||'[]')).map(id=>({id})))); const blob = await zip.generateAsync({type:'blob'}); const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='pcq_backup.zip'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);}catch(e){ alert('Error generando backup: '+e.message); } }
+async function onRestoreZip(ev){ const file = ev.target.files && ev.target.files[0]; if(!file) return; try{ const data = await file.arrayBuffer(); const zip = await JSZip.loadAsync(data); async function readXml(name){ const f = zip.file(name); if(!f) return null; return await f.async('string'); } const map = { [KEYS.ingresos]: 'ingresos.xml', [KEYS.personas]: 'personas.xml', [KEYS.apercibimientos]: 'apercibimientos.xml', [KEYS.suspensiones]: 'suspensiones.xml', [KEYS.inspectores]: 'inspectores.xml' }; for(const k in map){ const xml=await readXml(map[k]); if(xml){ const rows=parseXmlRows(xml); guardarLista(k, rows); } } const actXml = await readXml('activos.xml'); if(actXml){ const rows=parseXmlRows(actXml); localStorage.setItem(KEYS.inspActivos, JSON.stringify(rows.map(r=>r.id))); } alert('Backup restaurado.'); renderInspectoresUI(); refreshEnableUI(); }catch(e){ alert('Error restaurando backup: '+e.message); } finally{ ev.target.value=''; } }
+(function(){ document.addEventListener('DOMContentLoaded',()=>{ const b=document.getElementById('btn-backup'); if(b) b.addEventListener('click', doBackupZip); const r=document.getElementById('zip-restore'); if(r) r.addEventListener('change', onRestoreZip); }); })();
 
-  document.addEventListener('DOMContentLoaded', function(){ ensureGithubCard(); ensureCfg(); const sec=document.getElementById('gh-card'); if(!sec) return; sec.querySelector('#gh-save').addEventListener('click', saveCfgOnly); sec.querySelector('#gh-upload').addEventListener('click', uploadAll); sec.querySelector('#gh-download').addEventListener('click', downloadAll); sec.querySelector('#gh-test').addEventListener('click', testConn); });
+// =========================
+// INYECCIONES v5: Cámara obligatoria + Socio/Invitado + Fotos/zoom + Tendencias H/D/M + GH init
+// =========================
+(function v5(){
+  // Personas helpers (perfil)
+  function getPersona(dni){dni=String(dni||'').trim(); if(!dni) return null; return cargarLista(KEYS.personas).find(p=>String(p.dni)===dni)||null}
+  function upsertPersona(dni, nombre, fotoPerfil){dni=String(dni||'').trim(); if(!dni) return; const lista=cargarLista(KEYS.personas); let p=lista.find(x=>String(x.dni)===dni); if(!p){p={dni, nombre:nombre||'', fotoPerfil:fotoPerfil||null}; lista.push(p)} if(nombre && (!p.nombre||!p.nombre.trim())) p.nombre=nombre; if(fotoPerfil) p.fotoPerfil=fotoPerfil; guardarLista(KEYS.personas, lista);}
+  function getUltFotoIngreso(dni){const arr=cargarLista(KEYS.ingresos).filter(i=>String(i.dni)===String(dni)); if(!arr.length) return null; return arr[arr.length-1].foto||null}
+  function fotoParaDNI(dni){const p=getPersona(dni); return (p&&p.fotoPerfil)||getUltFotoIngreso(dni)||null}
+
+  // Adaptar etiqueta DNI según socio/invitado
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const lblDni=document.querySelector('#sec-ingreso label input#dni-ingreso')?.closest('label');
+    function setInv(){ if(lblDni){ lblDni.childNodes[0].textContent='DNI ' } const i=document.getElementById('dni-ingreso'); if(i){ i.placeholder='30123456'; i.value=i.value.replace(/\D/g,''); } }
+    function setSoc(){ if(lblDni){ lblDni.childNodes[0].textContent='N° de socio ' } const i=document.getElementById('dni-ingreso'); if(i){ i.placeholder='12345'; i.value=i.value.replace(/\D/g,''); } }
+    const rInv=document.getElementById('radio-invitado'); const rSoc=document.getElementById('radio-socio'); if(rInv) rInv.addEventListener('change',e=>{ if(e.target.checked) setInv(); }); if(rSoc) rSoc.addEventListener('change',e=>{ if(e.target.checked) setSoc(); });
+  });
+
+  // Cámara UI
+  (function(){ let stream=null, fotoData=null; const $=id=>document.getElementById(id);
+    function startCam(){ navigator.mediaDevices.getUserMedia({video:true,audio:false}).then(st=>{stream=st; const v=$('cam-video'); v.srcObject=stream; v.style.display='block'; $('foto-preview').style.display='none'; $('btn-cam-snap').disabled=false; $('btn-cam-clear').disabled=false; $('btn-cam-start').disabled=true;}).catch(()=>alert('No se pudo acceder a la cámara. Usá HTTPS o localhost y aceptá permisos.')); }
+    function stopCam(){ if(stream){stream.getTracks().forEach(t=>t.stop()); stream=null;} const v=$('cam-video'); v.srcObject=null; v.style.display='none'; }
+    function clearPhoto(){ fotoData=null; const p=$('foto-preview'); p.src=''; p.style.display='none'; stopCam(); $('btn-cam-start').disabled=false; $('btn-cam-snap').disabled=true; $('btn-cam-clear').disabled=true; }
+    function takePhoto(){ const c=$('cam-canvas'), v=$('cam-video'); const w=c.width,h=c.height; const ctx=c.getContext('2d'); ctx.drawImage(v,0,0,w,h); fotoData=c.toDataURL('image/jpeg',0.85); const p=$('foto-preview'); p.src=fotoData; p.style.display='block'; stopCam(); }
+    document.addEventListener('DOMContentLoaded',()=>{ const s=$('btn-cam-start'),p=$('btn-cam-snap'),c=$('btn-cam-clear'); if(s){ s.addEventListener('click',startCam); } if(p){ p.addEventListener('click',takePhoto); } if(c){ c.addEventListener('click',clearPhoto); } });
+    window.__pcq_getFotoIngreso=()=>fotoData; window.__pcq_clearFotoIngreso=clearPhoto;
+  })();
+
+  // Autocompletar nombre+foto al tipear ID
+  (function(){ const dniEl=document.getElementById('dni-ingreso'); const nomEl=document.getElementById('nombre-ingreso'); const fotoEl=document.getElementById('foto-perfil'); if(!dniEl) return; dniEl.addEventListener('input',()=>{ const id=dniEl.value.trim(); if(id.length<4){ if(fotoEl) fotoEl.style.display='none'; return; } const p=getPersona(id); if(p && nomEl && (!nomEl.value||!nomEl.value.trim())){ if(p.nombre) nomEl.value=p.nombre; } const f=fotoParaDNI(id); if(fotoEl){ if(f){ fotoEl.src=f; fotoEl.style.display='block'; } else { fotoEl.style.display='none'; } } }); })();
+
+  // Reemplazar registrarIngreso para exigir foto + limpiar campos
+  (function(){ const original=window.registrarIngreso; window.registrarIngreso=function(){ const dni=(document.getElementById('dni-ingreso').value||'').trim(); const nombre=(document.getElementById('nombre-ingreso').value||'').trim(); const esSocio=document.getElementById('radio-socio')?.checked||false; if(!dni) return mostrarAlerta('alerta-ingreso','error', esSocio?'Ingresá el N° de socio.':'Ingresá el DNI.'); if(!nombre) return mostrarAlerta('alerta-ingreso','error','Ingresá el Nombre y Apellido.'); const foto=(typeof window.__pcq_getFotoIngreso==='function')?window.__pcq_getFotoIngreso():null; if(!foto) return mostrarAlerta('alerta-ingreso','error','📸 Tomá una foto del ingreso (obligatoria).'); const now=ahoraReal(); const nuevo={dni, nombre, fecha:formatFecha(now), hora:formatHora(now), isoFecha:isoFecha(now), foto, tipo: esSocio?'socio':'invitado'}; const lista=cargarLista(KEYS.ingresos); lista.push(nuevo); guardarLista(KEYS.ingresos,lista); const p=getPersona(dni); if(!p || !p.fotoPerfil){ upsertPersona(dni,nombre,foto) } else if(nombre && (!p.nombre||!p.nombre.trim())){ upsertPersona(dni,nombre,null) } ['dni-ingreso','nombre-ingreso'].forEach(id=>{const e=document.getElementById(id); if(e) e.value=''}) ; if(typeof window.__pcq_clearFotoIngreso==='function') window.__pcq_clearFotoIngreso(); const fp=document.getElementById('foto-perfil'); if(fp){fp.style.display='none'; fp.src='';} mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado – ${esSocio?'Socio':'DNI'} ${dni}`); if(typeof window.cargarUltimos==='function'){ window.cargarUltimos(dni); } } })();
+
+  // Fotos en grillas + zoom
+  (function(){ function ensureHeaderFoto(sel){ const th=document.querySelector(sel+' thead tr'); if(!th) return; const ok=Array.from(th.children).some(c=>/foto/i.test(c.textContent||'')); if(!ok){ const cell=document.createElement('th'); cell.textContent='Foto'; th.insertBefore(cell, th.firstChild); } }
+    function tdFoto(dni,fb){ const src=(function(d){ const p=(cargarLista(KEYS.personas)||[]).find(pp=>String(pp.dni)===String(d)); return (p&&p.fotoPerfil)|| (function(){ const arr=cargarLista(KEYS.ingresos).filter(i=>String(i.dni)===String(d)); if(!arr.length) return null; return arr[arr.length-1].foto||null })() })(dni) || fb || ''; return `<td>${src?`<img class=\"mini-foto\" src=\"${src}\" alt=\"foto\"/>`:''}</td>` }
+    // Consulta
+    const origCons=window.consultarIngresos; if(typeof origCons==='function'){ window.consultarIngresos=function(){ const desde=document.getElementById('consulta-desde').value; const hasta=document.getElementById('consulta-hasta').value; const dni=document.getElementById('consulta-dni').value.trim(); const tbody=document.querySelector('#tabla-consulta tbody'); if(!desde||!hasta){document.getElementById('resumen-consulta').textContent='Seleccioná ambas fechas.';tbody.innerHTML='';return} if(hasta<desde){document.getElementById('resumen-consulta').textContent='La fecha "hasta" debe ser ≥ "desde".';tbody.innerHTML='';return} let res=cargarLista(KEYS.ingresos).filter(i=>i.isoFecha>=desde&&i.isoFecha<=hasta); if(dni)res=res.filter(i=>i.dni===dni); res.sort((a,b)=>(a.isoFecha+a.hora)>(b.isoFecha+b.hora)?-1:1); document.getElementById('resumen-consulta').textContent=`Resultados: ${res.length}`; tbody.innerHTML=''; if(!res.length){tbody.innerHTML='<tr><td colspan="6" class="muted">Sin resultados</td></tr>';return} res.forEach(i=>{ const est=estadoIngreso(i); const tr=document.createElement('tr'); tr.innerHTML=tdFoto(i.dni,i.foto)+`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${est.texto}</td>`; tbody.appendChild(tr); }); } }
+    // Últimos
+    const origUlt=window.cargarUltimos; if(typeof origUlt==='function'){ window.cargarUltimos=function(dni){ const wrap=document.getElementById('ultimos-ingresos'); const tbody=document.querySelector('#tabla-ultimos tbody'); if(!wrap||!tbody){ return origUlt(dni) } wrap.style.display='block'; tbody.innerHTML=''; const mis=cargarLista(KEYS.ingresos).filter(i=>i.dni===dni).slice(-10).reverse(); if(!mis.length){tbody.innerHTML='<tr><td colspan="6" class="muted">Sin ingresos previos</td></tr>';return} mis.forEach((i,n)=>{ const est=estadoIngreso(i); const tr=document.createElement('tr'); tr.innerHTML=tdFoto(i.dni,i.foto)+`<td>${n+1}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${i.nombre||'—'}</td><td>${est.texto}</td>`; tbody.appendChild(tr); }); } }
+    // Vencidos
+    const origVen=window.renderVencidos; if(typeof origVen==='function'){ window.renderVencidos=function(){ const tbody=document.querySelector('#tabla-vencidos tbody'); tbody.innerHTML=''; const now=ahoraReal(); const lim=24*3600000, prev=lim-60*60000; const ing=cargarLista(KEYS.ingresos).slice().sort((a,b)=>parseFechaHora(a.fecha,a.hora)-parseFechaHora(b.fecha,b.hora)); const pv=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);return ms>=prev&&ms<lim}); const ven=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);return ms>=lim}); const todos=[...pv,...ven]; if(!todos.length){tbody.innerHTML='<tr><td colspan="8" class="muted">No hay ingresos por vencer/vencidos</td></tr>';return} todos.forEach(i=>{ const ms=now-parseFechaHora(i.fecha,i.hora); let est=''; if(ms>=lim) est='⏰ Vencido'; else if(ms>=prev) est='⏳ Por vencer'; else est='✅ Vigente'; const tr=document.createElement('tr'); tr.innerHTML=tdFoto(i.dni,i.foto)+`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${tiempoTranscurrido(ms)}</td><td>${est}</td><td><button class=\"btn btn-danger\" onclick=\"darBajaIngreso('${i.dni}','${i.fecha}','${i.hora}')\">🗑️</button></td>`; tbody.appendChild(tr); }); } }
+    // Aperc
+    window.renderTablaAperc=function(){ const tbody=document.querySelector('#tabla-aperc tbody'); if(!tbody) return; tbody.innerHTML=''; const lista=cargarLista(KEYS.apercibimientos).slice().reverse(); if(!lista.length){tbody.innerHTML='<tr><td colspan="7" class="muted">Sin registros</td></tr>';return} lista.forEach(a=>{ const tr=document.createElement('tr'); tr.innerHTML=tdFoto(a.dni,null)+`<td>${a.dni}</td><td>${a.nombre||'—'}</td><td>${a.fecha} ${a.hora}</td><td>${a.motivo}</td><td>${a.inspector||'—'}</td><td><button class=\"btn btn-danger\" onclick=\"eliminarAperc(${a.id})\">🗑️</button></td>`; tbody.appendChild(tr); }); }
+    // Susp
+    window.renderTablaSusp=function(){ const tbody=document.querySelector('#tabla-susp tbody'); if(!tbody) return; tbody.innerHTML=''; const lista=cargarLista(KEYS.suspensiones).slice().reverse(); if(!lista.length){tbody.innerHTML='<tr><td colspan="8" class="muted">Sin registros</td></tr>';return} const hoy=isoFecha(ahoraReal()); lista.forEach(s=>{ const act=hoy>=s.desde&&hoy<=s.hasta; const tr=document.createElement('tr'); tr.innerHTML=tdFoto(s.dni,null)+`<td>${s.dni}</td><td>${s.nombre||'—'}</td><td>${s.desde}</td><td>${s.hasta}</td><td>${s.motivo}</td><td>${act?'🚫 ACTIVA':'✔️ Vencida'}</td><td><button class=\"btn btn-danger\" onclick=\"eliminarSusp(${s.id})\">🗑️</button></td>`; tbody.appendChild(tr); }); }
+    // Col headers
+    ['#tabla-consulta','#tabla-ultimos','#tabla-vencidos','#tabla-aperc','#tabla-susp'].forEach(ensureHeaderFoto);
+  })();
+
+  // Zoom modal
+  (function(){ const modal=document.getElementById('img-modal'); const modalImg=modal.querySelector('img'); function hide(){ modal.style.display='none'; modalImg.src=''; } modal.addEventListener('click', hide); document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ hide(); } }); document.addEventListener('click', function(ev){ const t=ev.target; if(t && t.classList && t.classList.contains('mini-foto')){ const src=t.getAttribute('src'); if(src){ modalImg.src=src; modal.style.display='flex'; } } }); })();
+
+  // Tendencias adicionales: horas, días, meses
+  (function(){
+    function toLine(arr,color){ return {label:'', data:arr, borderColor:color, backgroundColor:color, fill:false, tension:0.3} }
+    function countsPorHoras(){ const B=[{l:'00–03',f:0,t:3},{l:'04–07',f:4,t:7},{l:'08–11',f:8,t:11},{l:'12–15',f:12,t:15},{l:'16–19',f:16,t:19},{l:'20–23',f:20,t:23}]; const res={}; B.forEach(b=>res[b.l]=0); cargarLista(KEYS.ingresos).forEach(i=>{ const h=parseInt(String(i.hora||'00').split(':')[0],10)||0; const b=B.find(b=>h>=b.f&&h<=b.t); if(b) res[b.l]++; }); return {labels:Object.keys(res), data:Object.values(res)} }
+    function countsPorDia(){ const L=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb']; const c=[0,0,0,0,0,0,0]; cargarLista(KEYS.ingresos).forEach(i=>{ try{ const d=parseFechaHora(i.fecha,i.hora); c[d.getDay()]++; }catch(e){} }); return {labels:L, data:c} }
+    function countsPorMes(){ const now=new Date(); const arr=Array.from({length:12},(_,k)=>{ const d=new Date(now.getFullYear(), now.getMonth()-11+k, 1); return {y:d.getFullYear(),m:d.getMonth()} }); const lbl=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']; const idx={}; arr.forEach((x,i)=>{ idx[`${x.y}-${x.m}`]=i }); const data=new Array(12).fill(0); cargarLista(KEYS.ingresos).forEach(i=>{ try{ let y,m; if(i.isoFecha){ const [Y,M]=i.isoFecha.split('-'); y=parseInt(Y,10); m=parseInt(M,10)-1; } else { const [d,M,yStr]=String(i.fecha||'').split('/'); y=parseInt(yStr,10); m=parseInt(M,10)-1; } const key=`${y}-${m}`; if(key in idx) data[idx[key]]++; }catch(e){} }); const labels=arr.map(x=>`${lbl[x.m]} ${String(x.y).slice(2)}`); return {labels, data} }
+    function renderTrends(){ const H=countsPorHoras(); const h=document.createElement('div'); h.className='card'; h.innerHTML='<h2>🕒 Ingresos por rangos horarios (tendencia)</h2><div class="chart-wrap"><canvas id="chart-horas" height="140"></canvas></div>'; document.getElementById('sec-estadisticas').appendChild(h); const ctxH=document.getElementById('chart-horas').getContext('2d'); window._chartHoras&&_chartHoras.destroy(); window._chartHoras=new Chart(ctxH,{type:'line',data:{labels:H.labels,datasets:[toLine(H.data,'#c8a84b')]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}); const D=countsPorDia(); const d=document.createElement('div'); d.className='card'; d.innerHTML='<h2>📅 Ingresos por día de la semana (tendencia)</h2><div class="chart-wrap"><canvas id="chart-dias" height="140"></canvas></div>'; document.getElementById('sec-estadisticas').appendChild(d); const ctxD=document.getElementById('chart-dias').getContext('2d'); window._chartDias&&_chartDias.destroy(); window._chartDias=new Chart(ctxD,{type:'line',data:{labels:D.labels,datasets:[toLine(D.data,'#2d6e2d')]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}); const M=countsPorMes(); const m=document.createElement('div'); m.className='card'; m.innerHTML='<h2>🗓️ Ingresos por mes (últimos 12, tendencia)</h2><div class="chart-wrap"><canvas id="chart-meses" height="140"></canvas></div>'; document.getElementById('sec-estadisticas').appendChild(m); const ctxM=document.getElementById('chart-meses').getContext('2d'); window._chartMeses&&_chartMeses.destroy(); window._chartMeses=new Chart(ctxM,{type:'line',data:{labels:M.labels,datasets:[toLine(M.data,'#8da2d7')]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}); }
+    // Hook al render principal
+    const _orig=window.renderEstadisticas; window.renderEstadisticas=function(){ if(_orig) _orig(); // quita nota de fuente si existiera
+      const note=document.querySelector('#sec-estadisticas p.muted'); if(note) note.style.display='none'; renderTrends(); }
+  })();
+
+  // Inicialización GitHub (crear XML/JSON si faltan) con cifrado del PAT
+  (function(){
+    function b64e(b){ return btoa(String.fromCharCode(...new Uint8Array(b))) }
+    function b64d(s){ return Uint8Array.from(atob(s), c=>c.charCodeAt(0)) }
+    async function deriveKey(pass, salt){ const enc=new TextEncoder(); const km=await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']); return await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:250000,hash:'SHA-256'}, km, {name:'AES-GCM',length:256}, false, ['encrypt','decrypt']); }
+    async function encryptPAT(pat, pass){ const enc=new TextEncoder(); const salt=crypto.getRandomValues(new Uint8Array(16)); const iv=crypto.getRandomValues(new Uint8Array(12)); const key=await deriveKey(pass,salt); const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv}, key, enc.encode(pat)); const blob={alg:'AES-GCM',kdf:'PBKDF2',it:250000,salt:b64e(salt),iv:b64e(iv),ct:b64e(ct)}; localStorage.setItem('pcq_gh_pat_enc', JSON.stringify(blob)); }
+    async function decryptPAT(pass){ const str=localStorage.getItem('pcq_gh_pat_enc'); if(!str) return null; const b=JSON.parse(str); const salt=b64d(b.salt), iv=b64d(b.iv), ct=b64d(b.ct); const key=await deriveKey(pass,salt); const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv}, key, ct); return new TextDecoder().decode(pt); }
+    const GH='https://api.github.com';
+    async function ghFetch(url, token, opts){ const headers={'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Authorization':'Bearer '+token}; return await fetch(url,{headers,...opts}); }
+    function joinPath(a,b){ a=a.replace(/^\/+|\/+$/g,''); b=b.replace(/^\/+/,''); return a? (a+'/'+b) : b }
+    function xmlEscape(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+    function toXml(tag, arr){ const rows=(arr||[]).map(o=>{ const inner=Object.keys(o).map(k=>`<${k}>${xmlEscape(o[k])}</${k}>`).join(''); return `<row>${inner}</row>` }).join(''); return `<?xml version="1.0" encoding="UTF-8"?>\n<${tag}>${rows}</${tag}>`; }
+    function strToB64(s){ return btoa(unescape(encodeURIComponent(s))) }
+    async function ghGetSHA(owner,repo,branch,path,token){ const url=`${GH}/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`; const r=await ghFetch(url,token,{method:'GET'}); if(r.status===404)return null; if(!r.ok) throw new Error('GET '+path+' → '+r.status); const j=await r.json(); return j.sha||null; }
+    async function ghPut(owner,repo,branch,path,contentB64,message,token,sha){ const url=`${GH}/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`; const body={message,content:contentB64,branch}; if(sha) body.sha=sha; const r=await ghFetch(url,token,{method:'PUT',body:JSON.stringify(body)}); if(!r.ok){ const t=await r.text(); throw new Error('PUT '+path+' → '+r.status+' '+t); } return true; }
+
+    async function initGithubFiles(){
+      try{
+        const owner = localStorage.getItem('pcq_gh_owner') || prompt('Owner/Org del repo GitHub'); if(!owner) return;
+        const repo  = localStorage.getItem('pcq_gh_repo')  || prompt('Nombre del repo'); if(!repo) return;
+        const branch= localStorage.getItem('pcq_gh_branch')|| prompt('Branch', 'main') || 'main';
+        const base  = localStorage.getItem('pcq_gh_base')  || prompt('Ruta base', 'live') || 'live';
+        let tokenEnc = localStorage.getItem('pcq_gh_pat_enc'); let token=null;
+        if(!tokenEnc){ const pat=prompt('Pegá tu token de GitHub (Contents: write)'); if(!pat) return; const pass=prompt('Definí una frase para proteger el token'); if(!pass) return; await encryptPAT(pat,pass); token=pat; } else { const pass=prompt('Ingresá tu frase para desencriptar el token'); if(!pass) return; token=await decryptPAT(pass); }
+        if(!token){ alert('No se pudo obtener el token.'); return; }
+        const sets=[
+          {file:'ingresos', tag:'ingresos', key:KEYS.ingresos},
+          {file:'personas', tag:'personas', key:KEYS.personas},
+          {file:'apercibimientos', tag:'apercibimientos', key:KEYS.apercibimientos},
+          {file:'suspensiones', tag:'suspensiones', key:KEYS.suspensiones},
+          {file:'inspectores', tag:'inspectores', key:KEYS.inspectores},
+          {file:'activos', tag:'activos', key:KEYS.inspActivos}
+        ];
+        let createdXML=0, createdJSON=0, skipped=0;
+        for(const it of sets){ let arr=[]; try{ arr=JSON.parse(localStorage.getItem(it.key)||'[]'); }catch(e){} if(it.key===KEYS.inspActivos){ arr=arr.map(id=>({id})) }
+          const xml=toXml(it.tag, arr); const json=JSON.stringify(arr,null,2);
+          const pXML=joinPath(base, `${it.file}.xml`); const shaXML=await ghGetSHA(owner,repo,branch,pXML,token); if(!shaXML){ await ghPut(owner,repo,branch,pXML, strToB64(xml), `feat(init): ${it.file}.xml`, token, null); createdXML++; } else { skipped++; }
+          const pJSON=joinPath(joinPath(base,'json'), `${it.file}.json`); const shaJSON=await ghGetSHA(owner,repo,branch,pJSON,token); if(!shaJSON){ await ghPut(owner,repo,branch,pJSON, strToB64(json), `feat(init): ${it.file}.json`, token, null); createdJSON++; } else { skipped++; }
+        }
+        alert(`Inicialización OK. XML creados: ${createdXML}, JSON creados: ${createdJSON}, ya existentes: ${skipped}.`);
+      }catch(e){ console.error(e); alert('Error al inicializar: '+e.message); }
+    }
+    document.addEventListener('DOMContentLoaded',()=>{ const btn=document.getElementById('btn-gh-init-xmljson'); if(btn) btn.addEventListener('click', initGithubFiles); });
+  })();
 })();
 </script>
-<!-- ====== FIN INYECTADO v4 (standalone) ====== -->
 </body>
 </html>
