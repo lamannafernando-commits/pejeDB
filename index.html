@@ -51,7 +51,7 @@
     /* Modal token */
     #token-modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center}
     #token-modal .box{background:#0c1c0c;border:1px solid var(--dorado);border-radius:12px;padding:16px;max-width:520px;width:calc(100% - 32px)}
-    #bloqueo-overlay{display:none}
+    #bloqueo-overlay{display:none !important; pointer-events:none !important;}
     table{width:100%;border-collapse:collapse;margin-top:8px}
     th,td{padding:6px 8px;border-bottom:1px solid #244}
 
@@ -81,6 +81,15 @@
     <button id="btn-nav-estadisticas" onclick="navClick('estadisticas',this)">Estadísticas</button>
     <button id="btn-nav-backup" onclick="navClick('backup',this)">Backup</button>
   </nav>
+
+  
+<div id="token-ask-banner" style="display:none;background:rgba(200,168,75,.12);border:2px solid var(--dorado);color:var(--dorado);padding:10px 14px;margin:10px 14px;border-radius:10px;">
+  <strong>🔑 Falta configurar Token y Repo para activar la nube.</strong>
+  <div class="grupo-botones" style="margin-top:8px">
+    <button class="btn" onclick="abrirTokenModal()">Configurar token</button>
+    <button class="btn btn-warn" onclick="cerrarBannerToken()">Ocultar</button>
+  </div>
+</div>
 
   <main>
     <!-- Ingreso -->
@@ -471,7 +480,7 @@
     lista.push({dni:id, tipo, nombre, fecha:formatFecha(now), hora:formatHora(now), isoFecha:isoFecha(now)});
     guardarDatos(KEYS.ingresos, lista);
     mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado – ${tipo==='socio'?'Socio N°':'DNI'} <strong>${id}</strong>${nombre?' '+nombre:''} ${formatFecha(now)} ${formatHora(now)}`);
-    if(getToken()){
+    if(getToken()){ ocultarBannerToken();
       setSyncBadge('syncing','☁️ 🔄 Sincronizando...');
       try{ const r = await guardarEnGitHub(false); if(r.ok){ setSyncBadge('ok','☁️ ✔️ Sincronizado'); } else { setSyncBadge('err','☁️ ❌ Error sync'); } }
       catch{ setSyncBadge('err','☁️ ❌ Error sync'); }
@@ -630,7 +639,7 @@ function pedirTokenAlIniciar(){
 
 function activarModoLocalSinInternet(){
   // Modo local: no bloquear nada
-  ocultarOverlay();
+  // ocultarOverlay(); // overlay deshabilitado
   setSyncBadge('err','☁️ ⚡ Local (sin internet)');
 }
 
@@ -641,7 +650,7 @@ function activarModoLocalSinToken(){
 }
 
 function activarModoNubeOk(){
-  ocultarOverlay();
+  // ocultarOverlay(); // overlay deshabilitado
   setSyncBadge('ok','☁️ ✔️ Listo');
 }
 
@@ -649,8 +658,8 @@ function activarModoNubeOk(){
 const _guardarTokenOrig = guardarToken;
 guardarToken = async function(){
   _guardarTokenOrig();
-  if(getToken()){
-    ocultarOverlay();
+  if(getToken()){ ocultarBannerToken();
+    // ocultarOverlay(); // overlay deshabilitado
     try{
       setSyncBadge('syncing','☁️ 🔄 Validando...');
       const r = await guardarEnGitHub(false); // stub/real
@@ -717,6 +726,12 @@ async function validarTokenYRepo(){
 }
 
 
+  
+// ===================== BANNER TOKEN (no bloqueante) =====================
+function mostrarBannerToken(){ const b=document.getElementById('token-ask-banner'); if(b) b.style.display='block'; }
+function ocultarBannerToken(){ const b=document.getElementById('token-ask-banner'); if(b) b.style.display='none'; }
+function cerrarBannerToken(){ ocultarBannerToken(); }
+
   // ===================== INIT =====================
   (async function init(){
     try{ await sincronizarHora(); }catch(e){ offsetMs=0; }
@@ -724,12 +739,13 @@ async function validarTokenYRepo(){
     try{ document.getElementById('dbg-online').textContent = estaOnline()? 'online':'offline'; }catch(e){}
     try{ document.getElementById('dbg-token').textContent = getToken()? 'presente':'faltante'; }catch(e){}
     try{
-      if(getToken()){ setSyncBadge('syncing','☁️ 🔄 Cargando...'); await guardarEnGitHub(false); setSyncBadge('ok','☁️ ✔️ Listo'); }
+      if(getToken()){ ocultarBannerToken(); setSyncBadge('syncing','☁️ 🔄 Cargando...'); await guardarEnGitHub(false); setSyncBadge('ok','☁️ ✔️ Listo'); }
       else{ setSyncBadge('err','☁️ ❌ Sin token'); }
     }catch{ setSyncBadge('err','☁️ ❌ Error'); }
     actualizarEstadoBloqueo();
     navClick('ingreso', document.getElementById('btn-nav-ingreso'));
   })();
   </script>
+<script>try{const o=document.getElementById("bloqueo-overlay"); if(o){o.style.display="none"; o.style.pointerEvents="none"; o.style.background="transparent";}}</script>
 </body>
 </html>
