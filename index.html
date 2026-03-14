@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pejerrey Club Quilmes – Gestión de Ingreso</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Open+Sans:wght@400;600;700&display=swap');
     :root{
@@ -189,6 +190,36 @@
     .pass-box input:focus{outline:none;border-color:var(--verde-logo);}
     .pass-box .pass-btns{display:flex;gap:10px;justify-content:center;}
     .autocomplete-hint{font-size:.72rem;color:#2a6a2a;font-style:italic;margin-top:2px;min-height:1em;display:block;}
+
+    /* ══ ESTADÍSTICAS ══ */
+    .stats-kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:20px;}
+    .kpi-card{background:linear-gradient(135deg,#fff,#f5f0e8);border:2px solid var(--dorado);border-radius:10px;padding:16px 14px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.12);}
+    .kpi-card .kpi-num{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;line-height:1.1;margin-bottom:4px;}
+    .kpi-card .kpi-lbl{font-size:.75rem;font-weight:700;color:#4a6a4a;text-transform:uppercase;letter-spacing:.5px;}
+    .kpi-card .kpi-sub{font-size:.7rem;color:#888;margin-top:2px;}
+    .kpi-ing .kpi-num{color:var(--verde-logo);}
+    .kpi-aperc .kpi-num{color:var(--naranja);}
+    .kpi-susp .kpi-num{color:var(--rojo);}
+    .kpi-dni .kpi-num{color:#1a5a8a;}
+    .kpi-dia .kpi-num{color:#6a1a8a;}
+    .kpi-hora .kpi-num{color:#1a6a6a;}
+    .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;}
+    .chart-card{background:linear-gradient(160deg,#fff,#f5f0e8);border:2px solid var(--dorado);border-radius:10px;padding:16px 18px;box-shadow:0 2px 10px rgba(0,0,0,.12);}
+    .chart-card h3{font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--verde-oscuro);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #ddd;padding-bottom:8px;}
+    .chart-card canvas{max-height:260px;}
+    .chart-card-full{grid-column:1/-1;}
+    .stats-top-table{width:100%;border-collapse:collapse;font-size:.83rem;}
+    .stats-top-table th{background:var(--verde-oscuro);color:var(--dorado);padding:7px 10px;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.5px;}
+    .stats-top-table td{padding:6px 10px;border-bottom:1px solid #e0e0e0;color:var(--texto-oscuro);background:#fff;}
+    .stats-top-table tr:hover td{background:#f0f5f0;}
+    .stats-top-table tr:last-child td{border-bottom:none;}
+    .stats-empty{text-align:center;color:#8aaa8a;padding:28px;font-size:.9rem;}
+    @media(max-width:650px){
+      .charts-grid{grid-template-columns:1fr;}
+      .chart-card-full{grid-column:1;}
+      .stats-kpi-grid{grid-template-columns:repeat(2,1fr);}
+    }
+
     @media(max-width:600px){
       header h1{font-size:1.15rem;}
       .form-row{flex-direction:column;}
@@ -311,6 +342,7 @@
   <button id="btn-nav-suspension"     onclick="navClick('suspension',this)">🚫 Suspensión</button>
   <button id="btn-nav-consulta"       onclick="navClick('consulta',this)">📋 Consulta por Fechas</button>
   <button id="btn-nav-vencidos"       onclick="navClick('vencidos',this)">⏰ Ingresos Vencidos</button>
+  <button id="btn-nav-estadisticas"   onclick="navClick('estadisticas',this)">📊 Estadísticas</button>
   <button id="btn-nav-inspectores"    onclick="navClick('inspectores',this)">👮 Inspectores</button>
   <button id="btn-nav-backup"         onclick="navClick('backup',this)">💾 Backup</button>
 </nav>
@@ -482,6 +514,123 @@
     </div>
   </section>
 
+  <!-- ══ ESTADÍSTICAS ══ -->
+  <section id="sec-estadisticas" class="seccion">
+    <!-- Filtro de fechas -->
+    <div class="card">
+      <h2>📊 Estadísticas del Club</h2>
+      <div class="form-row" style="align-items:flex-end;">
+        <label>Fecha Desde
+          <input type="text" id="stats-desde" placeholder="dd/mm/aaaa" maxlength="10"
+                 oninput="formatearFechaInput('stats-desde')"/>
+        </label>
+        <label>Fecha Hasta
+          <input type="text" id="stats-hasta" placeholder="dd/mm/aaaa" maxlength="10"
+                 oninput="formatearFechaInput('stats-hasta')"/>
+        </label>
+        <label style="min-width:0;flex:0 0 auto;">
+          &nbsp;
+          <button class="btn btn-primary" onclick="generarEstadisticas()">📊 Generar</button>
+        </label>
+        <label style="min-width:0;flex:0 0 auto;">
+          &nbsp;
+          <button class="btn btn-secondary btn-sm" onclick="statsSetHoy()">📅 Hoy</button>
+        </label>
+        <label style="min-width:0;flex:0 0 auto;">
+          &nbsp;
+          <button class="btn btn-secondary btn-sm" onclick="statsSet7dias()">📅 7 días</button>
+        </label>
+        <label style="min-width:0;flex:0 0 auto;">
+          &nbsp;
+          <button class="btn btn-secondary btn-sm" onclick="statsSet30dias()">📅 30 días</button>
+        </label>
+      </div>
+      <div id="alerta-stats" class="alerta"></div>
+    </div>
+
+    <!-- KPIs -->
+    <div id="stats-kpi-wrap" style="display:none;">
+      <div class="stats-kpi-grid">
+        <div class="kpi-card kpi-ing">
+          <div class="kpi-num" id="kpi-ingresos">0</div>
+          <div class="kpi-lbl">🚪 Ingresos</div>
+          <div class="kpi-sub" id="kpi-ingresos-sub">en el período</div>
+        </div>
+        <div class="kpi-card kpi-aperc">
+          <div class="kpi-num" id="kpi-aperc">0</div>
+          <div class="kpi-lbl">⚠️ Apercibamientos</div>
+          <div class="kpi-sub" id="kpi-aperc-sub">en el período</div>
+        </div>
+        <div class="kpi-card kpi-susp">
+          <div class="kpi-num" id="kpi-susp">0</div>
+          <div class="kpi-lbl">🚫 Suspensiones</div>
+          <div class="kpi-sub" id="kpi-susp-sub">en el período</div>
+        </div>
+        <div class="kpi-card kpi-dni">
+          <div class="kpi-num" id="kpi-dni">0</div>
+          <div class="kpi-lbl">👤 DNI únicos</div>
+          <div class="kpi-sub">visitantes distintos</div>
+        </div>
+        <div class="kpi-card kpi-dia">
+          <div class="kpi-num" id="kpi-pico-dia">—</div>
+          <div class="kpi-lbl">📅 Día pico</div>
+          <div class="kpi-sub" id="kpi-pico-dia-cant"></div>
+        </div>
+        <div class="kpi-card kpi-hora">
+          <div class="kpi-num" id="kpi-pico-hora">—</div>
+          <div class="kpi-lbl">🕐 Hora pico</div>
+          <div class="kpi-sub" id="kpi-pico-hora-cant"></div>
+        </div>
+      </div>
+
+      <!-- Gráficos -->
+      <div class="charts-grid">
+        <!-- Ingresos por día -->
+        <div class="chart-card chart-card-full">
+          <h3>📅 Ingresos por día</h3>
+          <canvas id="chart-por-dia"></canvas>
+        </div>
+        <!-- Ingresos por hora del día -->
+        <div class="chart-card">
+          <h3>🕐 Ingresos por hora del día</h3>
+          <canvas id="chart-por-hora"></canvas>
+        </div>
+        <!-- Distribución: ingresos / apercibamientos / suspensiones -->
+        <div class="chart-card">
+          <h3>🍕 Distribución de eventos</h3>
+          <canvas id="chart-distribucion"></canvas>
+        </div>
+        <!-- Ingresos por día de semana -->
+        <div class="chart-card">
+          <h3>📆 Ingresos por día de semana</h3>
+          <canvas id="chart-semana"></canvas>
+        </div>
+        <!-- Top visitantes frecuentes -->
+        <div class="chart-card">
+          <h3>🏆 Top 10 visitantes frecuentes</h3>
+          <canvas id="chart-top-visitantes"></canvas>
+        </div>
+      </div>
+
+      <!-- Tabla top visitantes -->
+      <div class="card">
+        <h2>🏆 Ranking de Visitantes Frecuentes</h2>
+        <div class="tabla-wrap">
+          <table class="stats-top-table" id="tabla-top-visitantes">
+            <thead><tr><th>#</th><th>DNI</th><th>Nombre</th><th>Visitas</th><th>Última visita</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="stats-vacio" class="card" style="text-align:center;color:#8aaa8a;padding:32px;">
+      <div style="font-size:2.5rem;margin-bottom:10px;">📊</div>
+      <div style="font-family:'Oswald',sans-serif;font-size:1.1rem;color:#4a6a4a;">Seleccioná un rango de fechas y presioná <strong>Generar</strong></div>
+      <div style="font-size:.82rem;margin-top:6px;">Por defecto se muestra el día de hoy</div>
+    </div>
+  </section>
+
   <!-- INSPECTORES -->
   <section id="sec-inspectores" class="seccion">
     <div id="banner-activar" style="display:none;background:rgba(200,168,75,.12);border:2px solid var(--dorado);border-radius:10px;padding:14px 20px;margin-bottom:18px;color:var(--dorado);font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:1px;text-align:center;">
@@ -627,6 +776,10 @@ const FOTO_MAX_W=320,FOTO_QUALITY=0.72,SYNC_INTERVAL=20000;
 const BACKUP_PASS='gustavopeje';
 let offsetMs=0,_editInspId=null,_inspDesact=null;
 let _syncEnCurso=false,_ultimoSyncTs=null,_pendingPassAction=null;
+
+/* ══ CHART.JS INSTANCES (para destroy/recrear) ══ */
+const _charts={};
+function _destroyChart(id){if(_charts[id]){_charts[id].destroy();delete _charts[id];}}
 
 /* ══ ZOOM MODAL ══ */
 let _zoomScale=1,_zoomX=0,_zoomY=0,_zoomDragging=false,_zoomLastX=0,_zoomLastY=0;
@@ -1067,7 +1220,7 @@ function getInspectorActivo(){
 function actualizarEstadoBloqueo(){
   const ok=!!getInspectorActivo();
   document.getElementById('bloqueo-overlay').classList[ok?'remove':'add']('show');
-  ['btn-nav-ingreso','btn-nav-apercibamiento','btn-nav-suspension','btn-nav-consulta','btn-nav-vencidos','btn-nav-backup'].forEach(id=>{
+  ['btn-nav-ingreso','btn-nav-apercibamiento','btn-nav-suspension','btn-nav-consulta','btn-nav-vencidos','btn-nav-estadisticas','btn-nav-backup'].forEach(id=>{
     const b=document.getElementById(id);if(b)b.classList[ok?'remove':'add']('nav-bloqueado');
   });
 }
@@ -1089,6 +1242,7 @@ function _navegarSeccion(id,btn){
   if(id==='inspectores'){renderInspectores();actualizarUIInspectorActivo();}
   if(id==='vencidos')renderVencidos();
   if(id==='consulta')setFechasConsultaHoy();
+  if(id==='estadisticas')inicializarEstadisticas();
 }
 
 /* ══ INSPECTOR UI ══ */
@@ -1553,6 +1707,340 @@ function restaurarBackup(){
       document.getElementById('archivo-bak').value='';
     }catch(ex){mostrarAlerta('alerta-backup-rest','error','❌ Error: '+ex.message);}
   };reader.readAsText(arch);
+}
+
+/* ══════════════════════════════════════════
+   ESTADÍSTICAS – Chart.js via jsDelivr CDN
+══════════════════════════════════════════ */
+
+/* Paleta de colores del club */
+const STATS_COLORS={
+  verde:'rgba(45,110,45,0.85)',
+  verdeB:'rgba(45,110,45,1)',
+  dorado:'rgba(200,168,75,0.85)',
+  doradoB:'rgba(200,168,75,1)',
+  rojo:'rgba(204,34,34,0.8)',
+  rojoB:'rgba(204,34,34,1)',
+  naranja:'rgba(212,132,26,0.8)',
+  naranjaB:'rgba(212,132,26,1)',
+  azul:'rgba(26,90,138,0.8)',
+  azulB:'rgba(26,90,138,1)',
+  lila:'rgba(120,60,160,0.8)',
+  lilaB:'rgba(120,60,160,1)',
+};
+
+/* Opciones base compartidas para todos los gráficos */
+const CHART_BASE_OPTS={
+  responsive:true,
+  maintainAspectRatio:true,
+  plugins:{
+    legend:{labels:{font:{family:"'Open Sans',sans-serif",size:12},color:'#2a4a2a'}},
+    tooltip:{titleFont:{family:"'Oswald',sans-serif"},bodyFont:{family:"'Open Sans',sans-serif"}}
+  }
+};
+
+/* ── Helpers de fecha dd/mm/yyyy ── */
+function ddmmToIso(s){
+  // acepta dd/mm/yyyy o yyyy-mm-dd
+  if(!s)return '';
+  if(s.includes('-'))return s; // ya es ISO
+  const p=s.split('/');
+  if(p.length!==3)return '';
+  return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+}
+function isoToDdmm(s){
+  if(!s)return '';
+  const p=s.split('-');if(p.length!==3)return s;
+  return `${p[2]}/${p[1]}/${p[0]}`;
+}
+/* Formatea mientras escribe: agrega "/" automáticamente */
+function formatearFechaInput(id){
+  const el=document.getElementById(id);
+  let v=el.value.replace(/\D/g,'');
+  if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);
+  if(v.length>5)v=v.slice(0,5)+'/'+v.slice(5);
+  if(v.length>10)v=v.slice(0,10);
+  el.value=v;
+}
+function statsHoyDdmm(){
+  const n=ahoraReal();
+  return `${pad(n.getDate())}/${pad(n.getMonth()+1)}/${n.getFullYear()}`;
+}
+function statsSetHoy(){
+  const h=statsHoyDdmm();
+  document.getElementById('stats-desde').value=h;
+  document.getElementById('stats-hasta').value=h;
+}
+function statsSet7dias(){
+  const n=ahoraReal();
+  const desde=new Date(n);desde.setDate(desde.getDate()-6);
+  document.getElementById('stats-desde').value=formatFecha(desde);
+  document.getElementById('stats-hasta').value=statsHoyDdmm();
+}
+function statsSet30dias(){
+  const n=ahoraReal();
+  const desde=new Date(n);desde.setDate(desde.getDate()-29);
+  document.getElementById('stats-desde').value=formatFecha(desde);
+  document.getElementById('stats-hasta').value=statsHoyDdmm();
+}
+
+/* Inicializa la sección: pone fecha de hoy por defecto y genera */
+function inicializarEstadisticas(){
+  const d=document.getElementById('stats-desde');
+  const h=document.getElementById('stats-hasta');
+  if(!d.value&&!h.value){statsSetHoy();}
+  generarEstadisticas();
+}
+
+/* ── Función principal ── */
+function generarEstadisticas(){
+  const desdeRaw=document.getElementById('stats-desde').value.trim();
+  const hastaRaw=document.getElementById('stats-hasta').value.trim();
+  if(!desdeRaw||!hastaRaw){mostrarAlerta('alerta-stats','error','Ingresá ambas fechas en formato dd/mm/aaaa.');return;}
+  const desdeIso=ddmmToIso(desdeRaw);
+  const hastaIso=ddmmToIso(hastaRaw);
+  if(!desdeIso||!hastaIso||isNaN(new Date(desdeIso))||isNaN(new Date(hastaIso))){
+    mostrarAlerta('alerta-stats','error','Fecha inválida. Usá el formato dd/mm/aaaa.');return;
+  }
+  if(hastaIso<desdeIso){mostrarAlerta('alerta-stats','error','La fecha "hasta" debe ser ≥ "desde".');return;}
+
+  /* Filtrar datos por rango */
+  const ing=cargarDatos(KEYS.ingresos).filter(i=>i.isoFecha>=desdeIso&&i.isoFecha<=hastaIso);
+  const ap=cargarDatos(KEYS.apercibimientos).filter(a=>{
+    const iso=ddmmToIso(a.fecha.split(' ')[0]);return iso>=desdeIso&&iso<=hastaIso;
+  });
+  const su=cargarDatos(KEYS.suspensiones).filter(s=>s.desde>=desdeIso&&s.desde<=hastaIso);
+
+  /* Mostrar panel */
+  document.getElementById('stats-kpi-wrap').style.display='block';
+  document.getElementById('stats-vacio').style.display='none';
+
+  /* ── KPIs ── */
+  document.getElementById('kpi-ingresos').textContent=ing.length;
+  document.getElementById('kpi-ingresos-sub').textContent=`${desdeRaw} → ${hastaRaw}`;
+  document.getElementById('kpi-aperc').textContent=ap.length;
+  document.getElementById('kpi-aperc-sub').textContent=`${desdeRaw} → ${hastaRaw}`;
+  document.getElementById('kpi-susp').textContent=su.length;
+  document.getElementById('kpi-susp-sub').textContent=`${desdeRaw} → ${hastaRaw}`;
+
+  const dnisUnicos=new Set(ing.map(i=>i.dni));
+  document.getElementById('kpi-dni').textContent=dnisUnicos.size;
+
+  /* Día pico */
+  const porDia={};
+  ing.forEach(i=>{porDia[i.isoFecha]=(porDia[i.isoFecha]||0)+1;});
+  const diasOrdenados=Object.entries(porDia).sort((a,b)=>b[1]-a[1]);
+  if(diasOrdenados.length){
+    document.getElementById('kpi-pico-dia').textContent=isoToDdmm(diasOrdenados[0][0]);
+    document.getElementById('kpi-pico-dia-cant').textContent=diasOrdenados[0][1]+' ingresos';
+  } else {
+    document.getElementById('kpi-pico-dia').textContent='—';
+    document.getElementById('kpi-pico-dia-cant').textContent='sin datos';
+  }
+
+  /* Hora pico */
+  const porHora=Array(24).fill(0);
+  ing.forEach(i=>{const h=parseInt(i.hora.split(':')[0],10);if(!isNaN(h))porHora[h]++;});
+  const maxH=Math.max(...porHora);
+  const horaP=porHora.indexOf(maxH);
+  if(maxH>0){
+    document.getElementById('kpi-pico-hora').textContent=pad(horaP)+':00';
+    document.getElementById('kpi-pico-hora-cant').textContent=maxH+' ingresos';
+  } else {
+    document.getElementById('kpi-pico-hora').textContent='—';
+    document.getElementById('kpi-pico-hora-cant').textContent='sin datos';
+  }
+
+  /* ── Gráficos ── */
+  _renderChartPorDia(desdeIso,hastaIso,porDia);
+  _renderChartPorHora(porHora);
+  _renderChartDistribucion(ing.length,ap.length,su.length);
+  _renderChartSemana(ing);
+  _renderChartTopVisitantes(ing);
+  _renderTablaTopVisitantes(ing);
+}
+
+/* ── Gráfico 1: Ingresos por día (barras) ── */
+function _renderChartPorDia(desdeIso,hastaIso,porDia){
+  _destroyChart('por-dia');
+  /* Generar todos los días del rango */
+  const labels=[],data=[];
+  const cur=new Date(desdeIso+'T00:00:00');
+  const fin=new Date(hastaIso+'T00:00:00');
+  while(cur<=fin){
+    const iso=isoFecha(cur);
+    labels.push(isoToDdmm(iso));
+    data.push(porDia[iso]||0);
+    cur.setDate(cur.getDate()+1);
+  }
+  const ctx=document.getElementById('chart-por-dia').getContext('2d');
+  _charts['por-dia']=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{
+        label:'Ingresos',data,
+        backgroundColor:STATS_COLORS.verde,borderColor:STATS_COLORS.verdeB,
+        borderWidth:2,borderRadius:5,borderSkipped:false
+      }]
+    },
+    options:{
+      ...CHART_BASE_OPTS,
+      scales:{
+        x:{ticks:{font:{size:11},color:'#2a4a2a',maxRotation:45},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{stepSize:1,color:'#2a4a2a'},grid:{color:'rgba(0,0,0,.06)'}}
+      },
+      plugins:{...CHART_BASE_OPTS.plugins,legend:{display:false}}
+    }
+  });
+}
+
+/* ── Gráfico 2: Ingresos por hora (línea) ── */
+function _renderChartPorHora(porHora){
+  _destroyChart('por-hora');
+  const labels=Array.from({length:24},(_,i)=>pad(i)+':00');
+  const ctx=document.getElementById('chart-por-hora').getContext('2d');
+  _charts['por-hora']=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        label:'Ingresos',data:porHora,
+        backgroundColor:'rgba(200,168,75,0.18)',borderColor:STATS_COLORS.doradoB,
+        borderWidth:2.5,pointBackgroundColor:STATS_COLORS.doradoB,
+        pointRadius:4,pointHoverRadius:6,fill:true,tension:0.4
+      }]
+    },
+    options:{
+      ...CHART_BASE_OPTS,
+      scales:{
+        x:{ticks:{font:{size:10},color:'#2a4a2a',maxRotation:45},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{stepSize:1,color:'#2a4a2a'},grid:{color:'rgba(0,0,0,.06)'}}
+      },
+      plugins:{...CHART_BASE_OPTS.plugins,legend:{display:false}}
+    }
+  });
+}
+
+/* ── Gráfico 3: Distribución (dona) ── */
+function _renderChartDistribucion(nIng,nAp,nSu){
+  _destroyChart('distribucion');
+  const ctx=document.getElementById('chart-distribucion').getContext('2d');
+  _charts['distribucion']=new Chart(ctx,{
+    type:'doughnut',
+    data:{
+      labels:['🚪 Ingresos','⚠️ Apercibamientos','🚫 Suspensiones'],
+      datasets:[{
+        data:[nIng,nAp,nSu],
+        backgroundColor:[STATS_COLORS.verde,STATS_COLORS.naranja,STATS_COLORS.rojo],
+        borderColor:['#fff','#fff','#fff'],borderWidth:3,hoverOffset:8
+      }]
+    },
+    options:{
+      ...CHART_BASE_OPTS,
+      cutout:'60%',
+      plugins:{
+        ...CHART_BASE_OPTS.plugins,
+        legend:{position:'bottom',labels:{font:{size:12},color:'#2a4a2a',padding:14}}
+      }
+    }
+  });
+}
+
+/* ── Gráfico 4: Ingresos por día de semana (barras horizontales) ── */
+function _renderChartSemana(ing){
+  _destroyChart('semana');
+  const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const conteo=Array(7).fill(0);
+  ing.forEach(i=>{
+    const parts=i.isoFecha.split('-');
+    if(parts.length===3){
+      const d=new Date(`${parts[0]}-${parts[1]}-${parts[2]}T12:00:00`);
+      if(!isNaN(d))conteo[d.getDay()]++;
+    }
+  });
+  const ctx=document.getElementById('chart-semana').getContext('2d');
+  _charts['semana']=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:dias,
+      datasets:[{
+        label:'Ingresos',data:conteo,
+        backgroundColor:[
+          STATS_COLORS.rojo,STATS_COLORS.azul,STATS_COLORS.azul,
+          STATS_COLORS.azul,STATS_COLORS.azul,STATS_COLORS.naranja,STATS_COLORS.rojo
+        ],
+        borderColor:'transparent',borderWidth:0,borderRadius:5
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      ...CHART_BASE_OPTS,
+      scales:{
+        x:{beginAtZero:true,ticks:{stepSize:1,color:'#2a4a2a'},grid:{color:'rgba(0,0,0,.06)'}},
+        y:{ticks:{color:'#2a4a2a',font:{size:12}},grid:{display:false}}
+      },
+      plugins:{...CHART_BASE_OPTS.plugins,legend:{display:false}}
+    }
+  });
+}
+
+/* ── Gráfico 5: Top 10 visitantes (barras horizontales) ── */
+function _renderChartTopVisitantes(ing){
+  _destroyChart('top-visitantes');
+  const conteo={};
+  const nombres={};
+  ing.forEach(i=>{
+    conteo[i.dni]=(conteo[i.dni]||0)+1;
+    if(i.nombre&&i.nombre.trim())nombres[i.dni]=i.nombre.trim();
+  });
+  const top=Object.entries(conteo).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const labels=top.map(([dni])=>nombres[dni]?nombres[dni].split(',')[0].trim()+' ('+dni+')':'DNI '+dni);
+  const data=top.map(([,v])=>v);
+  const ctx=document.getElementById('chart-top-visitantes').getContext('2d');
+  _charts['top-visitantes']=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{
+        label:'Visitas',data,
+        backgroundColor:STATS_COLORS.lila,borderColor:STATS_COLORS.lilaB,
+        borderWidth:2,borderRadius:5
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      ...CHART_BASE_OPTS,
+      scales:{
+        x:{beginAtZero:true,ticks:{stepSize:1,color:'#2a4a2a'},grid:{color:'rgba(0,0,0,.06)'}},
+        y:{ticks:{color:'#2a4a2a',font:{size:11}},grid:{display:false}}
+      },
+      plugins:{...CHART_BASE_OPTS.plugins,legend:{display:false}}
+    }
+  });
+}
+
+/* ── Tabla top visitantes ── */
+function _renderTablaTopVisitantes(ing){
+  const conteo={},nombres={},ultimas={};
+  ing.forEach(i=>{
+    conteo[i.dni]=(conteo[i.dni]||0)+1;
+    if(i.nombre&&i.nombre.trim())nombres[i.dni]=i.nombre.trim();
+    const dt=i.isoFecha+i.hora;
+    if(!ultimas[i.dni]||dt>ultimas[i.dni])ultimas[i.dni]=dt;
+  });
+  const top=Object.entries(conteo).sort((a,b)=>b[1]-a[1]).slice(0,20);
+  const tbody=document.querySelector('#tabla-top-visitantes tbody');
+  tbody.innerHTML='';
+  if(!top.length){tbody.innerHTML='<tr><td colspan="5" class="stats-empty">Sin datos en el período</td></tr>';return;}
+  top.forEach(([dni,cant],idx)=>{
+    const ult=ultimas[dni]?isoToDdmm(ultimas[dni].slice(0,10)):'—';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><strong style="color:${idx===0?'#c8a84b':idx===1?'#888':idx===2?'#b87333':'#444'}">${idx+1}${idx===0?' 🥇':idx===1?' 🥈':idx===2?' 🥉':''}</strong></td>
+      <td>${dni}</td><td>${nombres[dni]||'—'}</td>
+      <td><strong style="color:var(--verde-logo)">${cant}</strong></td><td>${ult}</td>`;
+    tbody.appendChild(tr);
+  });
 }
 
 /* ══ INIT ══ */
