@@ -55,17 +55,21 @@
     #bloqueo-overlay{display:none}
     table{width:100%;border-collapse:collapse;margin-top:8px}
     th,td{padding:6px 8px;border-bottom:1px solid #244}
-  </style>
+  
+  .thumb{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--dorado);cursor:zoom-in;background:#000}
+  #img-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:1000}
+  #img-modal img{max-width:90vw;max-height:90vh;border:3px solid var(--dorado);border-radius:10px}
+</style>
 </head>
 <body>
   <header>
     <h1>Gestión de Ingreso</h1>
     <div class="row">
       <div class="chip" id="reloj">--:--:--</div>
-      <div class="chip" id="fuente-hora">⏱️ Usando hora local del dispositivo</div>
+      
       <div class="chip" id="sync-badge">☁️ Sync: Local</div>
     </div>
-    <div class="sub">Versión sin bloqueo (inspector opcional) + cámara obligatoria para fotos</div>
+    
   </header>
 
   <nav>
@@ -168,12 +172,20 @@
 
     <!-- Sección Consulta -->
     <section id="sec-consulta" class="card" style="display:none">
-      <h2>Consulta (simple)</h2>
+      <h2>Consulta</h2>
       <div class="form-row">
         <label>Identificador (DNI o N° socio)
           <input type="text" id="consulta-id" onkeydown="if(event.key==='Enter')consulta()">
         </label>
       </div>
+  <div class="form-row" id="consulta-fechas">
+    <label>Desde (dd/mm/yyyy)
+      <input type="text" id="consulta-desde" placeholder="dd/mm/yyyy" oninput="mascaraFecha(this)" onkeydown="if(event.key==='Enter')consulta()">
+    </label>
+    <label>Hasta (dd/mm/yyyy)
+      <input type="text" id="consulta-hasta" placeholder="dd/mm/yyyy" oninput="mascaraFecha(this)" onkeydown="if(event.key==='Enter')consulta()">
+    </label>
+  </div>
       <div class="grupo-botones" style="margin-top:8px">
         <button class="btn" onclick="consulta()">Buscar</button>
       </div>
@@ -520,10 +532,7 @@
   }
 
   // ===================== CONSULTA / ESTADÍSTICAS (simple) =====================
-  function consulta(){
-    const id=(document.getElementById('consulta-id').value||'').trim();
-    if(!id){ document.getElementById('consulta-res').textContent='Ingresá un identificador.'; return; }
-    const ing=cargarDatos(KEYS.ingresos).filter(x=>x.dni===id);
+      const ing=cargarDatos(KEYS.ingresos).filter(x=>x.dni===id);
     document.getElementById('consulta-res').innerHTML = ing.length
       ? ('Últimos '+ing.length+' registros:<br>'+ing.map(x=>`• ${x.fecha} ${x.hora} – ${x.nombre||'—'} (${x.tipo})`).join('<br>'))
       : 'Sin registros.';
@@ -533,7 +542,93 @@
     document.getElementById('stats-res').textContent = `Registros locales: ${ing.length}`;
   }
 
-  // ===================== BACKUP =====================
+  
+// ===================== CONSULTA (con rango de fechas y fotos ampliables) =====================
+function mascaraFecha(input){
+  let v = (input.value||'').replace(/\D/g,'').slice(0,8);
+  let out = '';
+  if(v.length>=2){ out += v.slice(0,2); }
+  if(v.length>=3){ out += '/' + v.slice(2,4); }
+  if(v.length>=5){ out += '/' + v.slice(4,8); }
+  input.value = out;
+}
+function parseDDMMYYYY(s){
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s||'');
+  if(!m) return null;
+  const dd=+m[1], mm=+m[2], yyyy=+m[3];
+  const dt=new Date(yyyy, mm-1, dd);
+  if(dt.getFullYear()!==yyyy || dt.getMonth()!==mm-1 || dt.getDate()!==dd) return null;
+  return dt.toISOString().slice(0,10);
+}
+function toISO(fechaDDMMYYYY){
+  if(!fechaDDMMYYYY) return '0001-01-01';
+  const p = fechaDDMMYYYY.split('/');
+  if(p.length!==3) return '0001-01-01';
+  const dd=+p[0], mm=+p[1], yyyy=+p[2];
+  const d=new Date(yyyy,mm-1,dd);
+  return d.toISOString().slice(0,10);
+}
+function abrirImgModal(src){
+  const m=document.getElementById('img-modal');
+  const i=document.getElementById('img-modal-img');
+  i.src=src; m.style.display='flex';
+}
+function cerrarImgModal(){
+  const m=document.getElementById('img-modal');
+  if(m) m.style.display='none';
+}
+function limpiarConsulta(){
+  ['consulta-id','consulta-desde','consulta-hasta'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+  const res=document.getElementById('consulta-res');
+  res.className='alerta'; res.innerHTML='';
+  const wrap=document.getElementById('consulta-tabla-wrap'); if(wrap) wrap.style.display='none';
+  const tbody=document.querySelector('#consulta-tabla tbody'); if(tbody) tbody.innerHTML='';
+}
+function consulta(){
+  const id=(document.getElementById('consulta-id').value||'').trim();
+  const desdeStr=(document.getElementById('consulta-desde').value||'').trim();
+  const hastaStr=(document.getElementById('consulta-hasta').value||'').trim();
+  const res=document.getElementById('consulta-res');
+  const wrap=document.getElementById('consulta-tabla-wrap');
+  const tbody=document.querySelector('#consulta-tabla tbody');
+  res.className='alerta'; res.innerHTML='';
+  wrap.style.display='none'; tbody.innerHTML='';
+  const ing=cargarDatos(KEYS.ingresos);
+  if(!id && !desdeStr && !hastaStr){
+    res.classList.add('warn'); res.innerHTML='⚠️ Ingresá un identificador y/o un rango de fechas.'; return;
+  }
+  let isoDesde = desdeStr? parseDDMMYYYY(desdeStr): null;
+  let isoHasta = hastaStr? parseDDMMYYYY(hastaStr): null;
+  if(desdeStr && !isoDesde){ res.classList.add('error'); res.innerHTML='❌ Fecha "Desde" inválida. Usá dd/mm/yyyy.'; return; }
+  if(hastaStr && !isoHasta){ res.classList.add('error'); res.innerHTML='❌ Fecha "Hasta" inválida. Usá dd/mm/yyyy.'; return; }
+  if(isoDesde && !isoHasta) isoHasta = '9999-12-31';
+  if(!isoDesde && isoHasta) isoDesde = '0001-01-01';
+  let filas = ing.filter(x=>{
+    const okId = id? x.dni===id : true;
+    const f = x.isoFecha || toISO(x.fecha);
+    const okFecha = (isoDesde? f>=isoDesde : true) && (isoHasta? f<=isoHasta : true);
+    return okId && okFecha;
+  });
+  filas.sort((a,b)=>{
+    const ka=(a.isoFecha||toISO(a.fecha))+' '+(a.hora||'00:00:00');
+    const kb=(b.isoFecha||toISO(b.fecha))+' '+(b.hora||'00:00:00');
+    return kb.localeCompare(ka);
+  });
+  if(!filas.length){
+    res.classList.add('warn'); res.innerHTML='😕 Sin registros para los filtros aplicados.'; return;
+  }
+  wrap.style.display='block';
+  filas.forEach((x,i)=>{
+    const tr=document.createElement('tr');
+    const foto=getFoto(x.dni);
+    const fotoCell = foto ? `'<img class="thumb" src="${foto}" alt="Foto" onclick="abrirImgModal(\'${foto.replace(/'/g,"&#39;\)}\')">'` : `'—'`;
+    tr.innerHTML = `<td>${i+1}</td><td>${x.fecha||'—'}</td><td>${x.hora||'—'}</td><td>${x.dni}</td><td>${x.nombre||'—'}</td><td>${x.tipo||'—'}</td><td>${foto?`<img class="thumb" src="${foto}" alt="Foto" onclick="abrirImgModal('${foto.replace(/'/g,"&#39;")}')">`:'—'}</td>`;
+    tbody.appendChild(tr);
+  });
+  res.classList.add('ok');
+  res.innerHTML=`✅ ${filas.length} registro(s) encontrado(s).` + (id? ` ID: <strong>${id}</strong>.`: '');
+}
+// ===================== BACKUP =====================
   function exportarJSON(){
     const data={
       ingresos: cargarDatos(KEYS.ingresos),
@@ -621,5 +716,7 @@
     finalizarInit(); // SIEMPRE habilita la UI
   })();
   </script>
+
+<div id="img-modal" onclick="cerrarImgModal()"><img id="img-modal-img" alt="Foto"/></div>
 </body>
 </html>
