@@ -190,6 +190,8 @@
     .pass-box input:focus{outline:none;border-color:var(--verde-logo);}
     .pass-box .pass-btns{display:flex;gap:10px;justify-content:center;}
     .autocomplete-hint{font-size:.72rem;color:#2a6a2a;font-style:italic;margin-top:2px;min-height:1em;display:block;}
+
+    /* ══ ESTADÍSTICAS ══ */
     .stats-kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:20px;}
     .kpi-card{background:linear-gradient(135deg,#fff,#f5f0e8);border:2px solid var(--dorado);border-radius:10px;padding:16px 14px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.12);}
     .kpi-card .kpi-num{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;line-height:1.1;margin-bottom:4px;}
@@ -217,6 +219,7 @@
       .chart-card-full{grid-column:1;}
       .stats-kpi-grid{grid-template-columns:repeat(2,1fr);}
     }
+
     @media(max-width:600px){
       header h1{font-size:1.15rem;}
       .form-row{flex-direction:column;}
@@ -511,8 +514,9 @@
     </div>
   </section>
 
-  <!-- ESTADÍSTICAS -->
+  <!-- ══ ESTADÍSTICAS ══ -->
   <section id="sec-estadisticas" class="seccion">
+    <!-- Filtro de fechas -->
     <div class="card">
       <h2>📊 Estadísticas del Club</h2>
       <div class="form-row" style="align-items:flex-end;">
@@ -524,37 +528,91 @@
           <input type="text" id="stats-hasta" placeholder="dd/mm/aaaa" maxlength="10"
                  oninput="formatearFechaInput('stats-hasta')"/>
         </label>
-        <label style="min-width:0;flex:0 0 auto;">&nbsp;
+        <label style="min-width:0;flex:0 0 auto;">
+          &nbsp;
           <button class="btn btn-primary" onclick="generarEstadisticas()">📊 Generar</button>
         </label>
-        <label style="min-width:0;flex:0 0 auto;">&nbsp;
+        <label style="min-width:0;flex:0 0 auto;">
+          &nbsp;
           <button class="btn btn-secondary btn-sm" onclick="statsSetHoy()">📅 Hoy</button>
         </label>
-        <label style="min-width:0;flex:0 0 auto;">&nbsp;
+        <label style="min-width:0;flex:0 0 auto;">
+          &nbsp;
           <button class="btn btn-secondary btn-sm" onclick="statsSet7dias()">📅 7 días</button>
         </label>
-        <label style="min-width:0;flex:0 0 auto;">&nbsp;
+        <label style="min-width:0;flex:0 0 auto;">
+          &nbsp;
           <button class="btn btn-secondary btn-sm" onclick="statsSet30dias()">📅 30 días</button>
         </label>
       </div>
       <div id="alerta-stats" class="alerta"></div>
     </div>
+
+    <!-- KPIs -->
     <div id="stats-kpi-wrap" style="display:none;">
       <div class="stats-kpi-grid">
-        <div class="kpi-card kpi-ing"><div class="kpi-num" id="kpi-ingresos">0</div><div class="kpi-lbl">🚪 Ingresos</div><div class="kpi-sub" id="kpi-ingresos-sub">en el período</div></div>
-        <div class="kpi-card kpi-aperc"><div class="kpi-num" id="kpi-aperc">0</div><div class="kpi-lbl">⚠️ Apercibamientos</div><div class="kpi-sub" id="kpi-aperc-sub">en el período</div></div>
-        <div class="kpi-card kpi-susp"><div class="kpi-num" id="kpi-susp">0</div><div class="kpi-lbl">🚫 Suspensiones</div><div class="kpi-sub" id="kpi-susp-sub">en el período</div></div>
-        <div class="kpi-card kpi-dni"><div class="kpi-num" id="kpi-dni">0</div><div class="kpi-lbl">👤 DNI únicos</div><div class="kpi-sub">visitantes distintos</div></div>
-        <div class="kpi-card kpi-dia"><div class="kpi-num" id="kpi-pico-dia">—</div><div class="kpi-lbl">📅 Día pico</div><div class="kpi-sub" id="kpi-pico-dia-cant"></div></div>
-        <div class="kpi-card kpi-hora"><div class="kpi-num" id="kpi-pico-hora">—</div><div class="kpi-lbl">🕐 Hora pico</div><div class="kpi-sub" id="kpi-pico-hora-cant"></div></div>
+        <div class="kpi-card kpi-ing">
+          <div class="kpi-num" id="kpi-ingresos">0</div>
+          <div class="kpi-lbl">🚪 Ingresos</div>
+          <div class="kpi-sub" id="kpi-ingresos-sub">en el período</div>
+        </div>
+        <div class="kpi-card kpi-aperc">
+          <div class="kpi-num" id="kpi-aperc">0</div>
+          <div class="kpi-lbl">⚠️ Apercibamientos</div>
+          <div class="kpi-sub" id="kpi-aperc-sub">en el período</div>
+        </div>
+        <div class="kpi-card kpi-susp">
+          <div class="kpi-num" id="kpi-susp">0</div>
+          <div class="kpi-lbl">🚫 Suspensiones</div>
+          <div class="kpi-sub" id="kpi-susp-sub">en el período</div>
+        </div>
+        <div class="kpi-card kpi-dni">
+          <div class="kpi-num" id="kpi-dni">0</div>
+          <div class="kpi-lbl">👤 DNI únicos</div>
+          <div class="kpi-sub">visitantes distintos</div>
+        </div>
+        <div class="kpi-card kpi-dia">
+          <div class="kpi-num" id="kpi-pico-dia">—</div>
+          <div class="kpi-lbl">📅 Día pico</div>
+          <div class="kpi-sub" id="kpi-pico-dia-cant"></div>
+        </div>
+        <div class="kpi-card kpi-hora">
+          <div class="kpi-num" id="kpi-pico-hora">—</div>
+          <div class="kpi-lbl">🕐 Hora pico</div>
+          <div class="kpi-sub" id="kpi-pico-hora-cant"></div>
+        </div>
       </div>
+
+      <!-- Gráficos -->
       <div class="charts-grid">
-        <div class="chart-card chart-card-full"><h3>📅 Ingresos por día</h3><canvas id="chart-por-dia"></canvas></div>
-        <div class="chart-card"><h3>🕐 Ingresos por hora del día</h3><canvas id="chart-por-hora"></canvas></div>
-        <div class="chart-card"><h3>🍕 Distribución de eventos</h3><canvas id="chart-distribucion"></canvas></div>
-        <div class="chart-card"><h3>📆 Ingresos por día de semana</h3><canvas id="chart-semana"></canvas></div>
-        <div class="chart-card"><h3>🏆 Top 10 visitantes frecuentes</h3><canvas id="chart-top-visitantes"></canvas></div>
+        <!-- Ingresos por día -->
+        <div class="chart-card chart-card-full">
+          <h3>📅 Ingresos por día</h3>
+          <canvas id="chart-por-dia"></canvas>
+        </div>
+        <!-- Ingresos por hora del día -->
+        <div class="chart-card">
+          <h3>🕐 Ingresos por hora del día</h3>
+          <canvas id="chart-por-hora"></canvas>
+        </div>
+        <!-- Distribución: ingresos / apercibamientos / suspensiones -->
+        <div class="chart-card">
+          <h3>🍕 Distribución de eventos</h3>
+          <canvas id="chart-distribucion"></canvas>
+        </div>
+        <!-- Ingresos por día de semana -->
+        <div class="chart-card">
+          <h3>📆 Ingresos por día de semana</h3>
+          <canvas id="chart-semana"></canvas>
+        </div>
+        <!-- Top visitantes frecuentes -->
+        <div class="chart-card">
+          <h3>🏆 Top 10 visitantes frecuentes</h3>
+          <canvas id="chart-top-visitantes"></canvas>
+        </div>
       </div>
+
+      <!-- Tabla top visitantes -->
       <div class="card">
         <h2>🏆 Ranking de Visitantes Frecuentes</h2>
         <div class="tabla-wrap">
@@ -565,6 +623,7 @@
         </div>
       </div>
     </div>
+
     <div id="stats-vacio" class="card" style="text-align:center;color:#8aaa8a;padding:32px;">
       <div style="font-size:2.5rem;margin-bottom:10px;">📊</div>
       <div style="font-family:'Oswald',sans-serif;font-size:1.1rem;color:#4a6a4a;">Seleccioná un rango de fechas y presioná <strong>Generar</strong></div>
@@ -635,7 +694,7 @@
       <h2>💾 Backup XML Local</h2>
       <p style="font-size:.9rem;color:#4a6a4a;margin-bottom:14px;">Descargá una copia local de todos los datos en formato <strong>.xml</strong>. Se requiere contraseña.</p>
       <div class="backup-row">
-        <button class="btn btn-success" onclick="pedirPass('descargar')">⬇️ Descargar XML</button>
+        <button class="btn btn-success" onclick="pedirPassBackup('descargar')">⬇️ Descargar XML</button>
       </div>
       <div id="alerta-backup-gen" class="alerta"></div>
     </div>
@@ -644,7 +703,7 @@
       <p style="font-size:.9rem;color:#4a6a4a;margin-bottom:14px;"><strong style="color:var(--rojo);">⚠️ Esto reemplazará TODOS los datos actuales.</strong> Se requiere contraseña.</p>
       <div class="backup-row">
         <input type="file" id="archivo-bak" accept=".xml" style="padding:6px;border:1.5px solid #8aaa8a;border-radius:6px;background:#fff;color:var(--texto-oscuro)"/>
-        <button class="btn btn-warning" onclick="pedirPass('restaurar')">⬆️ Restaurar Backup</button>
+        <button class="btn btn-warning" onclick="pedirPassBackup('restaurar')">⬆️ Restaurar Backup</button>
       </div>
       <div id="alerta-backup-rest" class="alerta"></div>
     </div>
@@ -666,7 +725,7 @@
   </div>
 </div>
 
-<!-- MODAL CIERRE TURNO — CAMBIO: onclick="pedirPass('insp_desactivar')" -->
+<!-- MODAL CIERRE TURNO -->
 <div class="modal-overlay" id="modal-cierre">
   <div class="modal-box" style="max-width:500px;">
     <h3>📋 Resumen de Turno – <span id="mc-inspector-nombre"></span></h3>
@@ -675,7 +734,7 @@
     <div id="alerta-modal-cierre" class="alerta"></div>
     <div class="modal-acciones">
       <button class="btn btn-secondary" onclick="cerrarModalCierre()">✖ Cancelar</button>
-      <button class="btn btn-danger" onclick="pedirPass('insp_desactivar')">✖ Desactivar y Enviar</button>
+      <button class="btn btn-danger" onclick="confirmarDesactivar()">✖ Desactivar y Enviar</button>
     </div>
   </div>
 </div>
@@ -718,12 +777,13 @@ const BACKUP_PASS='gustavopeje';
 let offsetMs=0,_editInspId=null,_inspDesact=null;
 let _syncEnCurso=false,_ultimoSyncTs=null,_pendingPassAction=null;
 
-/* ══ CHART.JS INSTANCES ══ */
+/* ══ CHART.JS INSTANCES (para destroy/recrear) ══ */
 const _charts={};
 function _destroyChart(id){if(_charts[id]){_charts[id].destroy();delete _charts[id];}}
 
 /* ══ ZOOM MODAL ══ */
 let _zoomScale=1,_zoomX=0,_zoomY=0,_zoomDragging=false,_zoomLastX=0,_zoomLastY=0;
+
 function _applyZoomTransform(){
   const img=document.getElementById('modal-foto-img');
   img.style.transform=`translate(${_zoomX}px,${_zoomY}px) scale(${_zoomScale})`;
@@ -734,7 +794,8 @@ function zoomFoto(delta){
   const cont=document.getElementById('modal-foto-container');
   const cx=cont.offsetWidth/2,cy=cont.offsetHeight/2;
   const ns=Math.min(8,Math.max(0.5,_zoomScale+delta));
-  _zoomX=cx-(cx-_zoomX)*(ns/_zoomScale);_zoomY=cy-(cy-_zoomY)*(ns/_zoomScale);
+  _zoomX=cx-(cx-_zoomX)*(ns/_zoomScale);
+  _zoomY=cy-(cy-_zoomY)*(ns/_zoomScale);
   _zoomScale=ns;_applyZoomTransform();
 }
 function resetZoomFoto(){_zoomScale=1;_zoomX=0;_zoomY=0;_applyZoomTransform();}
@@ -845,59 +906,32 @@ function onDniIngresoChange(){
   }
 }
 
-/* ══ PASSWORD MODAL – función unificada (backup + inspectores) ══ */
-function pedirPass(accion, payload){
-  _pendingPassAction={ tipo: accion, payload: payload !== undefined ? payload : null };
-  const titulos={
-    descargar:       '🔒 Contraseña para descargar',
-    restaurar:       '🔒 Contraseña para restaurar',
-    insp_guardar:    '🔒 Contraseña para agregar inspector',
-    insp_editar:     '🔒 Contraseña para guardar cambios',
-    insp_eliminar:   '🔒 Contraseña para eliminar inspector',
-    insp_desactivar: '🔒 Contraseña para desactivar inspector'
-  };
-  const subs={
-    descargar:       'Ingresá la contraseña para descargar el backup XML.',
-    restaurar:       'Ingresá la contraseña para restaurar el backup XML.',
-    insp_guardar:    'Ingresá la contraseña para registrar un nuevo inspector.',
-    insp_editar:     'Ingresá la contraseña para guardar los cambios del inspector.',
-    insp_eliminar:   'Ingresá la contraseña para eliminar este inspector.',
-    insp_desactivar: 'Ingresá la contraseña para desactivar el inspector de turno.'
-  };
-  document.getElementById('pass-titulo').textContent    = titulos[accion]||'🔒 Contraseña requerida';
-  document.getElementById('pass-subtitulo').textContent = subs[accion]   ||'Ingresá la contraseña para continuar.';
+/* ══ PASSWORD MODAL ══ */
+function pedirPassBackup(accion){
+  _pendingPassAction=accion;
+  const titulos={descargar:'🔒 Contraseña para descargar',restaurar:'🔒 Contraseña para restaurar'};
+  const subs={descargar:'Ingresá la contraseña para descargar el backup XML.',restaurar:'Ingresá la contraseña para restaurar el backup XML.'};
+  document.getElementById('pass-titulo').textContent=titulos[accion]||'🔒 Contraseña requerida';
+  document.getElementById('pass-subtitulo').textContent=subs[accion]||'Ingresá la contraseña para continuar.';
   document.getElementById('pass-input').value='';
   const a=document.getElementById('alerta-pass');a.className='alerta';a.textContent='';
   document.getElementById('modal-pass').style.display='flex';
   setTimeout(()=>document.getElementById('pass-input').focus(),120);
 }
-/* Alias para compatibilidad con llamadas existentes */
-function pedirPassBackup(accion){ pedirPass(accion); }
-
 function cerrarModalPass(){
   document.getElementById('modal-pass').style.display='none';
   _pendingPassAction=null;
   document.getElementById('pass-input').value='';
   const a=document.getElementById('alerta-pass');a.className='alerta';a.textContent='';
 }
-
 function confirmarPass(){
   if(document.getElementById('pass-input').value!==BACKUP_PASS){
     const el=document.getElementById('alerta-pass');
     el.className='alerta show alerta-error';el.textContent='❌ Contraseña incorrecta.';
     document.getElementById('pass-input').value='';document.getElementById('pass-input').focus();return;
   }
-  const accion  = _pendingPassAction?.tipo  ?? _pendingPassAction;
-  const payload = _pendingPassAction?.payload ?? null;
-  cerrarModalPass();
-  setTimeout(()=>{
-    if     (accion==='descargar')        generarBackup();
-    else if(accion==='restaurar')        restaurarBackup();
-    else if(accion==='insp_guardar')     _ejecutarGuardarInspector();
-    else if(accion==='insp_editar')      _ejecutarGuardarModalInspector();
-    else if(accion==='insp_eliminar')    _ejecutarEliminarInspector(payload);
-    else if(accion==='insp_desactivar')  _ejecutarDesactivarInspector();
-  },150);
+  const accion=_pendingPassAction;cerrarModalPass();
+  setTimeout(()=>{if(accion==='descargar')generarBackup();else if(accion==='restaurar')restaurarBackup();},150);
 }
 
 /* ══ TOKEN ══ */
@@ -1277,98 +1311,7 @@ function desactivarInspector(){
   document.getElementById('modal-cierre').classList.add('show');
 }
 function cerrarModalCierre(){document.getElementById('modal-cierre').classList.remove('show');_inspDesact=null;}
-
-/* ══ ABM INSPECTORES ══ */
-
-/* ── Agregar: valida primero, luego pide contraseña ── */
-function guardarInspector(){
-  const nombre=document.getElementById('insp-nombre').value.trim();
-  if(!nombre){mostrarAlerta('alerta-insp','error','Ingresá el nombre del inspector.');return;}
-  const lista=cargarDatos(KEYS.inspectores);
-  if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase())){
-    mostrarAlerta('alerta-insp','error','Ya existe un inspector con ese nombre.');return;
-  }
-  pedirPass('insp_guardar');
-}
-async function _ejecutarGuardarInspector(){
-  const nombre=document.getElementById('insp-nombre').value.trim();
-  const tel=document.getElementById('insp-tel').value.trim();
-  const obs=document.getElementById('insp-obs').value.trim();
-  if(!nombre){mostrarAlerta('alerta-insp','error','Ingresá el nombre del inspector.');return;}
-  const lista=cargarDatos(KEYS.inspectores);
-  if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase())){
-    mostrarAlerta('alerta-insp','error','Ya existe un inspector con ese nombre.');return;
-  }
-  lista.push({id:Date.now(),nombre,tel,obs});
-  guardarDatos(KEYS.inspectores,lista);
-  mostrarAlerta('alerta-insp','info','⏳ Guardando...');
-  const res=await guardarEnGitHub(false);
-  if(res.ok)mostrarAlerta('alerta-insp','ok',`✅ Inspector <strong>${nombre}</strong> registrado.`);
-  else mostrarAlerta('alerta-insp','warn',`⚠️ Guardado localmente. Error sync: ${res.error||''}`);
-  ['insp-nombre','insp-tel','insp-obs'].forEach(id=>{document.getElementById(id).value='';});
-  renderInspectores();
-}
-
-/* ── Editar: abre modal ── */
-function editarInspector(id){
-  const insp=cargarDatos(KEYS.inspectores).find(i=>i.id===id);if(!insp)return;
-  _editInspId=id;
-  document.getElementById('m-insp-nombre').value=insp.nombre;
-  document.getElementById('m-insp-tel').value=insp.tel||'';
-  document.getElementById('m-insp-obs').value=insp.obs||'';
-  document.getElementById('alerta-modal-insp').className='alerta';
-  document.getElementById('modal-insp').classList.add('show');
-}
-function cerrarModalInspector(){document.getElementById('modal-insp').classList.remove('show');_editInspId=null;}
-
-/* ── Guardar edición: valida primero, luego pide contraseña ── */
-function guardarModalInspector(){
-  const nombre=document.getElementById('m-insp-nombre').value.trim();
-  if(!nombre){mostrarAlerta('alerta-modal-insp','error','Ingresá el nombre.');return;}
-  const lista=cargarDatos(KEYS.inspectores);
-  if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase()&&i.id!==_editInspId)){
-    mostrarAlerta('alerta-modal-insp','error','Ya existe ese nombre.');return;
-  }
-  pedirPass('insp_editar');
-}
-async function _ejecutarGuardarModalInspector(){
-  const nombre=document.getElementById('m-insp-nombre').value.trim();
-  const tel=document.getElementById('m-insp-tel').value.trim();
-  const obs=document.getElementById('m-insp-obs').value.trim();
-  if(!nombre){mostrarAlerta('alerta-modal-insp','error','Ingresá el nombre.');return;}
-  const lista=cargarDatos(KEYS.inspectores);
-  if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase()&&i.id!==_editInspId)){
-    mostrarAlerta('alerta-modal-insp','error','Ya existe ese nombre.');return;
-  }
-  const idx=lista.findIndex(i=>i.id===_editInspId);if(idx===-1){cerrarModalInspector();return;}
-  lista[idx]={...lista[idx],nombre,tel,obs};
-  guardarDatos(KEYS.inspectores,lista);
-  await guardarEnGitHub(false);
-  cerrarModalInspector();
-  actualizarUIInspectorActivo();
-  renderInspectores();
-  mostrarAlerta('alerta-insp','ok','✅ Inspector actualizado.');
-}
-
-/* ── Eliminar: confirm + contraseña ── */
-function eliminarInspector(id){
-  const insp=cargarDatos(KEYS.inspectores).find(i=>i.id===id);if(!insp)return;
-  if(!confirm(`¿Eliminar al inspector "${insp.nombre}"?`))return;
-  pedirPass('insp_eliminar', id);
-}
-async function _ejecutarEliminarInspector(id){
-  if(!id)return;
-  if(cargarItem(KEYS.inspActivo)===String(id)){
-    localStorage.removeItem(KEYS.inspActivo);localStorage.removeItem(KEYS.turnoInicio);
-  }
-  guardarDatos(KEYS.inspectores,cargarDatos(KEYS.inspectores).filter(i=>i.id!==id));
-  await guardarEnGitHub(false);
-  actualizarUIInspectorActivo();actualizarEstadoBloqueo();renderInspectores();
-  mostrarAlerta('alerta-insp','warn','⚠️ Inspector eliminado.');
-}
-
-/* ── Desactivar inspector (cierre de turno) ── */
-async function _ejecutarDesactivarInspector(){
+async function confirmarDesactivar(){
   if(!_inspDesact)return;
   const insp=_inspDesact,turno=insp._turno,now=ahoraReal();
   const xml=generarXMLTurno(insp,turno,now);
@@ -1379,34 +1322,10 @@ async function _ejecutarDesactivarInspector(){
   mostrarAlerta('alerta-modal-cierre','info','⏳ Sincronizando cierre...');
   await guardarEnGitHub(false);
   actualizarUIInspectorActivo();actualizarEstadoBloqueo();renderInspectores();
-  cerrarModalCierre();
-  document.getElementById('banner-activar').style.display='block';
+  cerrarModalCierre();document.getElementById('banner-activar').style.display='block';
   _navegarSeccion('inspectores',document.getElementById('btn-nav-inspectores'));
   setTimeout(()=>window.open(`https://wa.me/${WA_NUMERO}?text=${encodeURIComponent(armarMensajeWA(insp,turno))}`,'_blank'),800);
 }
-
-function renderInspectores(){
-  const lista=cargarDatos(KEYS.inspectores),actId=cargarItem(KEYS.inspActivo);
-  const grid=document.getElementById('insp-grid'),vacio=document.getElementById('insp-vacio');
-  grid.innerHTML='';
-  if(!lista.length){vacio.style.display='block';grid.style.display='none';return;}
-  vacio.style.display='none';grid.style.display='grid';
-  lista.forEach(insp=>{
-    const esAct=String(insp.id)===String(actId);
-    const card=document.createElement('div');card.className='insp-card'+(esAct?' activo':'');
-    card.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
-      <div><div class="ic-nombre">👮 ${insp.nombre}</div>${insp.tel?`<div class="ic-sub">📞 ${insp.tel}</div>`:''}${insp.obs?`<div class="ic-sub">📝 ${insp.obs}</div>`:''}</div>
-      ${esAct?'<span class="badge badge-dorado">✅ ACTIVO</span>':''}
-    </div>
-    <div class="ic-acciones">
-      ${!esAct?`<button class="btn btn-gold btn-sm" onclick="activarInspector(${insp.id})">⚡ Activar</button>`:`<button class="btn btn-secondary btn-sm" onclick="desactivarInspector()">✖ Desactivar</button>`}
-      <button class="btn btn-warning btn-sm" onclick="editarInspector(${insp.id})">✏️ Editar</button>
-      <button class="btn btn-danger btn-sm" onclick="eliminarInspector(${insp.id})">🗑️ Eliminar</button>
-    </div>`;
-    grid.appendChild(card);
-  });
-}
-
 function generarXMLTurno(insp,turno,now){
   const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   let x=`<?xml version="1.0" encoding="UTF-8"?>\n<TurnoPCQ>\n  <MetaData>\n    <Inspector>${esc(insp.nombre)}</Inspector>\n    <Inicio>${esc(turno.inicio)}</Inicio>\n    <Fin>${esc(turno.fin)}</Fin>\n    <TotalIngresos>${turno.ingresos.length}</TotalIngresos>\n    <TotalApercibamientos>${turno.apercibimientos.length}</TotalApercibamientos>\n    <TotalSuspensiones>${turno.suspensiones.length}</TotalSuspensiones>\n    <TotalVencidos>${turno.vencidos.length}</TotalVencidos>\n  </MetaData>\n  <Ingresos>\n`;
@@ -1429,6 +1348,74 @@ function armarMensajeWA(insp,turno){
   m+=`──────────────────\n⏰ Vencidos: *${turno.vencidos.length}*\n`;
   turno.vencidos.forEach(i=>{const ms=ahoraReal().getTime()-parseFechaHora(i.fecha,i.hora).getTime();m+=`  • DNI ${i.dni}${i.nombre?' ('+i.nombre+')':''} – hace ${tiempoTranscurrido(ms)}\n`;});
   return m+`──────────────────\n✅ Turno cerrado.`;
+}
+
+/* ══ ABM INSPECTORES ══ */
+async function guardarInspector(){
+  const nombre=document.getElementById('insp-nombre').value.trim();
+  const tel=document.getElementById('insp-tel').value.trim();
+  const obs=document.getElementById('insp-obs').value.trim();
+  if(!nombre){mostrarAlerta('alerta-insp','error','Ingresá el nombre del inspector.');return;}
+  const lista=cargarDatos(KEYS.inspectores);
+  if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase())){mostrarAlerta('alerta-insp','error','Ya existe un inspector con ese nombre.');return;}
+  lista.push({id:Date.now(),nombre,tel,obs});guardarDatos(KEYS.inspectores,lista);
+  mostrarAlerta('alerta-insp','info','⏳ Guardando...');
+  const res=await guardarEnGitHub(false);
+  if(res.ok)mostrarAlerta('alerta-insp','ok',`✅ Inspector <strong>${nombre}</strong> registrado.`);
+  else mostrarAlerta('alerta-insp','warn',`⚠️ Guardado localmente. Error sync: ${res.error||''}`);
+  ['insp-nombre','insp-tel','insp-obs'].forEach(id=>{document.getElementById(id).value='';});
+  renderInspectores();
+}
+function editarInspector(id){
+  const insp=cargarDatos(KEYS.inspectores).find(i=>i.id===id);if(!insp)return;
+  _editInspId=id;
+  document.getElementById('m-insp-nombre').value=insp.nombre;
+  document.getElementById('m-insp-tel').value=insp.tel||'';
+  document.getElementById('m-insp-obs').value=insp.obs||'';
+  document.getElementById('alerta-modal-insp').className='alerta';
+  document.getElementById('modal-insp').classList.add('show');
+}
+function cerrarModalInspector(){document.getElementById('modal-insp').classList.remove('show');_editInspId=null;}
+async function guardarModalInspector(){
+  const nombre=document.getElementById('m-insp-nombre').value.trim();
+  const tel=document.getElementById('m-insp-tel').value.trim();
+  const obs=document.getElementById('m-insp-obs').value.trim();
+  if(!nombre){mostrarAlerta('alerta-modal-insp','error','Ingresá el nombre.');return;}
+  const lista=cargarDatos(KEYS.inspectores);
+  if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase()&&i.id!==_editInspId)){mostrarAlerta('alerta-modal-insp','error','Ya existe ese nombre.');return;}
+  const idx=lista.findIndex(i=>i.id===_editInspId);if(idx===-1){cerrarModalInspector();return;}
+  lista[idx]={...lista[idx],nombre,tel,obs};guardarDatos(KEYS.inspectores,lista);
+  await guardarEnGitHub(false);cerrarModalInspector();actualizarUIInspectorActivo();renderInspectores();
+  mostrarAlerta('alerta-insp','ok','✅ Inspector actualizado.');
+}
+async function eliminarInspector(id){
+  const insp=cargarDatos(KEYS.inspectores).find(i=>i.id===id);if(!insp)return;
+  if(!confirm(`¿Eliminar al inspector "${insp.nombre}"?`))return;
+  if(cargarItem(KEYS.inspActivo)===String(id)){localStorage.removeItem(KEYS.inspActivo);localStorage.removeItem(KEYS.turnoInicio);}
+  guardarDatos(KEYS.inspectores,cargarDatos(KEYS.inspectores).filter(i=>i.id!==id));
+  await guardarEnGitHub(false);actualizarUIInspectorActivo();actualizarEstadoBloqueo();renderInspectores();
+  mostrarAlerta('alerta-insp','warn','⚠️ Inspector eliminado.');
+}
+function renderInspectores(){
+  const lista=cargarDatos(KEYS.inspectores),actId=cargarItem(KEYS.inspActivo);
+  const grid=document.getElementById('insp-grid'),vacio=document.getElementById('insp-vacio');
+  grid.innerHTML='';
+  if(!lista.length){vacio.style.display='block';grid.style.display='none';return;}
+  vacio.style.display='none';grid.style.display='grid';
+  lista.forEach(insp=>{
+    const esAct=String(insp.id)===String(actId);
+    const card=document.createElement('div');card.className='insp-card'+(esAct?' activo':'');
+    card.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
+      <div><div class="ic-nombre">👮 ${insp.nombre}</div>${insp.tel?`<div class="ic-sub">📞 ${insp.tel}</div>`:''}${insp.obs?`<div class="ic-sub">📝 ${insp.obs}</div>`:''}</div>
+      ${esAct?'<span class="badge badge-dorado">✅ ACTIVO</span>':''}
+    </div>
+    <div class="ic-acciones">
+      ${!esAct?`<button class="btn btn-gold btn-sm" onclick="activarInspector(${insp.id})">⚡ Activar</button>`:`<button class="btn btn-secondary btn-sm" onclick="desactivarInspector()">✖ Desactivar</button>`}
+      <button class="btn btn-warning btn-sm" onclick="editarInspector(${insp.id})">✏️ Editar</button>
+      <button class="btn btn-danger btn-sm" onclick="eliminarInspector(${insp.id})">🗑️ Eliminar</button>
+    </div>`;
+    grid.appendChild(card);
+  });
 }
 
 /* ══ VENCIDOS ══ */
@@ -1722,32 +1709,51 @@ function restaurarBackup(){
   };reader.readAsText(arch);
 }
 
-/* ══ ESTADÍSTICAS ══ */
+/* ══════════════════════════════════════════
+   ESTADÍSTICAS – Chart.js via jsDelivr CDN
+══════════════════════════════════════════ */
+
+/* Paleta de colores del club */
 const STATS_COLORS={
-  verde:'rgba(45,110,45,0.85)',verdeB:'rgba(45,110,45,1)',
-  dorado:'rgba(200,168,75,0.85)',doradoB:'rgba(200,168,75,1)',
-  rojo:'rgba(204,34,34,0.8)',rojoB:'rgba(204,34,34,1)',
-  naranja:'rgba(212,132,26,0.8)',naranjaB:'rgba(212,132,26,1)',
-  azul:'rgba(26,90,138,0.8)',azulB:'rgba(26,90,138,1)',
-  lila:'rgba(120,60,160,0.8)',lilaB:'rgba(120,60,160,1)',
+  verde:'rgba(45,110,45,0.85)',
+  verdeB:'rgba(45,110,45,1)',
+  dorado:'rgba(200,168,75,0.85)',
+  doradoB:'rgba(200,168,75,1)',
+  rojo:'rgba(204,34,34,0.8)',
+  rojoB:'rgba(204,34,34,1)',
+  naranja:'rgba(212,132,26,0.8)',
+  naranjaB:'rgba(212,132,26,1)',
+  azul:'rgba(26,90,138,0.8)',
+  azulB:'rgba(26,90,138,1)',
+  lila:'rgba(120,60,160,0.8)',
+  lilaB:'rgba(120,60,160,1)',
 };
+
+/* Opciones base compartidas para todos los gráficos */
 const CHART_BASE_OPTS={
-  responsive:true,maintainAspectRatio:true,
+  responsive:true,
+  maintainAspectRatio:true,
   plugins:{
     legend:{labels:{font:{family:"'Open Sans',sans-serif",size:12},color:'#2a4a2a'}},
     tooltip:{titleFont:{family:"'Oswald',sans-serif"},bodyFont:{family:"'Open Sans',sans-serif"}}
   }
 };
+
+/* ── Helpers de fecha dd/mm/yyyy ── */
 function ddmmToIso(s){
+  // acepta dd/mm/yyyy o yyyy-mm-dd
   if(!s)return '';
-  if(s.includes('-'))return s;
-  const p=s.split('/');if(p.length!==3)return '';
+  if(s.includes('-'))return s; // ya es ISO
+  const p=s.split('/');
+  if(p.length!==3)return '';
   return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
 }
 function isoToDdmm(s){
-  if(!s)return '';const p=s.split('-');if(p.length!==3)return s;
+  if(!s)return '';
+  const p=s.split('-');if(p.length!==3)return s;
   return `${p[2]}/${p[1]}/${p[0]}`;
 }
+/* Formatea mientras escribe: agrega "/" automáticamente */
 function formatearFechaInput(id){
   const el=document.getElementById(id);
   let v=el.value.replace(/\D/g,'');
@@ -1756,43 +1762,71 @@ function formatearFechaInput(id){
   if(v.length>10)v=v.slice(0,10);
   el.value=v;
 }
-function statsHoyDdmm(){const n=ahoraReal();return `${pad(n.getDate())}/${pad(n.getMonth()+1)}/${n.getFullYear()}`;}
-function statsSetHoy(){const h=statsHoyDdmm();document.getElementById('stats-desde').value=h;document.getElementById('stats-hasta').value=h;}
+function statsHoyDdmm(){
+  const n=ahoraReal();
+  return `${pad(n.getDate())}/${pad(n.getMonth()+1)}/${n.getFullYear()}`;
+}
+function statsSetHoy(){
+  const h=statsHoyDdmm();
+  document.getElementById('stats-desde').value=h;
+  document.getElementById('stats-hasta').value=h;
+}
 function statsSet7dias(){
-  const n=ahoraReal();const desde=new Date(n);desde.setDate(desde.getDate()-6);
-  document.getElementById('stats-desde').value=formatFecha(desde);document.getElementById('stats-hasta').value=statsHoyDdmm();
+  const n=ahoraReal();
+  const desde=new Date(n);desde.setDate(desde.getDate()-6);
+  document.getElementById('stats-desde').value=formatFecha(desde);
+  document.getElementById('stats-hasta').value=statsHoyDdmm();
 }
 function statsSet30dias(){
-  const n=ahoraReal();const desde=new Date(n);desde.setDate(desde.getDate()-29);
-  document.getElementById('stats-desde').value=formatFecha(desde);document.getElementById('stats-hasta').value=statsHoyDdmm();
+  const n=ahoraReal();
+  const desde=new Date(n);desde.setDate(desde.getDate()-29);
+  document.getElementById('stats-desde').value=formatFecha(desde);
+  document.getElementById('stats-hasta').value=statsHoyDdmm();
 }
+
+/* Inicializa la sección: pone fecha de hoy por defecto y genera */
 function inicializarEstadisticas(){
-  const d=document.getElementById('stats-desde');const h=document.getElementById('stats-hasta');
+  const d=document.getElementById('stats-desde');
+  const h=document.getElementById('stats-hasta');
   if(!d.value&&!h.value){statsSetHoy();}
   generarEstadisticas();
 }
+
+/* ── Función principal ── */
 function generarEstadisticas(){
   const desdeRaw=document.getElementById('stats-desde').value.trim();
   const hastaRaw=document.getElementById('stats-hasta').value.trim();
   if(!desdeRaw||!hastaRaw){mostrarAlerta('alerta-stats','error','Ingresá ambas fechas en formato dd/mm/aaaa.');return;}
-  const desdeIso=ddmmToIso(desdeRaw);const hastaIso=ddmmToIso(hastaRaw);
+  const desdeIso=ddmmToIso(desdeRaw);
+  const hastaIso=ddmmToIso(hastaRaw);
   if(!desdeIso||!hastaIso||isNaN(new Date(desdeIso))||isNaN(new Date(hastaIso))){
     mostrarAlerta('alerta-stats','error','Fecha inválida. Usá el formato dd/mm/aaaa.');return;
   }
   if(hastaIso<desdeIso){mostrarAlerta('alerta-stats','error','La fecha "hasta" debe ser ≥ "desde".');return;}
+
+  /* Filtrar datos por rango */
   const ing=cargarDatos(KEYS.ingresos).filter(i=>i.isoFecha>=desdeIso&&i.isoFecha<=hastaIso);
-  const ap=cargarDatos(KEYS.apercibimientos).filter(a=>{const iso=ddmmToIso(a.fecha.split(' ')[0]);return iso>=desdeIso&&iso<=hastaIso;});
+  const ap=cargarDatos(KEYS.apercibimientos).filter(a=>{
+    const iso=ddmmToIso(a.fecha.split(' ')[0]);return iso>=desdeIso&&iso<=hastaIso;
+  });
   const su=cargarDatos(KEYS.suspensiones).filter(s=>s.desde>=desdeIso&&s.desde<=hastaIso);
+
+  /* Mostrar panel */
   document.getElementById('stats-kpi-wrap').style.display='block';
   document.getElementById('stats-vacio').style.display='none';
+
+  /* ── KPIs ── */
   document.getElementById('kpi-ingresos').textContent=ing.length;
   document.getElementById('kpi-ingresos-sub').textContent=`${desdeRaw} → ${hastaRaw}`;
   document.getElementById('kpi-aperc').textContent=ap.length;
   document.getElementById('kpi-aperc-sub').textContent=`${desdeRaw} → ${hastaRaw}`;
   document.getElementById('kpi-susp').textContent=su.length;
   document.getElementById('kpi-susp-sub').textContent=`${desdeRaw} → ${hastaRaw}`;
+
   const dnisUnicos=new Set(ing.map(i=>i.dni));
   document.getElementById('kpi-dni').textContent=dnisUnicos.size;
+
+  /* Día pico */
   const porDia={};
   ing.forEach(i=>{porDia[i.isoFecha]=(porDia[i.isoFecha]||0)+1;});
   const diasOrdenados=Object.entries(porDia).sort((a,b)=>b[1]-a[1]);
@@ -1803,9 +1837,12 @@ function generarEstadisticas(){
     document.getElementById('kpi-pico-dia').textContent='—';
     document.getElementById('kpi-pico-dia-cant').textContent='sin datos';
   }
+
+  /* Hora pico */
   const porHora=Array(24).fill(0);
   ing.forEach(i=>{const h=parseInt(i.hora.split(':')[0],10);if(!isNaN(h))porHora[h]++;});
-  const maxH=Math.max(...porHora);const horaP=porHora.indexOf(maxH);
+  const maxH=Math.max(...porHora);
+  const horaP=porHora.indexOf(maxH);
   if(maxH>0){
     document.getElementById('kpi-pico-hora').textContent=pad(horaP)+':00';
     document.getElementById('kpi-pico-hora-cant').textContent=maxH+' ingresos';
@@ -1813,6 +1850,8 @@ function generarEstadisticas(){
     document.getElementById('kpi-pico-hora').textContent='—';
     document.getElementById('kpi-pico-hora-cant').textContent='sin datos';
   }
+
+  /* ── Gráficos ── */
   _renderChartPorDia(desdeIso,hastaIso,porDia);
   _renderChartPorHora(porHora);
   _renderChartDistribucion(ing.length,ap.length,su.length);
@@ -1820,53 +1859,179 @@ function generarEstadisticas(){
   _renderChartTopVisitantes(ing);
   _renderTablaTopVisitantes(ing);
 }
+
+/* ── Gráfico 1: Ingresos por día (barras) ── */
 function _renderChartPorDia(desdeIso,hastaIso,porDia){
   _destroyChart('por-dia');
+  /* Generar todos los días del rango */
   const labels=[],data=[];
-  const cur=new Date(desdeIso+'T00:00:00');const fin=new Date(hastaIso+'T00:00:00');
-  while(cur<=fin){const iso=isoFecha(cur);labels.push(isoToDdmm(iso));data.push(porDia[iso]||0);cur.setDate(cur.getDate()+1);}
+  const cur=new Date(desdeIso+'T00:00:00');
+  const fin=new Date(hastaIso+'T00:00:00');
+  while(cur<=fin){
+    const iso=isoFecha(cur);
+    labels.push(isoToDdmm(iso));
+    data.push(porDia[iso]||0);
+    cur.setDate(cur.getDate()+1);
+  }
   const ctx=document.getElementById('chart-por-dia').getContext('2d');
-  _charts['por-dia']=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'Ingresos',data,backgroundColor:STATS_COLORS.verde,borderColor:STATS_COLORS.verdeB,borderWidth:2,borderRadius:5,borderSkipped:false}]},
-    options:{...CHART_BASE_OPTS,scales:{x:{ticks:{font:{size:11},color:'#2a4a2a',maxRotation:45},grid:{display:false}},y:{beginAtZero:true,ticks:{stepSize:1,color:'#2a4a2a'},grid:{color:'rgba(0,0,0,.06)'}}},plugins:{...CHART_BASE_OPTS.plugins,legend:{display:false}}}});
+  _charts['por-dia']=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{
+        label:'Ingresos',data,
+        backgroundColor:STATS_COLORS.verde,borderColor:STATS_COLORS.verdeB,
+        borderWidth:2,borderRadius:5,borderSkipped:false
+      }]
+    },
+    options:{
+      ...CHART_BASE_OPTS,
+      scales:{
+        x:{ticks:{font:{size:11},color:'#2a4a2a',maxRotation:45},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{stepSize:1,color:'#2a4a2a'},grid:{color:'rgba(0,0,0,.06)'}}
+      },
+      plugins:{...CHART_BASE_OPTS.plugins,legend:{display:false}}
+    }
+  });
 }
+
+/* ── Gráfico 2: Ingresos por hora (línea) ── */
 function _renderChartPorHora(porHora){
   _destroyChart('por-hora');
   const labels=Array.from({length:24},(_,i)=>pad(i)+':00');
   const ctx=document.getElementById('chart-por-hora').getContext('2d');
-  _charts['por-hora']=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Ingresos',data:porHora,backgroundColor:'rgba(200,168,75,0.18)',borderColor:STATS_COLORS.doradoB,borderWidth:2.5,pointBackgroundColor:STATS_COLORS.doradoB,pointRadius:4,pointHoverRadius:6,fill:true,tension:0.4}]},
-    options:{...CHART_BASE_OPTS,scales:{x:{ticks:{font:{size:10},color:'#2a4a2a',maxRotation:45},grid:{display:false}},y:{beginAtZero:true,ticks:{stepSize:1,color:'#2a4a2a'},grid:{color:'rgba(0,0,0,.06)'}}},plugins:{...CHART_BASE_OPTS.plugins,legend:{display:false}}}});
+  _charts['por-hora']=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        label:'Ingresos',data:porHora,
+        backgroundColor:'rgba(200,168,75,0.18)',borderColor:STATS_COLORS.doradoB,
+        borderWidth:2.5,pointBackgroundColor:STATS_COLORS.doradoB,
+        pointRadius:4,pointHoverRadius:6,fill:true,tension:0.4
+      }]
+    },
+    options:{
+      ...CHART_BASE_OPTS,
+      scales:{
+        x:{ticks:{font:{size:10},color:'#2a4a2a',maxRotation:45},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{stepSize:1,color:'#2a4a2a'},grid:{color:'rgba(0,0,0,.06)'}}
+      },
+      plugins:{...CHART_BASE_OPTS.plugins,legend:{display:false}}
+    }
+  });
 }
+
+/* ── Gráfico 3: Distribución (dona) ── */
 function _renderChartDistribucion(nIng,nAp,nSu){
   _destroyChart('distribucion');
   const ctx=document.getElementById('chart-distribucion').getContext('2d');
-  _charts['distribucion']=new Chart(ctx,{type:'doughnut',data:{labels:['🚪 Ingresos','⚠️ Apercibamientos','🚫 Suspensiones'],datasets:[{data:[nIng,nAp,nSu],backgroundColor:[STATS_COLORS.verde,STATS_COLORS.naranja,STATS_COLORS.rojo],borderColor:['#fff','#fff','#fff'],borderWidth:3,hoverOffset:8}]},
-    options:{...CHART_BASE_OPTS,cutout:'60%',plugins:{...CHART_BASE_OPTS.plugins,legend:{position:'bottom',labels:{font:{size:12},color:'#2a4a2a',padding:14}}}}});
+  _charts['distribucion']=new Chart(ctx,{
+    type:'doughnut',
+    data:{
+      labels:['🚪 Ingresos','⚠️ Apercibamientos','🚫 Suspensiones'],
+      datasets:[{
+        data:[nIng,nAp,nSu],
+        backgroundColor:[STATS_COLORS.verde,STATS_COLORS.naranja,STATS_COLORS.rojo],
+        borderColor:['#fff','#fff','#fff'],borderWidth:3,hoverOffset:8
+      }]
+    },
+    options:{
+      ...CHART_BASE_OPTS,
+      cutout:'60%',
+      plugins:{
+        ...CHART_BASE_OPTS.plugins,
+        legend:{position:'bottom',labels:{font:{size:12},color:'#2a4a2a',padding:14}}
+      }
+    }
+  });
 }
+
+/* ── Gráfico 4: Ingresos por día de semana (barras horizontales) ── */
 function _renderChartSemana(ing){
   _destroyChart('semana');
   const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   const conteo=Array(7).fill(0);
-  ing.forEach(i=>{const parts=i.isoFecha.split('-');if(parts.length===3){const d=new Date(`${parts[0]}-${parts[1]}-${parts[2]}T12:00:00`);if(!isNaN(d))conteo[d.getDay()]++;}});
+  ing.forEach(i=>{
+    const parts=i.isoFecha.split('-');
+    if(parts.length===3){
+      const d=new Date(`${parts[0]}-${parts[1]}-${parts[2]}T12:00:00`);
+      if(!isNaN(d))conteo[d.getDay()]++;
+    }
+  });
   const ctx=document.getElementById('chart-semana').getContext('2d');
-  _charts['semana']=new Chart(ctx,{type:'bar',data:{labels:dias,datasets:[{label:'Ingresos',data:conteo,backgroundColor:[STATS_COLORS.rojo,STATS_COLORS.azul,STATS_COLORS.azul,STATS_COLORS.azul,STATS_COLORS.azul,STATS_COLORS.naranja,STATS_COLORS.rojo],borderColor:'transparent',borderWidth:0,borderRadius:5}]},
-    options:{indexAxis:'y',...CHART_BASE_OPTS,scales:{x:{beginAtZero:true,ticks:{stepSize:1,color:'#2a4a2a'},grid:{color:'rgba(0,0,0,.06)'}},y:{ticks:{color:'#2a4a2a',font:{size:12}},grid:{display:false}}},plugins:{...CHART_BASE_OPTS.plugins,legend:{display:false}}}});
+  _charts['semana']=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:dias,
+      datasets:[{
+        label:'Ingresos',data:conteo,
+        backgroundColor:[
+          STATS_COLORS.rojo,STATS_COLORS.azul,STATS_COLORS.azul,
+          STATS_COLORS.azul,STATS_COLORS.azul,STATS_COLORS.naranja,STATS_COLORS.rojo
+        ],
+        borderColor:'transparent',borderWidth:0,borderRadius:5
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      ...CHART_BASE_OPTS,
+      scales:{
+        x:{beginAtZero:true,ticks:{stepSize:1,color:'#2a4a2a'},grid:{color:'rgba(0,0,0,.06)'}},
+        y:{ticks:{color:'#2a4a2a',font:{size:12}},grid:{display:false}}
+      },
+      plugins:{...CHART_BASE_OPTS.plugins,legend:{display:false}}
+    }
+  });
 }
+
+/* ── Gráfico 5: Top 10 visitantes (barras horizontales) ── */
 function _renderChartTopVisitantes(ing){
   _destroyChart('top-visitantes');
-  const conteo={};const nombres={};
-  ing.forEach(i=>{conteo[i.dni]=(conteo[i.dni]||0)+1;if(i.nombre&&i.nombre.trim())nombres[i.dni]=i.nombre.trim();});
+  const conteo={};
+  const nombres={};
+  ing.forEach(i=>{
+    conteo[i.dni]=(conteo[i.dni]||0)+1;
+    if(i.nombre&&i.nombre.trim())nombres[i.dni]=i.nombre.trim();
+  });
   const top=Object.entries(conteo).sort((a,b)=>b[1]-a[1]).slice(0,10);
   const labels=top.map(([dni])=>nombres[dni]?nombres[dni].split(',')[0].trim()+' ('+dni+')':'DNI '+dni);
   const data=top.map(([,v])=>v);
   const ctx=document.getElementById('chart-top-visitantes').getContext('2d');
-  _charts['top-visitantes']=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'Visitas',data,backgroundColor:STATS_COLORS.lila,borderColor:STATS_COLORS.lilaB,borderWidth:2,borderRadius:5}]},
-    options:{indexAxis:'y',...CHART_BASE_OPTS,scales:{x:{beginAtZero:true,ticks:{stepSize:1,color:'#2a4a2a'},grid:{color:'rgba(0,0,0,.06)'}},y:{ticks:{color:'#2a4a2a',font:{size:11}},grid:{display:false}}},plugins:{...CHART_BASE_OPTS.plugins,legend:{display:false}}}});
+  _charts['top-visitantes']=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{
+        label:'Visitas',data,
+        backgroundColor:STATS_COLORS.lila,borderColor:STATS_COLORS.lilaB,
+        borderWidth:2,borderRadius:5
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      ...CHART_BASE_OPTS,
+      scales:{
+        x:{beginAtZero:true,ticks:{stepSize:1,color:'#2a4a2a'},grid:{color:'rgba(0,0,0,.06)'}},
+        y:{ticks:{color:'#2a4a2a',font:{size:11}},grid:{display:false}}
+      },
+      plugins:{...CHART_BASE_OPTS.plugins,legend:{display:false}}
+    }
+  });
 }
+
+/* ── Tabla top visitantes ── */
 function _renderTablaTopVisitantes(ing){
   const conteo={},nombres={},ultimas={};
-  ing.forEach(i=>{conteo[i.dni]=(conteo[i.dni]||0)+1;if(i.nombre&&i.nombre.trim())nombres[i.dni]=i.nombre.trim();const dt=i.isoFecha+i.hora;if(!ultimas[i.dni]||dt>ultimas[i.dni])ultimas[i.dni]=dt;});
+  ing.forEach(i=>{
+    conteo[i.dni]=(conteo[i.dni]||0)+1;
+    if(i.nombre&&i.nombre.trim())nombres[i.dni]=i.nombre.trim();
+    const dt=i.isoFecha+i.hora;
+    if(!ultimas[i.dni]||dt>ultimas[i.dni])ultimas[i.dni]=dt;
+  });
   const top=Object.entries(conteo).sort((a,b)=>b[1]-a[1]).slice(0,20);
-  const tbody=document.querySelector('#tabla-top-visitantes tbody');tbody.innerHTML='';
+  const tbody=document.querySelector('#tabla-top-visitantes tbody');
+  tbody.innerHTML='';
   if(!top.length){tbody.innerHTML='<tr><td colspan="5" class="stats-empty">Sin datos en el período</td></tr>';return;}
   top.forEach(([dni,cant],idx)=>{
     const ult=ultimas[dni]?isoToDdmm(ultimas[dni].slice(0,10)):'—';
