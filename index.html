@@ -246,14 +246,14 @@
     <div class="logo-club-text">PEJERREY CLUB</div>
   </div>
   <div class="sync-spinner"></div>
-  <div class="sync-loading-txt" id="sync-loading-txt">Conectando...</div>
+  <div class="sync-loading-txt" id="sync-loading-txt">Conectando..</div>
   <div class="sync-loading-sub" id="sync-loading-sub">Sincronizando datos entre dispositivos</div>
 </div>
 
 <!-- TOKEN MODAL -->
 <div id="token-modal">
   <div class="token-box">
-    <h2>🔑 Token requerido</h2>
+    <h2>🟢 Solicitar activación del sistema</h2>
     <p>Para sincronizar datos entre dispositivos necesitás un <strong style="color:var(--dorado)">Personal Access Token</strong> de GitHub.</p>
     <input type="password" id="token-input-modal" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off"/>
     <div class="token-btns">
@@ -293,7 +293,7 @@
   <div class="pass-box">
     <h3 id="pass-titulo">🔒 Contraseña requerida</h3>
     <p style="font-size:.85rem;color:#4a6a4a;margin-bottom:14px;" id="pass-subtitulo">Ingresá la contraseña para continuar.</p>
-    <input type="password" id="pass-input" placeholder="Contraseña..." onkeydown="if(event.key==='Enter')confirmarPass()"/>
+    <input type="password" id="pass-input" placeholder="Contraseña.." onkeydown="if(event.key==='Enter')confirmarPass()"/>
     <div id="alerta-pass" class="alerta"></div>
     <div class="pass-btns">
       <button class="btn btn-secondary" onclick="cerrarModalPass()">✖ Cancelar</button>
@@ -320,9 +320,9 @@
     </div>
   </div>
   <div class="header-info-row">
-    <div id="reloj-header">Cargando hora...</div>
+    <div id="reloj-header">Cargando hora..</div>
     <div id="header-inspector" class="sin-inspector">🔒 Sin inspector activo</div>
-    <div id="sync-badge"><span id="sync-dot"></span><span id="sync-txt">Conectando...</span></div>
+    <div id="sync-badge"><span id="sync-dot"></span><span id="sync-txt">Conectando..</span></div>
   </div>
 </header>
 
@@ -345,7 +345,7 @@
       <h2>🚪 Registro de Ingreso</h2>
       <div id="reloj-grande">--:--:--</div>
       <div id="fecha-grande">--/--/----</div>
-      <div class="fuente-hora" id="fuente-hora">Sincronizando hora...</div>
+      <div class="fuente-hora" id="fuente-hora">Sincronizando hora..</div>
       <br/>
       <div class="form-row">
         <label>Nº Documento (DNI)
@@ -413,7 +413,7 @@
         <label>Nombre (opcional)<input type="text" id="nombre-aperc" placeholder="Apellido, Nombre"/></label>
       </div>
       <div class="form-row">
-        <label style="flex:2">Motivo<textarea id="motivo-aperc" placeholder="Describa el motivo..."></textarea></label>
+        <label style="flex:2">Motivo<textarea id="motivo-aperc" placeholder="Describa el motivo.."></textarea></label>
       </div>
       <button class="btn btn-warning" onclick="registrarApercibamiento()">⚠️ Registrar Apercibamiento</button>
       <div id="alerta-aperc" class="alerta"></div>
@@ -442,7 +442,7 @@
         <label>Suspendido hasta<input type="date" id="susp-hasta"/></label>
       </div>
       <div class="form-row">
-        <label style="flex:2">Motivo<textarea id="motivo-susp" placeholder="Describa el motivo..."></textarea></label>
+        <label style="flex:2">Motivo<textarea id="motivo-susp" placeholder="Describa el motivo.."></textarea></label>
       </div>
       <button class="btn btn-danger" onclick="registrarSuspension()">🚫 Registrar Suspensión</button>
       <div id="alerta-susp" class="alerta"></div>
@@ -899,9 +899,18 @@ function onDniIngresoChange(){
 
 /* ══ PASSWORD MODAL ══ */
 function pedirPassBackup(accion){
-  _pendingPassAction=accion;
-  const titulos={descargar:'🔒 Contraseña para descargar',restaurar:'🔒 Contraseña para restaurar','entrar-inspectores':'👮 Acceso a Inspectores','entrar-backup':'💾 Acceso a Backup','solicitar-token':'🔒 Confirmá para solicitar token'};
- const subs={descargar:'Ingresá la contraseña para descargar el backup XML.',restaurar:'Ingresá la contraseña para restaurar el backup XML.','entrar-inspectores':'Ingresá la contraseña maestra para acceder a Inspectores.','entrar-backup':'Ingresá la contraseña maestra para acceder a Backup.','solicitar-token':'Ingresá la contraseña maestra para abrir WhatsApp.'};
+ _pendingPassAction=accion;
+ const titulos={descargar:'🔒 Contraseña para descargar',restaurar:'🔒 Contraseña para restaurar','entrar-inspectores':'👮 Acceso a Inspectores','entrar-backup':'💾 Acceso a Backup','solicitar-activacion':'🔒 Confirmá para solicitar activación'};
+ const subs={descargar:'Ingresá la contraseña para descargar el backup XML.',restaurar:'Ingresá la contraseña para restaurar el backup XML.','entrar-inspectores':'Ingresá la contraseña maestra para acceder a Inspectores.','entrar-backup':'Ingresá la contraseña maestra para acceder a Backup.','solicitar-activacion':'Ingresá la contraseña maestra para abrir WhatsApp.'};
+ document.getElementById('pass-titulo').textContent=titulos[accion]||'🔒 Contraseña requerida';
+ document.getElementById('pass-subtitulo').textContent=subs[accion]||'Ingresá la contraseña para continuar.';
+ document.getElementById('pass-input').value='';
+ const a=document.getElementById('alerta-pass');a.className='alerta';a.textContent='';
+ document.getElementById('modal-pass').style.display='flex';
+ setTimeout(()=>document.getElementById('pass-input').focus(),120);
+}
+;
+  const subs={descargar:'Ingresá la contraseña para descargar el backup XML.',restaurar:'Ingresá la contraseña para restaurar el backup XML.'};
   document.getElementById('pass-titulo').textContent=titulos[accion]||'🔒 Contraseña requerida';
   document.getElementById('pass-subtitulo').textContent=subs[accion]||'Ingresá la contraseña para continuar.';
   document.getElementById('pass-input').value='';
@@ -922,19 +931,7 @@ function confirmarPass(){
     document.getElementById('pass-input').value='';document.getElementById('pass-input').focus();return;
   }
   const accion=_pendingPassAction;cerrarModalPass();
-  setTimeout(()=>{
-  if(accion==='descargar') generarBackup();
-  else if(accion==='restaurar') restaurarBackup();
-  else if(accion==='entrar-inspectores'){ _navegarSeccion('inspectores', document.getElementById('btn-nav-inspectores')); }
-  else if(accion==='entrar-backup'){ _navegarSeccion('backup', document.getElementById('btn-nav-backup')); }
-  else if(accion==='solicitar-token'){
-    try{
-      const now = (typeof ahoraReal==='function') ? ahoraReal() : new Date();
-      const msg = 'Hola, necesito el token de sincronización para el sistema PCQ. Fecha/Hora: ' + (now.toLocaleString ? now.toLocaleString() : now.toString()) + '.';
-      window.open('https://wa.me/541162544509?text=' + encodeURIComponent(msg), '_blank');
-    }catch(e){ window.open('https://wa.me/541162544509?text=' + encodeURIComponent('Hola, necesito el token de sincronización para el sistema PCQ.'), '_blank'); }
-  }
-},150);
+  setTimeout(()=>{if(accion==='descargar')generarBackup();else if(accion==='restaurar')restaurarBackup();},150);
 }
 
 /* ══ TOKEN ══ */
@@ -956,7 +953,7 @@ function guardarTokenBackup(){
   const v=document.getElementById('token-campo-backup').value.trim();
   if(!v){mostrarAlerta('alerta-token-backup','error','Ingresá el token.');return;}
   setToken(v);document.getElementById('token-campo-backup').value='';
-  actualizarTokenStatusCard();mostrarAlerta('alerta-token-backup','ok','✅ Token guardado. Sincronizando...');
+  actualizarTokenStatusCard();mostrarAlerta('alerta-token-backup','ok','✅ Token guardado. Sincronizando..');
   sincronizarDesdeGitHub(false);
 }
 function borrarTokenBackup(){
@@ -987,7 +984,7 @@ function setSyncBadge(e,t){
 /* ══ GITHUB API ══ */
 function fetchConTimeout(url,opts,ms=10000){
   const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),ms);
-  return fetch(url,{...opts,signal:ctrl.signal}).finally(()=>clearTimeout(timer));
+  return fetch(url,{..opts,signal:ctrl.signal}).finally(()=>clearTimeout(timer));
 }
 async function ghGetFile(path){
   if(!getToken())return{sha:null,content:null,error:'sin-token'};
@@ -1040,7 +1037,7 @@ function aplicarDatos(d){
 async function guardarEnGitHub(silencioso=false){
   if(!getToken()){setSyncBadge('error','❌ Sin token');return{ok:false,error:'sin-token'};}
   let w=0;while(_syncEnCurso&&w<27){await new Promise(r=>setTimeout(r,300));w++;}
-  _syncEnCurso=true;setSyncBadge('syncing',silencioso?'⏳ Sync...':'⏳ Guardando...');
+  _syncEnCurso=true;setSyncBadge('syncing',silencioso?'⏳ Sync..':'⏳ Guardando..');
   try{
     const json=JSON.stringify(construirDatos(),null,2);
     const now=ahoraReal();const msg=`PCQ ${formatFecha(now)} ${formatHora(now)}`;
@@ -1064,9 +1061,9 @@ async function guardarEnGitHub(silencioso=false){
 
 /* ══ SINCRONIZAR DESDE GITHUB ══ */
 async function sincronizarDesdeGitHub(mostrarUI=false){
-  if(_syncEnCurso){if(mostrarUI)mostrarAlerta('alerta-github','info','⏳ Sincronización en curso...');return;}
-  _syncEnCurso=true;setSyncBadge('syncing','🔄 Sincronizando...');
-  if(mostrarUI)mostrarAlerta('alerta-github','info','⏳ Sincronizando...');
+  if(_syncEnCurso){if(mostrarUI)mostrarAlerta('alerta-github','info','⏳ Sincronización en curso..');return;}
+  _syncEnCurso=true;setSyncBadge('syncing','🔄 Sincronizando..');
+  if(mostrarUI)mostrarAlerta('alerta-github','info','⏳ Sincronizando..');
   try{
     if(!getToken()){setSyncBadge('error','❌ Sin token');if(mostrarUI)mostrarAlerta('alerta-github','error','❌ No hay token.');return;}
     const info=await ghGetFile(GH.dataFile);
@@ -1103,7 +1100,7 @@ function _actualizarInfoSync(){
   if(el&&_ultimoSyncTs)el.textContent=`🕐 Última sincronización: ${formatFecha(_ultimoSyncTs)} ${formatHora(_ultimoSyncTs)}`;
 }
 async function verificarConexionGitHub(){
-  mostrarAlerta('alerta-github','info','⏳ Verificando...');
+  mostrarAlerta('alerta-github','info','⏳ Verificando..');
   if(!getToken()){mostrarAlerta('alerta-github','error','❌ No hay token.');return;}
   try{
     const r=await fetchConTimeout(`https://api.github.com/repos/${GH.owner}/${GH.repo}`,
@@ -1188,7 +1185,7 @@ async function _guardarFoto(b64){
   const dni=document.getElementById('dni-ingreso').value.trim();
   if(dni){
     setFoto(dni,b64);document.getElementById('foto-preview-dni').textContent='DNI: '+dni+' ✅';
-    mostrarAlerta('alerta-foto','info','📤 Guardando foto...');
+    mostrarAlerta('alerta-foto','info','📤 Guardando foto..');
     await guardarEnGitHub(true);mostrarAlerta('alerta-foto','ok','✅ Foto guardada para DNI '+dni+'.');
   } else {
     document.getElementById('foto-preview-dni').textContent='⚠️ Ingresá el DNI para asociar la foto';
@@ -1281,7 +1278,7 @@ async function activarInspector(id){
   guardarItem(KEYS.inspActivo,String(id));guardarItem(KEYS.turnoInicio,ahoraReal().toISOString());
   document.getElementById('banner-activar').style.display='none';
   actualizarUIInspectorActivo();actualizarEstadoBloqueo();renderInspectores();
-  mostrarAlerta('alerta-insp','info','⏳ Activando y sincronizando...');
+  mostrarAlerta('alerta-insp','info','⏳ Activando y sincronizando..');
   const res=await guardarEnGitHub(false);
   if(res.ok)mostrarAlerta('alerta-insp','ok','✅ Inspector activado y sincronizado.');
   else mostrarAlerta('alerta-insp','warn',`⚠️ Inspector activado localmente. Error sync: ${res.error||''}`);
@@ -1322,7 +1319,7 @@ async function confirmarDesactivar(){
   const blob=new Blob([xml],{type:'application/xml'});const url=URL.createObjectURL(blob);
   Object.assign(document.createElement('a'),{href:url,download:nom}).click();URL.revokeObjectURL(url);
   localStorage.removeItem(KEYS.inspActivo);localStorage.removeItem(KEYS.turnoInicio);
-  mostrarAlerta('alerta-modal-cierre','info','⏳ Sincronizando cierre...');
+  mostrarAlerta('alerta-modal-cierre','info','⏳ Sincronizando cierre..');
   await guardarEnGitHub(false);
   actualizarUIInspectorActivo();actualizarEstadoBloqueo();renderInspectores();
   cerrarModalCierre();document.getElementById('banner-activar').style.display='block';
@@ -1362,7 +1359,7 @@ async function guardarInspector(){
   const lista=cargarDatos(KEYS.inspectores);
   if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase())){mostrarAlerta('alerta-insp','error','Ya existe un inspector con ese nombre.');return;}
   lista.push({id:Date.now(),nombre,tel,obs});guardarDatos(KEYS.inspectores,lista);
-  mostrarAlerta('alerta-insp','info','⏳ Guardando...');
+  mostrarAlerta('alerta-insp','info','⏳ Guardando..');
   const res=await guardarEnGitHub(false);
   if(res.ok)mostrarAlerta('alerta-insp','ok',`✅ Inspector <strong>${nombre}</strong> registrado.`);
   else mostrarAlerta('alerta-insp','warn',`⚠️ Guardado localmente. Error sync: ${res.error||''}`);
@@ -1387,7 +1384,7 @@ async function guardarModalInspector(){
   const lista=cargarDatos(KEYS.inspectores);
   if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase()&&i.id!==_editInspId)){mostrarAlerta('alerta-modal-insp','error','Ya existe ese nombre.');return;}
   const idx=lista.findIndex(i=>i.id===_editInspId);if(idx===-1){cerrarModalInspector();return;}
-  lista[idx]={...lista[idx],nombre,tel,obs};guardarDatos(KEYS.inspectores,lista);
+  lista[idx]={..lista[idx],nombre,tel,obs};guardarDatos(KEYS.inspectores,lista);
   await guardarEnGitHub(false);cerrarModalInspector();actualizarUIInspectorActivo();renderInspectores();
   mostrarAlerta('alerta-insp','ok','✅ Inspector actualizado.');
 }
@@ -1434,7 +1431,7 @@ function renderVencidos(){
   const cv=document.getElementById('contador-vencidos');
   if(ven.length){cv.style.display='flex';document.getElementById('cv-num').textContent=ven.length;}else cv.style.display='none';
   const tbody=document.querySelector('#tabla-vencidos tbody');tbody.innerHTML='';
-  const todos=[...pv,...ven];
+  const todos=[..pv,..ven];
   if(!todos.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:#aaa;">✅ No hay ingresos vencidos ni por vencer</td></tr>';return;}
   todos.forEach(i=>{
     const ms=now.getTime()-parseFechaHora(i.fecha,i.hora).getTime();
@@ -1571,7 +1568,7 @@ async function registrarIngreso(){
   const lista=cargarDatos(KEYS.ingresos);
   lista.push({dni,nombre,fecha:formatFecha(now),hora:formatHora(now),isoFecha:isoFecha(now)});
   guardarDatos(KEYS.ingresos,lista);
-  mostrarAlerta('alerta-ingreso','info','⏳ Guardando...');
+  mostrarAlerta('alerta-ingreso','info','⏳ Guardando..');
   const res=await guardarEnGitHub(false);
   if(res.ok)mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado – DNI: <strong>${dni}</strong>${nombre?' | '+nombre:''} | ${formatFecha(now)} ${formatHora(now)}`);
   else mostrarAlerta('alerta-ingreso','warn',`⚠️ Guardado localmente. Error sync: ${res.error||''}`);
@@ -1594,7 +1591,7 @@ async function registrarApercibamiento(){
   const lista=cargarDatos(KEYS.apercibimientos);
   lista.push({id:Date.now(),dni,nombre,motivo,fecha:formatFecha(now),hora:formatHora(now),inspector:insp?insp.nombre:null,inspectorId:insp?insp.id:null});
   guardarDatos(KEYS.apercibimientos,lista);
-  mostrarAlerta('alerta-aperc','info','⏳ Guardando...');
+  mostrarAlerta('alerta-aperc','info','⏳ Guardando..');
   await guardarEnGitHub(false);
   mostrarAlerta('alerta-aperc','ok',`⚠️ Apercibamiento registrado para DNI <strong>${dni}</strong>${insp?' | Inspector: <strong>'+insp.nombre+'</strong>':''}.`);
   ['dni-aperc','nombre-aperc','motivo-aperc'].forEach(id=>{document.getElementById(id).value='';});
@@ -1633,7 +1630,7 @@ async function registrarSuspension(){
   const lista=cargarDatos(KEYS.suspensiones);
   lista.push({id:Date.now(),dni,nombre,desde,hasta,motivo});
   guardarDatos(KEYS.suspensiones,lista);
-  mostrarAlerta('alerta-susp','info','⏳ Guardando...');
+  mostrarAlerta('alerta-susp','info','⏳ Guardando..');
   await guardarEnGitHub(false);
   mostrarAlerta('alerta-susp','ok',`🚫 Suspensión registrada para DNI <strong>${dni}</strong> hasta <strong>${hasta}</strong>.`);
   ['dni-susp','nombre-susp','susp-desde','susp-hasta','motivo-susp'].forEach(id=>{document.getElementById(id).value='';});
@@ -1703,7 +1700,7 @@ function restaurarBackup(){
       const inspEx=actId&&ins.find(i=>String(i.id)===String(actId));
       if(inspEx)guardarItem(KEYS.inspActivo,actId);else localStorage.removeItem(KEYS.inspActivo);
       actualizarUIInspectorActivo();actualizarEstadoBloqueo();
-      mostrarAlerta('alerta-backup-rest','info','⏳ Restaurando y sincronizando...');
+      mostrarAlerta('alerta-backup-rest','info','⏳ Restaurando y sincronizando..');
       localStorage.removeItem(KEYS.lastRemoteTs);
       await guardarEnGitHub(false);
       mostrarAlerta('alerta-backup-rest','ok',`✅ Backup restaurado.<br>Ingresos: <strong>${ing.length}</strong> | Apercibamientos: <strong>${ap.length}</strong> | Suspensiones: <strong>${su.length}</strong>`);
@@ -1844,7 +1841,7 @@ function generarEstadisticas(){
   /* Hora pico */
   const porHora=Array(24).fill(0);
   ing.forEach(i=>{const h=parseInt(i.hora.split(':')[0],10);if(!isNaN(h))porHora[h]++;});
-  const maxH=Math.max(...porHora);
+  const maxH=Math.max(..porHora);
   const horaP=porHora.indexOf(maxH);
   if(maxH>0){
     document.getElementById('kpi-pico-hora').textContent=pad(horaP)+':00';
@@ -1888,12 +1885,12 @@ function _renderChartPorDia(desdeIso,hastaIso,porDia){
       }]
     },
     options:{
-      ...CHART_BASE_OPTS,
+      ..CHART_BASE_OPTS,
       scales:{
         x:{ticks:{font:{size:11},color:'#2a4a2a',maxRotation:45},grid:{display:false}},
         y:{beginAtZero:true,ticks:{stepSize:1,color:'#2a4a2a'},grid:{color:'rgba(0,0,0,.06)'}}
       },
-      plugins:{...CHART_BASE_OPTS.plugins,legend:{display:false}}
+      plugins:{..CHART_BASE_OPTS.plugins,legend:{display:false}}
     }
   });
 }
@@ -1915,12 +1912,12 @@ function _renderChartPorHora(porHora){
       }]
     },
     options:{
-      ...CHART_BASE_OPTS,
+      ..CHART_BASE_OPTS,
       scales:{
         x:{ticks:{font:{size:10},color:'#2a4a2a',maxRotation:45},grid:{display:false}},
         y:{beginAtZero:true,ticks:{stepSize:1,color:'#2a4a2a'},grid:{color:'rgba(0,0,0,.06)'}}
       },
-      plugins:{...CHART_BASE_OPTS.plugins,legend:{display:false}}
+      plugins:{..CHART_BASE_OPTS.plugins,legend:{display:false}}
     }
   });
 }
@@ -1940,10 +1937,10 @@ function _renderChartDistribucion(nIng,nAp,nSu){
       }]
     },
     options:{
-      ...CHART_BASE_OPTS,
+      ..CHART_BASE_OPTS,
       cutout:'60%',
       plugins:{
-        ...CHART_BASE_OPTS.plugins,
+        ..CHART_BASE_OPTS.plugins,
         legend:{position:'bottom',labels:{font:{size:12},color:'#2a4a2a',padding:14}}
       }
     }
@@ -1978,12 +1975,12 @@ function _renderChartSemana(ing){
     },
     options:{
       indexAxis:'y',
-      ...CHART_BASE_OPTS,
+      ..CHART_BASE_OPTS,
       scales:{
         x:{beginAtZero:true,ticks:{stepSize:1,color:'#2a4a2a'},grid:{color:'rgba(0,0,0,.06)'}},
         y:{ticks:{color:'#2a4a2a',font:{size:12}},grid:{display:false}}
       },
-      plugins:{...CHART_BASE_OPTS.plugins,legend:{display:false}}
+      plugins:{..CHART_BASE_OPTS.plugins,legend:{display:false}}
     }
   });
 }
@@ -2013,12 +2010,12 @@ function _renderChartTopVisitantes(ing){
     },
     options:{
       indexAxis:'y',
-      ...CHART_BASE_OPTS,
+      ..CHART_BASE_OPTS,
       scales:{
         x:{beginAtZero:true,ticks:{stepSize:1,color:'#2a4a2a'},grid:{color:'rgba(0,0,0,.06)'}},
         y:{ticks:{color:'#2a4a2a',font:{size:11}},grid:{display:false}}
       },
-      plugins:{...CHART_BASE_OPTS.plugins,legend:{display:false}}
+      plugins:{..CHART_BASE_OPTS.plugins,legend:{display:false}}
     }
   });
 }
@@ -2059,9 +2056,9 @@ function finalizarInit(){
   setInterval(async()=>{if(!_syncEnCurso&&getToken())await sincronizarDesdeGitHub(false);},SYNC_INTERVAL);
 }
 async function iniciarSyncConGitHub(){
-  document.getElementById('sync-loading-txt').textContent='☁️ Descargando datos...';
-  document.getElementById('sync-loading-sub').textContent='Esto puede tardar unos segundos...';
-  setSyncBadge('syncing','🔄 Cargando...');
+  document.getElementById('sync-loading-txt').textContent='☁️ Descargando datos..';
+  document.getElementById('sync-loading-sub').textContent='Esto puede tardar unos segundos..';
+  setSyncBadge('syncing','🔄 Cargando..');
   let terminado=false;
   const timeoutId=setTimeout(()=>{
     if(terminado)return;terminado=true;_syncEnCurso=false;
@@ -2093,7 +2090,7 @@ async function iniciarSyncConGitHub(){
       }
       setSyncBadge('ok','✅ Sincronizado');
     } else {
-      document.getElementById('sync-loading-sub').textContent='📤 Creando base de datos...';
+      document.getElementById('sync-loading-sub').textContent='📤 Creando base de datos..';
       _syncEnCurso=false;await guardarEnGitHub(true);
     }
   }catch(e){
@@ -2107,7 +2104,7 @@ async function iniciarSyncConGitHub(){
 
 (async function init(){
   document.getElementById('sync-loading').classList.add('show');
-  document.getElementById('sync-loading-txt').textContent='🕐 Sincronizando hora...';
+  document.getElementById('sync-loading-txt').textContent='🕐 Sincronizando hora..';
   await Promise.race([sincronizarHora(),new Promise(r=>setTimeout(r,5000))]);
   tickReloj();setInterval(tickReloj,1000);setInterval(sincronizarHora,5*60*1000);
   if(!getToken()){
@@ -2118,10 +2115,10 @@ async function iniciarSyncConGitHub(){
   }
 })();
 
-function solicitarTokenWhatsApp(){
-  _pendingPassAction = 'solicitar-token';
-  document.getElementById('pass-titulo').textContent = '🔒 Confirmá para solicitar token';
-  document.getElementById('pass-subtitulo').textContent = 'Ingresá la contraseña maestra para continuar y abrir WhatsApp.';
+function solicitarActivacionWhatsApp(){
+  _pendingPassAction = 'solicitar-activacion';
+  document.getElementById('pass-titulo').textContent = '🔒 Confirmá para solicitar activación';
+  document.getElementById('pass-subtitulo').textContent = 'Ingresá la contraseña maestra para continuar y enviar la solicitud por WhatsApp.';
   document.getElementById('pass-input').value = '';
   const a = document.getElementById('alerta-pass'); a.className='alerta'; a.textContent='';
   document.getElementById('modal-pass').style.display='flex';
@@ -2129,5 +2126,80 @@ function solicitarTokenWhatsApp(){
 }
 
 </script>
+
+<script>
+// ===== PCQ SAFE INIT (no bloqueante) =====
+(function(){
+  const BACKUP_PASS = 'gustavopeje';
+  function hideOverlay(){ try{ var el=document.getElementById('sync-loading'); if(el) el.classList.remove('show'); }catch(e){}
+    try{ document.getElementById('sync-loading-txt').textContent=''; }catch(e){}
+  }
+  function showTokenModalIfNeeded(){
+    try{
+      var t = localStorage.getItem('pcq_gh_token');
+      if(!t){ var m=document.getElementById('token-modal'); if(m) m.classList.add('show'); }
+    }catch(e){}
+  }
+  function ensureClock(){
+    try{
+      function pad(n){return String(n).padStart(2,'0');}
+      function tick(){
+        var now = new Date();
+        var hs = pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+        var fs = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][now.getDay()]+', '+pad(now.getDate())+'/'+pad(now.getMonth()+1)+'/'+now.getFullYear();
+        var r1=document.getElementById('reloj-grande'); if(r1) r1.textContent=hs;
+        var r2=document.getElementById('fecha-grande'); if(r2) r2.textContent=fs;
+        var r3=document.getElementById('reloj-header'); if(r3) r3.textContent=pad(now.getDate())+'/'+pad(now.getMonth()+1)+'/'+now.getFullYear()+' '+hs;
+        var r4=document.getElementById('bloqueo-reloj'); if(r4) r4.textContent=hs;
+        var r5=document.getElementById('bloqueo-fecha'); if(r5) r5.textContent=fs;
+      }
+      tick(); setInterval(tick, 1000);
+    }catch(e){}
+  }
+  // --- Solicitar activación por WhatsApp (con pass maestra) ---
+  window.solicitarActivacionWhatsApp = function(){
+    try{
+      var box = document.getElementById('modal-pass');
+      if(!box) return;
+      document.getElementById('pass-titulo').textContent = '🔒 Confirmá para solicitar activación';
+      document.getElementById('pass-subtitulo').textContent = 'Ingresá la contraseña maestra para continuar y enviar la solicitud por WhatsApp.';
+      document.getElementById('pass-input').value='';
+      var alerta = document.getElementById('alerta-pass'); if(alerta){ alerta.className='alerta'; alerta.textContent=''; }
+      // Cambiar handler del botón Confirmar SOLO para esta acción
+      var btns = box.querySelectorAll('.pass-btns .btn');
+      var btnConfirm = btns && btns[1];
+      if(btnConfirm){
+        btnConfirm.onclick = function(){
+          try{
+            var val = document.getElementById('pass-input').value;
+            if(val !== BACKUP_PASS){
+              var a = document.getElementById('alerta-pass'); if(a){ a.className='alerta show alerta-error'; a.textContent='❌ Contraseña incorrecta.'; }
+              document.getElementById('pass-input').value='';
+              document.getElementById('pass-input').focus();
+              return;
+            }
+            // OK -> cerrar modal y abrir WA
+            box.style.display='none';
+            var now = new Date();
+            var msg = 'Hola, solicito *activación del sistema* PCQ para este dispositivo. Fecha/Hora: ' + now.toLocaleString();
+            window.open('https://wa.me/541162544509?text=' + encodeURIComponent(msg), '_blank');
+          }catch(e){}
+        };
+      }
+      // Botón Cancelar mantiene comportamiento original
+      box.style.display='flex';
+      setTimeout(function(){ try{ document.getElementById('pass-input').focus(); }catch(e){} },120);
+    }catch(e){}
+  };
+
+  // Arranque seguro
+  document.addEventListener('DOMContentLoaded', function(){
+    hideOverlay();
+    ensureClock();
+    setTimeout(showTokenModalIfNeeded, 100);
+  });
+})();
+</script>
+
 </body>
 </html>
