@@ -252,20 +252,6 @@
 </div>
 
 <!-- TOKEN MODAL -->
-<!-- LOGIN MODAL SISTEMA -->
-<div id="modal-login-sistema" class="modal-overlay">
-  <div class="token-box" style="max-width:420px;">
-    <h2>🔐 Ingreso al Sistema</h2>
-    <p>Usuario por defecto: <strong>demo</strong> · Contraseña: <strong>demo</strong></p>
-    <input type="text" id="sys-user" placeholder="Usuario" autocomplete="username"/>
-    <input type="password" id="sys-pass" placeholder="Contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')confirmarLoginSistema()"/>
-    <div id="alerta-login-sistema" class="alerta" style="margin:8px 0;"></div>
-    <div class="token-btns">
-      <button class="btn btn-gold" onclick="confirmarLoginSistema()">✅ Confirmar</button>
-    </div>
-  </div>
-</div>
-
 <div id="token-modal">
   <div class="token-box">
     <h2>🔑 Token de GitHub requerido</h2>
@@ -600,17 +586,6 @@
 
       <!-- Gráficos -->
       <div class="charts-grid">
-  <!-- Distribución por edad (aprox. por DNI) -->
-  <div class="chart-card chart-card-full">
-    <h3>👤 Distribución por edad (aprox. por DNI)</h3>
-    <div class="form-row" style="margin-bottom:8px;align-items:flex-end;">
-      <label style="max-width:220px;">Ajuste (años)
-        <input type="number" id="edad-ajuste" value="0" step="1"/>
-      </label>
-    </div>
-    <canvas id="chart-edad"></canvas>
-  </div>
-
         <!-- Ingresos por día -->
         <div class="chart-card chart-card-full">
           <h3>📅 Ingresos por día</h3>
@@ -799,46 +774,7 @@ const KEYS={
 };
 const HS_VIGENCIA=24,MIN_POR_VENCER=60,WA_NUMERO='541162544509';
 const FOTO_MAX_W=320,FOTO_QUALITY=0.72,SYNC_INTERVAL=20000;
-
-// ── Master password (SHA-256) ──
-const BACKUP_PASS_HASH = '1fb7a3bd8d40467330802747455603080831e724a5d2a9cb8d89670303b1861d';
-async function sha256Hex(str){
-  const enc = new TextEncoder().encode(str);
-  const buf = await crypto.subtle.digest('SHA-256', enc);
-  const arr = Array.from(new Uint8Array(buf));
-  return arr.map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-async function checkMasterPass(input){
-  try { return (await sha256Hex(input)) === BACKUP_PASS_HASH; } catch(e) { return false; }
-}
-
-// ── Login del sistema (modal) ──
-function isLoggedSistema(){ return sessionStorage.getItem('pcq_sys_logged')==='1'; }
-function mostrarLoginSistema(){
-  const m=document.getElementById('modal-login-sistema');
-  if(m) m.classList.add('show');
-  setTimeout(()=>{ const u=document.getElementById('sys-user'); if(u) u.focus(); },120);
-}
-function ocultarLoginSistema(){ const m=document.getElementById('modal-login-sistema'); if(m) m.classList.remove('show'); }
-function continuarPostLoginSistema(){
-  if(!getToken()){ document.getElementById('token-modal').classList.add('show'); } else { iniciarSyncConGitHub(); }
-}
-function confirmarLoginSistema(){
-  const u=(document.getElementById('sys-user')||{}).value||'';
-  const p=(document.getElementById('sys-pass')||{}).value||'';
-  const alerta=document.getElementById('alerta-login-sistema');
-  if(u==='demo' && p==='demo'){
-    sessionStorage.setItem('pcq_sys_logged','1');
-    ocultarLoginSistema();
-    continuarPostLoginSistema();
-  } else {
-    alerta.className='alerta show alerta-error';
-    alerta.textContent='❌ Usuario o contraseña incorrectos.';
-  }
-}
-
-
-
+const BACKUP_PASS='gustavopeje';
 let offsetMs=0,_editInspId=null,_inspDesact=null;
 let _syncEnCurso=false,_ultimoSyncTs=null,_pendingPassAction=null;
 
@@ -973,17 +909,8 @@ function onDniIngresoChange(){
 
 /* ══ PASSWORD MODAL ══ */
 function pedirPassBackup(accion){
- _pendingPassAction=accion;
- const titulos={descargar:'🔒 Contraseña para descargar',restaurar:'🔒 Contraseña para restaurar','entrar-inspectores':'👮 Acceso a Inspectores','entrar-backup':'💾 Acceso a Backup'};
- const subs={descargar:'Ingresá la contraseña para descargar el backup XML.',restaurar:'Ingresá la contraseña para restaurar el backup XML.','entrar-inspectores':'Ingresá la contraseña maestra para acceder a Inspectores.','entrar-backup':'Ingresá la contraseña maestra para acceder a Backup.'};
- document.getElementById('pass-titulo').textContent=titulos[accion]||'🔒 Contraseña requerida';
- document.getElementById('pass-subtitulo').textContent=subs[accion]||'Ingresá la contraseña para continuar.';
- document.getElementById('pass-input').value='';
- const a=document.getElementById('alerta-pass');a.className='alerta';a.textContent='';
- document.getElementById('modal-pass').style.display='flex';
- setTimeout(()=>document.getElementById('pass-input').focus(),120);
-}
-;
+  _pendingPassAction=accion;
+  const titulos={descargar:'🔒 Contraseña para descargar',restaurar:'🔒 Contraseña para restaurar'};
   const subs={descargar:'Ingresá la contraseña para descargar el backup XML.',restaurar:'Ingresá la contraseña para restaurar el backup XML.'};
   document.getElementById('pass-titulo').textContent=titulos[accion]||'🔒 Contraseña requerida';
   document.getElementById('pass-subtitulo').textContent=subs[accion]||'Ingresá la contraseña para continuar.';
@@ -998,29 +925,14 @@ function cerrarModalPass(){
   document.getElementById('pass-input').value='';
   const a=document.getElementById('alerta-pass');a.className='alerta';a.textContent='';
 }
-async function confirmarPass(){
- const val=document.getElementById('pass-input').value;
- if(!(await checkMasterPass(val))){
-   const el=document.getElementById('alerta-pass');
-   el.className='alerta show alerta-error'; el.textContent='❌ Contraseña incorrecta.';
-   document.getElementById('pass-input').value=''; document.getElementById('pass-input').focus(); return;
- }
- const accion=_pendingPassAction; cerrarModalPass();
- setTimeout(()=>{
-   if(accion==='descargar') generarBackup();
-   else if(accion==='restaurar') restaurarBackup();
-   else if(accion==='entrar-inspectores'){ _navegarSeccion('inspectores', document.getElementById('btn-nav-inspectores')); }
-   else if(accion==='entrar-backup'){ _navegarSeccion('backup', document.getElementById('btn-nav-backup')); }
- },150);
-}
-
+function confirmarPass(){
+  if(document.getElementById('pass-input').value!==BACKUP_PASS){
+    const el=document.getElementById('alerta-pass');
+    el.className='alerta show alerta-error';el.textContent='❌ Contraseña incorrecta.';
+    document.getElementById('pass-input').value='';document.getElementById('pass-input').focus();return;
+  }
   const accion=_pendingPassAction;cerrarModalPass();
-  setTimeout(()=>{
- if(accion==='descargar') generarBackup();
- else if(accion==='restaurar') restaurarBackup();
- else if(accion==='entrar-inspectores'){ _navegarSeccion('inspectores', document.getElementById('btn-nav-inspectores')); }
- else if(accion==='entrar-backup'){ _navegarSeccion('backup', document.getElementById('btn-nav-backup')); }
-},150);
+  setTimeout(()=>{if(accion==='descargar')generarBackup();else if(accion==='restaurar')restaurarBackup();},150);
 }
 
 /* ══ TOKEN ══ */
@@ -1319,13 +1231,7 @@ function irAInspectores(){
   _navegarSeccion('inspectores',document.getElementById('btn-nav-inspectores'));
   window.scrollTo({top:0,behavior:'smooth'});
 }
-function navClick(id,btn){
- if(id==='inspectores'){ pedirPassBackup('entrar-inspectores'); return; }
- if(id==='backup'){ pedirPassBackup('entrar-backup'); return; }
- if(!getInspectorActivo()) return;
- _navegarSeccion(id,btn);
-}
-
+function navClick(id,btn){if(!getInspectorActivo()&&id!=='inspectores')return;_navegarSeccion(id,btn);}
 function _navegarSeccion(id,btn){
   document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('activa'));
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('activo'));
@@ -1447,69 +1353,41 @@ function armarMensajeWA(insp,turno){
 
 /* ══ ABM INSPECTORES ══ */
 async function guardarInspector(){
- const nombre=document.getElementById('insp-nombre').value.trim();
- const tel=document.getElementById('insp-tel').value.trim();
- const obs=document.getElementById('insp-obs').value.trim();
- const usuario=(document.getElementById('insp-user')||{}).value?document.getElementById('insp-user').value.trim():'';
- const pass=(document.getElementById('insp-pass')||{}).value?document.getElementById('insp-pass').value:'';
- if(!nombre){mostrarAlerta('alerta-insp','error','Ingresá el nombre del inspector.');return;}
- if(!usuario){mostrarAlerta('alerta-insp','error','Ingresá el usuario del inspector.');return;}
- if(!pass){mostrarAlerta('alerta-insp','error','Ingresá la contraseña del inspector.');return;}
- const lista=cargarDatos(KEYS.inspectores);
- if(lista.find(i=>i.nombre && i.nombre.toLowerCase()===nombre.toLowerCase())){mostrarAlerta('alerta-insp','error','Ya existe un inspector con ese nombre.');return;}
- if(lista.find(i=>i.usuario && i.usuario.toLowerCase()===usuario.toLowerCase())){mostrarAlerta('alerta-insp','error','Ya existe un inspector con ese usuario.');return;}
- lista.push({id:Date.now(),nombre,tel,obs,usuario,pass});guardarDatos(KEYS.inspectores,lista);
- mostrarAlerta('alerta-insp','info','⏳ Guardando...');
- const res=await guardarEnGitHub(false);
- if(res.ok)mostrarAlerta('alerta-insp','ok',`✅ Inspector <strong>${nombre}</strong> registrado.`);
- else mostrarAlerta('alerta-insp','warn',`⚠️ Guardado localmente. Error sync: ${res.error||''}`);
- ['insp-nombre','insp-tel','insp-obs','insp-user','insp-pass'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
- renderInspectores();
+  const nombre=document.getElementById('insp-nombre').value.trim();
+  const tel=document.getElementById('insp-tel').value.trim();
+  const obs=document.getElementById('insp-obs').value.trim();
+  if(!nombre){mostrarAlerta('alerta-insp','error','Ingresá el nombre del inspector.');return;}
+  const lista=cargarDatos(KEYS.inspectores);
+  if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase())){mostrarAlerta('alerta-insp','error','Ya existe un inspector con ese nombre.');return;}
+  lista.push({id:Date.now(),nombre,tel,obs});guardarDatos(KEYS.inspectores,lista);
+  mostrarAlerta('alerta-insp','info','⏳ Guardando...');
+  const res=await guardarEnGitHub(false);
+  if(res.ok)mostrarAlerta('alerta-insp','ok',`✅ Inspector <strong>${nombre}</strong> registrado.`);
+  else mostrarAlerta('alerta-insp','warn',`⚠️ Guardado localmente. Error sync: ${res.error||''}`);
+  ['insp-nombre','insp-tel','insp-obs'].forEach(id=>{document.getElementById(id).value='';});
+  renderInspectores();
 }
-
 function editarInspector(id){
- const insp=cargarDatos(KEYS.inspectores).find(i=>i.id===id);if(!insp)return;
- _editInspId=id;
- document.getElementById('m-insp-nombre').value=insp.nombre;
- document.getElementById('m-insp-tel').value=insp.tel||'';
- document.getElementById('m-insp-obs').value=insp.obs||'';
- document.getElementById('alerta-modal-insp').className='alerta';
- document.getElementById('modal-insp').classList.add('show');
+  const insp=cargarDatos(KEYS.inspectores).find(i=>i.id===id);if(!insp)return;
+  _editInspId=id;
+  document.getElementById('m-insp-nombre').value=insp.nombre;
+  document.getElementById('m-insp-tel').value=insp.tel||'';
+  document.getElementById('m-insp-obs').value=insp.obs||'';
+  document.getElementById('alerta-modal-insp').className='alerta';
+  document.getElementById('modal-insp').classList.add('show');
 }
-
 function cerrarModalInspector(){document.getElementById('modal-insp').classList.remove('show');_editInspId=null;}
 async function guardarModalInspector(){
- const nombre=document.getElementById('m-insp-nombre').value.trim();
- const tel=document.getElementById('m-insp-tel').value.trim();
- const obs=document.getElementById('m-insp-obs').value.trim();
- if(!nombre){mostrarAlerta('alerta-modal-insp','error','Ingresá el nombre.');return;}
- const lista=cargarDatos(KEYS.inspectores);
- if(lista.find(i=>i.nombre && i.nombre.toLowerCase()===nombre.toLowerCase() && i.id!==_editInspId)){mostrarAlerta('alerta-modal-insp','error','Ya existe ese nombre.');return;}
- const idx=lista.findIndex(i=>i.id===_editInspId);if(idx===-1){cerrarModalInspector();return;}
- lista[idx]={...lista[idx],nombre,tel,obs};guardarDatos(KEYS.inspectores,lista);
- await guardarEnGitHub(false);cerrarModalInspector();actualizarUIInspectorActivo();renderInspectores();
- mostrarAlerta('alerta-insp','ok','✅ Inspector actualizado.');
-}
-
-function abrirCambioPassInspector(){
- if(!_editInspId){mostrarAlerta('alerta-modal-insp','error','No hay inspector seleccionado.');return;}
- document.getElementById('m-insp-pass-new').value='';
- document.getElementById('alerta-modal-pass-insp').className='alerta';
- document.getElementById('modal-pass-insp').classList.add('show');
-}
-function cerrarCambioPassInspector(){
- document.getElementById('modal-pass-insp').classList.remove('show');
-}
-async function guardarCambioPassInspector(){
- const pass=document.getElementById('m-insp-pass-new').value;
- if(!pass){const a=document.getElementById('alerta-modal-pass-insp');a.className='alerta show alerta-error';a.textContent='Ingresá la nueva contraseña.';return;}
- const lista=cargarDatos(KEYS.inspectores);
- const idx=lista.findIndex(i=>i.id===_editInspId);
- if(idx===-1){cerrarCambioPassInspector();return;}
- lista[idx]={...lista[idx],pass};guardarDatos(KEYS.inspectores,lista);
- await guardarEnGitHub(false);
- cerrarCambioPassInspector();
- mostrarAlerta('alerta-insp','ok','✅ Contraseña actualizada.');
+  const nombre=document.getElementById('m-insp-nombre').value.trim();
+  const tel=document.getElementById('m-insp-tel').value.trim();
+  const obs=document.getElementById('m-insp-obs').value.trim();
+  if(!nombre){mostrarAlerta('alerta-modal-insp','error','Ingresá el nombre.');return;}
+  const lista=cargarDatos(KEYS.inspectores);
+  if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase()&&i.id!==_editInspId)){mostrarAlerta('alerta-modal-insp','error','Ya existe ese nombre.');return;}
+  const idx=lista.findIndex(i=>i.id===_editInspId);if(idx===-1){cerrarModalInspector();return;}
+  lista[idx]={...lista[idx],nombre,tel,obs};guardarDatos(KEYS.inspectores,lista);
+  await guardarEnGitHub(false);cerrarModalInspector();actualizarUIInspectorActivo();renderInspectores();
+  mostrarAlerta('alerta-insp','ok','✅ Inspector actualizado.');
 }
 async function eliminarInspector(id){
   const insp=cargarDatos(KEYS.inspectores).find(i=>i.id===id);if(!insp)return;
@@ -1861,60 +1739,6 @@ const CHART_BASE_OPTS={
     tooltip:{titleFont:{family:"'Oswald',sans-serif"},bodyFont:{family:"'Open Sans',sans-serif"}}
   }
 };
-/* ── Estimación de edad por DNI (aprox.) ── */
-function _cleanDNI(v){ return String(v||'').replace(/\D+/g,''); }
-const DNI_YEAR_POINTS = [
-  { dni: 1000000, year: 1945 },
-  { dni: 5000000, year: 1960 },
-  { dni: 10000000, year: 1970 },
-  { dni: 20000000, year: 1990 },
-  { dni: 30000000, year: 2008 },
-  { dni: 40000000, year: 2013 },
-  { dni: 50000000, year: 2017 },
-  { dni: 60000000, year: 2019 },
-  { dni: 70000000, year: 2022 },
-  { dni: 80000000, year: 2024 }
-];
-function _interpolateYearFromDNI(n){
-  const pts=DNI_YEAR_POINTS;
-  if(n<=pts[0].dni) return pts[0].year;
-  if(n>=pts[pts.length-1].dni) return pts[pts.length-1].year;
-  for(let i=0;i<pts.length-1;i++){const a=pts[i],b=pts[i+1]; if(n>=a.dni && n<=b.dni){const t=(n-a.dni)/(b.dni-a.dni); return a.year + t*(b.year-a.year);}}
-  return new Date().getFullYear();
-}
-function estimateAgeFromDNI(dni,ajuste){
-  const n=parseInt(_cleanDNI(dni),10); if(!Number.isFinite(n)||n<=0) return null;
-  const issue=_interpolateYearFromDNI(n);
-  let age=Math.round(new Date().getFullYear()-issue + Number(ajuste||0));
-  if(age<0) age=0; if(age>110) age=110;
-  return age;
-}
-function _buildAgeBins(){
-  return [
-    {label:'<20',min:0,max:19},
-    {label:'20–29',min:20,max:29},
-    {label:'30–39',min:30,max:39},
-    {label:'40–49',min:40,max:49},
-    {label:'50–59',min:50,max:59},
-    {label:'60–69',min:60,max:69},
-    {label:'70–79',min:70,max:79},
-    {label:'80+',min:80,max:Infinity}
-  ];
-}
-function _renderChartEdad(ing,ajuste){
-  _destroyChart('edad');
-  const setDNIs=new Set(ing.map(i=>i.dni));
-  const ages=[]; setDNIs.forEach(d=>{const a=estimateAgeFromDNI(d,ajuste); if(Number.isFinite(a)) ages.push(a);});
-  const bins=_buildAgeBins(); const counts=bins.map(()=>0);
-  ages.forEach(a=>{const idx=bins.findIndex(b=>a>=b.min && a<=b.max); if(idx>=0) counts[idx]++;});
-  const ctx=document.getElementById('chart-edad').getContext('2d');
-  _charts['edad']=new Chart(ctx,{
-    type:'bar',
-    data:{ labels:bins.map(b=>b.label), datasets:[{ label:'Visitantes únicos por edad (aprox.)', data:counts, backgroundColor:STATS_COLORS.azul, borderColor:STATS_COLORS.azulB, borderWidth:2, borderRadius:5 }] },
-    options:{ ...CHART_BASE_OPTS, scales:{ x:{ticks:{color:'#2a4a2a'}}, y:{beginAtZero:true,ticks:{stepSize:1,color:'#2a4a2a'}} }, plugins:{...CHART_BASE_OPTS.plugins,legend:{display:false}} }
-  });
-}
-
 
 /* ── Helpers de fecha dd/mm/yyyy ── */
 function ddmmToIso(s){
@@ -1967,7 +1791,6 @@ function inicializarEstadisticas(){
   const h=document.getElementById('stats-hasta');
   if(!d.value&&!h.value){statsSetHoy();}
   generarEstadisticas();
-  const _ea=document.getElementById('edad-ajuste'); if(_ea){ _ea.addEventListener('change', ()=>generarEstadisticas()); }
 }
 
 /* ── Función principal ── */
@@ -2030,8 +1853,6 @@ function generarEstadisticas(){
   }
 
   /* ── Gráficos ── */
-  const _aj= parseInt((document.getElementById('edad-ajuste')||{}).value||'0',10)||0;
-  _renderChartEdad(ing,_aj);
   _renderChartPorDia(desdeIso,hastaIso,porDia);
   _renderChartPorHora(porHora);
   _renderChartDistribucion(ing.length,ap.length,su.length);
@@ -2283,22 +2104,17 @@ async function iniciarSyncConGitHub(){
 }
 
 (async function init(){
-  try {
-    const sl = document.getElementById('sync-loading');
-    if(sl){ sl.classList.add('show'); document.getElementById('sync-loading-txt').textContent='🕐 Preparando...'; }
-    // No bloquear la UI: sincronizar hora en background (máx 1.5s)
-    Promise.race([sincronizarHora(), new Promise(r=>setTimeout(r,1500))]).catch(()=>{});
-  } catch(e) { /* noop */ }
-  finally { const sl=document.getElementById('sync-loading'); if(sl) sl.classList.remove('show'); }
-  // Failsafe: esconder overlay si algún error lo dejó visible
-  setTimeout(()=>{ const sl=document.getElementById('sync-loading'); if(sl) sl.classList.remove('show'); }, 2500);
-  // Mostrar login del sistema inmediatamente si no está logueado
-  if(!isLoggedSistema()){ mostrarLoginSistema(); return; }
-  // Luego, token de GitHub o sync
-  if(!getToken()){ document.getElementById('token-modal').classList.add('show'); } else { iniciarSyncConGitHub(); }
+  document.getElementById('sync-loading').classList.add('show');
+  document.getElementById('sync-loading-txt').textContent='🕐 Sincronizando hora...';
+  await Promise.race([sincronizarHora(),new Promise(r=>setTimeout(r,5000))]);
+  tickReloj();setInterval(tickReloj,1000);setInterval(sincronizarHora,5*60*1000);
+  if(!getToken()){
+    document.getElementById('sync-loading').classList.remove('show');
+    document.getElementById('token-modal').classList.add('show');
+  } else {
+    await iniciarSyncConGitHub();
+  }
 })();
 </script>
-</div>
-
 </body>
 </html>
