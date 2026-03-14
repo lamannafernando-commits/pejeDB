@@ -1,6 +1,41 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<style id="pcq-style-safety">
+#sync-loading{display:none!important}
+</style>
+
+<script id="pcq-early-safety">
+(function(){
+  try{
+    window.addEventListener('error', function(e){
+      if(!window._pcqFirstError){ window._pcqFirstError = (e && e.message) ? e.message : 'Error de script'; }
+      try{ document.getElementById('sync-loading') && document.getElementById('sync-loading').classList.remove('show'); }catch(_){ }
+    }, {once:false});
+
+    document.addEventListener('DOMContentLoaded', function(){
+      try{ document.getElementById('sync-loading') && document.getElementById('sync-loading').classList.remove('show'); }catch(_){ }
+      try{
+        var hasTok = false; try{ hasTok = !!localStorage.getItem('pcq_gh_token'); }catch(_){ }
+        if(hasTok){
+          try{ document.getElementById('bloqueo-overlay') && document.getElementById('bloqueo-overlay').classList.remove('show'); }catch(_){}
+          try{ document.querySelectorAll('nav button').forEach(function(b){ b.classList.remove('nav-bloqueado'); }); }catch(_){}
+          try{
+            if(typeof navigateHome==='function') navigateHome();
+            else if(typeof _navegarSeccion==='function') _navegarSeccion('ingreso', document.getElementById('btn-nav-ingreso'));
+            else { location.hash='#ingreso'; }
+          }catch(_){}
+        } else {
+          try{ document.getElementById('token-modal') && document.getElementById('token-modal').classList.add('show'); }catch(_){}
+        }
+      }catch(_){}
+      setTimeout(function(){ try{ document.getElementById('sync-loading') && document.getElementById('sync-loading').classList.remove('show'); }catch(_){} }, 500);
+    });
+  }catch(_){ }
+})();
+</script>
+
+
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pejerrey Club Quilmes – Gestión de Ingreso</title>
@@ -2088,7 +2123,7 @@ async function iniciarSyncConGitHub(){
 }
 
 (async function init(){
-  document.getElementById('sync-loading').classList.add('show');
+  document.getElementById('sync-loading')?.classList.remove('show');
   document.getElementById('sync-loading-txt').textContent='🕐 Sincronizando hora..';
   await Promise.race([sincronizarHora(),new Promise(r=>setTimeout(r,5000))]);
   tickReloj();setInterval(tickReloj,1000);setInterval(sincronizarHora,5*60*1000);
@@ -2299,6 +2334,11 @@ function setSyncBadge(state, txt){ try{ var b=document.getElementById('sync-badg
     }catch(e){}
   });
 })();
+</script>
+
+
+<script id="pcq-final-failsafe">
+setTimeout(function(){ try{ document.getElementById('sync-loading') && document.getElementById('sync-loading').classList.remove('show'); }catch(_){} }, 2000);
 </script>
 
 </body>
