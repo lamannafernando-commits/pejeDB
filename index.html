@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<style id="pcq-hide-token-badge">#sync-badge{display:none!important}</style>
+
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pejerrey Club Quilmes – Gestión de Ingreso</title>
@@ -344,7 +346,7 @@
   <button id="btn-nav-vencidos"       onclick="navClick('vencidos',this)">⏰ Ingresos Vencidos</button>
   <button id="btn-nav-estadisticas"   onclick="navClick('estadisticas',this)">📊 Estadísticas</button>
   <button id="btn-nav-inspectores"    onclick="navClick('inspectores',this)">👮 Inspectores</button>
-  <button id="btn-nav-backup"         onclick="navClick('backup',this)">💾 Backup</button>
+  <button id="btn-nav-backup"         onclick="navClick('backup',this)">⚙️ Administrar</button>
 </nav>
 
 <main>
@@ -633,10 +635,7 @@
 
   <!-- INSPECTORES -->
   <section id="sec-inspectores" class="seccion">
-    <div id="banner-activar" style="display:none;background:rgba(200,168,75,.12);border:2px solid var(--dorado);border-radius:10px;padding:14px 20px;margin-bottom:18px;color:var(--dorado);font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:1px;text-align:center;">
-      ⚡ Seleccioná un inspector y presioná <strong>Activar</strong> para habilitar el sistema
-    </div>
-    <div class="card">
+ <div class="card">
       <h2>👮 Inspector de Turno Activo</h2>
       <div id="insp-activo-panel" class="inspector-activo-panel sin-inspector">
         <div class="ia-icono">👮</div>
@@ -662,12 +661,27 @@
     <div class="card">
       <h2>📋 Inspectores Registrados</h2>
       <div id="insp-grid" class="insp-grid"></div>
-      <div id="insp-vacio" style="text-align:center;color:#8aaa8a;padding:20px;display:none;">No hay inspectores registrados aún.</div>
-    </div>
-  </section>
+</section>
 
   <!-- BACKUP -->
   <section id="sec-backup" class="seccion">
+  <div class="card">
+    <h2>➕ Agregar Inspector</h2>
+    <div class="form-row">
+      <label>Nombre completo<input type="text" id="insp-nombre" placeholder="Apellido, Nombre"/></label>
+      <label>Teléfono (opcional)<input type="text" id="insp-tel" placeholder="Ej: 11-1234-5678" maxlength="30"/></label>
+    </div>
+    <div class="form-row">
+      <label>Observaciones (opcional)<input type="text" id="insp-obs" placeholder="Turno, área, etc." maxlength="80"/></label>
+    </div>
+    <div class="form-row">
+      <label>Usuario<input type="text" id="insp-user" placeholder="usuario.login"/></label>
+      <label>Contraseña<input type="password" id="insp-pass" placeholder="********"/></label>
+    </div>
+    <button class="btn btn-success" id="insp-guardar-btn" onclick="solicitarPassAltaInspector()">💾 Guardar Inspector</button>
+    <div id="alerta-insp" class="alerta"></div>
+  </div>
+
     <div class="card">
       <h2>🔑 Token de Sincronización</h2>
       <div id="token-status-card" class="token-status error">❌ No hay token configurado</div>
@@ -2115,158 +2129,5 @@ async function iniciarSyncConGitHub(){
   }
 })();
 </script>
-
-<script id="pcq-v1287-fix-alta-inspector">
-// v12.8.7 — Arreglo definitivo: tras validar la pass, procesa 'alta-inspector' y agrega el inspector
-(function(){
-  // helper: lee valor seguro
-  function val(id){ try{ var el=document.getElementById(id); return (el && typeof el.value==='string') ? el.value.trim() : ''; }catch(_){ return ''; } }
-  function set(id,v){ try{ var el=document.getElementById(id); if(el) el.value=v; }catch(_){ } }
-  function showOK(msg){ try{ mostrarAlerta('alerta-insp','ok',msg); }catch(_){ alert(msg); } }
-  function showErr(msg){ try{ mostrarAlerta('alerta-insp','error',msg); }catch(_){ alert(msg); } }
-  function saveInspectores(lista){ try{ localStorage.setItem((window.KEYS && KEYS.inspectores)?KEYS.inspectores:'pcq_inspectores', JSON.stringify(lista)); }catch(_){ } }
-  function loadInspectores(){ try{ return JSON.parse(localStorage.getItem((window.KEYS && KEYS.inspectores)?KEYS.inspectores:'pcq_inspectores')||'[]'); }catch(_){ return []; } }
-
-  // Nos colgamos de confirmarPass ya parcheado por v12.8.6
-  var _oldConfirm = window.confirmarPass;
-  window.confirmarPass = async function(){
-    // 1) Validar pass usando smart checker si existe; si no, aceptar como válido para no duplicar UI
-    try{
-      if(typeof checkMasterPassSmart==='function'){
-        var ok = await checkMasterPassSmart(document.getElementById('pass-input').value||'');
-        if(!ok){ var el=document.getElementById('alerta-pass'); if(el){ el.className='alerta show alerta-error'; el.textContent='❌ Contraseña incorrecta.'; } set('pass-input',''); try{ document.getElementById('pass-input').focus(); }catch(_){ } return; }
-      }
-    }catch(_){ }
-
-    // 2) Tomar la acción pendiente
-    var accion = window._pendingPassAction;
-    if(accion==='alta-inspector'){
-      // cerrar modal
-      try{ document.getElementById('modal-pass').style.display='none'; }catch(_){ }
-      // construir registro con datos del form/pending
-      var p = window._pendingInspectorAlta || {};
-      var nombre = p.nombre || val('insp-nombre');
-      var tel    = p.tel    || val('insp-tel');
-      var obs    = p.obs    || val('insp-obs');
-      // opcionales: usuario/contraseña si están en el form
-      var usuario = val('insp-user');
-      var pass    = val('insp-pass');
-      if(!nombre){ showErr('Ingresá el nombre del inspector.'); return; }
-      // cargar lista, validar duplicados (por nombre o por usuario si existe)
-      var lista = loadInspectores();
-      if(lista.find(function(i){ return i && (i.nombre||'').toLowerCase()===nombre.toLowerCase(); })){
-        showErr('Ya existe un inspector con ese nombre.'); return;
-      }
-      if(usuario && lista.find(function(i){ return i && (i.usuario||'').toLowerCase()===usuario.toLowerCase(); })){
-        showErr('Ya existe un inspector con ese usuario.'); return;
-      }
-      var reg = { id: Date.now(), nombre: nombre, tel: tel, obs: obs };
-      if(usuario) reg.usuario = usuario;
-      if(pass)    reg.pass    = pass;
-      lista.push(reg);
-      saveInspectores(lista);
-      try{ if(typeof renderInspectores==='function') renderInspectores(); }catch(_){ }
-      showOK('✅ Inspector registrado.');
-      // limpiar campos
-      ['insp-nombre','insp-tel','insp-obs','insp-user','insp-pass'].forEach(function(id){ set(id,''); });
-      // resetear pending
-      window._pendingInspectorAlta = null;
-      window._pendingPassAction = null;
-      return; // no delegar al viejo confirmar para evitar dobles rutas
-    }
-
-    // Otra acción (descargar/restaurar, etc.): delegar al viejo confirmar si existe
-    if(typeof _oldConfirm==='function') return _oldConfirm();
-    try{ document.getElementById('modal-pass').style.display='none'; }catch(_){ }
-  };
-})();
-</script>
-
 </body>
 </html>
-
-
-<!-- v12.8.6 – parches: hora local + alta inspector CON pass + check pass smart (plain o hash) -->
-<script id="pcq-v1286-device-time">
-(function(){
-  try{ window.offsetMs = 0; }catch(_){ }
-  window.sincronizarHora = async function(){
-    try{ window.offsetMs = 0; }catch(_){ }
-    try{ var el = document.getElementById('fuente-hora'); if(el) el.textContent = '\ud83d\udd50 Hora local del dispositivo'; }catch(_){ }
-    return;
-  };
-  try{
-    if (typeof tickReloj === 'function') { tickReloj(); setInterval(tickReloj, 1000); }
-    var fh = document.getElementById('fuente-hora'); if(fh) fh.textContent = '\ud83d\udd50 Hora local del dispositivo';
-  }catch(_){ }
-})();
-</script>
-
-<script id="pcq-v1286-inspector-pass-strict">
-(function(){
-  function wireGuardar(){
-    try{
-      var sec = document.getElementById('sec-inspectores'); if(!sec) return;
-      var btns = sec.querySelectorAll('button');
-      for(var i=0;i<btns.length;i++){
-        var b=btns[i]; var t=(b.textContent||'').toLowerCase();
-        if(t.includes('guardar') && t.includes('inspector')){
-          b.id = b.id || 'insp-guardar-btn';
-          b.onclick = function(ev){ ev.preventDefault(); try{ solicitarPassAltaInspector(); }catch(_){ try{ guardarInspector(); }catch(__){} } };
-          break;
-        }
-      }
-    }catch(_){ }
-  }
-
-  window.solicitarPassAltaInspector = function(){
-    try{
-      var nombre=(document.getElementById('insp-nombre')||{}).value?.trim()||'';
-      var tel=(document.getElementById('insp-tel')||{}).value?.trim()||'';
-      var obs=(document.getElementById('insp-obs')||{}).value?.trim()||'';
-      if(!nombre){ try{ mostrarAlerta('alerta-insp','error','Ingresá el nombre del inspector.'); }catch(_){ alert('Ingresá el nombre.'); } return; }
-      window._pendingInspectorAlta = { nombre:nombre, tel:tel, obs:obs };
-      try{
-        var tit=document.getElementById('pass-titulo'); if(tit) tit.textContent='\uD83D\uDD12 Confirmá el alta del inspector';
-        var sub=document.getElementById('pass-subtitulo'); if(sub) sub.textContent='Ingresá la contraseña maestra para dar de alta el inspector.';
-        var a=document.getElementById('alerta-pass'); if(a){ a.className='alerta'; a.textContent=''; }
-        document.getElementById('pass-input').value='';
-        window._pendingPassAction='alta-inspector';
-        var modal=document.getElementById('modal-pass');
-        if(modal){ modal.style.display='flex'; setTimeout(function(){ try{ document.getElementById('pass-input').focus(); }catch(_){ } },120); }
-      }catch(_){ }
-    }catch(_){ }
-  };
-
-  // Strict guardarInspector: exige pass
-  window.guardarInspector = function(){ try{ solicitarPassAltaInspector(); }catch(_){ alert('Se requiere contraseña maestra. Intentá de nuevo.'); } };
-
-  document.addEventListener('DOMContentLoaded', wireGuardar);
-})();
-</script>
-
-<script id="pcq-v1286-pass-smart">
-(function(){
-  async function sha256Hex(str){ const enc=new TextEncoder().encode(str); const buf=await crypto.subtle.digest('SHA-256', enc); return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
-  function sha256HexFallback(ascii){ function R(v,a){return (v>>>a)|(v<<(32-a));} var M=Math.pow(2,32),r='',w=[],i,j,L=ascii.length*8,h=sha256HexFallback.h=sha256HexFallback.h||[],k=sha256HexFallback.k=sha256HexFallback.k||[],p=k.length,c={}; function f(x){return x-Math.floor(x)} if(!p){for(var q=2;p<64;q++)if(!c[q]){for(i=0;i<313;i+=q)c[i]=q;h[p]=(f(Math.sqrt(q))*M)|0;k[p++]=(f(Math.cbrt(q))*M)|0}} ascii+='\u0080';while(ascii.length%64-56)ascii+='\u0000'; for(i=0;i<ascii.length;i++){j=ascii.charCodeAt(i);w[i>>2]|=j<<((3-i)%4)*8} w[w.length]=(L/M)|0;w[w.length]=L; for(j=0;j<w.length;){var W=w.slice(j,j+=16),H=h.slice(0),a=h[0],b=h[1],c2=h[2],d=h[3],e=h[4],f2=h[5],g=h[6],h2=h[7]; for(i=0;i<64;i++){var w15=W[i-15],w2=W[i-2],s0=(w15>>>7 ^ w15>>>18 ^ w15>>>3),s1=(w2>>>17 ^ w2>>>19 ^ w2>>>10); W[i]=i<16?W[i]:(W[i-16]+s0+W[i-7]+s1)|0; var ch=e&f2 ^ ~e&g,maj=a&b ^ a&c2 ^ b&c2,S0=(a>>>2 ^ a>>>13 ^ a>>>22),S1=(e>>>6 ^ e>>>11 ^ e>>>25); var t1=(h2+S1+ch+k[i]+W[i])|0,t2=(S0+maj)|0; h2=g;g=f2;f2=e;e=(d+t1)|0;d=c2;c2=b;b=a;a=(t1+t2)|0} h[0]=(h[0]+a)|0;h[1]=(h[1]+b)|0;h[2]=(h[2]+c2)|0;h[3]=(h[3]+d)|0;h[4]=(h[4]+e)|0;h[5]=(h[5]+f2)|0;h[6]=(h[6]+g)|0;h[7]=(h[7]+h2)|0} for(i=0;i<h.length;i++)for(j=3;j+1;j--){var B=(h[i]>>> (j*8))&255;r+=((B<16)?'0':'')+B.toString(16)} return r; }
-  async function sha256HexSafe(s){ try{ if(window.crypto && crypto.subtle){ return await sha256Hex(s); } }catch(e){} return sha256HexFallback(s); }
-
-  async function checkMasterPassSmart(input){
-    try{ if(typeof window.BACKUP_PASS !== 'undefined' && window.BACKUP_PASS !== null){ if(String(input) === String(window.BACKUP_PASS)) return true; } }catch(_){ }
-    try{ if(typeof window.BACKUP_PASS_HASH !== 'undefined' && window.BACKUP_PASS_HASH){ const h = await sha256HexSafe(String(input)); if(h === String(window.BACKUP_PASS_HASH)) return true; } }catch(_){ }
-    try{ if(String(input) === 'gustavopeje') return true; }catch(_){ }
-    return false;
-  }
-
-  var _oldConfirm = window.confirmarPass;
-  window.confirmarPass = async function(){
-    try{
-      var val = document.getElementById('pass-input').value;
-      var ok = await checkMasterPassSmart(val);
-      if(!ok){ var el=document.getElementById('alerta-pass'); if(el){ el.className='alerta show alerta-error'; el.textContent='❌ Contraseña incorrecta.'; } document.getElementById('pass-input').value=''; document.getElementById('pass-input').focus(); return; }
-      if(typeof _oldConfirm === 'function'){ return _oldConfirm(); }
-      try{ document.getElementById('modal-pass').style.display='none'; }catch(_){ }
-    }catch(e){ try{ console.error(e); }catch(_){ } }
-  };
-})();
-</script>
