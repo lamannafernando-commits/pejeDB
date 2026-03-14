@@ -1,663 +1,428 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <title>Ingreso · Estadísticas · Back‑up de Inspectores (ABM)</title>
+  <meta charset="UTF-8" />
+  <title>Ingreso</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    /* ======== Estilos base (sobrios, no invasivos) ======== */
-    :root{
-      --bg:#0b1020;
-      --panel:#111827;
-      --text:#e5e7eb;
-      --text-dim:#cbd5e1;
-      --b:#20283a;
-      --acc:#38bdf8;
-      --ok:#22c55e;
-      --warn:#f59e0b;
-      --bad:#ef4444;
+    :root {
+      --c-primary: #0d6efd;
+      --c-danger: #dc3545;
+      --c-success: #198754;
+      --c-muted: #6c757d;
+      --bg: #ffffff;
+      --border: #e5e7eb;
     }
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial;
-      background: linear-gradient(180deg,#0b1020,#090e1a);
-      color:var(--text);
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      margin: 0;
+      background: #f7f7f8;
+      color: #111827;
+      line-height: 1.4;
     }
-    .container{max-width:1100px; margin:0 auto; padding:16px}
-    h1{font-size:20px; margin:0 0 10px}
-    h2{font-size:18px; margin:16px 0 8px}
-    p.section-sub{margin:0 0 12px; color:var(--text-dim); font-size:14px}
-    .panel{
-      background: rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.1);
-      border-radius:10px;
-      padding:14px;
-      margin: 12px 0;
+    .container {
+      max-width: 840px;
+      margin: 24px auto;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 18px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.06);
     }
-    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
-    .field{display:flex; flex-direction:column; gap:6px; min-width:200px}
-    label{font-size:12px; color:var(--text-dim)}
-    input[type="text"], input[type="number"], input[type="date"], select, input[type="file"]{
-      padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04); color:var(--text); outline:none;
+    h1 {
+      margin: 0 0 14px;
+      font-size: 1.35rem;
     }
-    input:focus, select:focus{border-color: rgba(56,189,248,.6); box-shadow: 0 0 0 2px rgba(56,189,248,.15);}
-    .btn{
-      padding:10px 14px; border:1px solid rgba(255,255,255,.12); border-radius:8px; background: rgba(56,189,248,.15);
-      color:var(--text); font-weight:600; cursor:pointer;
+    .row { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 14px; }
+    @media (min-width: 720px) {
+      .row.cols-2 { grid-template-columns: 1fr 1fr; }
     }
-    .btn.secondary{background: rgba(34,197,94,.2)}
-    .btn.ghost{background: transparent}
-    .btn.warn{background: rgba(245,158,11,.2)}
-    .spacer{flex:1}
-    .divider{height:1px; background: rgba(255,255,255,.12); margin:10px 0}
-
-    /* Grillas */
-    .table-wrap{ width:100%; overflow:auto; border:1px solid rgba(255,255,255,.1); border-radius:10px}
-    table{ width:100%; border-collapse: collapse; min-width:720px; background: rgba(255,255,255,.02)}
-    th,td{ padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.08); text-align:left; font-size:14px}
-    thead th{ position:sticky; top:0; background: rgba(2,6,23,.7); backdrop-filter: blur(6px); z-index:1}
-    tr:hover{ background: rgba(255,255,255,.04)}
-
-    /* Chips y thumbs */
-    .enh-chip{ padding:2px 8px; border-radius:999px; font-size:12px; font-weight:800; display:inline-block}
-    .enh-chip.socio{ background:#c9f7d6; color:#083b1f}
-    .enh-chip.invitado{ background:#d5e8ff; color:#0b2a5a}
-    .enh-chip.inactivo{ background:#e2e8f0; color:#1f2937}
-    .enh-thumb{ width:40px; height:40px; object-fit:cover; border-radius:6px; border:1px solid rgba(255,255,255,.2); cursor:zoom-in}
-
-    /* Modal y Toast */
-    .enh-modal{ position:fixed; inset:0; background: rgba(0,0,0,.75); display:none; align-items:center; justify-content:center; z-index:1000; padding:20px}
-    .enh-modal.open{ display:flex}
-    .enh-card{ background:#0f172a; border:1px solid rgba(255,255,255,.15); border-radius:10px; padding:12px; max-width:95vw; max-height:95vh; position:relative}
-    .enh-card img{ max-width:90vw; max-height:80vh; border-radius:8px; display:block}
-    .enh-card .close{ position:absolute; top:8px; right:8px}
-    .enh-toast{ position:fixed; bottom:12px; left:50%; transform:translateX(-50%); background:#0f172a; color:#e5e7eb; border:1px solid rgba(255,255,255,.15); padding:8px 12px; border-radius:8px; display:none; z-index:1001}
-    .enh-toast.show{display:block}
-
-    /* Responsive filtros estadísticas */
-    .stack-mobile{ display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:10px}
-    @media (max-width: 700px){
-      .stack-mobile{ grid-template-columns: 1fr }
-      table{ min-width: 640px }
-      .field{ min-width: 140px }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
+    .label { font-weight: 600; }
+    .hint { color: var(--c-muted); font-size: 0.92rem; }
+    .error {
+      color: var(--c-danger);
+      font-size: 0.92rem;
+      display: none;
+    }
+    input[type="text"], input[type="number"], input[type="file"], .radio-group {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: #fff;
+    }
+    input[type="file"] { padding: 8px; }
+    .radio-group { display: flex; gap: 14px; align-items: center; }
+    .radio-group label { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+    .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--c-primary); color: #fff; }
+    .btn-ghost { background: transparent; color: var(--c-muted); }
+    .hidden { display: none !important; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      background: #eef2ff;
+      color: #3730a3;
+      border: 1px solid #e0e7ff;
+      vertical-align: middle;
+    }
+    .divider { height: 1px; background: var(--border); margin: 12px 0; }
+    .toast {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      display: none;
+    }
+    .toast.success { background: #eaf7ef; color: #0f5132; border: 1px solid #badbcc; }
+    .toast.error { background: #fdecea; color: #842029; border: 1px solid #f5c2c7; }
+    .caption { font-size: 0.9rem; color: var(--c-muted); }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Ingreso · Estadísticas · Back‑up de Inspectores (ABM)</h1>
+  <main class="container" aria-labelledby="titulo-ingreso">
+    <h1 id="titulo-ingreso">Registro de Ingreso <span class="badge">Sección</span></h1>
+    <p class="caption">Define reglas de socio/invitado y foto obligatoria si no existe previamente.</p>
+    <div class="divider"></div>
 
-    <!-- ====================== INGRESO ====================== -->
-    <section class="panel" id="seccionIngreso">
-      <h2>Ingreso</h2>
-      <p class="section-sub">Indicá si es <b>Socio</b> o <b>Invitado</b>. Autocompleta por DNI/Nº Socio. La <b>foto es obligatoria</b> si no existe.</p>
-
-      <div class="row" role="radiogroup" aria-label="Tipo de persona">
-        <label class="row" style="gap:6px"><input type="radio" name="tipoPersona" value="SOCIO"> Socio</label>
-        <label class="row" style="gap:6px"><input type="radio" name="tipoPersona" value="INVITADO" checked> Invitado</label>
+    <!-- === FORMULARIO DE INGRESO === -->
+    <form id="formIngreso" novalidate>
+      <!-- Tipo de ingreso -->
+      <div class="field">
+        <span class="label">Tipo de ingreso <span aria-hidden="true" style="color:var(--c-danger)">*</span></span>
+        <div class="radio-group" role="radiogroup" aria-label="Tipo de ingreso">
+          <label>
+            <input type="radio" name="tipoIngreso" value="socio" required />
+            Socio
+          </label>
+          <label>
+            <input type="radio" name="tipoIngreso" value="invitado" required />
+            Invitado
+          </label>
+        </div>
+        <div class="error" id="err-tipo">Seleccioná el tipo de ingreso.</div>
       </div>
 
-      <div class="row" style="margin-top:8px">
-        <div class="field" id="blockDni">
-          <label for="dni">DNI (Invitado)</label>
-          <input type="number" id="dni" inputmode="numeric" placeholder="Ej: 12345678" />
+      <div class="row cols-2">
+        <!-- DNI (solo invitado) -->
+        <div class="field" id="wrap-dni">
+          <label for="dni" class="label">DNI</label>
+          <input type="text" id="dni" name="dni" inputmode="numeric" pattern="^[0-9]{6,10}$" placeholder="Ej: 30123456" />
+          <div class="hint">Solo números (6 a 10 dígitos). Visible para invitados.</div>
+          <div class="error" id="err-dni"></div>
         </div>
-        <div class="field" id="blockSocio" style="display:none">
-          <label for="nroSocio">Nº Socio (Socio)</label>
-          <input type="text" id="nroSocio" placeholder="Ej: 10234" />
-        </div>
-        <div class="field">
-          <label for="nombre">Nombre</label>
-          <input type="text" id="nombre" placeholder="Nombre" />
-        </div>
-        <div class="field">
-          <label for="apellido">Apellido</label>
-          <input type="text" id="apellido" placeholder="Apellido" />
-        </div>
-        <div class="field">
-          <label for="fotoFile">Foto (obligatoria si no existe)</label>
-          <input type="file" id="fotoFile" accept="image/*" capture="environment" />
-        </div>
-        <div class="field" style="min-width:220px">
-          <label for="selectInspectorIngreso">Inspector</label>
-          <select id="selectInspectorIngreso"></select>
-        </div>
-        <div class="spacer"></div>
-        <button class="btn ghost" id="btnLimpiarIngreso" type="button">Limpiar</button>
-        <button class="btn secondary" id="btnConfirmarIngreso" type="button">Confirmar Ingreso</button>
-      </div>
 
-      <div class="divider"></div>
-
-      <h3 style="margin: 6px 0">Ingresos recientes</h3>
-      <div class="table-wrap">
-        <table aria-label="Ingresos recientes">
-          <thead>
-            <tr>
-              <th>Foto</th>
-              <th>Nombre</th>
-              <th>Identificador</th>
-              <th>Tipo</th>
-              <th>Fecha/Hora</th>
-              <th>Inspector</th>
-            </tr>
-          </thead>
-          <tbody id="tbodyIngresos"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ==================== ESTADÍSTICAS ==================== -->
-    <section class="panel" id="seccionEstadisticas">
-      <h2>Estadísticas</h2>
-      <p class="section-sub">Filtros con <b>Date Pickers</b> nativos. Optimizado para móviles.</p>
-
-      <div id="estadisticasFiltros" class="stack-mobile">
-        <div class="field">
-          <label for="fechaDesde">Desde</label>
-          <input type="date" id="fechaDesde" />
-        </div>
-        <div class="field">
-          <label for="fechaHasta">Hasta</label>
-          <input type="date" id="fechaHasta" />
-        </div>
-        <div class="field">
-          <label for="tipoFiltro">Tipo</label>
-          <select id="tipoFiltro">
-            <option value="TODOS">Todos</option>
-            <option value="SOCIO">Socio</option>
-            <option value="INVITADO">Invitado</option>
-          </select>
-        </div>
-        <div class="row" style="align-items:flex-end">
-          <button class="btn secondary" id="btnAplicarFiltros" type="button">Aplicar</button>
-          <button class="btn ghost" id="btnLimpiarFiltros" type="button">Limpiar</button>
+        <!-- N° de socio (solo socio) -->
+        <div class="field" id="wrap-nroSocio">
+          <label for="nroSocio" class="label">N° de socio</label>
+          <input type="text" id="nroSocio" name="nroSocio" placeholder="Ej: S-12345" />
+          <div class="hint">Entre 3 y 20 caracteres (letras, números, guiones). Visible para socios.</div>
+          <div class="error" id="err-nroSocio"></div>
         </div>
       </div>
 
-      <div class="row" style="margin-top:10px">
-        <div class="panel" style="flex:1; min-width:180px">
-          <div style="color:var(--text-dim); font-size:12px">Total ingresos</div>
-          <div id="statTotal" style="font-weight:900; font-size:22px">0</div>
-        </div>
-        <div class="panel" style="flex:1; min-width:180px">
-          <div style="color:var(--text-dim); font-size:12px">Socios</div>
-          <div id="statSocios" style="font-weight:900; font-size:22px">0</div>
-        </div>
-        <div class="panel" style="flex:1; min-width:180px">
-          <div style="color:var(--text-dim); font-size:12px">Invitados</div>
-          <div id="statInvitados" style="font-weight:900; font-size:22px">0</div>
-        </div>
+      <!-- Nombre -->
+      <div class="field">
+        <label for="nombre" class="label">Nombre y apellido</label>
+        <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan Pérez" />
+        <div class="hint">Obligatorio si es invitado. Opcional si es socio.</div>
+        <div class="error" id="err-nombre"></div>
       </div>
 
-      <h3 style="margin: 10px 0">Ingresos (filtrados)</h3>
-      <div class="table-wrap">
-        <table aria-label="Ingresos filtrados">
-          <thead>
-            <tr>
-              <th>Foto</th>
-              <th>Nombre</th>
-              <th>Identificador</th>
-              <th>Tipo</th>
-              <th>Fecha/Hora</th>
-              <th>Inspector</th>
-            </tr>
-          </thead>
-          <tbody id="tbodyEstadisticas"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ============ BACK‑UP DE INSPECTORES (ABM) ============ -->
-    <section class="panel" id="seccionBackupInspectores">
-      <h2>Back‑up de Inspectores (ABM)</h2>
-      <p class="section-sub">Alta / Edición / Activar‑Desactivar (baja lógica). Búsqueda y filtros.</p>
-
-      <!-- Si tuvieras un botón "Agregar Inspector" en otra sección, se ocultaría y se clona aquí.
-           En este HTML ya lo ubicamos directamente acá. -->
-      <div class="row" style="justify-content:space-between">
-        <div class="row">
-          <input type="text" id="buscarInspector" placeholder="Buscar por DNI / Nombre / Apellido" />
-          <select id="filtroEstadoInspectores">
-            <option value="TODOS">Todos</option>
-            <option value="ACTIVO">Activos</option>
-            <option value="INACTIVO">Inactivos</option>
-          </select>
-        </div>
-        <button class="btn secondary" id="btnAgregarInspectorBackup" type="button">+ Agregar Inspector</button>
+      <!-- Foto -->
+      <div class="field">
+        <label for="foto" class="label">Foto de la persona</label>
+        <input
+          type="file"
+          id="foto"
+          name="foto"
+          accept="image/*"
+          capture="environment"
+        />
+        <div class="hint">La foto es obligatoria <strong>solo si</strong> no existe una previa para este identificador.</div>
+        <div class="error" id="err-foto"></div>
       </div>
 
-      <div class="table-wrap" style="margin-top:10px">
-        <table aria-label="Inspectores">
-          <thead>
-            <tr>
-              <th>Foto</th>
-              <th>Nombre</th>
-              <th>DNI</th>
-              <th>Email</th>
-              <th>Teléfono</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="tbodyInspectores"></tbody>
-        </table>
-      </div>
-    </section>
-  </div>
+      <!-- Mensajes -->
+      <div id="toastSuccess" class="toast success" role="status" aria-live="polite"></div>
+      <div id="toastError" class="toast error" role="alert" aria-live="assertive"></div>
 
-  <!-- Modal y Toast -->
-  <div class="enh-modal" id="modal">
-    <div class="enh-card">
-      <button class="btn ghost close" id="modalClose" type="button">Cerrar</button>
-      <div id="modalContent"></div>
-    </div>
-  </div>
-  <div class="enh-toast" id="toast"></div>
+      <!-- Acciones -->
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="btnLimpiar">Limpiar</button>
+        <button type="submit" class="btn btn-primary" id="btnEnviar">Registrar ingreso</button>
+      </div>
+    </form>
+  </main>
 
   <script>
-  // ================== Utilidades ==================
-  const $ = (sel, root=document) => root.querySelector(sel);
-  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+    (function () {
+      const form = document.getElementById('formIngreso');
+      const radios = Array.from(form.querySelectorAll('input[name="tipoIngreso"]'));
+      const dni = document.getElementById('dni');
+      const nroSocio = document.getElementById('nroSocio');
+      const nombre = document.getElementById('nombre');
+      const foto = document.getElementById('foto');
 
-  const Toast = {
-    el: $('#toast'),
-    show(msg, ms=2200){ this.el.textContent = msg; this.el.classList.add('show'); clearTimeout(this._t); this._t=setTimeout(()=>this.el.classList.remove('show'), ms); }
-  };
+      const wrapDni = document.getElementById('wrap-dni');
+      const wrapNroSocio = document.getElementById('wrap-nroSocio');
 
-  const Modal = {
-    root: $('#modal'), content: $('#modalContent'), closeBtn: $('#modalClose'),
-    open(nodeOrHtml){
-      this.content.innerHTML='';
-      if (typeof nodeOrHtml === 'string') this.content.innerHTML = nodeOrHtml;
-      else if (nodeOrHtml) this.content.appendChild(nodeOrHtml);
-      this.root.classList.add('open');
-    },
-    close(){ this.root.classList.remove('open'); this.content.innerHTML=''; }
-  };
-  Modal.closeBtn.addEventListener('click', ()=>Modal.close());
-  Modal.root.addEventListener('click', (e)=>{ if (e.target.id==='modal') Modal.close(); });
+      const errTipo = document.getElementById('err-tipo');
+      const errDni = document.getElementById('err-dni');
+      const errNroSocio = document.getElementById('err-nroSocio');
+      const errNombre = document.getElementById('err-nombre');
+      const errFoto = document.getElementById('err-foto');
 
-  function toDataUrl(file){
-    return new Promise((res, rej)=>{
-      const r = new FileReader();
-      r.onload = ()=>res(r.result);
-      r.onerror = rej;
-      r.readAsDataURL(file);
-    });
-  }
-  function makeThumb(src, alt='Foto'){
-    const img = document.createElement('img');
-    img.src = src || '';
-    img.alt = alt;
-    img.className = 'enh-thumb';
-    if (src){
-      img.addEventListener('click', ()=>{
-        const big = document.createElement('img');
-        big.src = src; big.alt = alt;
-        Modal.open(big);
-      });
-    }
-    return img;
-  }
+      const toastSuccess = document.getElementById('toastSuccess');
+      const toastError = document.getElementById('toastError');
 
-  // ================== Simulación de datos (localStorage) ==================
-  const DB = {
-    personas: JSON.parse(localStorage.getItem('personas')||'[]'),
-    inspectores: JSON.parse(localStorage.getItem('inspectores')||'[]'),
-    ingresos: JSON.parse(localStorage.getItem('ingresos')||'[]'),
-    save(){
-      localStorage.setItem('personas', JSON.stringify(this.personas));
-      localStorage.setItem('inspectores', JSON.stringify(this.inspectores));
-      localStorage.setItem('ingresos', JSON.stringify(this.ingresos));
-    }
-  };
-  if (!DB.inspectores.length){
-    DB.inspectores = [
-      {id:1, dni:'30000001', nombre:'Gabriela', apellido:'Paz', telefono:'', email:'', foto:null, estado:'ACTIVO'},
-      {id:2, dni:'30000002', nombre:'Luis', apellido:'Ortega', telefono:'', email:'', foto:null, estado:'INACTIVO'}
-    ];
-    DB.save();
-  }
-  let seq = JSON.parse(localStorage.getItem('seq')||'{"persona":3,"inspector":3,"ingreso":1}');
-  function nextId(k){ const id = seq[k]||1; seq[k]=id+1; localStorage.setItem('seq', JSON.stringify(seq)); return id; }
+      // Estado derivado
+      let necesitaFoto = false;
 
-  // ================== API en memoria (reemplazable por backend real) ==================
-  const api = {
-    // Personas
-    findPersonaByDni: dni => DB.personas.find(p => (p.dni||'')===String(dni)),
-    findPersonaByNroSocio: nro => DB.personas.find(p => (p.nroSocio||'')===String(nro)),
-    upsertPersona({dni, nroSocio, nombre, apellido, foto}){
-      let p = (nroSocio && api.findPersonaByNroSocio(nroSocio)) || (dni && api.findPersonaByDni(dni));
-      if (p){
-        if (nombre!=null) p.nombre = nombre;
-        if (apellido!=null) p.apellido = apellido;
-        if (typeof foto !== 'undefined') p.foto = foto;
-        if (nroSocio) p.nroSocio = String(nroSocio);
-      } else {
-        p = {id: nextId('persona'), dni: dni?String(dni):'', nroSocio: nroSocio?String(nroSocio):null, nombre: nombre||'', apellido: apellido||'', foto: foto||null};
-        DB.personas.push(p);
-      }
-      DB.save(); return p;
-    },
-
-    // Inspectores
-    listInspectores: () => DB.inspectores.slice(),
-    createInspector(data){
-      if (DB.inspectores.some(x => x.dni===String(data.dni))) throw new Error('El DNI ya existe');
-      const it = {id: nextId('inspector'), estado:'ACTIVO', foto:null, ...data};
-      DB.inspectores.push(it); DB.save(); return it;
-    },
-    updateInspector(id, patch){
-      const i = DB.inspectores.findIndex(x=>x.id===id);
-      if (i<0) throw new Error('Inspector no encontrado');
-      DB.inspectores[i] = {...DB.inspectores[i], ...patch};
-      DB.save(); return DB.inspectores[i];
-    },
-    toggleInspector(id){
-      const it = DB.inspectores.find(x=>x.id===id);
-      if (!it) throw new Error('Inspector no encontrado');
-      it.estado = it.estado==='ACTIVO'?'INACTIVO':'ACTIVO'; DB.save(); return it;
-    },
-
-    // Ingresos
-    createIngreso({personaId, tipoPersona, nroSocio, dni, inspectorId}){
-      const item = {id: nextId('ingreso'), personaId, tipoPersona, nroSocio: nroSocio||null, dni: dni||null, inspectorId: inspectorId||null, fecha: new Date().toISOString()};
-      DB.ingresos.unshift(item); DB.save(); return item;
-    },
-    listIngresos: () => DB.ingresos.slice()
-  };
-
-  // ================== INGRESO ==================
-  (function ingresoModule(){
-    const rbTipo = $$('input[name="tipoPersona"]');
-    const dniInput = $('#dni');
-    const socioInput = $('#nroSocio');
-    const nombreInput = $('#nombre');
-    const apellidoInput = $('#apellido');
-    const fotoFile = $('#fotoFile');
-    const btnConfirmar = $('#btnConfirmarIngreso');
-    const btnLimpiar = $('#btnLimpiarIngreso');
-    const selInspector = $('#selectInspectorIngreso');
-    const tbodyIngresos = $('#tbodyIngresos');
-
-    // Mostrar/Ocultar DNI vs Nº Socio
-    function setTipoUI(tipo){
-      $('#blockDni').style.display = (tipo==='INVITADO') ? '' : 'none';
-      $('#blockSocio').style.display = (tipo==='SOCIO') ? '' : 'none';
-    }
-    const checked = rbTipo.find(r=>r.checked)?.value || 'INVITADO';
-    setTipoUI(checked);
-    rbTipo.forEach(r => r.addEventListener('change', ()=> setTipoUI(r.value)));
-
-    // Inspectores activos al select
-    function fillInspectoresSelect(){
-      const activos = api.listInspectores().filter(i=>i.estado==='ACTIVO');
-      selInspector.innerHTML = `<option value="">(Sin inspector)</option>` + activos.map(i=>`<option value="${i.id}">${i.apellido}, ${i.nombre}</option>`).join('');
-    }
-    fillInspectoresSelect();
-    window.fillInspectoresSelect = fillInspectoresSelect;
-
-    // Autocompletar por DNI / Nº Socio
-    let currentFoto = null;
-    async function onBlurIdentificador(){
-      const tipo = (rbTipo.find(r=>r.checked)?.value)||'INVITADO';
-      if (tipo==='INVITADO' && dniInput?.value){
-        const p = api.findPersonaByDni(dniInput.value.trim());
-        if (p){ if (nombreInput) nombreInput.value=p.nombre||''; if (apellidoInput) apellidoInput.value=p.apellido||''; currentFoto = p.foto || null; Toast.show('Autocompletado por DNI'); }
-        else { currentFoto = null; }
-      }
-      if (tipo==='SOCIO' && socioInput?.value){
-        const p = api.findPersonaByNroSocio(socioInput.value.trim());
-        if (p){ if (nombreInput) nombreInput.value=p.nombre||''; if (apellidoInput) apellidoInput.value=p.apellido||''; currentFoto = p.foto || null; Toast.show('Autocompletado por Nº de socio'); }
-        else { currentFoto = null; }
-      }
-    }
-    dniInput?.addEventListener('blur', onBlurIdentificador);
-    socioInput?.addEventListener('blur', onBlurIdentificador);
-    fotoFile?.addEventListener('change', async (e)=>{ const f=e.target.files?.[0]; currentFoto = f ? await toDataUrl(f) : null; });
-
-    // Confirmar Ingreso (con foto obligatoria si no existe)
-    btnConfirmar?.addEventListener('click', ()=>{
-      const tipo = (rbTipo.find(r=>r.checked)?.value)||'INVITADO';
-      const dni = dniInput?.value.trim();
-      const nro = socioInput?.value.trim();
-      const nombre = nombreInput?.value.trim();
-      const apellido = apellidoInput?.value.trim();
-      const inspectorId = selInspector?.value ? Number(selInspector.value) : null;
-
-      if (tipo==='INVITADO' && !dni) return Toast.show('Ingresá el DNI del invitado');
-      if (tipo==='SOCIO' && !nro) return Toast.show('Ingresá el Nº de socio');
-      if (!nombre || !apellido) return Toast.show('Completá Nombre y Apellido');
-
-      // Buscar persona e imponer foto si no existe
-      let persona = (tipo==='INVITADO') ? api.findPersonaByDni(dni) : api.findPersonaByNroSocio(nro);
-      const teniaFoto = !!(persona && persona.foto);
-      if ((!persona || !teniaFoto) && !currentFoto) {
-        return Toast.show('La foto es obligatoria (capturá o subí una imagen).');
+      function getTipo() {
+        const r = radios.find(r => r.checked);
+        return r ? r.value : '';
       }
 
-      // Guardar/actualizar persona
-      persona = api.upsertPersona({
-        dni: tipo==='INVITADO' ? dni : (persona?.dni || ''),
-        nroSocio: tipo==='SOCIO' ? nro : (persona?.nroSocio || ''),
-        nombre, apellido,
-        foto: currentFoto ?? persona?.foto ?? null
+      function getIdentificador() {
+        const tipo = getTipo();
+        if (tipo === 'invitado') return (dni.value || '').trim();
+        if (tipo === 'socio') return (nroSocio.value || '').trim();
+        return '';
+      }
+
+      function show(el) { el.classList.remove('hidden'); }
+      function hide(el) { el.classList.add('hidden'); }
+
+      function clearErrors() {
+        [errTipo, errDni, errNroSocio, errNombre, errFoto].forEach(e => {
+          e.textContent = '';
+          e.style.display = 'none';
+        });
+        toastSuccess.style.display = 'none';
+        toastError.style.display = 'none';
+      }
+
+      function notifySuccess(msg) {
+        toastSuccess.textContent = msg;
+        toastSuccess.style.display = 'block';
+      }
+      function notifyError(msg) {
+        toastError.textContent = msg;
+        toastError.style.display = 'block';
+      }
+
+      function toggleFields() {
+        const tipo = getTipo();
+        // visibilidad
+        if (tipo === 'invitado') {
+          wrapDni.style.display = '';
+          wrapNroSocio.style.display = 'none';
+          nroSocio.value = '';
+        } else if (tipo === 'socio') {
+          wrapDni.style.display = 'none';
+          wrapNroSocio.style.display = '';
+          dni.value = '';
+        } else {
+          wrapDni.style.display = 'none';
+          wrapNroSocio.style.display = 'none';
+        }
+        // nombre requerido si invitado; opcional si socio
+        nombre.required = (tipo === 'invitado');
+      }
+
+      async function checkFotoExistente() {
+        const id = getIdentificador();
+        if (!id) {
+          necesitaFoto = false;
+          return;
+        }
+        try {
+          const url = `/api/fotos/existe?id=${encodeURIComponent(id)}`;
+          const resp = await fetch(url, { method: 'GET' });
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+          const data = await resp.json(); // esperado: { existe: boolean }
+          necesitaFoto = !Boolean(data.existe);
+        } catch (e) {
+          // Si falla la verificación, por seguridad exigimos foto
+          necesitaFoto = true;
+          console.warn('Fallo al verificar foto existente. Se requerirá captura.', e);
+        }
+      }
+
+      function validate() {
+        clearErrors();
+        let ok = true;
+        const tipo = getTipo();
+
+        if (!tipo) {
+          errTipo.textContent = 'Seleccioná el tipo de ingreso.';
+          errTipo.style.display = 'block';
+          ok = false;
+        }
+
+        if (tipo === 'invitado') {
+          const valDni = (dni.value || '').trim();
+          if (!valDni) {
+            errDni.textContent = 'El DNI del invitado es obligatorio.';
+            errDni.style.display = 'block';
+            ok = false;
+          } else if (!/^[0-9]{6,10}$/.test(valDni)) {
+            errDni.textContent = 'El DNI debe contener solo números (6 a 10 dígitos).';
+            errDni.style.display = 'block';
+            ok = false;
+          }
+          const valNom = (nombre.value || '').trim();
+          if (!valNom) {
+            errNombre.textContent = 'El nombre del invitado es obligatorio.';
+            errNombre.style.display = 'block';
+            ok = false;
+          } else if (valNom.length < 2 || valNom.length > 120) {
+            errNombre.textContent = 'El nombre debe tener entre 2 y 120 caracteres.';
+            errNombre.style.display = 'block';
+            ok = false;
+          }
+        }
+
+        if (tipo === 'socio') {
+          const valSoc = (nroSocio.value || '').trim();
+          if (!valSoc) {
+            errNroSocio.textContent = 'El número de socio es obligatorio.';
+            errNroSocio.style.display = 'block';
+            ok = false;
+          } else if (!/^[A-Za-z0-9\-]{3,20}$/.test(valSoc)) {
+            errNroSocio.textContent = 'El N° de socio debe tener entre 3 y 20 caracteres (letras, números, guiones).';
+            errNroSocio.style.display = 'block';
+            ok = false;
+          }
+          const valNom = (nombre.value || '').trim();
+          if (valNom && (valNom.length < 2 || valNom.length > 120)) {
+            errNombre.textContent = 'El nombre debe tener entre 2 y 120 caracteres.';
+            errNombre.style.display = 'block';
+            ok = false;
+          }
+        }
+
+        // Foto obligatoria solo si no existe previamente
+        const hayArchivo = foto.files && foto.files.length > 0;
+        if (necesitaFoto && !hayArchivo) {
+          errFoto.textContent = 'Debe tomar/adjuntar una foto para completar el ingreso.';
+          errFoto.style.display = 'block';
+          ok = false;
+        }
+
+        return ok;
+      }
+
+      function toBase64(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      async function buildPayload() {
+        const tipo = getTipo();
+        const payload = {
+          tipo,
+          dni: tipo === 'invitado' ? (dni.value || '').trim() : '',
+          nroSocio: tipo === 'socio' ? (nroSocio.value || '').trim() : '',
+          nombre: (nombre.value || '').trim() || null,
+          foto: null
+        };
+
+        // Si hay archivo, codificar a Base64 (jpeg/png)
+        if (foto.files && foto.files.length > 0) {
+          payload.foto = await toBase64(foto.files[0]);
+        }
+
+        return payload;
+      }
+
+      function resetForm() {
+        form.reset();
+        necesitaFoto = false;
+        clearErrors();
+        toggleFields();
+      }
+
+      // Listeners
+      radios.forEach(r => {
+        r.addEventListener('change', async () => {
+          toggleFields();
+          await checkFotoExistente();
+        });
       });
 
-      // Crear ingreso
-      api.createIngreso({
-        personaId: persona.id,
-        tipoPersona: tipo,
-        nroSocio: tipo==='SOCIO' ? persona.nroSocio : null,
-        dni: tipo==='INVITADO' ? persona.dni : null,
-        inspectorId
+      dni.addEventListener('input', debounce(async () => {
+        if (getTipo() === 'invitado') await checkFotoExistente();
+      }, 300));
+
+      nroSocio.addEventListener('input', debounce(async () => {
+        if (getTipo() === 'socio') await checkFotoExistente();
+      }, 300));
+
+      document.getElementById('btnLimpiar').addEventListener('click', resetForm);
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearErrors();
+
+        // Revalidar existencia de foto antes de enviar
+        await checkFotoExistente();
+
+        if (!validate()) return;
+
+        try {
+          const payload = await buildPayload();
+
+          const resp = await fetch('/api/ingreso', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (!resp.ok) {
+            const text = await resp.text().catch(() => '');
+            throw new Error(text || ('Error HTTP ' + resp.status));
+          }
+
+          notifySuccess('Ingreso registrado correctamente.');
+          resetForm();
+        } catch (err) {
+          console.error(err);
+          notifyError('Ocurrió un error al registrar el ingreso.');
+        }
       });
 
-      Toast.show('Ingreso registrado');
-      renderIngresos();
-      btnLimpiar?.click?.();
-    });
+      // Helpers
+      function debounce(fn, delay) {
+        let t;
+        return (...args) => {
+          clearTimeout(t);
+          t = setTimeout(() => fn.apply(null, args), delay);
+        };
+      }
 
-    btnLimpiar?.addEventListener('click', ()=>{
-      dniInput && (dniInput.value='');
-      socioInput && (socioInput.value='');
-      nombreInput && (nombreInput.value='');
-      apellidoInput && (apellidoInput.value='');
-      if (fotoFile) fotoFile.value='';
-      currentFoto = null;
-      const rbInv = rbTipo.find(r=>r.value==='INVITADO'); if (rbInv){ rbInv.checked = true; setTipoUI('INVITADO'); }
-    });
-
-    function renderIngresos(){
-      if (!tbodyIngresos) return;
-      const personas = DB.personas, inspectores = DB.inspectores;
-      const data = api.listIngresos().slice(0,100);
-      tbodyIngresos.innerHTML = '';
-      data.forEach(ing=>{
-        const p = personas.find(x=>x.id===ing.personaId);
-        const i = inspectores.find(x=>x.id===ing.inspectorId);
-        const tr = document.createElement('tr');
-        const c1 = document.createElement('td'); c1.appendChild(makeThumb(p?.foto, 'Foto'));
-        const c2 = document.createElement('td'); c2.textContent = `${p?.apellido||''}, ${p?.nombre||''}`;
-        const c3 = document.createElement('td'); c3.textContent = ing.tipoPersona==='SOCIO' ? `Nº ${p?.nroSocio||''}` : (p?.dni||'');
-        const c4 = document.createElement('td'); const chip=document.createElement('span'); chip.className='enh-chip '+(ing.tipoPersona==='SOCIO'?'socio':'invitado'); chip.textContent=ing.tipoPersona==='SOCIO'?'Socio':'Invitado'; c4.appendChild(chip);
-        const c5 = document.createElement('td'); c5.textContent = new Date(ing.fecha).toLocaleString();
-        const c6 = document.createElement('td'); c6.textContent = i ? `${i.apellido}, ${i.nombre}` : '—';
-        tr.append(c1,c2,c3,c4,c5,c6); tbodyIngresos.appendChild(tr);
-      });
-    }
-    renderIngresos();
-  })();
-
-  // ================== ESTADÍSTICAS ==================
-  (function estadisticasModule(){
-    const desde = $('#fechaDesde');
-    const hasta = $('#fechaHasta');
-    const tipoSel = $('#tipoFiltro');
-    const btnAplicar = $('#btnAplicarFiltros');
-    const btnLimpiar = $('#btnLimpiarFiltros');
-    const tbody = $('#tbodyEstadisticas');
-
-    // Inicializar rango (últimos 7 días)
-    (function initRange(){
-      const now = new Date();
-      const start = new Date(now); start.setDate(now.getDate()-7);
-      const toISO = d => d.toISOString().slice(0,10);
-      if (desde) desde.value = toISO(start);
-      if (hasta) hasta.value = toISO(now);
+      // Inicialización
+      toggleFields(); // Oculta ambos hasta elegir tipo
     })();
-
-    function render(){
-      const personas = DB.personas;
-      const inspectores = DB.inspectores;
-      const ingresos = api.listIngresos();
-
-      const dDesde = (desde && desde.value) ? new Date(desde.value+'T00:00:00') : null;
-      const dHasta = (hasta && hasta.value) ? new Date(hasta.value+'T23:59:59') : null;
-      const tipo = (tipoSel && tipoSel.value) || 'TODOS';
-
-      let data = ingresos.filter(ing=>{
-        const f = new Date(ing.fecha);
-        if (dDesde && f<dDesde) return false;
-        if (dHasta && f>dHasta) return false;
-        if (tipo!=='TODOS' && ing.tipoPersona!==tipo) return false;
-        return true;
-      });
-
-      // Stats
-      const stTotal = $('#statTotal'), stSoc = $('#statSocios'), stInv = $('#statInvitados');
-      stTotal && (stTotal.textContent = data.length);
-      stSoc && (stSoc.textContent = data.filter(x=>x.tipoPersona==='SOCIO').length);
-      stInv && (stInv.textContent = data.filter(x=>x.tipoPersona==='INVITADO').length);
-
-      // Tabla
-      if (!tbody) return;
-      tbody.innerHTML='';
-      data.forEach(ing=>{
-        const p = personas.find(pp=>pp.id===ing.personaId);
-        const insp = inspectores.find(ii=>ii.id===ing.inspectorId);
-        const tr = document.createElement('tr');
-        const c1 = document.createElement('td'); c1.appendChild(makeThumb(p?.foto,'Foto'));
-        const c2 = document.createElement('td'); c2.textContent = `${p?.apellido||''}, ${p?.nombre||''}`;
-        const c3 = document.createElement('td'); c3.textContent = ing.tipoPersona==='SOCIO' ? `Nº ${p?.nroSocio||''}` : (p?.dni||'');
-        const c4 = document.createElement('td'); const chip=document.createElement('span'); chip.className='enh-chip '+(ing.tipoPersona==='SOCIO'?'socio':'invitado'); chip.textContent=ing.tipoPersona==='SOCIO'?'Socio':'Invitado'; c4.appendChild(chip);
-        const c5 = document.createElement('td'); c5.textContent = new Date(ing.fecha).toLocaleString();
-        const c6 = document.createElement('td'); c6.textContent = insp ? `${insp.apellido}, ${insp.nombre}` : '—';
-        tr.append(c1,c2,c3,c4,c5,c6); tbody.appendChild(tr);
-      });
-    }
-    btnAplicar?.addEventListener('click', ()=>{ render(); Toast.show('Filtros aplicados'); });
-    btnLimpiar?.addEventListener('click', ()=>{
-      desde && (desde.value='');
-      hasta && (hasta.value='');
-      tipoSel && (tipoSel.value='TODOS');
-      render();
-    });
-    render();
-  })();
-
-  // ================== INSPECTORES (ABM) ==================
-  (function inspectoresModule(){
-    const tbody = $('#tbodyInspectores');
-    const buscar = $('#buscarInspector');
-    const filtro = $('#filtroEstadoInspectores');
-    const btnAdd = $('#btnAgregarInspectorBackup');
-
-    function render(){
-      if (!tbody) return;
-      const q = (buscar?.value || '').trim().toLowerCase();
-      const fe = (filtro?.value || 'TODOS');
-      const data = api.listInspectores().filter(it=>{
-        const matches = [it.dni, it.nombre, it.apellido].join(' ').toLowerCase().includes(q);
-        const byEstado = fe==='TODOS' ? true : it.estado===fe;
-        return matches && byEstado;
-      });
-
-      tbody.innerHTML='';
-      data.forEach(it=>{
-        const tr = document.createElement('tr');
-        const c1 = document.createElement('td'); c1.appendChild(makeThumb(it.foto, 'Foto inspector'));
-        const c2 = document.createElement('td'); c2.textContent = `${it.apellido}, ${it.nombre}`;
-        const c3 = document.createElement('td'); c3.textContent = it.dni;
-        const c4 = document.createElement('td'); c4.textContent = it.email || '—';
-        const c5 = document.createElement('td'); c5.textContent = it.telefono || '—';
-        const c6 = document.createElement('td'); const chip=document.createElement('span'); chip.className='enh-chip '+(it.estado==='ACTIVO'?'socio':'inactivo'); chip.textContent = it.estado; c6.appendChild(chip);
-        const c7 = document.createElement('td');
-        const bEdit = document.createElement('button'); bEdit.className='btn'; bEdit.textContent='Editar'; bEdit.addEventListener('click', ()=>openInspectorForm(it));
-        const bToggle = document.createElement('button'); bToggle.className='btn warn'; bToggle.textContent = it.estado==='ACTIVO'?'Desactivar':'Activar';
-        bToggle.addEventListener('click', ()=>{ api.toggleInspector(it.id); render(); Toast.show('Estado actualizado'); window.fillInspectoresSelect && window.fillInspectoresSelect(); });
-        c7.append(bEdit, bToggle);
-        tr.append(c1,c2,c3,c4,c5,c6,c7); tbody.appendChild(tr);
-      });
-    }
-
-    buscar?.addEventListener('input', render);
-    filtro?.addEventListener('change', render);
-    btnAdd?.addEventListener('click', ()=>openInspectorForm());
-
-    function openInspectorForm(existing){
-      // Construimos contenido del modal
-      const card = document.createElement('div');
-      // Estructura básica
-      card.innerHTML = `
-        <h3 style="margin:0 0 8px">${existing?'Editar inspector':'Agregar inspector'}</h3>
-        <div class="row" style="align-items:flex-start">
-          <div class="field" style="min-width:220px"><label>DNI</label><input type="text" id="i_dni" ${existing?'disabled':''} value="${existing?.dni||''}"></div>
-          <div class="field" style="min-width:220px"><label>Nombre</label><input type="text" id="i_nombre" value="${existing?.nombre||''}"></div>
-          <div class="field" style="min-width:220px"><label>Apellido</label><input type="text" id="i_apellido" value="${existing?.apellido||''}"></div>
-          <div class="field" style="min-width:220px"><label>Email</label><input type="text" id="i_email" value="${existing?.email||''}"></div>
-          <div class="field" style="min-width:220px"><label>Teléfono</label><input type="text" id="i_tel" value="${existing?.telefono||''}"></div>
-          <div class="field" style="min-width:220px"><label>Foto</label><input type="file" id="i_foto" accept="image/*" capture="environment"></div>
-        </div>
-        <div class="row" style="margin-top:8px; align-items:center">
-          <img id="i_preview" class="enh-thumb" style="display:none" alt="Preview foto inspector" />
-          <button class="btn ghost" id="i_quitar" type="button" style="display:none">Quitar foto</button>
-          <div class="spacer"></div>
-          <button class="btn ghost" id="i_cancelar" type="button">Cancelar</button>
-          <button class="btn secondary" id="i_guardar" type="button">${existing?'Guardar':'Crear'}</button>
-        </div>
-      `;
-      Modal.open(card);
-
-      const i_dni = $('#i_dni', card);
-      const i_nombre = $('#i_nombre', card);
-      const i_apellido = $('#i_apellido', card);
-      const i_email = $('#i_email', card);
-      const i_tel = $('#i_tel', card);
-      const i_foto = $('#i_foto', card);
-      const i_prev = $('#i_preview', card);
-      const i_quitar = $('#i_quitar', card);
-
-      let foto = existing?.foto || null;
-      if (foto){ i_prev.src=foto; i_prev.style.display='block'; i_quitar.style.display='inline-block'; }
-
-      i_foto.addEventListener('change', async (e)=>{ const f=e.target.files?.[0]; if (!f) return; foto = await toDataUrl(f); i_prev.src=foto; i_prev.style.display='block'; i_quitar.style.display='inline-block'; });
-      i_quitar.addEventListener('click', ()=>{ foto=null; i_prev.src=''; i_prev.style.display='none'; i_foto.value=''; i_quitar.style.display='none'; });
-
-      $('#i_cancelar', card).addEventListener('click', ()=>Modal.close());
-      $('#i_guardar', card).addEventListener('click', ()=>{
-        const dni = i_dni ? i_dni.value.trim() : existing?.dni;
-        const nombre = i_nombre.value.trim();
-        const apellido = i_apellido.value.trim();
-        const email = i_email.value.trim();
-        const telefono = i_tel.value.trim();
-        if (!dni && !existing) return Toast.show('Ingresá DNI');
-        if (!nombre || !apellido) return Toast.show('Completá Nombre y Apellido');
-        try{
-          if (existing) api.updateInspector(existing.id, {nombre, apellido, email, telefono, foto});
-          else api.createInspector({dni, nombre, apellido, email, telefono, foto});
-          Toast.show('Inspector guardado');
-          Modal.close();
-          render();
-          window.fillInspectoresSelect && window.fillInspectoresSelect();
-        }catch(err){ Toast.show(err.message||'Error'); }
-      });
-    }
-
-    render();
-  })();
   </script>
 </body>
 </html>
