@@ -1,454 +1,399 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-  <title>PCQ – Gestión de Inspectores (v13.0.0)</title>
-
-  <!-- Ocultar cualquier badge/estado de token en el header -->
-  <style id="pcq-hide-token-badge">#sync-badge{display:none!important}</style>
-
-  <style>
-    :root{
-      --c-bg:#0f172a;      /* slate-900 */
-      --c-card:#111827;    /* gray-900  */
-      --c-txt:#e5e7eb;     /* gray-200  */
-      --c-sub:#9ca3af;     /* gray-400  */
-      --c-acc:#22c55e;     /* green-500 */
-      --c-warn:#f59e0b;    /* amber-500 */
-      --c-err:#ef4444;     /* red-500   */
-      --c-line:#1f2937;    /* gray-800  */
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--c-bg);color:var(--c-txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue","Noto Sans",Arial,"Apple Color Emoji","Segoe UI Emoji"}
-    header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--c-line);position:sticky;top:0;background:var(--c-bg);z-index:5}
-    header h1{margin:0;font-size:18px;font-weight:600}
-    nav{display:flex;gap:8px;flex-wrap:wrap}
-    nav button{
-      appearance:none;border:1px solid var(--c-line);background:#0b1220;color:var(--c-txt);
-      padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600;letter-spacing:.2px;
-    }
-    nav button:hover{border-color:#334155}
-    nav button.activo{outline:2px solid var(--c-acc); outline-offset:1px}
-    nav button.nav-bloqueado{opacity:.35;pointer-events:none}
-    main{max-width:1100px;margin:16px auto;padding:0 12px}
-    .seccion{display:none}
-    .card{background:var(--c-card); border:1px solid var(--c-line); border-radius:12px; padding:16px;margin:12px 0}
-    h2{margin:0 0 12px 0; font-size:18px}
-    h3{margin:10px 0 8px 0; font-size:16px; color:var(--c-sub)}
-    .form-row{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0}
-    .form-row label{display:flex;flex-direction:column;gap:6px;min-width:220px;flex:1}
-    input, select{background:#0b1220;border:1px solid var(--c-line); color:var(--c-txt); border-radius:8px; padding:10px}
-    .btn{appearance:none;border:1px solid var(--c-line);background:#0b1220;color:var(--c-txt);padding:10px 12px;border-radius:8px;cursor:pointer}
-    .btn-success{background:#0b1220;border-color:#14532d}
-    .btn-warning{border-color:#854d0e}
-    .btn-danger{border-color:#7f1d1d}
-    .btn-gold{border-color:#ca8a04}
-    table{width:100%;border-collapse:collapse;margin-top:6px}
-    thead th{font-weight:700;color:var(--c-sub);text-align:left;border-bottom:1px solid var(--c-line);padding:8px}
-    tbody td{border-bottom:1px solid var(--c-line);padding:8px}
-    .alerta{display:none;margin-top:8px;padding:8px;border-radius:8px;border:1px solid var(--c-line);color:var(--c-sub)}
-    .alerta.show{display:block}
-    .alerta-ok{border-color:#14532d;color:#a7f3d0}
-    .alerta-error{border-color:#7f1d1d;color:#fecaca}
-    .muted{color:var(--c-sub)}
-    /* Modal */
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:20}
-    .modal-overlay.show{display:flex}
-    .modal-box{width:min(680px,90vw); background:var(--c-card); border:1px solid var(--c-line); border-radius:12px; padding:16px}
-    .modal-acciones{display:flex;gap:12px; justify-content:flex-end; margin-top:12px}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Pejerrey Club Quilmes – Sistema (FIX hora local + Admin + Estadísticas)</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net"/>
+<style>
+  :root{
+    --verde-oscuro:#1a3a1a;--verde-medio:#1e5c1e;--verde-logo:#2d6e2d;--verde-claro:#3a8a3a;
+    --dorado:#c8a84b;--dorado-claro:#e8c86a;--blanco:#ffffff;--crema:#f5f0e8;
+    --gris-claro:#e8ede8;--texto-oscuro:#1a1a1a;--rojo:#cc2222;--naranja:#d4841a;
+  }
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,'Open Sans',sans-serif;background:linear-gradient(160deg,#0d1f0d 0%,#1a3a1a 40%,#0d2a1a 100%);color:#fff;min-height:100vh;margin:0}
+  header{position:sticky;top:0;background:linear-gradient(180deg,#0a1a0a 0%,#1a3a1a 100%);border-bottom:3px solid var(--dorado);padding:12px 14px;z-index:10}
+  h1{margin:0;color:var(--dorado);font-size:1.2rem;letter-spacing:1px}
+  .sub{color:#aacfaa;font-size:.9rem}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+  .badge{background:rgba(0,0,0,.35);border:1px solid #555;border-radius:20px;padding:4px 12px;font-size:.85rem}
+  #sync-badge.sync-ok{background:rgba(26,107,26,.6);border-color:#2a8a2a}
+  #sync-badge.sync-error{background:rgba(180,30,30,.5);border-color:#b33}
+  #sync-badge.sync-syncing{background:rgba(26,90,138,.5);border-color:#2a7aaa}
+  nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;background:#0d1f0d;border-bottom:2px solid var(--dorado);padding:8px}
+  nav button{cursor:pointer;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#cce8cc;border-radius:6px;padding:7px 12px;font-weight:600}
+  nav button.activo{background:var(--dorado);color:#102010}
+  main{max-width:980px;margin:16px auto;padding:0 12px 40px}
+  .seccion{display:none}
+  .seccion.activa{display:block}
+  .card{background:linear-gradient(160deg,#f5f0e8 0%,#ece8de 100%);border:2px solid var(--dorado);color:var(--texto-oscuro);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.25);padding:18px;margin:12px 0}
+  .card h2{margin:0 0 10px 0;color:var(--verde-oscuro);font-size:1.1rem}
+  label{display:flex;flex-direction:column;gap:4px;font-weight:700;color:var(--verde-oscuro);font-size:.9rem}
+  input,textarea,select{padding:9px 10px;border:1.5px solid #8aaa8a;border-radius:6px;font-size:1rem}
+  .rowf{display:flex;flex-wrap:wrap;gap:10px}
+  .btn{cursor:pointer;border:none;border-radius:6px;padding:9px 14px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
+  .btn-primary{background:var(--verde-logo);color:#fff;border:2px solid var(--verde-claro)}
+  .btn-danger{background:var(--rojo);color:#fff;border:2px solid #b11}
+  .btn-gold{background:var(--dorado);color:#102010;border:2px solid var(--dorado-claro)}
+  .btn-secondary{background:#4a5a4a;color:#fff;border:2px solid #5a6a5a}
+  table{width:100%;border-collapse:collapse;font-size:.9rem}
+  th,td{border-bottom:1px solid #ddd;padding:8px 10px}
+  th{background:#153015;color:var(--dorado);text-align:left}
+  .alerta{margin-top:8px;display:none;padding:8px 12px;border-radius:6px;font-weight:700}
+  .alerta.show{display:block}
+  .alerta-ok{background:#d1fae5;color:#065f46}
+  .alerta-warn{background:#fff3cd;color:#92400e}
+  .alerta-error{background:#fee2e2;color:#991b1b}
+  .muted{color:#657b83;font-size:.85rem}
+  @media(max-width:640px){ nav{justify-content:flex-start;overflow:auto} }
+</style>
 </head>
 <body>
-
 <header>
-  <h1>PCQ · Gestión de Inspectores</h1>
-  <nav>
-    <button id="btn-nav-inspectores" class="activo">📋 Inspectores</button>
-    <button id="btn-nav-backup">⚙️ Administrar</button>
-  </nav>
+  <h1>🎣 Pejerrey Club Quilmes</h1>
+  <div class="sub">Sistema de Gestión – FIX hora local + Admin + Estadísticas</div>
+  <div class="row">
+    <div id="reloj-header" class="badge">--/--/---- --:--:--</div>
+    <div id="header-inspector" class="badge">🔒 Sin inspector activo</div>
+    <div id="sync-badge" class="badge sync-ok"><span id="sync-txt">Local</span></div>
+  </div>
 </header>
-
+<nav>
+  <button id="btn-nav-ingreso" onclick="navClick('ingreso',this)" class="activo">🚪 Ingreso</button>
+  <button id="btn-nav-apercibamiento" onclick="navClick('apercibamiento',this)">⚠️ Apercibamiento</button>
+  <button id="btn-nav-suspension" onclick="navClick('suspension',this)">🚫 Suspensión</button>
+  <button id="btn-nav-consulta" onclick="navClick('consulta',this)">📋 Consulta</button>
+  <button id="btn-nav-vencidos" onclick="navClick('vencidos',this)">⏰ Vencidos</button>
+  <button id="btn-nav-inspectores" onclick="navClick('inspectores',this)">👮 Inspectores</button>
+  <button id="btn-nav-backup" onclick="navClick('backup',this)">🛠️ Administrar Inspectores</button>
+  <button id="btn-nav-estadisticas" onclick="navClick('estadisticas',this)">📊 Estadísticas</button>
+</nav>
 <main>
-  <!-- Inspectores: SOLO listado -->
-  <section id="sec-inspectores" class="seccion" style="display:block">
-    <div class="card" id="card-insp-listado">
-      <h2>📋 Inspectores Registrados</h2>
-      <div class="lista-inspectores" id="lista-inspectores"></div>
+  <section id="sec-ingreso" class="seccion activa">
+    <div class="card">
+      <h2>🚪 Registro de Ingreso</h2>
+      <div class="row">
+        <div id="reloj-grande" style="font-size:1.8rem;color:var(--dorado);font-weight:800">--:--:--</div>
+        <div id="fecha-grande" class="badge" style="background:rgba(0,0,0,.25);border:1px solid #666">--/--/----</div>
+      </div>
+      <div id="fuente-hora" class="muted">🕒 Usando hora local del dispositivo</div>
+      <br/>
+      <div class="rowf">
+        <label style="flex:1;min-width:180px">DNI
+          <input id="dni-ingreso" type="text" maxlength="12" placeholder="30123456" oninput="this.value=this.value.replace(/\D/g,'')"/>
+        </label>
+        <label style="flex:2;min-width:200px">Nombre (opcional)
+          <input id="nombre-ingreso" type="text" placeholder="Apellido, Nombre"/>
+        </label>
+      </div>
+      <div class="row" style="gap:8px">
+        <button class="btn btn-primary" onclick="registrarIngreso()">✅ Registrar Ingreso</button>
+        <button class="btn btn-secondary" onclick="limpiarCamposIngreso()">🧽 Limpiar</button>
+      </div>
+      <div id="alerta-ingreso" class="alerta"></div>
+      <div id="ultimos-ingresos" class="card" style="margin:14px 0 0 0;display:none">
+        <h2>Últimos 10 ingresos del DNI</h2>
+        <div class="muted">Estado basado en 24 h de vigencia.</div>
+        <div class="table-wrap">
+          <table id="tabla-ultimos"><thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Nombre</th><th>Estado</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- Administrar: ABM completo (solo acá) -->
+  <section id="sec-apercibamiento" class="seccion">
+    <div class="card">
+      <h2>⚠️ Registrar Apercibamiento</h2>
+      <div class="rowf">
+        <label style="flex:1;min-width:180px">DNI<input id="dni-aperc" type="text" maxlength="12" oninput="this.value=this.value.replace(/\D/g,'')"/></label>
+        <label style="flex:2;min-width:220px">Nombre<input id="nombre-aperc" type="text"/></label>
+      </div>
+      <div class="rowf"><label style="flex:1">Motivo<textarea id="motivo-aperc" rows="3" placeholder="Describa el motivo..."></textarea></label></div>
+      <button class="btn btn-gold" onclick="registrarApercibamiento()">💾 Guardar</button>
+      <div id="alerta-aperc" class="alerta"></div>
+    </div>
+    <div class="card">
+      <h2>📋 Apercibamientos</h2>
+      <table id="tabla-aperc"><thead><tr><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Motivo</th><th>Inspector</th><th></th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <section id="sec-suspension" class="seccion">
+    <div class="card">
+      <h2>🚫 Registrar Suspensión</h2>
+      <div class="rowf">
+        <label style="flex:1;min-width:180px">DNI<input id="dni-susp" type="text" maxlength="12" oninput="this.value=this.value.replace(/\D/g,'')"/></label>
+        <label style="flex:2;min-width:220px">Nombre<input id="nombre-susp" type="text"/></label>
+      </div>
+      <div class="rowf">
+        <label>Desde<input id="susp-desde" type="date"/></label>
+        <label>Hasta<input id="susp-hasta" type="date"/></label>
+      </div>
+      <div class="rowf"><label style="flex:1">Motivo<textarea id="motivo-susp" rows="3"></textarea></label></div>
+      <button class="btn btn-danger" onclick="registrarSuspension()">💾 Guardar</button>
+      <div id="alerta-susp" class="alerta"></div>
+    </div>
+    <div class="card">
+      <h2>📋 Suspensiones</h2>
+      <table id="tabla-susp"><thead><tr><th>DNI</th><th>Nombre</th><th>Desde</th><th>Hasta</th><th>Motivo</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <section id="sec-consulta" class="seccion">
+    <div class="card">
+      <h2>📋 Consulta por Fechas</h2>
+      <div class="rowf">
+        <label>Desde<input id="consulta-desde" type="date"/></label>
+        <label>Hasta<input id="consulta-hasta" type="date"/></label>
+        <label>DNI (opcional)<input id="consulta-dni" type="text" oninput="this.value=this.value.replace(/\D/g,'')"/></label>
+      </div>
+      <button class="btn btn-primary" onclick="consultarIngresos()">🔍 Consultar</button>
+      <div id="resumen-consulta" class="muted" style="margin-top:8px"></div>
+      <table id="tabla-consulta"><thead><tr><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Estado</th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <section id="sec-vencidos" class="seccion">
+    <div class="card">
+      <h2>⏰ Ingresos Vencidos / Por Vencer</h2>
+      <div class="row" style="gap:8px">
+        <button class="btn btn-primary" onclick="renderVencidos()">🔄 Actualizar</button>
+        <button class="btn btn-danger" onclick="limpiarVencidos()">🗑️ Eliminar todos los vencidos</button>
+      </div>
+      <table id="tabla-vencidos"><thead><tr><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Transcurrido</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table>
+      <div id="alerta-vencidos" class="alerta"></div>
+    </div>
+  </section>
+
+  <section id="sec-inspectores" class="seccion">
+    <div class="card">
+      <h2>👮 Inspector de Turno</h2>
+      <div id="insp-activo" class="muted">Sin inspector activo</div>
+      <div class="row" style="gap:8px;margin-top:6px">
+        <button class="btn btn-secondary" onclick="desactivarInspector()">✖ Desactivar</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>📋 Inspectores</h2>
+      <table id="tabla-insp"><thead><tr><th>Nombre</th><th>Usuario</th><th>Tel</th><th>Obs</th><th>Acciones</th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
   <section id="sec-backup" class="seccion">
-    <div class="card" id="card-admin-abm-insp">
-      <h2>⚙️ Gestión de Inspectores</h2>
-
-      <div class="form-row">
-        <label>Apellido y Nombre
-          <input type="text" id="adm-insp-nombre" placeholder="Apellido, Nombre"/>
-        </label>
-        <label>Teléfono (opcional)
-          <input type="text" id="adm-insp-tel" placeholder="Ej: 11-1234-5678" maxlength="30"/>
-        </label>
+    <div class="card"><h2>🛠️ Administrar / Alta de Inspectores</h2>
+      <div class="rowf">
+        <label style="flex:1;min-width:200px">Nombre<input id="insp-nombre" type="text" placeholder="Apellido, Nombre"/></label>
+        <label style="flex:1;min-width:160px">Usuario (obligatorio)<input id="insp-usuario" type="text"/></label>
+        <label style="flex:1;min-width:160px">Contraseña (obligatoria)<input id="insp-pass" type="password"/></label>
       </div>
-
-      <div class="form-row">
-        <label>Usuario
-          <input type="text" id="adm-insp-user" placeholder="usuario.login"/>
-        </label>
-        <label>Contraseña
-          <input type="password" id="adm-insp-pass" placeholder="********"/>
-        </label>
+      <div class="rowf">
+        <label style="flex:1;min-width:180px">Teléfono<input id="insp-tel" type="text"/></label>
+        <label style="flex:2;min-width:220px">Observaciones<input id="insp-obs" type="text"/></label>
       </div>
+      <div class="row" style="gap:8px"><button class="btn btn-gold" onclick="guardarInspector()">💾 Guardar Inspector</button></div>
+      <div id="alerta-insp" class="alerta"></div>
+      <div class="muted" style="margin-top:8px">Los datos se guardan en este dispositivo (LocalStorage).</div>
+    </div>
+  </section>
 
-      <div class="form-row">
-        <label>Observaciones (opcional)
-          <input type="text" id="adm-insp-obs" placeholder="Turno, área, etc." maxlength="80"/>
-        </label>
-      </div>
-
-      <div class="form-row">
-        <button class="btn btn-success" id="adm-insp-crear">➕ Dar de alta</button>
-        <div id="adm-insp-alerta" class="alerta"></div>
-      </div>
-
-      <hr/>
-      <h3>Listado y acciones</h3>
-      <div id="adm-insp-list"></div>
+  <section id="sec-estadisticas" class="seccion">
+    <div class="card">
+      <h2>📊 Estadísticas</h2>
+      <p class="muted">Gráfico por rango de edad estimado a partir del número de DNI (aproximación por rangos históricos y RN 70M desde 09/2023). Fuente: Chart.js por CDN. <a target="_blank" href="https://www.chartjs.org/docs/latest/getting-started/">Doc</a>.</p>
+      <div style="max-width:760px;margin:auto"><canvas id="chart-edad" height="220"></canvas></div>
+      <div id="estad-nota" class="muted" style="margin-top:8px"></div>
     </div>
   </section>
 </main>
 
-<!-- Modal PASS MAESTRA -->
-<div class="modal-overlay" id="modal-pass">
-  <div class="modal-box">
-    <h3 id="pass-titulo">🔒 Confirmación requerida</h3>
-    <p id="pass-subtitulo" class="muted">Ingresá la contraseña maestra para continuar.</p>
-    <div class="form-row">
-      <label>Contraseña maestra
-        <input type="password" id="pass-input" placeholder="••••••••"/>
-      </label>
-    </div>
-    <div id="alerta-pass" class="alerta"></div>
-    <div class="modal-acciones">
-      <button class="btn btn-secondary" id="pass-cancelar">✖ Cancelar</button>
-      <button class="btn btn-gold" id="pass-confirmar">✅ Confirmar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal EDICIÓN -->
-<div class="modal-overlay" id="modal-admin-edit-insp">
-  <div class="modal-box">
-    <h3>✏️ Editar inspector</h3>
-    <div class="form-row">
-      <label>Apellido y Nombre
-        <input type="text" id="edit-insp-nombre"/>
-      </label>
-      <label>Teléfono (opcional)
-        <input type="text" id="edit-insp-tel"/>
-      </label>
-    </div>
-    <div class="form-row">
-      <label>Usuario
-        <input type="text" id="edit-insp-user"/>
-      </label>
-      <label>Contraseña
-        <input type="password" id="edit-insp-pass"/>
-      </label>
-    </div>
-    <div class="form-row">
-      <label>Observaciones
-        <input type="text" id="edit-insp-obs"/>
-      </label>
-    </div>
-    <div id="alerta-admin-edit" class="alerta"></div>
-    <div class="modal-acciones">
-      <button class="btn btn-secondary" id="btn-edit-cancelar">✖ Cancelar</button>
-      <button class="btn btn-gold" id="btn-edit-guardar">💾 Guardar cambios</button>
-    </div>
-  </div>
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-/***********************  CONFIG / UTILIDADES  ************************/  
-const ENFORCE_ACTIVE_GATE = true; // Si querés desactivar el gating por “inspector activo”, poné false.
+// =========================
+//  CONFIG / CONSTANTES
+// =========================
+const KEYS={ingresos:'pcq_ingresos',apercibimientos:'pcq_apercibimientos',suspensiones:'pcq_suspensiones',inspectores:'pcq_inspectores',inspActivo:'pcq_inspector_activo'};
+const HS_VIGENCIA=24, MIN_POR_VENCER=60; // 24h vigencia
+let offsetMs=0; // FIX: siempre hora local
 
-function $(id){ return document.getElementById(id); }
-function qsa(sel,root){ return Array.from((root||document).querySelectorAll(sel)); }
-function keyInspectores(){ return (window.KEYS && KEYS.inspectores) ? KEYS.inspectores : 'pcq_inspectores'; }
-function loadInspectores(){ try{ return JSON.parse(localStorage.getItem(keyInspectores())||'[]'); }catch(_){ return []; } }
-function saveInspectores(lst){ try{ localStorage.setItem(keyInspectores(), JSON.stringify(lst)); }catch(_){ } }
+// =========================
+//  UTILIDADES HORA
+// =========================
+function ahoraReal(){return new Date(Date.now()+offsetMs)}
+function pad(n){return String(n).padStart(2,'0')}
+function formatFecha(dt){return `${pad(dt.getDate())}/${pad(dt.getMonth()+1)}/${dt.getFullYear()}`}
+function formatHora(dt){return `${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(dt.getSeconds())}`}
+function isoFecha(dt){return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`}
+function parseFechaHora(f,h){const [d,m,y]=f.split('/');return new Date(`${y}-${m}-${d}T${h}`)}
+function tiempoTranscurrido(ms){const h=Math.floor(ms/3600000),min=Math.floor((ms%3600000)/60000);return h>=24?`${Math.floor(h/24)}d ${h%24}h ${min}m`:`${h}h ${min}m`}
 
-/* Tiempo local (sin red) si hubiera UI de reloj */
-window.sincronizarHora = async function(){ try{ const f=document.getElementById('fuente-hora'); if(f) f.textContent='🕐 Hora local del dispositivo'; }catch(_){} };
+// =========================
+//  LOCAL STORAGE
+// =========================
+function cargarDatos(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return []}}
+function guardarDatos(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function cargarItem(k){return localStorage.getItem(k)}
+function guardarItem(k,v){localStorage.setItem(k,v)}
 
-/* Inspector activo (opcional) */
-function getInspectorActivo(){
-  try{ if(typeof window._getInspectorActivo==='function') return window._getInspectorActivo(); }catch(_){}
-  try{ if(typeof window.getInspectorActivo==='function' && window.getInspectorActivo!==getInspectorActivo) return window.getInspectorActivo(); }catch(_){}
-  try{ const raw=localStorage.getItem('pcq_insp_activo')||localStorage.getItem('insp_activo_id'); if(raw){ const id=parseInt(raw,10); const arr=loadInspectores(); return arr.find(x=>x.id===id)||null; } }catch(_){}
-  return null;
-}
+// =========================
+//  UI BASICA
+// =========================
+function setSyncBadge(e,t){const b=document.getElementById('sync-badge');if(b)b.className='badge sync-'+(e||'ok');const s=document.getElementById('sync-txt');if(s)s.textContent=t||'Local'}
+function tickReloj(){const now=ahoraReal();document.getElementById('reloj-header').textContent=`${formatFecha(now)} ${formatHora(now)}`;document.getElementById('reloj-grande').textContent=formatHora(now);document.getElementById('fecha-grande').textContent=formatFecha(now)}
+setInterval(tickReloj,1000);tickReloj();
 
-/* SHA-256 + fallback */
-async function sha256Hex(str){ const enc=new TextEncoder().encode(str); const buf=await crypto.subtle.digest('SHA-256', enc); return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
-function sha256HexFallback(ascii){
-  function R(v,a){return (v>>>a)|(v<<(32-a));}
-  const M=Math.pow(2,32); let r='',w=[],i,j,L=ascii.length*8,h=sha256HexFallback.h=sha256HexFallback.h||[],k=sha256HexFallback.k=sha256HexFallback.k||[],p=k.length,c={};
-  function f(x){return x-Math.floor(x)}
-  if(!p){ for(let q=2;p<64;q++) if(!c[q]){ for(i=0;i<313;i+=q)c[i]=q; h[p]=(f(Math.sqrt(q))*M)|0; k[p++]=(f(Math.cbrt(q))*M)|0 } }
-  ascii+='\u0080'; while(ascii.length%64-56) ascii+='\u0000';
-  for(i=0;i<ascii.length;i++){ j=ascii.charCodeAt(i); w[i>>2]|=j<<((3-i)%4)*8 }
-  w[w.length]=(L/M)|0; w[w.length]=L;
-  for(j=0;j<w.length;){ let W=w.slice(j,j+=16),H=h.slice(0),a=h[0],b=h[1],c2=h[2],d=h[3],e=h[4],f2=h[5],g=h[6],h2=h[7];
-    for(i=0;i<64;i++){
-      let w15=W[i-15],w2=W[i-2],s0=(w15>>>7 ^ w15>>>18 ^ w15>>>3),s1=(w2>>>17 ^ w2>>>19 ^ w2>>>10);
-      W[i]=i<16?W[i]:(W[i-16]+s0+W[i-7]+s1)|0;
-      let ch=e&f2 ^ ~e&g,maj=a&b ^ a&c2 ^ b&c2,S0=(a>>>2 ^ a>>>13 ^ a>>>22),S1=(e>>>6 ^ e>>>11 ^ e>>>25);
-      let t1=(h2+S1+ch+k[i]+W[i])|0,t2=(S0+maj)|0; h2=g; g=f2; f2=e; e=(d+t1)|0; d=c2; c2=b; b=a; a=(t1+t2)|0
-    }
-    h[0]=(h[0]+a)|0; h[1]=(h[1]+b)|0; h[2]=(h[2]+c2)|0; h[3]=(h[3]+d)|0; h[4]=(h[4]+e)|0; h[5]=(h[5]+f2)|0; h[6]=(h[6]+g)|0; h[7]=(h[7]+h2)|0;
-  }
-  for(i=0;i<h.length;i++) for(j=3;j+1;j--){ let B=(h[i]>>> (j*8))&255; r+=((B<16)?'0':'')+B.toString(16) }
-  return r;
-}
-async function sha256HexSafe(s){ try{ if(window.crypto&&crypto.subtle){ return await sha256Hex(s);} }catch(_){ } return sha256HexFallback(s); }
+function navClick(id,btn){_navegarSeccion(id,btn)}
+function _navegarSeccion(id,btn){document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('activa'));document.getElementById('sec-'+id).classList.add('activa');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('activo'));if(btn)btn.classList.add('activo');if(id==='estadisticas')renderEstadisticas();if(id==='vencidos')renderVencidos();if(id==='inspectores')renderInspectoresUI()}
 
-/* Pass maestra smart: BACKUP_PASS / BACKUP_PASS_HASH, compat "gustavopeje" */
-async function checkMasterPassSmart(input){
-  try{ if(typeof window.BACKUP_PASS!=='undefined' && window.BACKUP_PASS!==null){ if(String(input)===String(window.BACKUP_PASS)) return true; } }catch(_){}
-  try{ if(typeof window.BACKUP_PASS_HASH!=='undefined' && window.BACKUP_PASS_HASH){ const h=await sha256HexSafe(String(input)); if(h===String(window.BACKUP_PASS_HASH)) return true; } }catch(_){}
-  try{ if(String(input)==='gustavopeje') return true; }catch(_){}
-  return false;
-}
+// =========================
+//  INSPECTORES
+// =========================
+function getInspectorActivo(){const id=cargarItem(KEYS.inspActivo);if(!id)return null;return cargarDatos(KEYS.inspectores).find(i=>String(i.id)===String(id))||null}
+function actualizarHeaderInspector(){const i=getInspectorActivo();const el=document.getElementById('header-inspector');if(i)el.textContent=`👮 ${i.nombre}`;else el.textContent='🔒 Sin inspector activo'}
+function guardarInspector(){const nombre=document.getElementById('insp-nombre').value.trim();const usuario=document.getElementById('insp-usuario').value.trim();const pass=document.getElementById('insp-pass').value.trim();const tel=document.getElementById('insp-tel').value.trim();const obs=document.getElementById('insp-obs').value.trim();if(!nombre){return mostrarAlerta('alerta-insp','error','Ingresá el nombre.')}if(!usuario){return mostrarAlerta('alerta-insp','error','Ingresá el usuario (obligatorio).')}if(!pass){return mostrarAlerta('alerta-insp','error','Ingresá la contraseña (obligatoria).')}const lista=cargarDatos(KEYS.inspectores);if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase())){return mostrarAlerta('alerta-insp','error','Ya existe un inspector con ese nombre.')}lista.push({id:Date.now(),nombre,usuario,password:pass,tel,obs});guardarDatos(KEYS.inspectores,lista);['insp-nombre','insp-usuario','insp-pass','insp-tel','insp-obs'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderInspectoresUI();mostrarAlerta('alerta-insp','ok','✅ Inspector registrado.')}
+function renderInspectoresUI(){const tbody=document.querySelector('#tabla-insp tbody');if(!tbody)return;tbody.innerHTML='';const lista=cargarDatos(KEYS.inspectores);if(!lista.length){tbody.innerHTML='<tr><td colspan="5" class="muted">No hay inspectores</td></tr>';return}lista.forEach(insp=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${insp.nombre}</td><td>${insp.usuario||'—'}</td><td>${insp.tel||'—'}</td><td>${insp.obs||'—'}</td><td><button class="btn btn-gold" onclick="activarInspector(${insp.id})">⚡ Activar</button> <button class="btn btn-danger" onclick="eliminarInspector(${insp.id})">🗑️</button></td>`;tbody.appendChild(tr)});const act=getInspectorActivo();document.getElementById('insp-activo').textContent=act?`Activo: ${act.nombre}`:'Sin inspector activo';actualizarHeaderInspector()}
+function activarInspector(id){guardarItem(KEYS.inspActivo,String(id));renderInspectoresUI();mostrarAlerta('alerta-insp','ok','✅ Inspector activado.');}
+function desactivarInspector(){localStorage.removeItem(KEYS.inspActivo);renderInspectoresUI();mostrarAlerta('alerta-insp','warn','Inspector desactivado.');}
+function eliminarInspector(id){const lista=cargarDatos(KEYS.inspectores).filter(i=>i.id!==id);if(String(cargarItem(KEYS.inspActivo))===String(id)){localStorage.removeItem(KEYS.inspActivo)}guardarDatos(KEYS.inspectores,lista);renderInspectoresUI()}
 
-/***********************  RENDER: INSPECTORES  ************************/
-function renderInspectoresFallback(){
-  let cont = $('lista-inspectores');
-  if(!cont){ const sec=$('sec-inspectores'); if(sec){ const card=sec.querySelector('.card')||sec; cont=document.createElement('div'); cont.id='lista-inspectores'; cont.className='lista-inspectores'; card.appendChild(cont);} }
-  if(!cont) return;
-  const data = loadInspectores();
-  if(!Array.isArray(data) || data.length===0){ cont.innerHTML='<p class="muted">No hay inspectores registrados.</p>'; return; }
-  let html = `\n<table class="tabla" id="tabla-inspectores"><thead><tr><th>Nombre</th><th>Teléfono</th><th>Usuario</th><th>Obs.</th></tr></thead><tbody>`;
-  data.forEach(i=>{ html += `<tr><td>${i.nombre||''}</td><td>${i.tel||''}</td><td>${i.usuario||''}</td><td>${i.obs||''}</td></tr>`; });
-  html += `</tbody></table>`;
-  cont.innerHTML = html;
-}
-const _origRenderInspectores = window.renderInspectores;
-window.renderInspectores = function(){ try{ if(typeof _origRenderInspectores==='function'){ _origRenderInspectores(); return; } }catch(_){ } renderInspectoresFallback(); };
+// =========================
+//  ALERTAS
+// =========================
+function mostrarAlerta(id,tipo,msg){const el=document.getElementById(id);if(!el)return;el.className='alerta show alerta-'+(tipo==='ok'?'ok':tipo);el.innerHTML=msg;clearTimeout(el._t);el._t=setTimeout(()=>{el.className='alerta'},6000)}
 
-/***********************  RENDER: ADMIN  ************************/
-window.renderAdminLista = window.renderAdminLista || function(){
-  const cont = document.getElementById('adm-insp-list'); if(!cont) return;
-  const data = loadInspectores();
-  if(!Array.isArray(data) || data.length===0){ cont.innerHTML='<p class="muted">No hay inspectores registrados.</p>'; return; }
-  let html = `\n<table class="tabla" id="tabla-admin-inspectores">\n<thead><tr><th>Nombre</th><th>Teléfono</th><th>Usuario</th><th>Obs.</th><th style="width:140px">Acciones</th></tr></thead><tbody>`;
-  data.forEach(i=>{
-    html += `<tr>
-      <td>${i.nombre||''}</td>
-      <td>${i.tel||''}</td>
-      <td>${i.usuario||''}</td>
-      <td>${i.obs||''}</td>
-      <td>
-        <button class="btn btn-warning" onclick="adminAbrirEditarInspector(${i.id})">✏️ Editar</button>
-        <button class="btn btn-danger" onclick="adminSolicitarEliminarInspector(${i.id})">🗑️ Eliminar</button>
-      </td>
-    </tr>`;
-  });
-  html += `</tbody></table>`;
-  cont.innerHTML = html;
-};
+// =========================
+//  INGRESOS / APERC / SUSP
+// =========================
+function estadoIngreso(ing){const ms=ahoraReal().getTime()-parseFechaHora(ing.fecha,ing.hora).getTime();const lim=HS_VIGENCIA*3600000,prev=lim-MIN_POR_VENCER*60000;if(ms>=lim)return{texto:'⏰ Vencido',clase:'vencido'};if(ms>=prev)return{texto:'⏳ Por vencer',clase:'por-vencer'};return{texto:'✅ Vigente',clase:'vigente'}}
+function registrarIngreso(){const dni=document.getElementById('dni-ingreso').value.trim();const nombre=document.getElementById('nombre-ingreso').value.trim();if(!dni){return mostrarAlerta('alerta-ingreso','error','Ingresá el DNI.')}const now=ahoraReal();const lista=cargarDatos(KEYS.ingresos);lista.push({dni,nombre,fecha:formatFecha(now),hora:formatHora(now),isoFecha:isoFecha(now)});guardarDatos(KEYS.ingresos,lista);document.getElementById('nombre-ingreso').value='';mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado – DNI ${dni}`);cargarUltimos(dni)}
+function limpiarCamposIngreso(){['dni-ingreso','nombre-ingreso'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''})}
+function cargarUltimos(dni){const wrap=document.getElementById('ultimos-ingresos');const tbody=document.querySelector('#tabla-ultimos tbody');wrap.style.display='block';tbody.innerHTML='';const mis=cargarDatos(KEYS.ingresos).filter(i=>i.dni===dni).slice(-10).reverse();if(!mis.length){tbody.innerHTML='<tr><td colspan="5" class="muted">Sin ingresos previos</td></tr>';return}mis.forEach((i,n)=>{const est=estadoIngreso(i);const tr=document.createElement('tr');tr.innerHTML=`<td>${n+1}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${i.nombre||'—'}</td><td>${est.texto}</td>`;tbody.appendChild(tr)})}
 
-/***********************  NAVEGACIÓN ROBUSTA  ************************/
-function showSection(id){
-  try{
-    qsa('section[id^="sec-"]').forEach(sec=>{ sec.style.display = (sec.id==='sec-'+id)?'block':'none'; });
-    qsa('nav button').forEach(b=>b.classList.remove('activo'));
-    const btn = $('btn-nav-'+id); if(btn) btn.classList.add('activo');
-    location.hash = '#'+id;
-    if(id==='inspectores') window.renderInspectores();
-    if(id==='backup') window.renderAdminLista();
-  }catch(_){ }
-}
-window._navegarSeccion = showSection;
-window.navClick = function(id, btn){ try{ showSection(id); }catch(_){ location.hash='#'+id; } };
+function registrarApercibamiento(){const dni=document.getElementById('dni-aperc').value.trim();const nombre=document.getElementById('nombre-aperc').value.trim();const motivo=document.getElementById('motivo-aperc').value.trim();if(!dni||!motivo){return mostrarAlerta('alerta-aperc','error','Completá DNI y motivo.')}const now=ahoraReal();const lista=cargarDatos(KEYS.apercibimientos);const insp=getInspectorActivo();lista.push({id:Date.now(),dni,nombre,motivo,fecha:formatFecha(now),hora:formatHora(now),inspector:insp?insp.nombre:null});guardarDatos(KEYS.apercibimientos,lista);['dni-aperc','nombre-aperc','motivo-aperc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderTablaAperc();mostrarAlerta('alerta-aperc','ok','⚠️ Apercibamiento registrado.')}
+function renderTablaAperc(){const tbody=document.querySelector('#tabla-aperc tbody');if(!tbody)return;tbody.innerHTML='';const lista=cargarDatos(KEYS.apercibimientos).slice().reverse();if(!lista.length){tbody.innerHTML='<tr><td colspan="6" class="muted">Sin registros</td></tr>';return}lista.forEach(a=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${a.dni}</td><td>${a.nombre||'—'}</td><td>${a.fecha} ${a.hora}</td><td>${a.motivo}</td><td>${a.inspector||'—'}</td><td><button class="btn btn-danger" onclick="eliminarAperc(${a.id})">🗑️</button></td>`;tbody.appendChild(tr)})}
+function eliminarAperc(id){guardarDatos(KEYS.apercibimientos,cargarDatos(KEYS.apercibimientos).filter(a=>a.id!==id));renderTablaAperc()}
 
-/* Wiring inicial */
-document.addEventListener('DOMContentLoaded', ()=>{
-  qsa('nav button[id^="btn-nav-"]').forEach(b=>{ const id=b.id.replace('btn-nav-',''); b.addEventListener('click', ev=>{ ev.preventDefault(); window.navClick(id, b); }); });
-  try{ const admin=$('btn-nav-backup'); if(admin){ admin.textContent='⚙️ Administrar'; admin.addEventListener('click', ev=>{ ev.preventDefault(); window.navClick('backup', admin); }); } }catch(_){}
-  const wanted=(location.hash||'').replace('#','') || 'inspectores';
-  showSection(wanted);
-  setTimeout(()=>{ try{ if(wanted==='inspectores') window.renderInspectores(); else if(wanted==='backup') window.renderAdminLista(); }catch(_){ } }, 150);
-});
-window.addEventListener('hashchange', ()=>{ const id=(location.hash||'').replace('#','')||'inspectores'; showSection(id); });
+function registrarSuspension(){const dni=document.getElementById('dni-susp').value.trim();const nombre=document.getElementById('nombre-susp').value.trim();const desde=document.getElementById('susp-desde').value;const hasta=document.getElementById('susp-hasta').value;const motivo=document.getElementById('motivo-susp').value.trim();if(!dni||!desde||!hasta||!motivo){return mostrarAlerta('alerta-susp','error','Completá todos los campos.')}if(hasta<desde){return mostrarAlerta('alerta-susp','error','"Hasta" debe ser ≥ "Desde".')}const lista=cargarDatos(KEYS.suspensiones);lista.push({id:Date.now(),dni,nombre,desde,hasta,motivo});guardarDatos(KEYS.suspensiones,lista);['dni-susp','nombre-susp','susp-desde','susp-hasta','motivo-susp'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderTablaSusp();mostrarAlerta('alerta-susp','ok','🚫 Suspensión registrada.')}
+function renderTablaSusp(){const tbody=document.querySelector('#tabla-susp tbody');if(!tbody)return;tbody.innerHTML='';const lista=cargarDatos(KEYS.suspensiones).slice().reverse();if(!lista.length){tbody.innerHTML='<tr><td colspan="7" class="muted">Sin registros</td></tr>';return}const hoy=isoFecha(ahoraReal());lista.forEach(s=>{const act=hoy>=s.desde&&hoy<=s.hasta;const tr=document.createElement('tr');tr.innerHTML=`<td>${s.dni}</td><td>${s.nombre||'—'}</td><td>${s.desde}</td><td>${s.hasta}</td><td>${s.motivo}</td><td>${act?'🚫 ACTIVA':'✔️ Vencida'}</td><td><button class="btn btn-danger" onclick="eliminarSusp(${s.id})">🗑️</button></td>`;tbody.appendChild(tr)})}
+function eliminarSusp(id){guardarDatos(KEYS.suspensiones,cargarDatos(KEYS.suspensiones).filter(s=>s.id!==id));renderTablaSusp()}
 
-/***********************  GATING por “Inspector Activo”  ************************/
-function applyActiveGate(){
-  if(!ENFORCE_ACTIVE_GATE) return;
-  const activo = !!getInspectorActivo();
-  const buttons = qsa('nav button');
-  if(!activo){
-    // Habilitar solo Inspectores; ocultar otras secciones
-    buttons.forEach(btn=>{ if((btn.id||'')==='btn-nav-inspectores') btn.classList.remove('nav-bloqueado'); else btn.classList.add('nav-bloqueado'); });
-    qsa('section[id^="sec-"]').forEach(sec=>{ sec.style.display = (sec.id==='sec-inspectores') ? 'block':'none'; });
-    if(location.hash !== '#inspectores') showSection('inspectores');
-  }else{
-    buttons.forEach(btn=>btn.classList.remove('nav-bloqueado'));
-  }
-}
-document.addEventListener('DOMContentLoaded', ()=> setTimeout(applyActiveGate, 220));
-window.addEventListener('hashchange', applyActiveGate);
+// =========================
+//  VENCIDOS
+// =========================
+function renderVencidos(){const tbody=document.querySelector('#tabla-vencidos tbody');tbody.innerHTML='';const now=ahoraReal();const lim=HS_VIGENCIA*3600000,prev=lim-MIN_POR_VENCER*60000;const ing=cargarDatos(KEYS.ingresos).slice().sort((a,b)=>parseFechaHora(a.fecha,a.hora)-parseFechaHora(b.fecha,b.hora));const pv=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);return ms>=prev&&ms<lim});const ven=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);return ms>=lim});const todos=[...pv,...ven];if(!todos.length){tbody.innerHTML='<tr><td colspan="7" class="muted">No hay ingresos por vencer/vencidos</td></tr>';return}todos.forEach(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);let est='';if(ms>=lim)est='⏰ Vencido';else if(ms>=prev)est='⏳ Por vencer';else est='✅ Vigente';const tr=document.createElement('tr');tr.innerHTML=`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${tiempoTranscurrido(ms)}</td><td>${est}</td><td><button class="btn btn-danger" onclick="darBajaIngreso('${i.dni}','${i.fecha}','${i.hora}')">🗑️</button></td>`;tbody.appendChild(tr)})}
+function darBajaIngreso(dni,fecha,hora){guardarDatos(KEYS.ingresos,cargarDatos(KEYS.ingresos).filter(i=>!(i.dni===dni&&i.fecha===fecha&&i.hora===hora)));renderVencidos()}
+function limpiarVencidos(){const now=ahoraReal(),lim=HS_VIGENCIA*3600000;const ing=cargarDatos(KEYS.ingresos);const vig=ing.filter(i=>now-parseFechaHora(i.fecha,i.hora)<lim);guardarDatos(KEYS.ingresos,vig);renderVencidos();mostrarAlerta('alerta-vencidos','ok','✅ Vencidos eliminados.')} 
 
-/***********************  ABM EN “ADMINISTRAR” (con pass maestra)  ************************/
-function setAlerta(id, tipo, msg){ const el=$(id); if(!el) return; el.className='alerta show '+(tipo==='ok'?'alerta-ok':tipo==='error'?'alerta-error':''); el.textContent=msg||''; }
-function abrirModalPass(titulo, subtitulo, accion){ try{ const tit=$('pass-titulo'); if(tit) tit.textContent=titulo||'🔒 Confirmación requerida'; const sub=$('pass-subtitulo'); if(sub) sub.textContent=subtitulo||'Ingresá la contraseña maestra para continuar.'; const a=$('alerta-pass'); if(a){ a.className='alerta'; a.textContent=''; } $('pass-input').value=''; window._pendingPassAction=accion||null; $('modal-pass').classList.add('show'); setTimeout(()=>{ try{ $('pass-input').focus(); }catch(_){} },80);}catch(_){} }
-function cerrarModalPass(){ try{ $('modal-pass').classList.remove('show'); }catch(_){} }
+// =========================
+//  CONSULTA
+// =========================
+(function setFechasConsultaHoy(){const hoy=isoFecha(ahoraReal());const d=document.getElementById('consulta-desde');const h=document.getElementById('consulta-hasta');if(d&&!d.value)d.value=hoy;if(h&&!h.value)h.value=hoy})();
+function consultarIngresos(){const desde=document.getElementById('consulta-desde').value;const hasta=document.getElementById('consulta-hasta').value;const dni=document.getElementById('consulta-dni').value.trim();const tbody=document.querySelector('#tabla-consulta tbody');if(!desde||!hasta){document.getElementById('resumen-consulta').textContent='Seleccioná ambas fechas.';tbody.innerHTML='';return}if(hasta<desde){document.getElementById('resumen-consulta').textContent='La fecha "hasta" debe ser ≥ "desde".';tbody.innerHTML='';return}let res=cargarDatos(KEYS.ingresos).filter(i=>i.isoFecha>=desde&&i.isoFecha<=hasta);if(dni)res=res.filter(i=>i.dni===dni);res.sort((a,b)=> (a.isoFecha+a.hora)>(b.isoFecha+b.hora)?-1:1);document.getElementById('resumen-consulta').textContent=`Resultados: ${res.length}`;tbody.innerHTML='';if(!res.length){tbody.innerHTML='<tr><td colspan="5" class="muted">Sin resultados</td></tr>';return}res.forEach(i=>{const est=estadoIngreso(i);const tr=document.createElement('tr');tr.innerHTML=`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${est.texto}</td>`;tbody.appendChild(tr)})}
 
-/* Alta */
-$('adm-insp-crear').addEventListener('click', (ev)=>{
-  ev.preventDefault();
-  const nombre=($('adm-insp-nombre')||{}).value?.trim()||'';
-  const tel   =($('adm-insp-tel')||{}).value?.trim()||'';
-  const user  =($('adm-insp-user')||{}).value?.trim()||'';
-  const pass  =($('adm-insp-pass')||{}).value||'';
-  const obs   =($('adm-insp-obs')||{}).value?.trim()||'';
-  if(!nombre||!user||!pass){ setAlerta('adm-insp-alerta','error','Completá Nombre, Usuario y Contraseña.'); return; }
-  window._pendingInspectorAlta={ nombre, tel, usuario:user, pass, obs };
-  abrirModalPass('🔒 Confirmá el alta del inspector','Ingresá la contraseña maestra para dar de alta el inspector.','alta-inspector');
-});
+// =========================
+//  ESTADÍSTICAS (Chart.js por CDN)
+//  Doc oficial: https://www.chartjs.org/docs/latest/getting-started/  
+//  CDN jsDelivr: https://cdn.jsdelivr.net/npm/chart.js  
+// =========================
+let _chartEdad=null;
+function _edadAproxDesdeDNI(dni){const n=Number(String(dni).replace(/\D/g,''));if(!n||isNaN(n))return 0; if(n>=70000000)return 5; if(n>=50000000&&n<60000000)return 16; if(n>=40000000&&n<50000000)return 25; if(n>=30000000&&n<40000000)return 35; if(n>=20000000&&n<30000000)return 45; if(n>=10000000&&n<20000000)return 60; return 90}
+function _bucketEdad(a){if(a<18)return '<18';if(a<30)return '18–29';if(a<45)return '30–44';if(a<60)return '45–59';return '60+'}
+function calcularDistribucionEdad(){const res={'<18':0,'18–29':0,'30–44':0,'45–59':0,'60+':0};const unicos=new Set();cargarDatos(KEYS.ingresos).forEach(i=>{if(i&&i.dni)unicos.add(String(i.dni))});unicos.forEach(d=>{res[_bucketEdad(_edadAproxDesdeDNI(d))]++});return{res,total:unicos.size}}
+function renderEstadisticas(){const {res,total}=calcularDistribucionEdad();const ctx=document.getElementById('chart-edad').getContext('2d');if(_chartEdad){_chartEdad.destroy()}_chartEdad=new Chart(ctx,{type:'bar',data:{labels:Object.keys(res),datasets:[{label:'Personas (DNIs únicos)',data:Object.keys(res).map(k=>res[k]),backgroundColor:'#2d6e2d'}]},options:{plugins:{legend:{display:false},title:{display:true,text:'Distribución por rango de edad (aprox.)'}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});document.getElementById('estad-nota').textContent='Estimación por rango de DNI (numeración secuencial + RN 70M desde 09/2023).'}
 
-/* Editar */
-window.adminAbrirEditarInspector = function(id){
-  const list=loadInspectores(); const it=list.find(x=>x.id===id); if(!it) return;
-  $('edit-insp-nombre').value=it.nombre||''; $('edit-insp-tel').value=it.tel||'';
-  $('edit-insp-user').value=it.usuario||''; $('edit-insp-pass').value=it.pass||'';
-  $('edit-insp-obs').value=it.obs||'';
-  $('alerta-admin-edit').className='alerta'; $('alerta-admin-edit').textContent='';
-  $('modal-admin-edit-insp').classList.add('show');
-  window._editId = id;
-};
-$('btn-edit-cancelar').addEventListener('click', ()=>{ $('modal-admin-edit-insp').classList.remove('show'); });
-$('btn-edit-guardar').addEventListener('click', ()=>{
-  const nombre=($('edit-insp-nombre')||{}).value?.trim()||'';
-  const tel   =($('edit-insp-tel')||{}).value?.trim()||'';
-  const user  =($('edit-insp-user')||{}).value?.trim()||'';
-  const pass  =($('edit-insp-pass')||{}).value||'';
-  const obs   =($('edit-insp-obs')||{}).value?.trim()||'';
-  if(!nombre||!user){ const a=$('alerta-admin-edit'); a.className='alerta show alerta-error'; a.textContent='Completá Nombre y Usuario.'; return; }
-  window._pendingEditInspector = { id:window._editId, nombre, tel, usuario:user, pass, obs };
-  abrirModalPass('🔒 Guardar cambios del inspector','Ingresá la contraseña maestra para confirmar.','editar-inspector');
-});
-
-/* Eliminar */
-window.adminSolicitarEliminarInspector = function(id){ window._pendingDeleteInspectorId = id; abrirModalPass('🔒 Eliminar inspector','Ingresá la contraseña maestra para confirmar la eliminación.','eliminar-inspector'); };
-
-/* Confirmar / Cancelar PASS */
-$('pass-confirmar').addEventListener('click', async ()=>{
-  const acc = window._pendingPassAction; const val = ($('pass-input')||{}).value||''; const ok = await checkMasterPassSmart(val);
-  if(!ok){ setAlerta('alerta-pass','error','❌ Contraseña incorrecta.'); $('pass-input').value=''; $('pass-input').focus(); return; }
-
-  if(acc==='alta-inspector' && window._pendingInspectorAlta){
-    const e = window._pendingInspectorAlta; let list=loadInspectores(); if(!Array.isArray(list)) list=[];
-    if(list.find(i=> (i.nombre||'').toLowerCase()===e.nombre.toLowerCase())){ setAlerta('adm-insp-alerta','error','Ya existe un inspector con ese nombre.'); return; }
-    if(e.usuario && list.find(i=> (i.usuario||'').toLowerCase()===e.usuario.toLowerCase())){ setAlerta('adm-insp-alerta','error','Ya existe un inspector con ese usuario.'); return; }
-    const reg = { id:Date.now(), nombre:e.nombre, tel:e.tel, usuario:e.usuario, pass:e.pass, obs:e.obs };
-    list.push(reg); saveInspectores(list);
-    ['adm-insp-nombre','adm-insp-tel','adm-insp-user','adm-insp-pass','adm-insp-obs'].forEach(id=>{ const el=$(id); if(el) el.value=''; });
-    try{ window.renderAdminLista(); }catch(_){}
-    try{ window.renderInspectores(); }catch(_){}
-    setAlerta('adm-insp-alerta','ok','✅ Inspector dado de alta.');
-    window._pendingInspectorAlta=null;
-  }
-
-  if(acc==='editar-inspector' && window._pendingEditInspector){
-    const e=window._pendingEditInspector; let list=loadInspectores(); const idx=list.findIndex(i=>i.id===e.id);
-    if(idx>-1){
-      if(list.find((it,ix)=> ix!==idx && (it.nombre||'').toLowerCase()===e.nombre.toLowerCase())){ setAlerta('alerta-admin-edit','error','Ya existe un inspector con ese nombre.'); return; }
-      if(e.usuario && list.find((it,ix)=> ix!==idx && (it.usuario||'').toLowerCase()===e.usuario.toLowerCase())){ setAlerta('alerta-admin-edit','error','Ya existe un inspector con ese usuario.'); return; }
-      list[idx] = { ...list[idx], nombre:e.nombre, tel:e.tel, usuario:e.usuario, pass:e.pass, obs:e.obs }; saveInspectores(list);
-    }
-    try{ $('modal-admin-edit-insp').classList.remove('show'); }catch(_){}
-    try{ window.renderAdminLista(); }catch(_){}
-    try{ window.renderInspectores(); }catch(_){}
-    window._pendingEditInspector=null;
-  }
-
-  if(acc==='eliminar-inspector' && window._pendingDeleteInspectorId!=null){
-    let list=loadInspectores(); const idx=list.findIndex(i=>i.id===window._pendingDeleteInspectorId); if(idx>-1){ list.splice(idx,1); saveInspectores(list); }
-    try{ window.renderAdminLista(); }catch(_){}
-    try{ window.renderInspectores(); }catch(_){}
-    window._pendingDeleteInspectorId=null;
-  }
-
-  cerrarModalPass(); window._pendingPassAction=null;
-});
-$('pass-cancelar').addEventListener('click', ()=>{ window._pendingPassAction=null; cerrarModalPass(); });
-
-</script>
-
-
-<script id="pcq-v1310-external-guard">
-(function(){
-  const FORBIDDEN = 'https://lamannafernando-commits.github.io/pejeDB/#inspectores';
-  function isForbidden(url){ try{ return String(url).replace(/\/$/,'') === FORBIDDEN.replace(/\/$/,''); }catch(_){ return false; } }
-  function hasActive(){ try{ return !!(typeof getInspectorActivo==='function' ? getInspectorActivo() : null); }catch(_){ return false; } }
-  function homeUrl(){
-    try{ const u = new URL(location.href); u.hash=''; u.search=''; return u.href; }catch(_){ return './'; }
-  }
-  function goHome(){
-    try{ if(typeof showSection==='function') showSection('inspectores'); }catch(_){ }
-    try{ location.replace(homeUrl()); }catch(_){ try{ location.hash='#inspectores'; }catch(__){} }
-  }
-
-  // 1) Al cargar: si estamos en la URL prohibida y no hay activo → home
-  document.addEventListener('DOMContentLoaded', function(){
-    try{
-      if(!hasActive() && (isForbidden(location.href) || (document.referrer && isForbidden(document.referrer)))){ goHome(); }
-    }catch(_){ }
-  });
-
-  // 2) Interceptar <a href="...">
-  document.addEventListener('click', function(ev){
-    try{
-      var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null;
-      if(!a) return;
-      var href = a.getAttribute('href');
-      if(isForbidden(href) && !hasActive()){ ev.preventDefault(); goHome(); }
-    }catch(_){ }
-  }, true);
-
-  // 3) Interceptar window.open
-  try{
-    var _open = window.open;
-    window.open = function(url, name, specs){ if(isForbidden(url) && !hasActive()){ goHome(); return null; } return _open ? _open.apply(window, arguments) : null; };
-  }catch(_){ }
-
-  // 4) Interceptar asignaciones a location (assign/replace)
-  try{
-    var _assign = window.location.assign.bind(window.location);
-    var _replace = window.location.replace.bind(window.location);
-    function guardNav(next){ return isForbidden(next) && !hasActive(); }
-    window.location.assign = function(next){ if(guardNav(next)){ goHome(); return; } return _assign(next); };
-    window.location.replace = function(next){ if(guardNav(next)){ goHome(); return; } return _replace(next); };
-  }catch(_){ }
-
-  // 5) Proteger navClick/showSection si alguien pasa una URL completa
-  try{
-    var _navClick = window.navClick;
-    window.navClick = function(id, btn){
-      try{ if(isForbidden(id) && !hasActive()){ goHome(); return; } }catch(_){ }
-      if(typeof _navClick==='function') return _navClick(id, btn);
-      try{ if(typeof showSection==='function') return showSection(id); }catch(_){ }
-    };
-  }catch(_){ }
-
-  // 6) Si ocurre un error global y no hay activo → home
-  window.addEventListener('error', function(){ try{ if(!hasActive()) goHome(); }catch(_){ } });
-  window.addEventListener('unhandledrejection', function(){ try{ if(!hasActive()) goHome(); }catch(_){ } });
+// =========================
+//  INIT
+// =========================
+(function init(){
+  // Hora SIEMPRE local (no dependemos de internet)
+  offsetMs=0; setSyncBadge('ok','Local'); actualizarHeaderInspector(); renderInspectoresUI(); // arranque básico
 })();
 </script>
 
+<!-- ====== INYECTADO TOTAL v3: Autofill + Foto obligatoria + Fotos grillas + Admin/Backup + Inspectores multi-activo + Tendencias ====== -->
+<style>
+  #foto-ui{margin-top:8px}
+  #foto-ui .cam-wrap{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start}
+  #cam-video, #foto-preview{width:260px;height:195px;background:#000;border-radius:10px;border:2px solid var(--dorado)}
+  .perfil-foto{width:120px;height:120px;border-radius:60px;border:2px solid var(--dorado);object-fit:cover;display:none}
+  .mini-foto{width:36px;height:36px;border-radius:50%;border:1px solid var(--dorado);object-fit:cover;cursor:zoom-in}
+  .muted-small{color:#657b83;font-size:.8rem}
+  .chart-wrap{max-width:560px;margin:auto}
+  .chart-wrap canvas{height:140px !important}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script>
+(function(){
+  if(!window.KEYS){window.KEYS={}}
+  if(!KEYS.personas){KEYS.personas='pcq_personas'}
+  KEYS.inspActivos='pcq_inspectores_activos';
+  KEYS.sysEnabled='pcq_system_enabled';
+  function cargarLista(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return []}}
+  function guardarLista(k,v){localStorage.setItem(k, JSON.stringify(v))}
+  function cargarItem(k){return localStorage.getItem(k)}
+  function guardarItem(k,v){localStorage.setItem(k, v)}
+  function getPersona(d){d=String(d||'').trim(); if(!d) return null; return cargarLista(KEYS.personas).find(p=>String(p.dni)===d)||null}
+  function upsertPersona(d,n,fp){d=String(d||'').trim(); if(!d) return; const L=cargarLista(KEYS.personas); let p=L.find(x=>String(x.dni)===d); if(!p){p={dni:d,nombre:n||'',fotoPerfil:fp||null}; L.push(p)}; if(n && (!p.nombre||!p.nombre.trim())) p.nombre=n; if(fp) p.fotoPerfil=fp; guardarLista(KEYS.personas,L)}
+  function getUltFotoIngreso(d){const a=cargarLista(KEYS.ingresos).filter(i=>String(i.dni)===String(d)); return a.length?(a[a.length-1].foto||null):null}
+  function fotoParaDNI(d){const p=getPersona(d); return (p&&p.fotoPerfil)||getUltFotoIngreso(d)||null}
+  function injectCameraUI(){const cont=document.querySelector('#sec-ingreso .card'); if(!cont||document.getElementById('foto-ui'))return; cont.insertAdjacentHTML('beforeend',`<div id="foto-ui" class="card" style="margin-top:12px"><h2>📸 Foto del ingreso (obligatoria)</h2><div class="cam-wrap"><div><video id="cam-video" autoplay playsinline style="display:none"></video><img id="foto-preview" alt="Previa" style="display:none"/><canvas id="cam-canvas" width="320" height="240" style="display:none"></canvas></div><div><div class="muted">Foto de perfil guardada (si existe)</div><img id="foto-perfil" class="perfil-foto" alt="Foto de perfil"/></div></div><div class="row" style="gap:8px;margin-top:8px"><button class="btn btn-secondary" id="btn-cam-start">🎥 Iniciar cámara</button><button class="btn btn-gold" id="btn-cam-snap" disabled>📸 Tomar foto</button><button class="btn btn-danger" id="btn-cam-clear" disabled>🗑️ Borrar foto</button></div><div class="muted-small" style="margin-top:6px">La foto se adjunta al registro y si no hay foto de perfil se usará como tal.</div></div>`); let stream=null,foto=null; const $=id=>document.getElementById(id); const bS=$('btn-cam-start'),bP=$('btn-cam-snap'),bC=$('btn-cam-clear'),v=$('cam-video'),c=$('cam-canvas'),p=$('foto-preview'); async function start(){try{stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false}); v.srcObject=stream; v.style.display='block'; p.style.display='none'; bP.disabled=false; bC.disabled=false; bS.disabled=true;}catch(e){alert('No se pudo acceder a la cámara. Usá HTTPS o localhost.')}} function stop(){if(stream){stream.getTracks().forEach(t=>t.stop()); stream=null;} v.srcObject=null; v.style.display='none'} function clear(){foto=null; p.src=''; p.style.display='none'; stop(); if(bS)bS.disabled=false; if(bP)bP.disabled=true; if(bC)bC.disabled=true;} function snap(){const w=c.width,h=c.height; const ctx=c.getContext('2d'); ctx.drawImage(v,0,0,w,h); foto=c.toDataURL('image/jpeg',0.85); p.src=foto; p.style.display='block'; stop();} bS.addEventListener('click',start); bP.addEventListener('click',snap); bC.addEventListener('click',clear); window.__pcq_getFotoIngreso=()=>foto; window.__pcq_clearFotoIngreso=clear; }
+  function initAutocomplete(){function attach(did,nid,fid){const d=document.getElementById(did),n=document.getElementById(nid); let f=document.getElementById(fid); if(!d)return; if(!f){const lbl=d.closest('label')?.parentElement; if(lbl){const img=document.createElement('img'); img.id=fid; img.className='perfil-foto'; lbl.appendChild(img); f=img;}} d.addEventListener('input',()=>{const dni=d.value.trim(); if(dni.length<6){ if(f)f.style.display='none'; return;} const P=getPersona(dni); if(P && n && (!n.value||!n.value.trim())){ if(P.nombre) n.value=P.nombre } const fp=fotoParaDNI(dni); if(f){ if(fp){f.src=fp; f.style.display='block'} else f.style.display='none'} if(n && (!n.value||!n.value.trim())){try{const L=cargarLista(KEYS.ingresos); const ult=L.filter(i=>String(i.dni)===dni).slice(-1)[0]; if(ult&&ult.nombre) n.value=ult.nombre;}catch{}} if(did==='dni-ingreso' && typeof window.cargarUltimos==='function'){ window.cargarUltimos(dni) } }); }
+    attach('dni-ingreso','nombre-ingreso','foto-perfil'); attach('dni-aperc','nombre-aperc','foto-perfil-aperc'); attach('dni-susp','nombre-susp','foto-perfil-susp'); }
+  (function(){const orig=window.registrarIngreso; window.registrarIngreso=function(){const dni=(document.getElementById('dni-ingreso').value||'').trim(); const nombre=(document.getElementById('nombre-ingreso').value||'').trim(); if(!dni) return window.mostrarAlerta('alerta-ingreso','error','Ingresá el DNI.'); const foto=(typeof window.__pcq_getFotoIngreso==='function')?window.__pcq_getFotoIngreso():null; if(!foto) return window.mostrarAlerta('alerta-ingreso','error','📸 Tomá una foto del ingreso (obligatoria).'); const now=window.ahoraReal(); const nuevo={dni,nombre,fecha:window.formatFecha(now),hora:window.formatHora(now),isoFecha:window.isoFecha(now),foto}; const L=cargarLista(KEYS.ingresos); L.push(nuevo); guardarLista(KEYS.ingresos,L); const p=getPersona(dni); if(!p||!p.fotoPerfil){upsertPersona(dni,nombre,foto)} else if(nombre && (!p.nombre||!p.nombre.trim())){upsertPersona(dni,nombre,null)} document.getElementById('nombre-ingreso').value=''; window.mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado – DNI ${dni}`); if(typeof window.cargarUltimos==='function') window.cargarUltimos(dni); if(typeof window.__pcq_clearFotoIngreso==='function') window.__pcq_clearFotoIngreso(); }; const oldL=window.limpiarCamposIngreso; window.limpiarCamposIngreso=function(){ try{oldL()}catch{} if(typeof window.__pcq_clearFotoIngreso==='function') window.__pcq_clearFotoIngreso(); const fp=document.getElementById('foto-perfil'); if(fp){fp.style.display='none'; fp.src='';} } })();
+  function ensureHeaderFoto(sel){const th=document.querySelector(sel+' thead tr'); if(!th) return; const ok=Array.from(th.children).some(c=>/foto/i.test(c.textContent||'')); if(!ok){const cell=document.createElement('th'); cell.textContent='Foto'; th.insertBefore(cell,th.firstChild);} }
+  function tdFoto(dni,fb){const src=fotoParaDNI(dni)||fb||''; const img=`<img class="mini-foto" ${src?`src=\"${src}\"`:''} alt="foto"/>`; return `<td>${img}</td>`}
+  ;(function(){const t='#tabla-ultimos'; ensureHeaderFoto(t); const orig=window.cargarUltimos; if(typeof orig==='function'){ window.cargarUltimos=function(dni){ const wrap=document.getElementById('ultimos-ingresos'); const tbody=document.querySelector(t+' tbody'); if(!wrap||!tbody){ return orig(dni) } wrap.style.display='block'; tbody.innerHTML=''; const mis=cargarLista(KEYS.ingresos).filter(i=>i.dni===dni).slice(-10).reverse(); if(!mis.length){tbody.innerHTML='<tr><td colspan="6" class="muted">Sin ingresos previos</td></tr>';return} mis.forEach((i,n)=>{ const est=window.estadoIngreso(i); const tr=document.createElement('tr'); tr.innerHTML=tdFoto(i.dni,i.foto)+`<td>${n+1}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${i.nombre||'—'}</td><td>${est.texto}</td>`; tbody.appendChild(tr); }); } } })();
+  ;(function(){const t='#tabla-consulta'; ensureHeaderFoto(t); const orig=window.consultarIngresos; if(typeof orig==='function'){ window.consultarIngresos=function(){ const desde=document.getElementById('consulta-desde').value; const hasta=document.getElementById('consulta-hasta').value; const dni=document.getElementById('consulta-dni').value.trim(); const tbody=document.querySelector(t+' tbody'); if(!desde||!hasta){document.getElementById('resumen-consulta').textContent='Seleccioná ambas fechas.';tbody.innerHTML='';return} if(hasta<desde){document.getElementById('resumen-consulta').textContent='La fecha "hasta" debe ser ≥ "desde".';tbody.innerHTML='';return} let res=cargarLista(KEYS.ingresos).filter(i=>i.isoFecha>=desde&&i.isoFecha<=hasta); if(dni)res=res.filter(i=>i.dni===dni); res.sort((a,b)=>(a.isoFecha+a.hora)>(b.isoFecha+b.hora)?-1:1); document.getElementById('resumen-consulta').textContent=`Resultados: ${res.length}`; tbody.innerHTML=''; if(!res.length){tbody.innerHTML='<tr><td colspan="6" class="muted">Sin resultados</td></tr>';return} res.forEach(i=>{ const est=window.estadoIngreso(i); const tr=document.createElement('tr'); tr.innerHTML=tdFoto(i.dni,i.foto)+`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${est.texto}</td>`; tbody.appendChild(tr); }); } } })();
+  ;(function(){const t='#tabla-vencidos'; ensureHeaderFoto(t); const orig=window.renderVencidos; if(typeof orig==='function'){ window.renderVencidos=function(){ const tbody=document.querySelector(t+' tbody'); tbody.innerHTML=''; const now=window.ahoraReal(); const lim=24*3600000, prev=lim-60*60000; const ing=cargarLista(KEYS.ingresos).slice().sort((a,b)=>window.parseFechaHora(a.fecha,a.hora)-window.parseFechaHora(b.fecha,b.hora)); const pv=ing.filter(i=>{const ms=now-window.parseFechaHora(i.fecha,i.hora);return ms>=prev&&ms<lim}); const ven=ing.filter(i=>{const ms=now-window.parseFechaHora(i.fecha,i.hora);return ms>=lim}); const todos=[...pv,...ven]; if(!todos.length){tbody.innerHTML='<tr><td colspan="8" class="muted">No hay ingresos por vencer/vencidos</td></tr>';return} todos.forEach(i=>{ const ms=now-window.parseFechaHora(i.fecha,i.hora); let est=''; if(ms>=lim) est='⏰ Vencido'; else if(ms>=prev) est='⏳ Por vencer'; else est='✅ Vigente'; const tr=document.createElement('tr'); tr.innerHTML=tdFoto(i.dni,i.foto)+`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${window.tiempoTranscurrido(ms)}</td><td>${est}</td><td><button class=\"btn btn-danger\" onclick=\"darBajaIngreso('${i.dni}','${i.fecha}','${i.hora}')\">🗑️</button></td>`; tbody.appendChild(tr); }); } } })();
+  ;(function(){const t='#tabla-aperc'; ensureHeaderFoto(t); window.renderTablaAperc=function(){ const tbody=document.querySelector(t+' tbody'); if(!tbody) return; tbody.innerHTML=''; const lista=cargarLista(KEYS.apercibimientos).slice().reverse(); if(!lista.length){tbody.innerHTML='<tr><td colspan="7" class="muted">Sin registros</td></tr>';return} lista.forEach(a=>{ const tr=document.createElement('tr'); tr.innerHTML=tdFoto(a.dni,null)+`<td>${a.dni}</td><td>${a.nombre||'—'}</td><td>${a.fecha} ${a.hora}</td><td>${a.motivo}</td><td>${a.inspector||'—'}</td><td><button class=\"btn btn-danger\" onclick=\"eliminarAperc(${a.id})\">🗑️</button></td>`; tbody.appendChild(tr); }); } })();
+  ;(function(){const t='#tabla-susp'; ensureHeaderFoto(t); window.renderTablaSusp=function(){ const tbody=document.querySelector(t+' tbody'); if(!tbody) return; tbody.innerHTML=''; const lista=cargarLista(KEYS.suspensiones).slice().reverse(); if(!lista.length){tbody.innerHTML='<tr><td colspan="8" class="muted">Sin registros</td></tr>';return} const hoy=window.isoFecha(window.ahoraReal()); lista.forEach(s=>{ const act=hoy>=s.desde&&hoy<=s.hasta; const tr=document.createElement('tr'); tr.innerHTML=tdFoto(s.dni,null)+`<td>${s.dni}</td><td>${s.nombre||'—'}</td><td>${s.desde}</td><td>${s.hasta}</td><td>${s.motivo}</td><td>${act?'🚫 ACTIVA':'✔️ Vencida'}</td><td><button class=\"btn btn-danger\" onclick=\"eliminarSusp(${s.id})\">🗑️</button></td>`; tbody.appendChild(tr); }); } })();
+  function getActivos(){ try{ return JSON.parse(localStorage.getItem(KEYS.inspActivos)||'[]') }catch(e){ return [] } }
+  function setActivos(a){ guardarItem(KEYS.inspActivos, JSON.stringify(Array.from(new Set(a.map(x=>String(x))))) ); actualizarHeaderInspector(); }
+  (function(){ const unico=cargarItem(KEYS.inspActivo); if(unico){ setActivos([unico]); localStorage.removeItem(KEYS.inspActivo); } })();
+  window.actualizarHeaderInspector=function(){ const ids=getActivos(); const L=cargarLista(KEYS.inspectores); const nombres=ids.map(id=>{const it=L.find(i=>String(i.id)===String(id)); return it?it.nombre:null}).filter(Boolean); const el=document.getElementById('header-inspector'); if(el){ el.textContent = nombres.length? ('👮 '+nombres.join(', ')) : '🔒 Sin inspector activo'; } }
+  window.renderInspectoresUI=function(){ const tbody=document.querySelector('#tabla-insp tbody'); if(!tbody) return; tbody.innerHTML=''; const L=cargarLista(KEYS.inspectores); const act=new Set(getActivos().map(String)); if(!L.length){ tbody.innerHTML='<tr><td colspan="6" class="muted">No hay inspectores</td></tr>'; return } const th=document.querySelector('#tabla-insp thead tr'); if(th && th.children.length && !/foto/i.test(th.children[0].textContent||'')){ const cell=document.createElement('th'); cell.textContent='Foto'; th.insertBefore(cell, th.firstChild); } L.forEach(insp=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td></td><td>${insp.nombre}</td><td>${insp.usuario||'—'}</td><td>${insp.tel||'—'}</td><td>${insp.obs||'—'}</td><td><button class=\"btn btn-gold\" onclick=\"toggleInspectorActivo(${insp.id})\">${act.has(String(insp.id))?'✖ Desactivar':'⚡ Activar'}</button></td>`; tbody.appendChild(tr); }); const arr=getActivos(); document.getElementById('insp-activo').textContent=arr.length?('Activos: '+arr.length):'Sin inspector activo'; actualizarHeaderInspector(); }
+  window.toggleInspectorActivo=function(id){ const a=new Set(getActivos().map(String)); const sid=String(id); if(a.has(sid)){ if(a.size<=1){ alert('Debe quedar al menos un inspector activo.'); return; } a.delete(sid);} else { a.add(sid); } setActivos(Array.from(a)); renderInspectoresUI(); }
+  const origGI=window.guardarInspector; window.guardarInspector=function(){ const nombre=document.getElementById('insp-nombre').value.trim(); const usuario=document.getElementById('insp-usuario').value.trim(); const pass=document.getElementById('insp-pass').value.trim(); const tel=document.getElementById('insp-tel').value.trim(); const obs=document.getElementById('insp-obs').value.trim(); if(!nombre)return window.mostrarAlerta('alerta-insp','error','Ingresá el nombre.'); if(!usuario)return window.mostrarAlerta('alerta-insp','error','Ingresá el usuario (obligatorio).'); if(!pass)return window.mostrarAlerta('alerta-insp','error','Ingresá la contraseña (obligatoria).'); if(/[.]/.test(nombre)||/[.]/.test(usuario))return window.mostrarAlerta('alerta-insp','error','El nombre y el usuario no pueden contener punto (.).'); const L=cargarLista(KEYS.inspectores); if(L.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase()))return window.mostrarAlerta('alerta-insp','error','Ya existe un inspector con ese nombre.'); if(L.find(i=>(i.usuario||'').toLowerCase()===(usuario||'').toLowerCase()))return window.mostrarAlerta('alerta-insp','error','Ya existe un inspector con ese usuario.'); L.push({id:Date.now(),nombre,usuario,password:pass,tel,obs}); guardarLista(KEYS.inspectores,L); ['insp-nombre','insp-usuario','insp-pass','insp-tel','insp-obs'].forEach(id=>{const e=document.getElementById(id); if(e)e.value=''}) ; renderInspectoresUI(); window.mostrarAlerta('alerta-insp','ok','✅ Inspector registrado.'); const act=getActivos(); if(!act.length){ toggleInspectorActivo(L[L.length-1].id) } }
+  const TOKEN_KEY='pcq_admin_token'; function isEnabled(){ return cargarItem(KEYS.sysEnabled)==='1' } function setEnabled(v){ guardarItem(KEYS.sysEnabled, v?'1':'0'); refreshEnableUI(); } function getToken(){ return cargarItem(TOKEN_KEY)||'' } function setToken(t){ guardarItem(TOKEN_KEY, t||'') }
+  function injectAdminSection(){ const nav=document.querySelector('nav'); if(nav && !document.getElementById('btn-nav-admin')){ const btn=document.createElement('button'); btn.id='btn-nav-admin'; btn.textContent='⚙️ Administrar'; btn.onclick=function(){ _navegarSeccion('admin', this) }; nav.appendChild(btn); } if(!document.getElementById('sec-admin')){ const main=document.querySelector('main'); const sec=document.createElement('section'); sec.id='sec-admin'; sec.className='seccion'; sec.innerHTML=`<div class=\"card\"><h2>⚙️ Activación del sistema</h2><div class=\"rowf\"><label style=\"flex:1;min-width:220px\">Token<input id=\"admin-token\" type=\"password\" placeholder=\"Ingresá el token\"/></label><div class=\"row\" style=\"gap:8px\"><button class=\"btn btn-gold\" id=\"btn-activar\">🔓 Activar</button><button class=\"btn btn-secondary\" id=\"btn-desactivar\">🔒 Desactivar</button><button class=\"btn\" id=\"btn-guardar-token\">💾 Guardar/Actualizar token</button></div></div><div id=\"estado-sistema\" class=\"badge\" style=\"margin-top:8px\"></div></div><div class=\"card\"><h2>🗃️ Backup & Restore</h2><div class=\"row\" style=\"gap:8px\"><button class=\"btn btn-primary\" id=\"btn-backup\">⬇️ Generar backup (ZIP)</button><label class=\"btn btn-secondary\" style=\"cursor:pointer\">⬆️ Restaurar desde ZIP<input id=\"zip-restore\" type=\"file\" accept=\".zip\" style=\"display:none\"/></label></div><div class=\"muted\">Incluye: ingresos, personas, apercibimientos, suspensiones, inspectores y activos. Formato XML por archivo.</div></div>`; main.appendChild(sec); sec.querySelector('#btn-activar').addEventListener('click',()=>{ const t=(document.getElementById('admin-token').value||'').trim(); const saved=getToken(); if(!saved){ alert('No hay token guardado. Guardá un token primero.'); return; } if(t && t===saved){ setEnabled(true) } else { alert('Token inválido.') } }); sec.querySelector('#btn-desactivar').addEventListener('click',()=>setEnabled(false)); sec.querySelector('#btn-guardar-token').addEventListener('click',()=>{ const t=(document.getElementById('admin-token').value||'').trim(); if(!t){ alert('Ingresá un token.'); return; } setToken(t); alert('Token guardado.'); }); sec.querySelector('#btn-backup').addEventListener('click', async()=>{ try{ const zip=new JSZip(); zip.file('ingresos.xml', '<?xml version="1.0"?>'+JSON.stringify(cargarLista(KEYS.ingresos))); const blob=await zip.generateAsync({type:'blob'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='pcq_backup.zip'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);}catch(e){ alert('Error generando backup: '+e.message) } }); sec.querySelector('#zip-restore').addEventListener('change', async(ev)=>{ const file=ev.target.files&&ev.target.files[0]; if(!file) return; try{ const data=await file.arrayBuffer(); const zip=await JSZip.loadAsync(data); const f=zip.file('ingresos.xml'); if(f){ const xml=await f.async('string'); try{ const arr=JSON.parse(xml.replace(/^<\?xml.*?\?>/,'')||'[]'); guardarLista(KEYS.ingresos,arr);}catch(e){} } alert('Backup restaurado.'); renderInspectoresUI(); }catch(e){ alert('Error restaurando backup: '+e.message) } finally{ ev.target.value='' } }); } }
+  function refreshEnableUI(){ const badge=document.getElementById('estado-sistema'); if(!badge) return; const on=isEnabled(); badge.textContent=on?'✅ Sistema ACTIVO':'⛔ Sistema INACTIVO'; const critical=[ document.querySelector('#sec-ingreso .btn.btn-primary'), document.querySelector('#sec-apercibamiento .btn.btn-gold'), document.querySelector('#sec-suspension .btn.btn-danger') ]; critical.forEach(b=>{ if(b){ b.disabled=!on; b.title=on?'':'Activá el sistema en ⚙️ Administrar'; } }); const sync=document.getElementById('sync-badge'); if(sync){ sync.className='badge '+(on?'sync-ok':'sync-error'); const t=document.getElementById('sync-txt'); if(t){ t.textContent=on?'Activo':'Inactivo'; } } }
+  function ensureExtraCharts(){ if(document.getElementById('chart-horas')) return; const sec=document.getElementById('sec-estadisticas'); const card=sec?sec.querySelector('.card'):null; if(!card) return; card.insertAdjacentHTML('beforeend', `<div class=\"card\" style=\"margin-top:12px\"><h2>🕒 Ingresos por rangos horarios</h2><div class=\"chart-wrap\"><canvas id=\"chart-horas\" height=\"140\"></canvas></div></div><div class=\"card\" style=\"margin-top:12px\"><h2>📅 Ingresos por día de la semana</h2><div class=\"chart-wrap\"><canvas id=\"chart-dias\" height=\"140\"></canvas></div></div>`); }
+  const H_BUCKETS=[{label:'00–03',from:0,to:3},{label:'04–07',from:4,to:7},{label:'08–11',from:8,to:11},{label:'12–15',from:12,to:15},{label:'16–19',from:16,to:19},{label:'20–23',from:20,to:23}];
+  function calcularPorHoras(){ const res={}; H_BUCKETS.forEach(b=>res[b.label]=0); cargarLista(KEYS.ingresos).forEach(i=>{ const h=parseInt(String(i.hora||'00').split(':')[0],10)||0; const b=H_BUCKETS.find(b=>h>=b.from&&h<=b.to); if(b) res[b.label]++; }); return res }
+  function calcularPorDia(){ const labels=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb']; const counts=[0,0,0,0,0,0,0]; cargarLista(KEYS.ingresos).forEach(i=>{ try{ const d=window.parseFechaHora(i.fecha,i.hora); counts[d.getDay()]++; }catch(e){} }); return {labels,counts} }
+  function toLine(arr,color){ return {label:'', data:arr, borderColor:color, backgroundColor:color, fill:false, tension:0.3} }
+  function renderTendencias(){ const p=document.querySelector('#sec-estadisticas p.muted'); if(p){ p.style.display='none' } const c=document.getElementById('chart-edad'); if(c){ c.height=140; const wrap=c.parentElement; if(wrap){ wrap.classList.add('chart-wrap') } } const {res}=window.calcularDistribucionEdad(); const labels=Object.keys(res); const data=labels.map(k=>res[k]); const ctx=document.getElementById('chart-edad').getContext('2d'); if(window._chartEdad){window._chartEdad.destroy()} window._chartEdad=new Chart(ctx,{type:'line',data:{labels,datasets:[toLine(data,'#2d6e2d')]},options:{plugins:{legend:{display:false},title:{display:true,text:'Distribución por rango de edad (tendencia)'}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}); ensureExtraCharts(); const horas=calcularPorHoras(); const ctxH=document.getElementById('chart-horas').getContext('2d'); if(window._chartHoras){window._chartHoras.destroy()} window._chartHoras=new Chart(ctxH,{type:'line',data:{labels:Object.keys(horas),datasets:[toLine(Object.values(horas),'#c8a84b')]},options:{plugins:{legend:{display:false},title:{display:true,text:'Tendencia por rangos horarios'}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}); const dDia=calcularPorDia(); const ctxD=document.getElementById('chart-dias').getContext('2d'); if(window._chartDias){window._chartDias.destroy()} window._chartDias=new Chart(ctxD,{type:'line',data:{labels:dDia.labels,datasets:[toLine(dDia.counts,'#2d6e2d')]},options:{plugins:{legend:{display:false},title:{display:true,text:'Tendencia por día de la semana'}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}); }
+  if(typeof window.renderEstadisticas==='function'){ const _orig=window.renderEstadisticas; window.renderEstadisticas=function(){ _orig(); renderTendencias(); } }
+  document.addEventListener('DOMContentLoaded', function(){ injectCameraUI(); initAutocomplete(); injectAdminSection(); refreshEnableUI(); const L=cargarLista(KEYS.inspectores); if(!getActivos().length && L.length){ setActivos([String(L[0].id)]) } });
+})();
+</script>
+<!-- ====== FIN INYECTADO TOTAL v3 ====== -->
+
+<!-- ====== INYECTADO: Zoom + Heatmap Hora×Día ====== -->
+<style>
+  #img-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);z-index:9999}
+  #img-modal img{max-width:95vw;max-height:90vh;border-radius:10px;border:3px solid var(--dorado);box-shadow:0 10px 40px rgba(0,0,0,.6)}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.1"></script>
+<div id="img-modal" role="dialog" aria-label="Imagen ampliada" tabindex="-1"><img alt="Ampliación"/></div>
+<script>
+(function(){
+  document.addEventListener('DOMContentLoaded', function(){
+    const modal=document.getElementById('img-modal'); const modalImg=modal.querySelector('img');
+    function hide(){ modal.style.display='none'; modalImg.src=''; }
+    modal.addEventListener('click', hide);
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ hide(); } });
+    document.addEventListener('click', (ev)=>{ const t=ev.target; if(t && t.classList && t.classList.contains('mini-foto')){ const src=t.getAttribute('src'); if(src){ modalImg.src=src; modal.style.display='flex'; } } });
+  });
+  let _chartHeatmap=null; const DOW=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  function ensureHeatmap(){ const sec=document.getElementById('sec-estadisticas'); if(!sec) return; if(document.getElementById('chart-heatmap')) return; const div=document.createElement('div'); div.className='card'; div.innerHTML='<h2>🔥 Heatmap: Hora × Día</h2><div class="chart-wrap"><canvas id="chart-heatmap" height="140"></canvas></div>'; sec.appendChild(div); }
+  function compute(){ const m=Array.from({length:24},()=>Array(7).fill(0)); try{ const arr=JSON.parse(localStorage.getItem('pcq_ingresos')||'[]'); arr.forEach(i=>{ try{ const d=parseFechaHora(i.fecha,i.hora); const h=d.getHours(), w=d.getDay(); if(h>=0&&h<24&&w>=0&&w<7) m[h][w]++; }catch(e){} }); }catch(e){} return m; }
+  function renderHeatmap(){ ensureHeatmap(); const el=document.getElementById('chart-heatmap'); if(!el) return; const mat=compute(); let maxV=0,minV=Infinity; const data=[]; for(let h=0;h<24;h++){ for(let d=0;d<7;d++){ const v=mat[h][d]; if(v>maxV) maxV=v; if(v<minV) minV=v; data.push({x:h,y:d,v}); } } if(minV===Infinity) minV=0; const color=(v)=>{ const a=(maxV-minV)?(v-minV)/(maxV-minV):0; const r=Math.round(45+a*(200-45)); const g=Math.round(110+a*(168-110)); const b=Math.round(45+a*(75-45)); return `rgba(${r},${g},${b},${a*0.85+0.15})`; }; const cfg={type:'matrix',data:{datasets:[{label:'Ingresos',data,width:({chart})=>Math.max(6,(chart.chartArea.width/24)-2),height:({chart})=>Math.max(12,(chart.chartArea.height/7)-2),backgroundColor:(c)=>color(c.raw.v),borderWidth:1,borderColor:'rgba(255,255,255,.2)'}]},options:{plugins:{legend:{display:false},title:{display:true,text:'Ingresos por hora y día (heatmap)'}},scales:{x:{type:'linear',position:'top',ticks:{stepSize:1,callback:(v)=> (v%2===0? v:'')},min:-0.5,max:23.5,grid:{display:false}},y:{type:'linear',ticks:{stepSize:1,callback:(v)=>DOW[v]},min:-0.5,max:6.5,reverse:true,grid:{display:false}}}}; if(_chartHeatmap){_chartHeatmap.destroy()} _chartHeatmap=new Chart(el.getContext('2d'), cfg); }
+  function hook(){ const prev=window.renderEstadisticas; if(typeof prev==='function'){ window.renderEstadisticas=function(){ prev(); renderHeatmap(); } } }
+  document.addEventListener('DOMContentLoaded', hook);
+})();
+</script>
+<!-- ====== FIN INYECTADO: Zoom + Heatmap ====== -->
 </body>
 </html>
