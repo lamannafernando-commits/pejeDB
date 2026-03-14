@@ -2406,5 +2406,32 @@ setTimeout(function(){ try{ document.getElementById('sync-loading') && document.
 })();
 </script>
 
+
+<script id="pcq-nav-fallback-v1282">
+// v12.8.2 — Fallback de navegación: asegura _navegarSeccion y navClick para TODAS las secciones
+(function(){
+  // Fallback _navegarSeccion si no existe
+  if (typeof window._navegarSeccion !== 'function'){
+    window._navegarSeccion = function(id, btn){
+      try{
+        document.querySelectorAll('.seccion').forEach(function(s){ s.classList.remove('activa'); });
+        var sec = document.getElementById('sec-'+id); if(sec) sec.classList.add('activa');
+        document.querySelectorAll('nav button').forEach(function(b){ b.classList.remove('activo'); });
+        if(btn) btn.classList.add('activo');
+        // Fallback extra: si no encuentra la sección, usa hash para anclar
+        if(!sec){ location.hash = '#'+id; }
+      }catch(e){ try{ location.hash = '#'+id; }catch(_){ } }
+    };
+  }
+  // Reforzar navClick para que SIEMPRE tenga fallback por hash en cualquier id
+  window.navClick = function(id, btn){
+    try{
+      if(typeof _navegarSeccion === 'function') _navegarSeccion(id, btn);
+      else { location.hash = '#'+id; }
+    }catch(e){ try{ location.hash = '#'+id; }catch(_){ } }
+  };
+})();
+</script>
+
 </body>
 </html>
