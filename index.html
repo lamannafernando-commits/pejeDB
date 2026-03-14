@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -54,6 +53,8 @@
     canvas{width:100%;height:220px;background:#0a140a;border:1px solid #2d6e2d;border-radius:8px}
     /* Overlay off */
     #bloqueo-overlay{display:none !important;pointer-events:none !important}
+    /* Banner token */
+    #token-ask-banner{display:none;background:rgba(200,168,75,.12);border:2px solid var(--dorado);color:var(--dorado);padding:10px 14px;margin:10px 14px;border-radius:10px}
   </style>
 </head>
 <body>
@@ -62,6 +63,7 @@
     <div class="row">
       <div class="chip" id="reloj">--:--:-- — --/--/----</div>
       <div class="chip" id="sync-badge">☁️ Local</div>
+      <button id="btn-activar-sistema" class="btn btn-warn" style="display:none" onclick="activarSistema()">⚡ Activar sistema</button>
     </div>
   </header>
 
@@ -72,15 +74,14 @@
     <button id="btn-nav-backup" onclick="navClick('backup',this)">Backup</button>
   </nav>
 
-
-<div id="token-ask-banner" style="display:none;background:rgba(200,168,75,.12);border:2px solid var(--dorado);color:var(--dorado);padding:10px 14px;margin:10px 14px;border-radius:10px">
-  <strong>🔑 Falta configurar Token y Repo para activar la nube.</strong>
-  <div class="grupo-botones" style="margin-top:8px">
-    <button class="btn" onclick="abrirTokenModal()">Configurar token</button>
-    <button class="btn btn-warn" onclick="ocultarBannerToken()">Ocultar</button>
+  <!-- Banner token no bloqueante -->
+  <div id="token-ask-banner">
+    <strong>🔑 Falta configurar Token para activar la nube.</strong>
+    <div class="grupo-botones" style="margin-top:8px">
+      <button class="btn" onclick="abrirTokenModal()">Configurar token</button>
+      <button class="btn btn-warn" onclick="ocultarBannerToken()">Ocultar</button>
+    </div>
   </div>
-</div>
-
 
   <main>
     <!-- INGRESO -->
@@ -222,22 +223,21 @@
     </section>
   </main>
 
-
-<div id="token-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);align-items:center;justify-content:center;z-index:1000">
-  <div class="box" style="background:#0c1c0c;border:1px solid var(--dorado);border-radius:12px;padding:16px;max-width:520px;width:calc(100% - 32px)">
-    <h3>Configurar Token de GitHub</h3>
-    <div class="form-row" style="margin-top:6px">
-      <label>Token
-        <input type="text" id="token-input-modal" placeholder="ghp_...">
-      </label>
-          </div>
-    <div class="grupo-botones" style="margin-top:10px">
-      <button class="btn" onclick="guardarToken()">Guardar</button>
-      <button class="btn btn-warn" onclick="cerrarTokenModal()">Cerrar</button>
+  <!-- Modal Token -->
+  <div id="token-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);align-items:center;justify-content:center;z-index:1000">
+    <div class="box" style="background:#0c1c0c;border:1px solid var(--dorado);border-radius:12px;padding:16px;max-width:520px;width:calc(100% - 32px)">
+      <h3>Configurar Token</h3>
+      <div class="form-row" style="margin-top:6px">
+        <label>Token
+          <input type="text" id="token-input-modal" placeholder="ghp_...">
+        </label>
+      </div>
+      <div class="grupo-botones" style="margin-top:10px">
+        <button class="btn" onclick="guardarToken()">Guardar</button>
+        <button class="btn btn-warn" onclick="cerrarTokenModal()">Cerrar</button>
+      </div>
     </div>
   </div>
-</div>
-
 
   <div id="img-modal" onclick="cerrarImgModal()"><img id="img-modal-img" alt="Foto"/></div>
   <div id="bloqueo-overlay"></div>
@@ -246,22 +246,9 @@
   // ======= BASE =======
   const KEYS={ingresos:'app_ingresos',fotos:'app_fotos',token:'app_token'};
   let offsetMs=0;
-
-function setSyncBadge(state,text){
-  const el=document.getElementById('sync-badge');
-  if(!el) return;
-  el.textContent=text;
-  el.className='chip';
-  if(state==='syncing') el.classList.add('syncing');
-  else if(state==='ok') el.classList.add('ok');
-  else if(state==='err') el.classList.add('err');
-}
-function getToken(){ return localStorage.getItem(KEYS.token)||''; }
-function function estaOnline(){ return (typeof navigator!=='undefined' && 'onLine' in navigator) ? navigator.onLine : true; }
-
   function cargarDatos(k){ try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return []} }
   function guardarDatos(k,v){ localStorage.setItem(k,JSON.stringify(v)); }
-  function getFotosMap(){ try{return JSON.parse(localStorage.getItem(KEYS.fotos)||'{}')}catch{return {}} }
+  function getFotosMap(){ try{return JSON.parse(localStorage.getItem(KEYS.fotos)||'{}')}catch{return {} } }
   function setFotosMap(m){ localStorage.setItem(KEYS.fotos,JSON.stringify(m)); }
   function getFoto(id){ const m=getFotosMap(); return m[id]||''; }
   function ahoraReal(){ return new Date(Date.now()+offsetMs); }
@@ -310,47 +297,73 @@ function function estaOnline(){ return (typeof navigator!=='undefined' && 'onLin
   ctx.fillStyle='#cfe9cf'; ctx.font='12px system-ui'; let y=16; labels.forEach((t,i)=>{ const v=data[i]; const pct = Math.round((v*1000)/total)/10; ctx.fillStyle=cols[i%cols.length]; ctx.fillRect(W-110,y-10,10,10); ctx.fillStyle='#cfe9cf'; ctx.fillText(`${t}: ${v} (${pct}%)`, W-95, y); y+=16; }); }
   function isoWeekKey(d){ const dt=new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const dayNum = dt.getUTCDay() || 7; dt.setUTCDate(dt.getUTCDate() + 4 - dayNum); const yearStart = new Date(Date.UTC(dt.getUTCFullYear(),0,1)); const weekNo = Math.ceil((((dt - yearStart) / 86400000) + 1)/7); const y=dt.getUTCFullYear(); return `${y}-W${String(weekNo).padStart(2,'0')}`; }
 
-  
-// ======= TOKEN (no bloqueante) + VALIDACIÓN =======
-function mostrarBannerToken(){ const b=document.getElementById('token-ask-banner'); if(b) b.style.display='block'; }
-function ocultarBannerToken(){ const b=document.getElementById('token-ask-banner'); if(b) b.style.display='none'; }
-function abrirTokenModal(){ const m=document.getElementById('token-modal'); if(!m) return; (document.getElementById('token-input-modal')||{}).value=getToken(); m.style.display='flex'; }
-function cerrarTokenModal(){ const m=document.getElementById('token-modal'); if(m) m.style.display='none'; }
-function guardarToken(){ const t=(document.getElementById('token-input-modal').value||'').trim(); if(!t){ alert('Ingresá el Token.'); return; } localStorage.setItem(KEYS.token,t); ocultarBannerToken(); setSyncBadge('ok','☁️ ✔️ Token guardado'); cerrarTokenModal(); if(estaOnline()){ validarTokenYRepo().then(res=>{ if(res&&res.ok){ setSyncBadge('ok','☁️ ✔️ Listo'); } else { setSyncBadge('err','☁️ ❌ '+(res.error||'Token inválido')); mostrarBannerToken(); } }).catch(()=> setSyncBadge('err','☁️ ❌ Error')); } else { setSyncBadge('err','☁️ ⚡ Guardado (validación pendiente)'); } }
-function ghHeaders(token){ return { 'Accept':'application/vnd.github+json', 'Authorization':'Bearer '+token, 'X-GitHub-Api-Version':'2022-11-28' }; }
-function tieneScopeRepo(scopesStr){ const s=(scopesStr||'').split(',').map(x=>x.trim().toLowerCase()); return s.includes('repo') || s.includes('public_repo'); }
-async function validarToken(){ if(!estaOnline()) return {ok:true,modo:'local'}; const token=getToken(); if(!token) return {ok:false,error:'Falta token'}; try{ setSyncBadge('syncing','☁️ ������ Validando token...'); const rUser=await fetch('https://api.github.com/user',{headers:ghHeaders(token)}); if(rUser.status===401) return {ok:false,error:'Token inválido (401)'}; if(rUser.status===403) return {ok:false,error:'Acceso denegado (403)'}; if(rUser.status<200||rUser.status>299) return {ok:false,error:'Error usuario: '+rUser.status}; const scopes = rUser.headers.get('x-oauth-scopes')||''; return {ok:true,scopes}; }catch(e){ return {ok:false,error:'Error de red/validación'}; } }; const token=getToken(); const repo=getRepo(); if(!token||!repo) return {ok:false,error:'Falta token o repo'}; try{ setSyncBadge('syncing','☁️ 🔄 Validando token...'); const rUser=await fetch('https://api.github.com/user',{headers:ghHeaders(token)}); if(rUser.status===401) return {ok:false,error:'Token inválido (401)'}; if(rUser.status===403) return {ok:false,error:'Acceso denegado (403)'}; if(rUser.status<200||rUser.status>299) return {ok:false,error:'Error usuario: '+rUser.status}; const scopes = rUser.headers.get('x-oauth-scopes')||''; const rRepo=await fetch('https://api.github.com/repos/'+repo,{headers:ghHeaders(token)}); if(rRepo.status===404) return {ok:false,error:'Repo no encontrado (404)'}; if(rRepo.status===401) return {ok:false,error:'Token inválido para el repo (401)'}; if(rRepo.status===403) return {ok:false,error:'Sin permisos al repo (403)'}; if(rRepo.status<200||rRepo.status>299) return {ok:false,error:'Error repo: '+rRepo.status}; const repoJson=await rRepo.json(); const necesitaRepoScope=!!repoJson.private; const okScope = necesitaRepoScope ? scopes.toLowerCase().includes('repo') : tieneScopeRepo(scopes); if(!okScope) return {ok:false,error:'Scope insuficiente'}; return {ok:true,scopes,repoPrivado:necesitaRepoScope}; }catch(e){ return {ok:false,error:'Error de red/validación'}; } }
+  // ======= TOKEN (solo token) + VALIDACIÓN =======
+  function setSyncBadge(state,text){ const el=document.getElementById('sync-badge'); if(!el)return; el.textContent=text; el.className='chip'; if(state==='syncing')el.classList.add('syncing'); else if(state==='ok')el.classList.add('ok'); else if(state==='err')el.classList.add('err'); }
+  function getToken(){ return localStorage.getItem(KEYS.token)||''; }
+  function estaOnline(){ return (typeof navigator!=='undefined' && 'onLine' in navigator) ? navigator.onLine : true; }
+  function mostrarBannerToken(){ const b=document.getElementById('token-ask-banner'); if(b) b.style.display='block'; }
+  function ocultarBannerToken(){ const b=document.getElementById('token-ask-banner'); if(b) b.style.display='none'; }
+  function abrirTokenModal(){ const m=document.getElementById('token-modal'); if(!m) return; (document.getElementById('token-input-modal')||{}).value=getToken(); m.style.display='flex'; }
+  function cerrarTokenModal(){ const m=document.getElementById('token-modal'); if(m) m.style.display='none'; }
+  async function validarToken(){ if(!estaOnline()) return {ok:true,modo:'local'}; const token=getToken(); if(!token) return {ok:false,error:'Falta token'}; try{ setSyncBadge('syncing','☁️ 🔄 Validando token...'); const rUser=await fetch('https://api.github.com/user',{headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+token,'X-GitHub-Api-Version':'2022-11-28'}}); if(rUser.status===401) return {ok:false,error:'Token inválido (401)'}; if(rUser.status===403) return {ok:false,error:'Acceso denegado (403)'}; if(rUser.status<200||rUser.status>299) return {ok:false,error:'Error usuario: '+rUser.status}; const scopes=rUser.headers.get('x-oauth-scopes')||''; return {ok:true,scopes}; }catch(e){ return {ok:false,error:'Error de red/validación'}; } }
+  function guardarToken(){ const t=(document.getElementById('token-input-modal').value||'').trim(); if(!t){ alert('Ingresá el Token.'); return; } localStorage.setItem(KEYS.token,t); setSyncBadge('ok','☁️ ✔️ Token guardado'); cerrarTokenModal(); if(estaOnline()){ validarToken().then(res=>{ if(res&&res.ok){ nubeActiva=true; setSyncBadge('ok','☁️ ✔️ Listo'); } else { nubeActiva=false; setSyncBadge('err','☁️ ❌ '+(res.error||'Token inválido')); mostrarBannerToken(); } actualizarBotonActivar(); }).catch(()=> {nubeActiva=false; setSyncBadge('err','☁️ ❌ Error'); actualizarBotonActivar();}); } else { nubeActiva=false; setSyncBadge('err','☁️ ⚡ Guardado (validación pendiente)'); actualizarBotonActivar(); } }
+
+  // ======= ACTIVAR SISTEMA (botón) =======
+  let nubeActiva=false;
+  function actualizarBotonActivar(){
+    try{
+      const btn = document.getElementById('btn-activar-sistema');
+      if(!btn) return;
+      const online = estaOnline();
+      const hayToken = !!getToken();
+      if(!online){
+        btn.style.display='inline-flex'; btn.disabled=false; btn.title='Conectate a Internet para activar';
+      }else if(!hayToken){
+        btn.style.display='inline-flex'; btn.disabled=false; btn.title='Ingresá el token para activar';
+      }else{
+        btn.style.display = nubeActiva ? 'none' : 'inline-flex';
+        btn.disabled=false; btn.title = nubeActiva ? '' : 'Validar token y activar';
+      }
+    }catch(e){}
+  }
+  async function activarSistema(){
+    if(!estaOnline()){ alert('Estás en modo local. Conectate a Internet para activar la sincronización.'); try{ abrirTokenModal(); }catch(e){} return; }
+    if(!getToken()){ try{ abrirTokenModal(); }catch(e){} return; }
+    try{
+      const r = await validarToken();
+      if(r && r.ok){ nubeActiva = true; setSyncBadge('ok','☁️ ✔️ Listo'); }
+      else{ nubeActiva = false; setSyncBadge('err','☁️ ❌ ' + (r && r.error ? r.error : 'Token inválido')); mostrarBannerToken(); }
+    }catch(e){ nubeActiva = false; setSyncBadge('err','☁️ ❌ Error'); }
+    actualizarBotonActivar();
+  }
 
   // ======= BACKUP =======
   function exportarJSON(){ const data={ ingresos:cargarDatos(KEYS.ingresos), fotos:getFotosMap() }; const txt=JSON.stringify(data,null,2); document.getElementById('backup-json').value=txt; document.getElementById('backup-alert').textContent='Exportado a la caja de texto.'; }
   function importarJSON(){ try{ const txt=document.getElementById('backup-json').value||'{}'; const data=JSON.parse(txt); if(data.ingresos) guardarDatos(KEYS.ingresos,data.ingresos); if(data.fotos) setFotosMap(data.fotos); document.getElementById('backup-alert').textContent='Importación OK.'; }catch(e){ document.getElementById('backup-alert').textContent='Error al importar JSON.'; } }
 
-  
-// ======= INIT =======
-(function(){
-  tickReloj(); setInterval(tickReloj,1000);
-  // Conectividad & activación
-  const online = estaOnline();
-  const hayToken = !!getToken();
-  if(!online){
-    setSyncBadge('err','☁️ ⚡ Local (sin internet)');
-  } else if(!hayToken){
-    setSyncBadge('err','☁️ ❌ Sin token');
-    mostrarBannerToken();
-    try{ abrirTokenModal(); }catch(e){}
-  } else {
-    validarToken().then(r=>{
-      if(r && r.ok) setSyncBadge('ok','☁️ ✔️ Listo');
-      else { setSyncBadge('err','☁️ ❌ '+(r.error||'Token inválido')); mostrarBannerToken(); }
-    }).catch(()=> setSyncBadge('err','☁️ ❌ Error'));
-  }
-  // listeners online/offline
-  window.addEventListener('online',()=>{ if(getToken()) setSyncBadge('ok','☁️ ✔️ Conectado'); else setSyncBadge('err','☁️ ❌ Sin token'); });
-  window.addEventListener('offline',()=> setSyncBadge('err','☁️ ⚡ Local (sin internet)'));
-
-  navClick('ingreso', document.getElementById('btn-nav-ingreso'));
-})();
-
+  // ======= INIT =======
+  (function(){
+    tickReloj(); setInterval(tickReloj,1000);
+    const online = estaOnline();
+    const hayToken = !!getToken();
+    if(!online){
+      setSyncBadge('err','☁️ ⚡ Local (sin internet)');
+    } else if(!hayToken){
+      setSyncBadge('err','☁️ ❌ Sin token');
+      mostrarBannerToken();
+      try{ abrirTokenModal(); }catch(e){}
+    } else {
+      validarToken().then(r=>{
+        if(r && r.ok){ nubeActiva=true; setSyncBadge('ok','☁️ ✔️ Listo'); }
+        else { nubeActiva=false; setSyncBadge('err','☁️ ❌ '+(r.error||'Token inválido')); mostrarBannerToken(); }
+        actualizarBotonActivar();
+      }).catch(()=> { nubeActiva=false; setSyncBadge('err','☁️ ❌ Error'); actualizarBotonActivar(); });
+    }
+    window.addEventListener('online',()=>{ if(getToken()) setSyncBadge('ok','☁️ ✔️ Conectado'); else setSyncBadge('err','☁️ ❌ Sin token'); actualizarBotonActivar(); });
+    window.addEventListener('offline',()=> { setSyncBadge('err','☁️ ⚡ Local (sin internet)'); actualizarBotonActivar(); });
+    navClick('ingreso', document.getElementById('btn-nav-ingreso'));
+    actualizarBotonActivar();
+  })();
   </script>
 </body>
 </html>
