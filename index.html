@@ -344,7 +344,7 @@
   <button id="btn-nav-vencidos"       onclick="navClick('vencidos',this)">⏰ Ingresos Vencidos</button>
   <button id="btn-nav-estadisticas"   onclick="navClick('estadisticas',this)">📊 Estadísticas</button>
   <button id="btn-nav-inspectores"    onclick="navClick('inspectores',this)">👮 Inspectores</button>
-  <button id="btn-nav-backup"         onclick="navClick('backup',this)">💾 Backup</button>
+  <button id="btn-nav-backup"         onclick="navClick('backup',this)">⚙️ Administrar</button>
 </nav>
 
 <main>
@@ -713,7 +713,7 @@
       <div id="ultimo-sync-info" style="font-size:.82rem;color:#4a6a4a;margin-top:8px;"></div>
     </div>
     <div class="card">
-      <h2>💾 Backup XML Local</h2>
+      <h2>💾 Administrar XML Local</h2>
       <p style="font-size:.9rem;color:#4a6a4a;margin-bottom:14px;">Descargá una copia local de todos los datos en formato <strong>.xml</strong>. Se requiere contraseña.</p>
       <div class="backup-row">
         <button class="btn btn-success" onclick="pedirPassBackup('descargar')">⬇️ Descargar XML</button>
@@ -721,7 +721,7 @@
       <div id="alerta-backup-gen" class="alerta"></div>
     </div>
     <div class="card">
-      <h2>♻️ Restaurar Backup XML</h2>
+      <h2>♻️ Restaurar Administrar XML</h2>
       <p style="font-size:.9rem;color:#4a6a4a;margin-bottom:14px;"><strong style="color:var(--rojo);">⚠️ Esto reemplazará TODOS los datos actuales.</strong> Se requiere contraseña.</p>
       <div class="backup-row">
         <input type="file" id="archivo-bak" accept=".xml" style="padding:6px;border:1.5px solid #8aaa8a;border-radius:6px;background:#fff;color:var(--texto-oscuro)"/>
@@ -2162,5 +2162,76 @@ async function iniciarSyncConGitHub(){
 </div>
 
 \n<script id="pcq-v1290-abm-inspectores">\n(function(){\n  function keyInspectores(){ return (window.KEYS && KEYS.inspectores) ? KEYS.inspectores : 'pcq_inspectores'; }\n  function loadInspectores(){ try{ return JSON.parse(localStorage.getItem(keyInspectores())||'[]'); }catch(_){ return []; } }\n  function saveInspectores(lst){ try{ localStorage.setItem(keyInspectores(), JSON.stringify(lst)); }catch(_){ } }\n  function setAlerta(id, tipo, msg){ try{ var el=document.getElementById(id); if(!el) return; el.className='alerta show '+(tipo==='ok'?'alerta-ok':tipo==='error'?'alerta-error':''); el.textContent=msg||''; }catch(_){ } }\n\n  // ===== Alta desde Administrar (con pass maestra) =====\n  window.adminSolicitarAltaInspector = function(){\n    try{\n      var nombre=(document.getElementById('adm-insp-nombre')||{}).value?.trim()||'';\n      var tel=(document.getElementById('adm-insp-tel')||{}).value?.trim()||'';\n      var user=(document.getElementById('adm-insp-user')||{}).value?.trim()||'';\n      var pass=(document.getElementById('adm-insp-pass')||{}).value||'';\n      var obs=(document.getElementById('adm-insp-obs')||{}).value?.trim()||'';\n      if(!nombre||!user||!pass){ setAlerta('adm-insp-alerta','error','Completá Nombre, Usuario y Contraseña.'); return; }\n      window._pendingInspectorAlta={ nombre:nombre, tel:tel, usuario:user, pass:pass, obs:obs, _src:'admin' };\n      // Abrir modal de pass\n      try{\n        var tit=document.getElementById('pass-titulo'); if(tit) tit.textContent='\uD83D\uDD12 Confirmá el alta del inspector';\n        var sub=document.getElementById('pass-subtitulo'); if(sub) sub.textContent='Ingresá la contraseña maestra para dar de alta el inspector.';\n        var a=document.getElementById('alerta-pass'); if(a){ a.className='alerta'; a.textContent=''; }\n        document.getElementById('pass-input').value=''; window._pendingPassAction='alta-inspector';\n        var modal=document.getElementById('modal-pass'); if(modal){ modal.style.display='flex'; setTimeout(function(){ try{ document.getElementById('pass-input').focus(); }catch(_){ } },120);}\n      }catch(_){ }\n    }catch(_){ }\n  };\n\n  // ===== Render listado en Administrar =====\n  function renderAdminLista(){\n    var cont=document.getElementById('adm-insp-list'); if(!cont) return;\n    var data=loadInspectores();\n    if(!Array.isArray(data) || data.length===0){ cont.innerHTML='<p style="opacity:.7">No hay inspectores registrados.</p>'; return; }\n    var html='\n<table class="tabla" id="tabla-admin-inspectores">\n<thead><tr><th>Nombre</th><th>Teléfono</th><th>Usuario</th><th>Obs.</th><th style="width:140px">Acciones</th></tr></thead><tbody>';\n    data.forEach(function(i){\n      html+='<tr>\n        <td>'+ (i.nombre||'') +'</td>\n        <td>'+ (i.tel||'') +'</td>\n        <td>'+ (i.usuario||'') +'</td>\n        <td>'+ (i.obs||'') +'</td>\n        <td>\n          <button class="btn btn-warning" onclick="adminAbrirEditarInspector('+i.id+')">✏️ Editar</button>\n          <button class="btn btn-danger" onclick="adminSolicitarEliminarInspector('+i.id+')">🗑️ Eliminar</button>\n        </td>\n      </tr>';\n    });\n    html+='</tbody></table>';\n    cont.innerHTML=html;\n  }\n  window.renderAdminLista = renderAdminLista;\n\n  // ===== Editar =====\n  var _editId = null;\n  window.adminAbrirEditarInspector = function(id){\n    try{ var lista=loadInspectores(); var it=lista.find(function(x){return x.id===id;}); if(!it) return; _editId=id;\n      document.getElementById('edit-insp-nombre').value=it.nombre||'';\n      document.getElementById('edit-insp-tel').value=it.tel||'';\n      document.getElementById('edit-insp-user').value=it.usuario||'';\n      document.getElementById('edit-insp-pass').value=it.pass||'';\n      document.getElementById('edit-insp-obs').value=it.obs||'';\n      document.getElementById('alerta-admin-edit').className='alerta';\n      document.getElementById('alerta-admin-edit').textContent='';\n      document.getElementById('modal-admin-edit-insp').classList.add('show');\n    }catch(_){ }\n  };\n  window.adminCerrarEditarInspector = function(){ try{ document.getElementById('modal-admin-edit-insp').classList.remove('show'); }catch(_){ } };\n  window.adminSolicitarGuardarEdicion = function(){\n    try{ if(_editId==null) return;\n      var nombre=(document.getElementById('edit-insp-nombre')||{}).value?.trim()||'';\n      var tel=(document.getElementById('edit-insp-tel')||{}).value?.trim()||'';\n      var user=(document.getElementById('edit-insp-user')||{}).value?.trim()||'';\n      var pass=(document.getElementById('edit-insp-pass')||{}).value||'';\n      var obs=(document.getElementById('edit-insp-obs')||{}).value?.trim()||'';\n      if(!nombre||!user){ var a=document.getElementById('alerta-admin-edit'); a.className='alerta show alerta-error'; a.textContent='Completá Nombre y Usuario.'; return; }\n      window._pendingEditInspector = { id:_editId, nombre:nombre, tel:tel, usuario:user, pass:pass, obs:obs };\n      // pedir pass\n      try{ var tit=document.getElementById('pass-titulo'); if(tit) tit.textContent='\uD83D\uDD12 Guardar cambios del inspector'; var sub=document.getElementById('pass-subtitulo'); if(sub) sub.textContent='Ingresá la contraseña maestra para confirmar.'; var ap=document.getElementById('alerta-pass'); if(ap){ ap.className='alerta'; ap.textContent=''; } document.getElementById('pass-input').value=''; window._pendingPassAction='editar-inspector'; var modal=document.getElementById('modal-pass'); if(modal){ modal.style.display='flex'; setTimeout(function(){ try{ document.getElementById('pass-input').focus(); }catch(_){ } },120);} }catch(_){ }\n    }catch(_){ }\n  };\n\n  // ===== Eliminar =====\n  window.adminSolicitarEliminarInspector = function(id){\n    try{ window._pendingDeleteInspectorId = id; var tit=document.getElementById('pass-titulo'); if(tit) tit.textContent='\uD83D\uDD12 Eliminar inspector'; var sub=document.getElementById('pass-subtitulo'); if(sub) sub.textContent='Ingresá la contraseña maestra para confirmar la eliminación.'; var ap=document.getElementById('alerta-pass'); if(ap){ ap.className='alerta'; ap.textContent=''; } document.getElementById('pass-input').value=''; window._pendingPassAction='eliminar-inspector'; var modal=document.getElementById('modal-pass'); if(modal){ modal.style.display='flex'; setTimeout(function(){ try{ document.getElementById('pass-input').focus(); }catch(_){ } },120);} }catch(_){ }\n  };\n\n  // ===== Integrar acciones en confirmarPass =====\n  (function(){\n    var _old = window.confirmarPass;\n    window.confirmarPass = async function(){\n      try{\n        var acc = window._pendingPassAction;\n        var val = (document.getElementById('pass-input')||{}).value||'';\n        // Validación smart (si existe), sino la ya integrada por v12.8.x\n        var ok = true;\n        try{ if(typeof checkMasterPassSmart==='function'){ ok = !!(await checkMasterPassSmart(val)); } }catch(_){ }\n        if(!ok){ var ap=document.getElementById('alerta-pass'); if(ap){ ap.className='alerta show alerta-error'; ap.textContent='❌ Contraseña incorrecta.'; } document.getElementById('pass-input').value=''; try{ document.getElementById('pass-input').focus(); }catch(_){ } return; }\n        if(acc==='editar-inspector' && window._pendingEditInspector){\n          var lista=loadInspectores(); var idx=lista.findIndex(function(i){ return i.id===window._pendingEditInspector.id; }); if(idx>-1){\n            // validar duplicados por nombre/usuario\n            var e=window._pendingEditInspector;\n            if(lista.find(function(it,ix){ return ix!==idx && (it.nombre||'').toLowerCase()===e.nombre.toLowerCase(); })){ alert('Ya existe un inspector con ese nombre.'); return; }\n            if(e.usuario && lista.find(function(it,ix){ return ix!==idx && (it.usuario||'').toLowerCase()===e.usuario.toLowerCase(); })){ alert('Ya existe un inspector con ese usuario.'); return; }\n            lista[idx] = { ...lista[idx], nombre:e.nombre, tel:e.tel, usuario:e.usuario, pass:e.pass, obs:e.obs }; saveInspectores(lista);\n          }\n          try{ document.getElementById('modal-pass').style.display='none'; }catch(_){ }\n          try{ document.getElementById('modal-admin-edit-insp').classList.remove('show'); }catch(_){ }\n          try{ renderAdminLista(); }catch(_){ }\n          try{ if(typeof window.renderInspectores==='function') window.renderInspectores(); }catch(_){ }\n          window._pendingEditInspector=null; window._pendingPassAction=null; return;\n        }\n        if(acc==='eliminar-inspector' && (window._pendingDeleteInspectorId!=null)){\n          var lista2=loadInspectores(); var idx2=lista2.findIndex(function(i){ return i.id===window._pendingDeleteInspectorId; }); if(idx2>-1){ lista2.splice(idx2,1); saveInspectores(lista2); }\n          try{ document.getElementById('modal-pass').style.display='none'; }catch(_){ }\n          try{ renderAdminLista(); }catch(_){ }\n          try{ if(typeof window.renderInspectores==='function') window.renderInspectores(); }catch(_){ }\n          window._pendingDeleteInspectorId=null; window._pendingPassAction=null; return;\n        }\n      }catch(_){ }\n      if(typeof _old==='function') return _old();\n    };\n  })();\n\n  // ===== Inicializar listado admin al cargar Administrar =====\n  document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ try{ renderAdminLista(); }catch(_){ } }, 200); });\n  window.addEventListener('hashchange', function(){ if(location.hash==='#backup'){ try{ renderAdminLista(); }catch(_){ } } });\n})();\n</script>\n
+
+<script id="pcq-v1291-admin-fix">
+(function(){
+  function el(id){ return document.getElementById(id); }
+  function keyInspectores(){ return (window.KEYS && KEYS.inspectores) ? KEYS.inspectores : 'pcq_inspectores'; }
+  function hayInspectores(){ try{ var a = JSON.parse(localStorage.getItem(keyInspectores())||'[]'); return Array.isArray(a) && a.length>0; }catch(_){ return false; } }
+  // Asegurar que el botón diga Administrar y no quede bloqueado
+  document.addEventListener('DOMContentLoaded', function(){
+    try{ var b=el('btn-nav-backup'); if(b){ b.textContent='⚙️ Administrar'; b.classList.remove('nav-bloqueado'); } }catch(_){ }
+  });
+
+  // Mostrar modal de pass para abrir Administrar cuando no hay inspectores
+  function solicitarAccesoAdministrar(){
+    try{
+      var tit=el('pass-titulo'); if(tit) tit.textContent='🔒 Administrar – Acceso';
+      var sub=el('pass-subtitulo'); if(sub) sub.textContent='Ingresá la contraseña maestra para entrar a "Administrar".';
+      var a=el('alerta-pass'); if(a){ a.className='alerta'; a.textContent=''; }
+      el('pass-input').value='';
+      window._pendingPassAction='abrir-admin';
+      var modal=el('modal-pass'); if(modal){ modal.style.display='flex'; setTimeout(function(){ try{ el('pass-input').focus(); }catch(_){ } },120); }
+    }catch(_){ }
+  }
+
+  // No exigir inspector activo para Administrar: quitar overlay y desbloquear
+  (function(){
+    var _orig = window.actualizarEstadoBloqueo;
+    window.actualizarEstadoBloqueo = function(){
+      try{ el('bloqueo-overlay')?.classList.remove('show'); }catch(_){ }
+      try{ document.querySelectorAll('nav button').forEach(function(b){ b.classList.remove('nav-bloqueado'); }); }catch(_){ }
+      if(typeof _orig==='function') return _orig();
+    };
+  })();
+
+  // Reforzar navClick: Administrar SIEMPRE accesible (con pass si no hay inspectores)
+  (function(){
+    var _origNav = window.navClick;
+    window.navClick = function(id, btn){
+      try{
+        if(id==='backup'){
+          if(!hayInspectores()) { solicitarAccesoAdministrar(); return; }
+          if(typeof _navegarSeccion==='function'){ _navegarSeccion('backup', btn); } else { location.hash='#backup'; }
+          return;
+        }
+      }catch(_){ }
+      try{ if(typeof _origNav==='function') return _origNav(id, btn); }catch(_){ }
+      try{ if(typeof _navegarSeccion==='function') _navegarSeccion(id, btn); else location.hash='#'+id; }catch(_){ }
+    };
+  })();
+
+  // Integrar confirmarPass para 'abrir-admin'
+  (function(){
+    var _old = window.confirmarPass;
+    window.confirmarPass = async function(){
+      try{
+        var acc = window._pendingPassAction;
+        if(acc==='abrir-admin'){
+          // Usa checkMasterPassSmart si existe, sino intenta BACKUP_PASS / 'gustavopeje'
+          var v = (el('pass-input')||{}).value||''; var ok=true;
+          try{ if(typeof checkMasterPassSmart==='function'){ ok = !!(await checkMasterPassSmart(v)); } }catch(_){ }
+          if(!ok){ var ap=el('alerta-pass'); if(ap){ ap.className='alerta show alerta-error'; ap.textContent='❌ Contraseña incorrecta.'; } el('pass-input').value=''; try{ el('pass-input').focus(); }catch(_){ } return; }
+          try{ el('modal-pass').style.display='none'; }catch(_){ }
+          try{ if(typeof _navegarSeccion==='function'){ _navegarSeccion('backup', el('btn-nav-backup')); } else { location.hash='#backup'; } }catch(_){ }
+          window._pendingPassAction=null; return;
+        }
+      }catch(_){ }
+      if(typeof _old==='function') return _old();
+    };
+  })();
+})();
+</script>
+
 </body>
 </html>
