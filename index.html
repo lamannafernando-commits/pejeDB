@@ -2341,5 +2341,70 @@ function setSyncBadge(state, txt){ try{ var b=document.getElementById('sync-badg
 setTimeout(function(){ try{ document.getElementById('sync-loading') && document.getElementById('sync-loading').classList.remove('show'); }catch(_){} }, 2000);
 </script>
 
+
+<script id="pcq-inspectores-unlock-v1281">
+// v12.8.1 — Con sistema activado y SIN inspector activo, habilitar "Inspectores"
+(function(){
+  function hasToken(){ try{return !!localStorage.getItem('pcq_gh_token');}catch(e){return false;} }
+  function inspectorActivo(){ try{ return !!(typeof getInspectorActivo==='function' && getInspectorActivo()); }catch(e){ return false; } }
+  function enableOnlyInspectores(){
+    try{
+      var all = document.querySelectorAll('nav button');
+      all.forEach(function(btn){
+        if(btn && btn.id==='btn-nav-inspectores') btn.classList.remove('nav-bloqueado');
+        else if(btn) btn.classList.add('nav-bloqueado');
+      });
+    }catch(e){}
+  }
+  function enableAll(){ try{ document.querySelectorAll('nav button').forEach(function(b){ b.classList.remove('nav-bloqueado'); }); }catch(e){} }
+
+  // Forzar que navClick permita ir a Inspectores aunque no haya inspector activo
+  (function(){
+    var _origNav = window.navClick;
+    window.navClick = function(id, btn){
+      try{
+        if(!inspectorActivo()){
+          if(id!=='inspectores') return; // solo Inspectores
+        }
+        if(typeof _navegarSeccion==='function') _navegarSeccion(id, btn);
+        else if(id==='ingreso') { location.hash = '#ingreso'; }
+      }catch(e){}
+    };
+  })();
+
+  // Hookear actualizarEstadoBloqueo: con token pero sin inspector => solo Inspectores
+  (function(){
+    var _orig = window.actualizarEstadoBloqueo;
+    window.actualizarEstadoBloqueo = function(){
+      try{
+        var tok = hasToken();
+        var insp = inspectorActivo();
+        if(tok && !insp){
+          try{ document.getElementById('bloqueo-overlay') && document.getElementById('bloqueo-overlay').classList.remove('show'); }catch(e){}
+          enableOnlyInspectores();
+          return;
+        }
+        if(insp){ enableAll(); try{ document.getElementById('bloqueo-overlay') && document.getElementById('bloqueo-overlay').classList.remove('show'); }catch(e){} return; }
+      }catch(e){}
+      if(typeof _orig==='function') return _orig();
+    };
+  })();
+
+  // Al cargar: si hay token pero no hay inspector, abrir Inspectores y habilitar solo esa opción
+  document.addEventListener('DOMContentLoaded', function(){
+    try{
+      var tok = hasToken();
+      var insp = inspectorActivo();
+      if(tok && !insp){
+        enableOnlyInspectores();
+        try{ document.getElementById('bloqueo-overlay') && document.getElementById('bloqueo-overlay').classList.remove('show'); }catch(e){}
+        try{ _navegarSeccion('inspectores', document.getElementById('btn-nav-inspectores')); }catch(e){}
+        try{ window.scrollTo({top:0, behavior:'instant'}); }catch(e){}
+      }
+    }catch(e){}
+  });
+})();
+</script>
+
 </body>
 </html>
