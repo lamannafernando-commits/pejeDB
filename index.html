@@ -3,369 +3,324 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Pejerrey Club Quilmes – Sistema (FIX hora local + Admin + Estadísticas)</title>
+<title>PCQ – v6 AutoPersist (XML + JSON, GitHub sin configuración)</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
 <style>
-  :root{
-    --verde-oscuro:#1a3a1a;--verde-medio:#1e5c1e;--verde-logo:#2d6e2d;--verde-claro:#3a8a3a;
-    --dorado:#c8a84b;--dorado-claro:#e8c86a;--blanco:#ffffff;--crema:#f5f0e8;
-    --gris-claro:#e8ede8;--texto-oscuro:#1a1a1a;--rojo:#cc2222;--naranja:#d4841a;
-  }
-  *{box-sizing:border-box}
-  body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,'Open Sans',sans-serif;background:linear-gradient(160deg,#0d1f0d 0%,#1a3a1a 40%,#0d2a1a 100%);color:#fff;min-height:100vh;margin:0}
-  header{position:sticky;top:0;background:linear-gradient(180deg,#0a1a0a 0%,#1a3a1a 100%);border-bottom:3px solid var(--dorado);padding:12px 14px;z-index:10}
-  h1{margin:0;color:var(--dorado);font-size:1.2rem;letter-spacing:1px}
-  .sub{color:#aacfaa;font-size:.9rem}
-  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
-  .badge{background:rgba(0,0,0,.35);border:1px solid #555;border-radius:20px;padding:4px 12px;font-size:.85rem}
-  #sync-badge.sync-ok{background:rgba(26,107,26,.6);border-color:#2a8a2a}
-  #sync-badge.sync-error{background:rgba(180,30,30,.5);border-color:#b33}
-  #sync-badge.sync-syncing{background:rgba(26,90,138,.5);border-color:#2a7aaa}
-  nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;background:#0d1f0d;border-bottom:2px solid var(--dorado);padding:8px}
-  nav button{cursor:pointer;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#cce8cc;border-radius:6px;padding:7px 12px;font-weight:600}
-  nav button.activo{background:var(--dorado);color:#102010}
-  main{max-width:980px;margin:16px auto;padding:0 12px 40px}
-  .seccion{display:none}
-  .seccion.activa{display:block}
-  .card{background:linear-gradient(160deg,#f5f0e8 0%,#ece8de 100%);border:2px solid var(--dorado);color:var(--texto-oscuro);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.25);padding:18px;margin:12px 0}
-  .card h2{margin:0 0 10px 0;color:var(--verde-oscuro);font-size:1.1rem}
-  label{display:flex;flex-direction:column;gap:4px;font-weight:700;color:var(--verde-oscuro);font-size:.9rem}
-  input,textarea,select{padding:9px 10px;border:1.5px solid #8aaa8a;border-radius:6px;font-size:1rem}
-  .rowf{display:flex;flex-wrap:wrap;gap:10px}
-  .btn{cursor:pointer;border:none;border-radius:6px;padding:9px 14px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
-  .btn-primary{background:var(--verde-logo);color:#fff;border:2px solid var(--verde-claro)}
-  .btn-danger{background:var(--rojo);color:#fff;border:2px solid #b11}
-  .btn-gold{background:var(--dorado);color:#102010;border:2px solid var(--dorado-claro)}
-  .btn-secondary{background:#4a5a4a;color:#fff;border:2px solid #5a6a5a}
-  table{width:100%;border-collapse:collapse;font-size:.9rem}
-  th,td{border-bottom:1px solid #ddd;padding:8px 10px}
-  th{background:#153015;color:var(--dorado);text-align:left}
-  .alerta{margin-top:8px;display:none;padding:8px 12px;border-radius:6px;font-weight:700}
-  .alerta.show{display:block}
-  .alerta-ok{background:#d1fae5;color:#065f46}
-  .alerta-warn{background:#fff3cd;color:#92400e}
-  .alerta-error{background:#fee2e2;color:#991b1b}
-  .muted{color:#657b83;font-size:.85rem}
-  @media(max-width:640px){ nav{justify-content:flex-start;overflow:auto} }
+ :root{{ --verde-oscuro:#1a3a1a;--verde-logo:#2d6e2d;--dorado:#c8a84b;--texto-oscuro:#1a1a1a;--rojo:#cc2222;}}
+ *{{box-sizing:border-box}} body{{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,'Open Sans',sans-serif;background:#0f2416;color:#fff;margin:0}}
+ header{{position:sticky;top:0;background:#0b1a12;border-bottom:3px solid var(--dorado);padding:12px 14px;z-index:10}}
+ h1{{margin:0;color:var(--dorado);font-size:1.2rem}} .sub{{color:#aacfaa;font-size:.9rem}}
+ nav{{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;background:#0d1f0d;border-bottom:2px solid var(--dorado);padding:8px}}
+ nav button{{cursor:pointer;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#cce8cc;border-radius:6px;padding:7px 12px;font-weight:600}}
+ nav button.activo{{background:var(--dorado);color:#102010}}
+ main{{max-width:1100px;margin:16px auto;padding:0 12px 40px}}
+ .seccion{{display:none}} .seccion.activa{{display:block}}
+ .card{{background:linear-gradient(160deg,#f5f0e8 0%,#ece8de 100%);border:2px solid var(--dorado);color:var(--texto-oscuro);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.25);padding:18px;margin:12px 0}}
+ .card h2{{margin:0 0 10px 0;color:#153015;font-size:1.1rem}} .muted{{color:#657b83;font-size:.85rem}}
+ .row{{display:flex;gap:10px;flex-wrap:wrap;align-items:center}} .rowf{{display:flex;gap:10px;flex-wrap:wrap}}
+ label{{display:flex;flex-direction:column;gap:4px;font-weight:700;color:#153015;font-size:.9rem}}
+ input,textarea,select{{padding:9px 10px;border:1.5px solid #8aaa8a;border-radius:6px;font-size:1rem}}
+ .btn{{cursor:pointer;border:none;border-radius:6px;padding:9px 14px;font-weight:700;display:inline-flex;align-items:center;gap:6px}}
+ .btn-primary{{background:#2d6e2d;color:#fff;border:2px solid #3a8a3a}}
+ .btn-danger{{background:var(--rojo);color:#fff;border:2px solid #b11}}
+ .btn-gold{{background:var(--dorado);color:#102010;border:2px solid #e8c86a}}
+ .btn-secondary{{background:#4a5a4a;color:#fff;border:2px solid #5a6a5a}}
+ table{{width:100%;border-collapse:collapse;font-size:.9rem}} th,td{{border-bottom:1px solid #ddd;padding:8px 10px}} th{{background:#153015;color:#d7c77a;text-align:left}}
+ .alerta{{margin-top:8px;display:none;padding:8px 12px;border-radius:6px;font-weight:700}}
+ .alerta.show{{display:block}} .alerta-ok{{background:#d1fae5;color:#065f46}} .alerta-warn{{background:#fff3cd;color:#92400e}} .alerta-error{{background:#fee2e2;color:#991b1b}}
+ .badge{{background:rgba(0,0,0,.35);border:1px solid #555;border-radius:20px;padding:4px 12px;font-size:.85rem}}
+ #foto-ui .cam-wrap{{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}}
+ #cam-video,#foto-preview{{width:260px;height:195px;background:#000;border-radius:10px;border:2px solid var(--dorado)}}
+ .perfil-foto{{width:120px;height:120px;border-radius:60px;border:2px solid var(--dorado);object-fit:cover;display:none}}
+ .mini-foto{{width:36px;height:36px;border-radius:50%;border:1px solid var(--dorado);object-fit:cover;cursor:zoom-in}}
+ .chart-wrap{{max-width:620px;margin:auto}} .chart-wrap canvas{{height:140px !important}}
+ #img-modal{{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);z-index:9999}}
+ #img-modal img{{max-width:95vw;max-height:90vh;border-radius:10px;border:3px solid var(--dorado);box-shadow:0 10px 40px rgba(0,0,0,.6)}}
 </style>
 </head>
 <body>
 <header>
   <h1>🎣 Pejerrey Club Quilmes</h1>
-  <div class="sub">Sistema de Gestión – FIX hora local + Admin + Estadísticas</div>
+  <div class="sub">v6 AutoPersist – XML + JSON en GitHub, sin configuración</div>
   <div class="row">
     <div id="reloj-header" class="badge">--/--/---- --:--:--</div>
     <div id="header-inspector" class="badge">🔒 Sin inspector activo</div>
-    <div id="sync-badge" class="badge sync-ok"><span id="sync-txt">Local</span></div>
+    <div id="sync-badge" class="badge">🟡 Inicializando…</div>
   </div>
 </header>
 <nav>
-  <button id="btn-nav-ingreso" onclick="navClick('ingreso',this)" class="activo">🚪 Ingreso</button>
-  <button id="btn-nav-apercibamiento" onclick="navClick('apercibamiento',this)">⚠️ Apercibamiento</button>
-  <button id="btn-nav-suspension" onclick="navClick('suspension',this)">🚫 Suspensión</button>
-  <button id="btn-nav-consulta" onclick="navClick('consulta',this)">📋 Consulta</button>
-  <button id="btn-nav-vencidos" onclick="navClick('vencidos',this)">⏰ Vencidos</button>
-  <button id="btn-nav-inspectores" onclick="navClick('inspectores',this)">👮 Inspectores</button>
-  <button id="btn-nav-backup" onclick="navClick('backup',this)">🛠️ Administrar Inspectores</button>
-  <button id="btn-nav-estadisticas" onclick="navClick('estadisticas',this)">📊 Estadísticas</button>
+ <button onclick="navClick('ingreso',this)" class="activo">🚪 Ingreso</button>
+ <button onclick="navClick('apercibamiento',this)">⚠️ Apercibamiento</button>
+ <button onclick="navClick('suspension',this)">🚫 Suspensión</button>
+ <button onclick="navClick('consulta',this)">📋 Consulta</button>
+ <button onclick="navClick('vencidos',this)">⏰ Vencidos</button>
+ <button onclick="navClick('inspectores',this)">👮 Inspectores</button>
+ <button onclick="navClick('backup',this)">🛠️ Administrar</button>
+ <button onclick="navClick('estadisticas',this)">📊 Estadísticas</button>
 </nav>
 <main>
   <section id="sec-ingreso" class="seccion activa">
     <div class="card">
       <h2>🚪 Registro de Ingreso</h2>
-      <div class="row">
-        <div id="reloj-grande" style="font-size:1.8rem;color:var(--dorado);font-weight:800">--:--:--</div>
-        <div id="fecha-grande" class="badge" style="background:rgba(0,0,0,.25);border:1px solid #666">--/--/----</div>
+      <div class="row"><div id="reloj-grande" style="font-size:1.6rem;color:#c8a84b;font-weight:800">--:--:--</div><div id="fecha-grande" class="badge" style="background:rgba(0,0,0,.25);border:1px solid #666">--/--/----</div></div>
+      <div class="row" style="gap:8px">
+        <label style="display:inline-flex;align-items:center;gap:8px;font-weight:700;color:#153015"><input type="radio" name="tipo-persona" id="radio-invitado" checked /> Invitado (DNI)</label>
+        <label style="display:inline-flex;align-items:center;gap:8px;font-weight:700;color:#153015"><input type="radio" name="tipo-persona" id="radio-socio" /> Socio (N° socio)</label>
       </div>
-      <div id="fuente-hora" class="muted">🕒 Usando hora local del dispositivo</div>
-      <br/>
       <div class="rowf">
-        <label style="flex:1;min-width:180px">DNI
-          <input id="dni-ingreso" type="text" maxlength="12" placeholder="30123456" oninput="this.value=this.value.replace(/\D/g,'')"/>
-        </label>
-        <label style="flex:2;min-width:200px">Nombre (opcional)
-          <input id="nombre-ingreso" type="text" placeholder="Apellido, Nombre"/>
-        </label>
+        <label style="flex:1;min-width:180px">DNI<input id="dni-ingreso" type="text" maxlength="12" placeholder="30123456" oninput="this.value=this.value.replace(/\\D/g,'')"/></label>
+        <label style="flex:2;min-width:200px">Nombre y Apellido<input id="nombre-ingreso" type="text" placeholder="Apellido, Nombre"/></label>
       </div>
       <div class="row" style="gap:8px">
-        <button class="btn btn-primary" onclick="registrarIngreso()">✅ Registrar Ingreso</button>
-        <button class="btn btn-secondary" onclick="limpiarCamposIngreso()">🧽 Limpiar</button>
+        <button class="btn btn-primary" id="btn-registrar">✅ Registrar Ingreso</button>
+        <button class="btn btn-secondary" id="btn-limpiar">🧽 Limpiar</button>
       </div>
       <div id="alerta-ingreso" class="alerta"></div>
       <div id="ultimos-ingresos" class="card" style="margin:14px 0 0 0;display:none">
-        <h2>Últimos 10 ingresos del DNI</h2>
-        <div class="muted">Estado basado en 24 h de vigencia.</div>
-        <div class="table-wrap">
-          <table id="tabla-ultimos"><thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Nombre</th><th>Estado</th></tr></thead><tbody></tbody></table>
+        <h2>Últimos 10 ingresos</h2>
+        <div class="table-wrap"><table id="tabla-ultimos"><thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Nombre</th><th>Estado</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+    <div id="foto-ui" class="card" style="margin-top:12px">
+      <h2>📸 Foto del ingreso (obligatoria)</h2>
+      <div class="cam-wrap">
+        <div>
+          <video id="cam-video" autoplay playsinline style="display:none"></video>
+          <img id="foto-preview" alt="Previa de la foto" style="display:none"/>
+          <canvas id="cam-canvas" width="320" height="240" style="display:none"></canvas>
+        </div>
+        <div>
+          <div class="muted">Foto de perfil guardada (si existe)</div>
+          <img id="foto-perfil" class="perfil-foto" alt="Foto de perfil"/>
         </div>
       </div>
+      <div class="row" style="gap:8px;margin-top:8px">
+        <button class="btn btn-secondary" id="btn-cam-start">🎥 Iniciar cámara</button>
+        <button class="btn btn-gold" id="btn-cam-snap" disabled>📸 Tomar foto</button>
+        <button class="btn btn-danger" id="btn-cam-clear" disabled>🗑️ Borrar foto</button>
+      </div>
     </div>
   </section>
 
-  <section id="sec-apercibamiento" class="seccion">
-    <div class="card">
-      <h2>⚠️ Registrar Apercibamiento</h2>
-      <div class="rowf">
-        <label style="flex:1;min-width:180px">DNI<input id="dni-aperc" type="text" maxlength="12" oninput="this.value=this.value.replace(/\D/g,'')"/></label>
-        <label style="flex:2;min-width:220px">Nombre<input id="nombre-aperc" type="text"/></label>
-      </div>
-      <div class="rowf"><label style="flex:1">Motivo<textarea id="motivo-aperc" rows="3" placeholder="Describa el motivo..."></textarea></label></div>
-      <button class="btn btn-gold" onclick="registrarApercibamiento()">💾 Guardar</button>
-      <div id="alerta-aperc" class="alerta"></div>
-    </div>
-    <div class="card">
-      <h2>📋 Apercibamientos</h2>
-      <table id="tabla-aperc"><thead><tr><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Motivo</th><th>Inspector</th><th></th></tr></thead><tbody></tbody></table>
-    </div>
-  </section>
+  <section id="sec-apercibamiento" class="seccion"><div class="card">
+    <h2>⚠️ Registrar Apercibamiento</h2>
+    <div class="rowf"><label style="flex:1;min-width:180px">DNI<input id="dni-aperc" type="text" maxlength="12" oninput="this.value=this.value.replace(/\\D/g,'')"/></label><label style="flex:2;min-width:220px">Nombre<input id="nombre-aperc" type="text"/></label></div>
+    <div class="rowf"><label style="flex:1">Motivo<textarea id="motivo-aperc" rows="3" placeholder="Describa el motivo..."></textarea></label></div>
+    <button class="btn btn-gold" id="btn-aperc">💾 Guardar</button>
+    <div id="alerta-aperc" class="alerta"></div>
+  </div><div class="card"><h2>📋 Apercibimientos</h2><table id="tabla-aperc"><thead><tr><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Motivo</th><th>Inspector</th><th></th></tr></thead><tbody></tbody></table></div></section>
 
-  <section id="sec-suspension" class="seccion">
-    <div class="card">
-      <h2>🚫 Registrar Suspensión</h2>
-      <div class="rowf">
-        <label style="flex:1;min-width:180px">DNI<input id="dni-susp" type="text" maxlength="12" oninput="this.value=this.value.replace(/\D/g,'')"/></label>
-        <label style="flex:2;min-width:220px">Nombre<input id="nombre-susp" type="text"/></label>
-      </div>
-      <div class="rowf">
-        <label>Desde<input id="susp-desde" type="date"/></label>
-        <label>Hasta<input id="susp-hasta" type="date"/></label>
-      </div>
-      <div class="rowf"><label style="flex:1">Motivo<textarea id="motivo-susp" rows="3"></textarea></label></div>
-      <button class="btn btn-danger" onclick="registrarSuspension()">💾 Guardar</button>
-      <div id="alerta-susp" class="alerta"></div>
-    </div>
-    <div class="card">
-      <h2>📋 Suspensiones</h2>
-      <table id="tabla-susp"><thead><tr><th>DNI</th><th>Nombre</th><th>Desde</th><th>Hasta</th><th>Motivo</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table>
-    </div>
-  </section>
+  <section id="sec-suspension" class="seccion"><div class="card">
+    <h2>🚫 Registrar Suspensión</h2>
+    <div class="rowf"><label style="flex:1;min-width:180px">DNI<input id="dni-susp" type="text" maxlength="12" oninput="this.value=this.value.replace(/\\D/g,'')"/></label><label style="flex:2;min-width:220px">Nombre<input id="nombre-susp" type="text"/></label></div>
+    <div class="rowf"><label>Desde<input id="susp-desde" type="date"/></label><label>Hasta<input id="susp-hasta" type="date"/></label></div>
+    <div class="rowf"><label style="flex:1">Motivo<textarea id="motivo-susp" rows="3"></textarea></label></div>
+    <button class="btn btn-danger" id="btn-susp">💾 Guardar</button>
+    <div id="alerta-susp" class="alerta"></div>
+  </div><div class="card"><h2>📋 Suspensiones</h2><table id="tabla-susp"><thead><tr><th>DNI</th><th>Nombre</th><th>Desde</th><th>Hasta</th><th>Motivo</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table></div></section>
 
-  <section id="sec-consulta" class="seccion">
-    <div class="card">
-      <h2>📋 Consulta por Fechas</h2>
-      <div class="rowf">
-        <label>Desde<input id="consulta-desde" type="date"/></label>
-        <label>Hasta<input id="consulta-hasta" type="date"/></label>
-        <label>DNI (opcional)<input id="consulta-dni" type="text" oninput="this.value=this.value.replace(/\D/g,'')"/></label>
-      </div>
-      <button class="btn btn-primary" onclick="consultarIngresos()">🔍 Consultar</button>
-      <div id="resumen-consulta" class="muted" style="margin-top:8px"></div>
-      <table id="tabla-consulta"><thead><tr><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Estado</th></tr></thead><tbody></tbody></table>
-    </div>
-  </section>
+  <section id="sec-consulta" class="seccion"><div class="card">
+    <h2>📋 Consulta por Fechas</h2>
+    <div class="rowf"><label>Desde<input id="consulta-desde" type="date"/></label><label>Hasta<input id="consulta-hasta" type="date"/></label><label>ID (DNI/N° socio opcional)<input id="consulta-dni" type="text" oninput="this.value=this.value.replace(/\\D/g,'')"/></label></div>
+    <button class="btn btn-primary" id="btn-consultar">🔍 Consultar</button>
+    <div id="resumen-consulta" class="muted" style="margin-top:8px"></div>
+    <table id="tabla-consulta"><thead><tr><th>ID</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Estado</th></tr></thead><tbody></tbody></table>
+  </div></section>
 
-  <section id="sec-vencidos" class="seccion">
-    <div class="card">
-      <h2>⏰ Ingresos Vencidos / Por Vencer</h2>
-      <div class="row" style="gap:8px">
-        <button class="btn btn-primary" onclick="renderVencidos()">🔄 Actualizar</button>
-        <button class="btn btn-danger" onclick="limpiarVencidos()">🗑️ Eliminar todos los vencidos</button>
-      </div>
-      <table id="tabla-vencidos"><thead><tr><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Transcurrido</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table>
-      <div id="alerta-vencidos" class="alerta"></div>
-    </div>
-  </section>
+  <section id="sec-vencidos" class="seccion"><div class="card">
+    <h2>⏰ Ingresos Vencidos / Por Vencer</h2>
+    <div class="row" style="gap:8px"><button class="btn btn-primary" id="btn-venc-actualizar">🔄 Actualizar</button><button class="btn btn-danger" id="btn-venc-limpiar">🗑️ Eliminar todos los vencidos</button></div>
+    <table id="tabla-vencidos"><thead><tr><th>ID</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Transcurrido</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table>
+    <div id="alerta-vencidos" class="alerta"></div>
+  </div></section>
 
   <section id="sec-inspectores" class="seccion">
-    <div class="card">
-      <h2>👮 Inspector de Turno</h2>
-      <div id="insp-activo" class="muted">Sin inspector activo</div>
-      <div class="row" style="gap:8px;margin-top:6px">
-        <button class="btn btn-secondary" onclick="desactivarInspector()">✖ Desactivar</button>
-      </div>
-    </div>
-    <div class="card">
-      <h2>📋 Inspectores</h2>
-      <table id="tabla-insp"><thead><tr><th>Nombre</th><th>Usuario</th><th>Tel</th><th>Obs</th><th>Acciones</th></tr></thead><tbody></tbody></table>
-    </div>
+    <div class="card"><h2>👮 Inspector de Turno</h2><div id="insp-activo" class="muted">Sin inspector activo</div><div class="row" style="gap:8px;margin-top:6px"><button class="btn btn-secondary" id="btn-insp-desact">✖ Desactivar</button></div></div>
+    <div class="card"><h2>📋 Inspectores</h2><table id="tabla-insp"><thead><tr><th>Nombre</th><th>Usuario</th><th>Tel</th><th>Obs</th><th>Acciones</th></tr></thead><tbody></tbody></table></div>
   </section>
 
-  <section id="sec-backup" class="seccion">
-    <div class="card"><h2>🛠️ Administrar / Alta de Inspectores</h2>
-      <div class="rowf">
-        <label style="flex:1;min-width:200px">Nombre<input id="insp-nombre" type="text" placeholder="Apellido, Nombre"/></label>
-        <label style="flex:1;min-width:160px">Usuario (obligatorio)<input id="insp-usuario" type="text"/></label>
-        <label style="flex:1;min-width:160px">Contraseña (obligatoria)<input id="insp-pass" type="password"/></label>
-      </div>
-      <div class="rowf">
-        <label style="flex:1;min-width:180px">Teléfono<input id="insp-tel" type="text"/></label>
-        <label style="flex:2;min-width:220px">Observaciones<input id="insp-obs" type="text"/></label>
-      </div>
-      <div class="row" style="gap:8px"><button class="btn btn-gold" onclick="guardarInspector()">💾 Guardar Inspector</button></div>
-      <div id="alerta-insp" class="alerta"></div>
-      <div class="muted" style="margin-top:8px">Los datos se guardan en este dispositivo (LocalStorage).</div>
-    </div>
-  </section>
+  <section id="sec-backup" class="seccion"><div class="card">
+    <h2>⚙️ Activación del sistema (local)</h2>
+    <div class="rowf"><label style="flex:1;min-width:220px">Token (local)<input id="admin-token" type="password" placeholder="Ingresá el token"/></label><div class="row" style="gap:8px"><button class="btn btn-gold" id="btn-activar">🔓 Activar</button><button class="btn btn-secondary" id="btn-desactivar">🔒 Desactivar</button><button class="btn" id="btn-guardar-token">💾 Guardar/Actualizar token</button></div></div>
+    <div id="estado-sistema" class="badge" style="margin-top:8px"></div>
+  </div><div class="card"><h2>🗃️ Backup & Restore (local)</h2><div class="row" style="gap:8px"><button class="btn btn-primary" id="btn-backup">⬇️ Generar backup (ZIP)</button><label class="btn btn-secondary" style="cursor:pointer">⬆️ Restaurar desde ZIP<input id="zip-restore" type="file" accept=".zip" style="display:none"/></label></div><div class="muted">Incluye: ingresos, personas, apercibimientos, suspensiones, inspectores y activos (XML).</div></div></section>
 
   <section id="sec-estadisticas" class="seccion">
-    <div class="card">
-      <h2>📊 Estadísticas</h2>
-      <p class="muted">Gráfico por rango de edad estimado a partir del número de DNI (aproximación por rangos históricos y RN 70M desde 09/2023). Fuente: Chart.js por CDN. <a target="_blank" href="https://www.chartjs.org/docs/latest/getting-started/">Doc</a>.</p>
-      <div style="max-width:760px;margin:auto"><canvas id="chart-edad" height="220"></canvas></div>
-      <div id="estad-nota" class="muted" style="margin-top:8px"></div>
-    </div>
+    <div class="card"><h2>📊 Estadísticas</h2><div style="max-width:760px;margin:auto"><canvas id="chart-edad" height="140"></canvas></div><div id="estad-nota" class="muted" style="margin-top:8px"></div></div>
   </section>
 </main>
 
+<div id="img-modal" role="dialog" aria-label="Imagen ampliada" tabindex="-1"><img alt="Ampliación"/></div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
-// =========================
-//  CONFIG / CONSTANTES
-// =========================
-const KEYS={ingresos:'pcq_ingresos',apercibimientos:'pcq_apercibimientos',suspensiones:'pcq_suspensiones',inspectores:'pcq_inspectores',inspActivo:'pcq_inspector_activo'};
-const HS_VIGENCIA=24, MIN_POR_VENCER=60; // 24h vigencia
-let offsetMs=0; // FIX: siempre hora local
+// ====== CONFIG V6 (sin UI) ======
+const GH_CFG = Object.freeze({{ owner:'fernandolamanna', repo:'pcq-data', branch:'main', base:'live' }});
+const PRESET_PAT = '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';
+const PASSPHRASE = 'pcq_v6_local'; // clave fija para cifrar el PAT en localStorage
 
-// =========================
-//  UTILIDADES HORA
-// =========================
-function ahoraReal(){return new Date(Date.now()+offsetMs)}
-function pad(n){return String(n).padStart(2,'0')}
-function formatFecha(dt){return `${pad(dt.getDate())}/${pad(dt.getMonth()+1)}/${dt.getFullYear()}`}
-function formatHora(dt){return `${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(dt.getSeconds())}`}
-function isoFecha(dt){return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`}
-function parseFechaHora(f,h){const [d,m,y]=f.split('/');return new Date(`${y}-${m}-${d}T${h}`)}
-function tiempoTranscurrido(ms){const h=Math.floor(ms/3600000),min=Math.floor((ms%3600000)/60000);return h>=24?`${Math.floor(h/24)}d ${h%24}h ${min}m`:`${h}h ${min}m`}
+// ====== Claves de almacenamiento ======
+const KEYS={{ingresos:'pcq_ingresos',apercibimientos:'pcq_apercibimientos',suspensiones:'pcq_suspensiones',inspectores:'pcq_inspectores',inspActivo:'pcq_inspector_activo', personas:'pcq_personas', inspActivos:'pcq_inspectores_activos'}};
+const SYS_KEY='pcq_system_enabled';
+const HS_VIGENCIA=24, MIN_POR_VENCER=60; let offsetMs=0;
 
-// =========================
-//  LOCAL STORAGE
-// =========================
-function cargarDatos(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return []}}
-function guardarDatos(k,v){localStorage.setItem(k,JSON.stringify(v))}
-function cargarItem(k){return localStorage.getItem(k)}
-function guardarItem(k,v){localStorage.setItem(k,v)}
+// ====== Utilidades hora/UI ======
+function ahoraReal(){{return new Date(Date.now()+offsetMs)}} function pad(n){{return String(n).padStart(2,'0')}}
+function formatFecha(dt){{return `${{pad(dt.getDate())}}/${{pad(dt.getMonth()+1)}}/${{dt.getFullYear()}}`}} function formatHora(dt){{return `${{pad(dt.getHours())}}:${{pad(dt.getMinutes())}}:${{pad(dt.getSeconds())}}`}} function isoFecha(dt){{return `${{dt.getFullYear()}}-${{pad(dt.getMonth()+1)}}-${{pad(dt.getDate())}}`}} function parseFechaHora(f,h){{const [d,m,y]=f.split('/');return new Date(`${{y}}-${{m}}-${{d}}T${{h}}`)}} function tiempoTranscurrido(ms){{const h=Math.floor(ms/3600000),min=Math.floor((ms%3600000)/60000);return h>=24?`${{Math.floor(h/24)}}d ${{h%24}}h ${{min}}m`:`${{h}}h ${{min}}m`}}
+function tick(){{const n=ahoraReal(); document.getElementById('reloj-header').textContent=`${{formatFecha(n)}} ${{formatHora(n)}}`; document.getElementById('reloj-grande').textContent=formatHora(n); document.getElementById('fecha-grande').textContent=formatFecha(n);}} setInterval(tick,1000); tick();
+function navClick(id,btn){{document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('activa'));document.getElementById('sec-'+id).classList.add('activa');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('activo'));if(btn)btn.classList.add('activo');if(id==='estadisticas')renderEstadisticas();if(id==='vencidos')renderVencidos();if(id==='inspectores')renderInspectoresUI()}}
+function setSyncBadge(txt, color){{const b=document.getElementById('sync-badge'); if(!b) return; b.textContent=txt; b.style.background = color||'rgba(0,0,0,.35)';}}
 
-// =========================
-//  UI BASICA
-// =========================
-function setSyncBadge(e,t){const b=document.getElementById('sync-badge');if(b)b.className='badge sync-'+(e||'ok');const s=document.getElementById('sync-txt');if(s)s.textContent=t||'Local'}
-function tickReloj(){const now=ahoraReal();document.getElementById('reloj-header').textContent=`${formatFecha(now)} ${formatHora(now)}`;document.getElementById('reloj-grande').textContent=formatHora(now);document.getElementById('fecha-grande').textContent=formatFecha(now)}
-setInterval(tickReloj,1000);tickReloj();
+// ====== LocalStorage helpers ======
+function cargarLista(k){{try{{return JSON.parse(localStorage.getItem(k)||'[]')}}catch{{return []}}}} function guardarLista(k,v){{localStorage.setItem(k,JSON.stringify(v))}}
+function cargarItem(k){{return localStorage.getItem(k)}} function guardarItem(k,v){{localStorage.setItem(k,v)}}
 
-function navClick(id,btn){_navegarSeccion(id,btn)}
-function _navegarSeccion(id,btn){document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('activa'));document.getElementById('sec-'+id).classList.add('activa');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('activo'));if(btn)btn.classList.add('activo');if(id==='estadisticas')renderEstadisticas();if(id==='vencidos')renderVencidos();if(id==='inspectores')renderInspectoresUI()}
+// ====== Personas (perfil/foto) ======
+function getPersona(dni){{dni=String(dni||'').trim(); if(!dni) return null; return (cargarLista(KEYS.personas)||[]).find(p=>String(p.dni)===dni)||null}}
+function upsertPersona(dni,nombre,foto){{dni=String(dni||'').trim(); if(!dni) return; const L=cargarLista(KEYS.personas); let p=L.find(x=>String(x.dni)===dni); if(!p){{p={{dni,nombre:nombre||'',fotoPerfil:foto||null}}; L.push(p)}} if(nombre && (!p.nombre||!p.nombre.trim())) p.nombre=nombre; if(foto) p.fotoPerfil=foto; guardarLista(KEYS.personas,L)}}
+function getUltFotoIngreso(dni){{const A=cargarLista(KEYS.ingresos).filter(i=>String(i.dni)===String(dni)); return A.length?A[A.length-1].foto:null}}
+function fotoParaDNI(d){{const p=getPersona(d); return (p&&p.fotoPerfil)||getUltFotoIngreso(d)||null}}
 
-// =========================
-//  INSPECTORES
-// =========================
-function getInspectorActivo(){const id=cargarItem(KEYS.inspActivo);if(!id)return null;return cargarDatos(KEYS.inspectores).find(i=>String(i.id)===String(id))||null}
-function actualizarHeaderInspector(){const i=getInspectorActivo();const el=document.getElementById('header-inspector');if(i)el.textContent=`👮 ${i.nombre}`;else el.textContent='🔒 Sin inspector activo'}
-function guardarInspector(){const nombre=document.getElementById('insp-nombre').value.trim();const usuario=document.getElementById('insp-usuario').value.trim();const pass=document.getElementById('insp-pass').value.trim();const tel=document.getElementById('insp-tel').value.trim();const obs=document.getElementById('insp-obs').value.trim();if(!nombre){return mostrarAlerta('alerta-insp','error','Ingresá el nombre.')}if(!usuario){return mostrarAlerta('alerta-insp','error','Ingresá el usuario (obligatorio).')}if(!pass){return mostrarAlerta('alerta-insp','error','Ingresá la contraseña (obligatoria).')}const lista=cargarDatos(KEYS.inspectores);if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase())){return mostrarAlerta('alerta-insp','error','Ya existe un inspector con ese nombre.')}lista.push({id:Date.now(),nombre,usuario,password:pass,tel,obs});guardarDatos(KEYS.inspectores,lista);['insp-nombre','insp-usuario','insp-pass','insp-tel','insp-obs'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderInspectoresUI();mostrarAlerta('alerta-insp','ok','✅ Inspector registrado.')}
-function renderInspectoresUI(){const tbody=document.querySelector('#tabla-insp tbody');if(!tbody)return;tbody.innerHTML='';const lista=cargarDatos(KEYS.inspectores);if(!lista.length){tbody.innerHTML='<tr><td colspan="5" class="muted">No hay inspectores</td></tr>';return}lista.forEach(insp=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${insp.nombre}</td><td>${insp.usuario||'—'}</td><td>${insp.tel||'—'}</td><td>${insp.obs||'—'}</td><td><button class="btn btn-gold" onclick="activarInspector(${insp.id})">⚡ Activar</button> <button class="btn btn-danger" onclick="eliminarInspector(${insp.id})">🗑️</button></td>`;tbody.appendChild(tr)});const act=getInspectorActivo();document.getElementById('insp-activo').textContent=act?`Activo: ${act.nombre}`:'Sin inspector activo';actualizarHeaderInspector()}
-function activarInspector(id){guardarItem(KEYS.inspActivo,String(id));renderInspectoresUI();mostrarAlerta('alerta-insp','ok','✅ Inspector activado.');}
-function desactivarInspector(){localStorage.removeItem(KEYS.inspActivo);renderInspectoresUI();mostrarAlerta('alerta-insp','warn','Inspector desactivado.');}
-function eliminarInspector(id){const lista=cargarDatos(KEYS.inspectores).filter(i=>i.id!==id);if(String(cargarItem(KEYS.inspActivo))===String(id)){localStorage.removeItem(KEYS.inspActivo)}guardarDatos(KEYS.inspectores,lista);renderInspectoresUI()}
+// ====== Cámara e ingreso ======
+let FOTO_DATA=null, STREAM=null; function startCam(){{navigator.mediaDevices.getUserMedia({{video:true,audio:false}}).then(st=>{{STREAM=st; const v=document.getElementById('cam-video'); v.srcObject=st; v.style.display='block'; document.getElementById('foto-preview').style.display='none'; document.getElementById('btn-cam-snap').disabled=false; document.getElementById('btn-cam-clear').disabled=false; document.getElementById('btn-cam-start').disabled=true;}}).catch(()=>alert('No se pudo acceder a la cámara. Usá HTTPS o localhost.'))}}
+function stopCam(){{ if(STREAM){{STREAM.getTracks().forEach(t=>t.stop()); STREAM=null;}} const v=document.getElementById('cam-video'); v.srcObject=null; v.style.display='none'; }}
+function clearPhoto(){{FOTO_DATA=null; const p=document.getElementById('foto-preview'); p.src=''; p.style.display='none'; stopCam(); document.getElementById('btn-cam-start').disabled=false; document.getElementById('btn-cam-snap').disabled=true; document.getElementById('btn-cam-clear').disabled=true;}}
+function takePhoto(){{const c=document.getElementById('cam-canvas'), v=document.getElementById('cam-video'); const w=c.width,h=c.height; const ctx=c.getContext('2d'); ctx.drawImage(v,0,0,w,h); FOTO_DATA=c.toDataURL('image/jpeg',0.85); const p=document.getElementById('foto-preview'); p.src=FOTO_DATA; p.style.display='block'; stopCam();}}
+function mostrarAlerta(id,tipo,msg){{const el=document.getElementById(id);if(!el)return;el.className='alerta show alerta-'+(tipo==='ok'?'ok':tipo);el.innerHTML=msg;clearTimeout(el._t);el._t=setTimeout(()=>{{el.className='alerta'}},6000)}}
 
-// =========================
-//  ALERTAS
-// =========================
-function mostrarAlerta(id,tipo,msg){const el=document.getElementById(id);if(!el)return;el.className='alerta show alerta-'+(tipo==='ok'?'ok':tipo);el.innerHTML=msg;clearTimeout(el._t);el._t=setTimeout(()=>{el.className='alerta'},6000)}
+// ====== GitHub helpers (AutoPersist) ======
+const GH='https://api.github.com';
+function b64eBytes(u8){{ return btoa(String.fromCharCode(...u8)) }}
+function b64dToU8(s){{ return Uint8Array.from(atob(s), c=>c.charCodeAt(0)) }}
+async function deriveKey(pass,salt){{ const enc=new TextEncoder(); const km=await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']); return await crypto.subtle.deriveKey({{name:'PBKDF2',salt,iterations:250000,hash:'SHA-256'}}, km, {{name:'AES-GCM',length:256}}, false, ['encrypt','decrypt']); }}
+async function encryptPAT(pat){{ const enc=new TextEncoder(); const salt=crypto.getRandomValues(new Uint8Array(16)); const iv=crypto.getRandomValues(new Uint8Array(12)); const key=await deriveKey(PASSPHRASE,salt); const ct=await crypto.subtle.encrypt({{name:'AES-GCM',iv}}, key, enc.encode(pat)); const blob={{alg:'AES-GCM',kdf:'PBKDF2',it:250000,salt:b64eBytes(salt),iv:b64eBytes(iv),ct:b64eBytes(new Uint8Array(ct))}}; localStorage.setItem('pcq_gh_pat_enc', JSON.stringify(blob)); }}
+async function decryptPAT(){{ const str=localStorage.getItem('pcq_gh_pat_enc'); if(!str) return null; const b=JSON.parse(str); const salt=b64dToU8(b.salt), iv=b64dToU8(b.iv), ct=b64dToU8(b.ct); const key=await deriveKey(PASSPHRASE,salt); const pt=await crypto.subtle.decrypt({{name:'AES-GCM',iv}}, key, ct); return new TextDecoder().decode(pt); }}
+async function ensureEncrypted(){{ if(!localStorage.getItem('pcq_gh_pat_enc')){{ await encryptPAT(PRESET_PAT); }} }}
+async function ghFetch(url, token, opts){{ const headers={{'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Authorization':'Bearer '+token}}; return await fetch(url,{{headers,...opts}}); }}
+function joinPath(a,b){{ a=a.replace(/^\/+|\/+$/g,''); b=b.replace(/^\+/, ''); return a?(a+'/'+b):b }}
+function strToB64(s){{ return btoa(unescape(encodeURIComponent(s))) }}
+function xmlEscape(s){{ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }}
+function toXml(tag, arr){{ const rows=(arr||[]).map(o=>{{ const inner=Object.keys(o).map(k=>`<${{k}}>${{xmlEscape(o[k])}}</${{k}}>`).join(''); return `<row>${{inner}}</row>` }}).join(''); return `<?xml version="1.0" encoding="UTF-8"?>
+<${{tag}}>${{rows}}</${{tag}}>`; }}
+async function ghGetSHA(path, token){{ const url=`${{GH}}/repos/${{GH_CFG.owner}}/${{GH_CFG.repo}}/contents/${{encodeURIComponent(path)}}?ref=${{encodeURIComponent(GH_CFG.branch)}}`; const r=await ghFetch(url, token, {{method:'GET'}}); if(r.status===404) return null; if(!r.ok) throw new Error('GET '+path+' → '+r.status); const j=await r.json(); return j.sha||null }}
+async function ghPut(path, contentB64, message, token, sha){{ const url=`${{GH}}/repos/${{GH_CFG.owner}}/${{GH_CFG.repo}}/contents/${{encodeURIComponent(path)}}`; const body={{message, content:contentB64, branch:GH_CFG.branch}}; if(sha) body.sha=sha; const r=await ghFetch(url, token, {{method:'PUT', body: JSON.stringify(body)}}); if(!r.ok){{ const t=await r.text(); throw new Error('PUT '+path+' → '+r.status+' '+t) }} return true }}
+async function ghGetRaw(path, token){{ const url=`${{GH}}/repos/${{GH_CFG.owner}}/${{GH_CFG.repo}}/contents/${{encodeURIComponent(path)}}?ref=${{encodeURIComponent(GH_CFG.branch)}}`; const r=await ghFetch(url, token, {{method:'GET'}}); if(r.status===404) return null; if(!r.ok) throw new Error('GET '+path+' → '+r.status); const j=await r.json(); if(j && j.content) return atob(j.content.replace(/
+/g,'')); return null }}
 
-// =========================
-//  INGRESOS / APERC / SUSP
-// =========================
-function estadoIngreso(ing){const ms=ahoraReal().getTime()-parseFechaHora(ing.fecha,ing.hora).getTime();const lim=HS_VIGENCIA*3600000,prev=lim-MIN_POR_VENCER*60000;if(ms>=lim)return{texto:'⏰ Vencido',clase:'vencido'};if(ms>=prev)return{texto:'⏳ Por vencer',clase:'por-vencer'};return{texto:'✅ Vigente',clase:'vigente'}}
-function registrarIngreso(){const dni=document.getElementById('dni-ingreso').value.trim();const nombre=document.getElementById('nombre-ingreso').value.trim();if(!dni){return mostrarAlerta('alerta-ingreso','error','Ingresá el DNI.')}const now=ahoraReal();const lista=cargarDatos(KEYS.ingresos);lista.push({dni,nombre,fecha:formatFecha(now),hora:formatHora(now),isoFecha:isoFecha(now)});guardarDatos(KEYS.ingresos,lista);document.getElementById('nombre-ingreso').value='';mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado – DNI ${dni}`);cargarUltimos(dni)}
-function limpiarCamposIngreso(){['dni-ingreso','nombre-ingreso'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''})}
-function cargarUltimos(dni){const wrap=document.getElementById('ultimos-ingresos');const tbody=document.querySelector('#tabla-ultimos tbody');wrap.style.display='block';tbody.innerHTML='';const mis=cargarDatos(KEYS.ingresos).filter(i=>i.dni===dni).slice(-10).reverse();if(!mis.length){tbody.innerHTML='<tr><td colspan="5" class="muted">Sin ingresos previos</td></tr>';return}mis.forEach((i,n)=>{const est=estadoIngreso(i);const tr=document.createElement('tr');tr.innerHTML=`<td>${n+1}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${i.nombre||'—'}</td><td>${est.texto}</td>`;tbody.appendChild(tr)})}
+const DATASETS=[
+  {{k:KEYS.ingresos,    file:'ingresos',        tag:'ingresos'}},
+  {{k:KEYS.personas,    file:'personas',        tag:'personas'}},
+  {{k:KEYS.apercibimientos, file:'apercibimientos', tag:'apercibimientos'}},
+  {{k:KEYS.suspensiones,    file:'suspensiones',    tag:'suspensiones'}},
+  {{k:KEYS.inspectores,     file:'inspectores',     tag:'inspectores'}},
+  {{k:KEYS.inspActivos,     file:'activos',         tag:'activos', isActivos:true}}
+];
 
-function registrarApercibamiento(){const dni=document.getElementById('dni-aperc').value.trim();const nombre=document.getElementById('nombre-aperc').value.trim();const motivo=document.getElementById('motivo-aperc').value.trim();if(!dni||!motivo){return mostrarAlerta('alerta-aperc','error','Completá DNI y motivo.')}const now=ahoraReal();const lista=cargarDatos(KEYS.apercibimientos);const insp=getInspectorActivo();lista.push({id:Date.now(),dni,nombre,motivo,fecha:formatFecha(now),hora:formatHora(now),inspector:insp?insp.nombre:null});guardarDatos(KEYS.apercibimientos,lista);['dni-aperc','nombre-aperc','motivo-aperc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderTablaAperc();mostrarAlerta('alerta-aperc','ok','⚠️ Apercibamiento registrado.')}
-function renderTablaAperc(){const tbody=document.querySelector('#tabla-aperc tbody');if(!tbody)return;tbody.innerHTML='';const lista=cargarDatos(KEYS.apercibimientos).slice().reverse();if(!lista.length){tbody.innerHTML='<tr><td colspan="6" class="muted">Sin registros</td></tr>';return}lista.forEach(a=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${a.dni}</td><td>${a.nombre||'—'}</td><td>${a.fecha} ${a.hora}</td><td>${a.motivo}</td><td>${a.inspector||'—'}</td><td><button class="btn btn-danger" onclick="eliminarAperc(${a.id})">🗑️</button></td>`;tbody.appendChild(tr)})}
-function eliminarAperc(id){guardarDatos(KEYS.apercibimientos,cargarDatos(KEYS.apercibimientos).filter(a=>a.id!==id));renderTablaAperc()}
+async function initThenSync(){{
+  try{{
+    setSyncBadge('🟡 Inicializando…','rgba(180,140,20,.35)');
+    await ensureEncrypted();
+    const token = await decryptPAT();
+    if(!token) throw new Error('No se pudo obtener el token');
 
-function registrarSuspension(){const dni=document.getElementById('dni-susp').value.trim();const nombre=document.getElementById('nombre-susp').value.trim();const desde=document.getElementById('susp-desde').value;const hasta=document.getElementById('susp-hasta').value;const motivo=document.getElementById('motivo-susp').value.trim();if(!dni||!desde||!hasta||!motivo){return mostrarAlerta('alerta-susp','error','Completá todos los campos.')}if(hasta<desde){return mostrarAlerta('alerta-susp','error','"Hasta" debe ser ≥ "Desde".')}const lista=cargarDatos(KEYS.suspensiones);lista.push({id:Date.now(),dni,nombre,desde,hasta,motivo});guardarDatos(KEYS.suspensiones,lista);['dni-susp','nombre-susp','susp-desde','susp-hasta','motivo-susp'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderTablaSusp();mostrarAlerta('alerta-susp','ok','🚫 Suspensión registrada.')}
-function renderTablaSusp(){const tbody=document.querySelector('#tabla-susp tbody');if(!tbody)return;tbody.innerHTML='';const lista=cargarDatos(KEYS.suspensiones).slice().reverse();if(!lista.length){tbody.innerHTML='<tr><td colspan="7" class="muted">Sin registros</td></tr>';return}const hoy=isoFecha(ahoraReal());lista.forEach(s=>{const act=hoy>=s.desde&&hoy<=s.hasta;const tr=document.createElement('tr');tr.innerHTML=`<td>${s.dni}</td><td>${s.nombre||'—'}</td><td>${s.desde}</td><td>${s.hasta}</td><td>${s.motivo}</td><td>${act?'🚫 ACTIVA':'✔️ Vencida'}</td><td><button class="btn btn-danger" onclick="eliminarSusp(${s.id})">🗑️</button></td>`;tbody.appendChild(tr)})}
-function eliminarSusp(id){guardarDatos(KEYS.suspensiones,cargarDatos(KEYS.suspensiones).filter(s=>s.id!==id));renderTablaSusp()}
+    // 1) Descargar si existen; si no existen, crear vacíos basados en local
+    for(const ds of DATASETS){{
+      const pXML = joinPath(GH_CFG.base, `${{ds.file}}.xml`);
+      const remoteXML = await ghGetRaw(pXML, token);
+      if(remoteXML){{
+        // Cargar en local
+        const doc=new DOMParser().parseFromString(remoteXML,'application/xml');
+        const rows=Array.from(doc.getElementsByTagName('row')).map(r=>{{const o={{}};Array.from(r.children).forEach(n=>o[n.tagName]=n.textContent);return o}});
+        if(ds.isActivos){{ localStorage.setItem(ds.k, JSON.stringify(rows.map(r=>r.id))) }}
+        else {{ guardarLista(ds.k, rows) }}
+      }} else {{
+        // Crear desde local (o vacío) – XML + JSON
+        let arr=[]; try{{ arr = JSON.parse(localStorage.getItem(ds.k)||'[]'); }}catch{{}}
+        if(ds.isActivos){{ arr = arr.map(id=>({{id}})) }}
+        const xml = toXml(ds.tag, arr);
+        const sha = await ghGetSHA(pXML, token); // debería ser null
+        if(!sha){{ await ghPut(pXML, strToB64(xml), `feat(init): ${{ds.file}}.xml`, token, null); }}
+        const pJSON = joinPath(joinPath(GH_CFG.base,'json'), `${{ds.file}}.json`);
+        const shaJ = await ghGetSHA(pJSON, token);
+        if(!shaJ){{ await ghPut(pJSON, strToB64(JSON.stringify(arr,null,2)), `feat(init): ${{ds.file}}.json`, token, null); }}
+      }}
+    }}
 
-// =========================
-//  VENCIDOS
-// =========================
-function renderVencidos(){const tbody=document.querySelector('#tabla-vencidos tbody');tbody.innerHTML='';const now=ahoraReal();const lim=HS_VIGENCIA*3600000,prev=lim-MIN_POR_VENCER*60000;const ing=cargarDatos(KEYS.ingresos).slice().sort((a,b)=>parseFechaHora(a.fecha,a.hora)-parseFechaHora(b.fecha,b.hora));const pv=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);return ms>=prev&&ms<lim});const ven=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);return ms>=lim});const todos=[...pv,...ven];if(!todos.length){tbody.innerHTML='<tr><td colspan="7" class="muted">No hay ingresos por vencer/vencidos</td></tr>';return}todos.forEach(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);let est='';if(ms>=lim)est='⏰ Vencido';else if(ms>=prev)est='⏳ Por vencer';else est='✅ Vigente';const tr=document.createElement('tr');tr.innerHTML=`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${tiempoTranscurrido(ms)}</td><td>${est}</td><td><button class="btn btn-danger" onclick="darBajaIngreso('${i.dni}','${i.fecha}','${i.hora}')">🗑️</button></td>`;tbody.appendChild(tr)})}
-function darBajaIngreso(dni,fecha,hora){guardarDatos(KEYS.ingresos,cargarDatos(KEYS.ingresos).filter(i=>!(i.dni===dni&&i.fecha===fecha&&i.hora===hora)));renderVencidos()}
-function limpiarVencidos(){const now=ahoraReal(),lim=HS_VIGENCIA*3600000;const ing=cargarDatos(KEYS.ingresos);const vig=ing.filter(i=>now-parseFechaHora(i.fecha,i.hora)<lim);guardarDatos(KEYS.ingresos,vig);renderVencidos();mostrarAlerta('alerta-vencidos','ok','✅ Vencidos eliminados.')} 
+    // 2) Sync completo (sube XML + JSON)
+    await syncAll(token);
+    setSyncBadge('🟢 Sincronizado','rgba(30,120,30,.45)');
+  }}catch(e){{ console.error(e); setSyncBadge('🔴 Error: '+e.message,'rgba(140,20,20,.45)'); }}
+}}
 
-// =========================
-//  CONSULTA
-// =========================
-(function setFechasConsultaHoy(){const hoy=isoFecha(ahoraReal());const d=document.getElementById('consulta-desde');const h=document.getElementById('consulta-hasta');if(d&&!d.value)d.value=hoy;if(h&&!h.value)h.value=hoy})();
-function consultarIngresos(){const desde=document.getElementById('consulta-desde').value;const hasta=document.getElementById('consulta-hasta').value;const dni=document.getElementById('consulta-dni').value.trim();const tbody=document.querySelector('#tabla-consulta tbody');if(!desde||!hasta){document.getElementById('resumen-consulta').textContent='Seleccioná ambas fechas.';tbody.innerHTML='';return}if(hasta<desde){document.getElementById('resumen-consulta').textContent='La fecha "hasta" debe ser ≥ "desde".';tbody.innerHTML='';return}let res=cargarDatos(KEYS.ingresos).filter(i=>i.isoFecha>=desde&&i.isoFecha<=hasta);if(dni)res=res.filter(i=>i.dni===dni);res.sort((a,b)=> (a.isoFecha+a.hora)>(b.isoFecha+b.hora)?-1:1);document.getElementById('resumen-consulta').textContent=`Resultados: ${res.length}`;tbody.innerHTML='';if(!res.length){tbody.innerHTML='<tr><td colspan="5" class="muted">Sin resultados</td></tr>';return}res.forEach(i=>{const est=estadoIngreso(i);const tr=document.createElement('tr');tr.innerHTML=`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${est.texto}</td>`;tbody.appendChild(tr)})}
+async function syncAll(token){{
+  try{{
+    token = token || await decryptPAT();
+    if(!token) throw new Error('Token ausente');
+    for(const ds of DATASETS){{
+      let arr=[]; try{{ arr = JSON.parse(localStorage.getItem(ds.k)||'[]'); }}catch{{}}
+      if(ds.isActivos){{ arr = arr.map(id=>({{id}})) }}
+      const xml = toXml(ds.tag, arr);
+      const pXML = joinPath(GH_CFG.base, `${{ds.file}}.xml`);
+      const sha = await ghGetSHA(pXML, token);
+      await ghPut(pXML, strToB64(xml), `feat(sync): ${{ds.file}}.xml`, token, sha);
+      const pJSON = joinPath(joinPath(GH_CFG.base,'json'), `${{ds.file}}.json`);
+      const shaJ = await ghGetSHA(pJSON, token);
+      await ghPut(pJSON, strToB64(JSON.stringify(arr,null,2)), `feat(sync): ${{ds.file}}.json`, token, shaJ);
+    }}
+  }}catch(e){{ console.error(e); throw e; }}
+}}
 
-// =========================
-//  ESTADÍSTICAS (Chart.js por CDN)
-//  Doc oficial: https://www.chartjs.org/docs/latest/getting-started/  
-//  CDN jsDelivr: https://cdn.jsdelivr.net/npm/chart.js  
-// =========================
-let _chartEdad=null;
-function _edadAproxDesdeDNI(dni){const n=Number(String(dni).replace(/\D/g,''));if(!n||isNaN(n))return 0; if(n>=70000000)return 5; if(n>=50000000&&n<60000000)return 16; if(n>=40000000&&n<50000000)return 25; if(n>=30000000&&n<40000000)return 35; if(n>=20000000&&n<30000000)return 45; if(n>=10000000&&n<20000000)return 60; return 90}
-function _bucketEdad(a){if(a<18)return '<18';if(a<30)return '18–29';if(a<45)return '30–44';if(a<60)return '45–59';return '60+'}
-function calcularDistribucionEdad(){const res={'<18':0,'18–29':0,'30–44':0,'45–59':0,'60+':0};const unicos=new Set();cargarDatos(KEYS.ingresos).forEach(i=>{if(i&&i.dni)unicos.add(String(i.dni))});unicos.forEach(d=>{res[_bucketEdad(_edadAproxDesdeDNI(d))]++});return{res,total:unicos.size}}
-function renderEstadisticas(){const {res,total}=calcularDistribucionEdad();const ctx=document.getElementById('chart-edad').getContext('2d');if(_chartEdad){_chartEdad.destroy()}_chartEdad=new Chart(ctx,{type:'bar',data:{labels:Object.keys(res),datasets:[{label:'Personas (DNIs únicos)',data:Object.keys(res).map(k=>res[k]),backgroundColor:'#2d6e2d'}]},options:{plugins:{legend:{display:false},title:{display:true,text:'Distribución por rango de edad (aprox.)'}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});document.getElementById('estad-nota').textContent='Estimación por rango de DNI (numeración secuencial + RN 70M desde 09/2023).'}
+let syncTimer=null; function scheduleSync(){{ clearTimeout(syncTimer); setSyncBadge('🔵 Cambios pendientes…','rgba(20,60,140,.35)'); syncTimer=setTimeout(async()=>{{ try{{ await syncAll(); setSyncBadge('🟢 Sincronizado','rgba(30,120,30,.45)'); }}catch(e){{ setSyncBadge('🔴 Error: '+e.message,'rgba(140,20,20,.45)'); }} }}, 1200); }}
 
-// =========================
-//  INIT
-// =========================
-(function init(){
-  // Hora SIEMPRE local (no dependemos de internet)
-  offsetMs=0; setSyncBadge('ok','Local'); actualizarHeaderInspector(); renderInspectoresUI(); // arranque básico
-})();
+// ====== Ingreso / Aperc / Susp – acciones que modifican y disparan sync ======
+function estadoIngreso(ing){{const ms=ahoraReal().getTime()-parseFechaHora(ing.fecha,ing.hora).getTime();const lim=HS_VIGENCIA*3600000,prev=lim-MIN_POR_VENCER*60000;if(ms>=lim)return{{texto:'⏰ Vencido',clase:'vencido'}};if(ms>=prev)return{{texto:'⏳ Por vencer',clase:'por-vencer'}};return{{texto:'✅ Vigente',clase:'vigente'}}}}
+function registrar(){{const dni=(document.getElementById('dni-ingreso').value||'').trim(); const nom=(document.getElementById('nombre-ingreso').value||'').trim(); const esSocio=document.getElementById('radio-socio')?.checked||false; if(!dni){{mostrarAlerta('alerta-ingreso','error', esSocio?'Ingresá el N° de socio.':'Ingresá el DNI.');return}} if(!nom){{mostrarAlerta('alerta-ingreso','error','Ingresá el Nombre y Apellido.');return}} if(!FOTO_DATA){{mostrarAlerta('alerta-ingreso','error','📸 Tomá una foto del ingreso (obligatoria).');return}} const now=ahoraReal(); const reg={{dni,nombre:nom,fecha:formatFecha(now),hora:formatHora(now),isoFecha:isoFecha(now),foto:FOTO_DATA,tipo: esSocio?'socio':'invitado'}}; const L=cargarLista(KEYS.ingresos); L.push(reg); guardarLista(KEYS.ingresos,L); const p=getPersona(dni); if(!p||!p.fotoPerfil) upsertPersona(dni,nom,FOTO_DATA); else if(nom && (!p.nombre||!p.nombre.trim())) upsertPersona(dni,nom,null); document.getElementById('dni-ingreso').value=''; document.getElementById('nombre-ingreso').value=''; clearPhoto(); const fp=document.getElementById('foto-perfil'); if(fp){{fp.style.display='none'; fp.src='';}} mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado – ${{esSocio?'Socio':'DNI'}} ${{dni}}`); cargarUltimos(dni); scheduleSync(); }}
+function limpiar(){{document.getElementById('dni-ingreso').value=''; document.getElementById('nombre-ingreso').value=''; clearPhoto();}}
+
+function registrarAperc(){{const dni=document.getElementById('dni-aperc').value.trim();const nom=document.getElementById('nombre-aperc').value.trim();const mot=document.getElementById('motivo-aperc').value.trim();if(!dni||!mot){{return mostrarAlerta('alerta-aperc','error','Completá DNI y motivo.')}}const now=ahoraReal();const L=cargarLista(KEYS.apercibimientos);const insp=getInspectorActivo();L.push({{id:Date.now(),dni,nombre:nom,motivo:mot,fecha:formatFecha(now),hora:formatHora(now),inspector:insp?insp.nombre:null}});guardarLista(KEYS.apercibimientos,L);['dni-aperc','nombre-aperc','motivo-aperc'].forEach(id=>{{const e=document.getElementById(id);if(e)e.value=''}}) ;renderTablaAperc();mostrarAlerta('alerta-aperc','ok','⚠️ Apercibimiento registrado.'); scheduleSync();}}
+function registrarSusp(){{const dni=document.getElementById('dni-susp').value.trim();const nom=document.getElementById('nombre-susp').value.trim();const d=document.getElementById('susp-desde').value;const h=document.getElementById('susp-hasta').value;const mot=document.getElementById('motivo-susp').value.trim();if(!dni||!d||!h||!mot){{return mostrarAlerta('alerta-susp','error','Completá todos los campos.')}}if(h<d){{return mostrarAlerta('alerta-susp','error','"Hasta" debe ser ≥ "Desde".')}}const L=cargarLista(KEYS.suspensiones);L.push({{id:Date.now(),dni,nombre:nom,desde:d,hasta:h,motivo:mot}});guardarLista(KEYS.suspensiones,L);['dni-susp','nombre-susp','susp-desde','susp-hasta','motivo-susp'].forEach(id=>{{const e=document.getElementById(id);if(e)e.value=''}}) ;renderTablaSusp();mostrarAlerta('alerta-susp','ok','🚫 Suspensión registrada.'); scheduleSync();}}
+
+// ====== Inspectores ======
+(function ensureDemoInspector(){{const lista=cargarLista(KEYS.inspectores); if(!lista.length){{const nuevo={{id:Date.now(),nombre:'Inspector Demo',usuario:'demo',password:'demo',tel:'',obs:'Auto'}}; lista.push(nuevo); guardarLista(KEYS.inspectores,lista); guardarItem(KEYS.inspActivo,String(nuevo.id)); }}})();
+function getInspectorActivo(){{const id=cargarItem(KEYS.inspActivo); if(id){{ const i=cargarLista(KEYS.inspectores).find(x=>String(x.id)===String(id)); if(i) return i;}} return null }}
+function actualizarHeaderInspector(){{const i=getInspectorActivo(); const el=document.getElementById('header-inspector'); if(el) el.textContent= i? `👮 ${{i.nombre}}` : '🔒 Sin inspector activo'}}
+function renderInspectoresUI(){{const tbody=document.querySelector('#tabla-insp tbody');if(!tbody)return;tbody.innerHTML='';const lista=cargarLista(KEYS.inspectores);if(!lista.length){{tbody.innerHTML='<tr><td colspan="5" class="muted">No hay inspectores</td></tr>';return}}lista.forEach(insp=>{{const tr=document.createElement('tr');tr.innerHTML=`<td>${{insp.nombre}}</td><td>${{insp.usuario||'—'}}</td><td>${{insp.tel||'—'}}</td><td>${{insp.obs||'—'}}</td><td><button class="btn btn-gold" onclick="activarInspector(${{insp.id}})">⚡ Activar</button> <button class="btn btn-danger" onclick="eliminarInspector(${{insp.id}})">🗑️</button></td>`;tbody.appendChild(tr)}});const act=getInspectorActivo();document.getElementById('insp-activo').textContent=act?`Activo: ${{act.nombre}}`:'Sin inspector activo';actualizarHeaderInspector()}}
+function activarInspector(id){{guardarItem(KEYS.inspActivo,String(id));renderInspectoresUI();mostrarAlerta('alerta-insp','ok','✅ Inspector activado.'); scheduleSync();}}
+function desactivarInspector(){{localStorage.removeItem(KEYS.inspActivo);renderInspectoresUI();mostrarAlerta('alerta-insp','warn','Inspector desactivado.'); scheduleSync();}}
+function eliminarInspector(id){{const lista=cargarLista(KEYS.inspectores).filter(i=>i.id!==id);if(String(cargarItem(KEYS.inspActivo))===String(id)){{localStorage.removeItem(KEYS.inspActivo)}}guardarLista(KEYS.inspectores,lista);renderInspectoresUI(); scheduleSync();}}
+
+// ====== Vencidos / Consulta / Tablas ======
+function cargarUltimos(id){{const wrap=document.getElementById('ultimos-ingresos'); const tbody=document.querySelector('#tabla-ultimos tbody'); wrap.style.display='block'; tbody.innerHTML=''; const mis=cargarLista(KEYS.ingresos).filter(i=>i.dni===id).slice(-10).reverse(); if(!mis.length){{tbody.innerHTML='<tr><td colspan="5" class="muted">Sin ingresos previos</td></tr>';return}} mis.forEach((i,n)=>{{ const est=estadoIngreso(i); const tr=document.createElement('tr'); tr.innerHTML=`<td>${{n+1}}</td><td>${{i.fecha}}</td><td>${{i.hora}}</td><td>${{i.nombre||'—'}}</td><td>${{est.texto}}</td>`; tbody.appendChild(tr); }})}}
+function renderVencidos(){{const tbody=document.querySelector('#tabla-vencidos tbody');tbody.innerHTML='';const now=ahoraReal();const lim=HS_VIGENCIA*3600000,prev=lim-MIN_POR_VENCER*60000;const ing=cargarLista(KEYS.ingresos).slice().sort((a,b)=>parseFechaHora(a.fecha,a.hora)-parseFechaHora(b.fecha,b.hora));const pv=ing.filter(i=>{{const ms=now-parseFechaHora(i.fecha,i.hora);return ms>=prev&&ms<lim}});const ven=ing.filter(i=>{{const ms=now-parseFechaHora(i.fecha,i.hora);return ms>=lim}});const todos=[...pv,...ven];if(!todos.length){{tbody.innerHTML='<tr><td colspan="7" class="muted">No hay ingresos por vencer/vencidos</td></tr>';return}}todos.forEach(i=>{{const ms=now-parseFechaHora(i.fecha,i.hora);let est='';if(ms>=lim)est='⏰ Vencido';else if(ms>=prev)est='⏳ Por vencer';else est='✅ Vigente';const tr=document.createElement('tr');tr.innerHTML=`<td>${{i.dni}}</td><td>${{i.nombre||'—'}} </td><td>${{i.fecha}}</td><td>${{i.hora}}</td><td>${{tiempoTranscurrido(ms)}}</td><td>${{est}}</td><td><button class="btn btn-danger" onclick="darBajaIngreso('${{i.dni}}','${{i.fecha}}','${{i.hora}}')">🗑️</button></td>`;tbody.appendChild(tr)}})}}
+function darBajaIngreso(dni,fecha,hora){{guardarLista(KEYS.ingresos,cargarLista(KEYS.ingresos).filter(i=>!(i.dni===dni&&i.fecha===fecha&&i.hora===hora)));renderVencidos(); scheduleSync();}}
+(function setFechasConsultaHoy(){{const hoy=isoFecha(ahoraReal());const d=document.getElementById('consulta-desde');const h=document.getElementById('consulta-hasta');if(d&&!d.value)d.value=hoy;if(h&&!h.value)h.value=hoy}})();
+function consultar(){{const desde=document.getElementById('consulta-desde').value;const hasta=document.getElementById('consulta-hasta').value;const dni=document.getElementById('consulta-dni').value.trim();const tbody=document.querySelector('#tabla-consulta tbody');if(!desde||!hasta){{document.getElementById('resumen-consulta').textContent='Seleccioná ambas fechas.';tbody.innerHTML='';return}}if(hasta<desde){{document.getElementById('resumen-consulta').textContent='La fecha "hasta" debe ser ≥ "desde".';tbody.innerHTML='';return}}let res=cargarLista(KEYS.ingresos).filter(i=>i.isoFecha>=desde&&i.isoFecha<=hasta);if(dni)res=res.filter(i=>i.dni===dni);res.sort((a,b)=>(a.isoFecha+a.hora)>(b.isoFecha+b.hora)?-1:1);document.getElementById('resumen-consulta').textContent=`Resultados: ${{res.length}}`;tbody.innerHTML='';if(!res.length){{tbody.innerHTML='<tr><td colspan="5" class="muted">Sin resultados</td></tr>';return}}res.forEach(i=>{{const est=estadoIngreso(i);const tr=document.createElement('tr');tr.innerHTML=`<td>${{i.dni}}</td><td>${{i.nombre||'—'}}</td><td>${{i.fecha}}</td><td>${{i.hora}}</td><td>${{est.texto}}</td>`;tbody.appendChild(tr)}})}}
+
+// ====== Estadísticas (simple) ======
+let _chartEdad=null; function _edadAproxDesdeDNI(dni){{const n=Number(String(dni).replace(/\D/g,''));if(!n||isNaN(n))return 0; if(n>=70000000)return 5; if(n>=50000000&&n<60000000)return 16; if(n>=40000000&&n<50000000)return 25; if(n>=30000000&&n<40000000)return 35; if(n>=20000000&&n<30000000)return 45; if(n>=10000000&&n<20000000)return 60; return 90}} function _bucketEdad(a){{if(a<18)return '<18';if(a<30)return '18–29';if(a<45)return '30–44';if(a<60)return '45–59';return '60+'}} function calcularDistribucionEdad(){{const res={{'<18':0,'18–29':0,'30–44':0,'45–59':0,'60+':0}};const unicos=new Set();cargarLista(KEYS.ingresos).forEach(i=>{{if(i&&i.dni)unicos.add(String(i.dni))}});unicos.forEach(d=>{{res[_bucketEdad(_edadAproxDesdeDNI(d))]++}});return{{res,total:unicos.size}}}} function renderEstadisticas(){{const {{res}}=calcularDistribucionEdad();const ctx=document.getElementById('chart-edad').getContext('2d');if(_chartEdad){{_chartEdad.destroy()}}_chartEdad=new Chart(ctx,{{type:'line',data:{{labels:Object.keys(res),datasets:[{{label:'',data:Object.keys(res).map(k=>res[k]),borderColor:'#2d6e2d',backgroundColor:'#2d6e2d',fill:false,tension:0.3}}]}},options:{{plugins:{{legend:{{display:false}},title:{{display:true,text:'Distribución por rango de edad (tendencia)'}}}},scales:{{y:{{beginAtZero:true,ticks:{{precision:0}}}}}}}})}}}
+
+// ====== Backup local (ZIP) ======
+function toXml(tag, objArr){{ const enc = (s)=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); const rows = objArr.map(o=>{{ const inner = Object.keys(o).map(k=>`<${{k}}>${{enc(o[k])}}</${{k}}>`).join(''); return `<row>${{inner}}</row>` }}).join(''); return `<?xml version="1.0" encoding="UTF-8"?>
+<${{tag}}>${{rows}}</${{tag}}>`; }}
+async function doBackupZip(){{ try{{ const zip = new JSZip(); zip.file('ingresos.xml', toXml('ingresos', cargarLista(KEYS.ingresos))); zip.file('personas.xml', toXml('personas', cargarLista(KEYS.personas))); zip.file('apercibimientos.xml', toXml('apercibimientos', cargarLista(KEYS.apercibimientos))); zip.file('suspensiones.xml', toXml('suspensiones', cargarLista(KEYS.suspensiones))); zip.file('inspectores.xml', toXml('inspectores', cargarLista(KEYS.inspectores))); zip.file('activos.xml', toXml('activos', (JSON.parse(localStorage.getItem(KEYS.inspActivos)||'[]')).map(id=>({{id}})))); const blob = await zip.generateAsync({{type:'blob'}}); const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='pcq_backup.zip'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);}}catch(e){{ alert('Error generando backup: '+e.message); }}}}
+
+// ====== DOM ready ======
+document.addEventListener('DOMContentLoaded',()=>{{
+  document.getElementById('btn-cam-start')?.addEventListener('click', startCam);
+  document.getElementById('btn-cam-snap')?.addEventListener('click', takePhoto);
+  document.getElementById('btn-cam-clear')?.addEventListener('click', clearPhoto);
+  document.getElementById('btn-registrar')?.addEventListener('click', registrar);
+  document.getElementById('btn-limpiar')?.addEventListener('click', limpiar);
+  document.getElementById('btn-aperc')?.addEventListener('click', registrarAperc);
+  document.getElementById('btn-susp')?.addEventListener('click', registrarSusp);
+  document.getElementById('btn-consultar')?.addEventListener('click', consultar);
+  document.getElementById('btn-venc-actualizar')?.addEventListener('click', renderVencidos);
+  document.getElementById('btn-venc-limpiar')?.addEventListener('click', function(){{ const now=ahoraReal(),lim=HS_VIGENCIA*3600000; const ing=cargarLista(KEYS.ingresos); const vig=ing.filter(i=>now-parseFechaHora(i.fecha,i.hora)<lim); guardarLista(KEYS.ingresos,vig); renderVencidos(); mostrarAlerta('alerta-vencidos','ok','✅ Vencidos eliminados.'); scheduleSync(); }});
+  initThenSync();
+}});
+
+// ====== Error handler ======
+window.addEventListener('error', (e)=>{{ console.error(e.message); setSyncBadge('🔴 Error: '+e.message,'rgba(140,20,20,.45)'); }});
 </script>
-
-<!-- ====== INYECTADO v4 (standalone): Persistencia en GitHub (XML) ====== -->
-<script>
-(function(){
-  // Pegamos solo la tarjeta y funciones GitHub; usa KEYS.* si existe, o claves por defecto
-  function ensureGithubCard(){
-    let sec = document.getElementById('sec-admin');
-    if(!sec){ const main=document.querySelector('main'); sec=document.createElement('section'); sec.id='sec-admin'; sec.className='seccion'; main.appendChild(sec); const nav=document.querySelector('nav'); if(nav && !document.getElementById('btn-nav-admin')){ const btn=document.createElement('button'); btn.id='btn-nav-admin'; btn.textContent='⚙️ Administrar'; btn.onclick=function(){ _navegarSeccion('admin', this) }; nav.appendChild(btn);} }
-    if(document.getElementById('gh-card')) return;
-    const card=document.createElement('div'); card.className='card'; card.id='gh-card';
-    card.innerHTML = `
-      <h2>🐙 GitHub (persistencia en XML)</h2>
-      <div class="rowf">
-        <label style="flex:1">Owner/Org<input id="gh-owner" type="text" placeholder="owner"/></label>
-        <label style="flex:1">Repo<input id="gh-repo" type="text" placeholder="repo"/></label>
-        <label style="flex:1">Branch<input id="gh-branch" type="text" placeholder="main"/></label>
-        <label style="flex:1">Ruta base<input id="gh-base" type="text" placeholder="live"/></label>
-      </div>
-      <div class="rowf" style="margin-top:8px">
-        <label style="flex:1">Token GitHub (PAT)<input id="gh-pat" type="password" placeholder="token contents:write"/></label>
-        <label style="align-items:center;flex-direction:row;gap:8px"><input id="gh-remember" type="checkbox"/> Recordar token (inseguro)</label>
-      </div>
-      <div class="row" style="gap:8px;margin-top:8px">
-        <button class="btn btn-primary" id="gh-upload">⬆️ Subir XMLs a GitHub</button>
-        <button class="btn btn-secondary" id="gh-download">⬇️ Traer XMLs de GitHub</button>
-        <button class="btn" id="gh-test">🧪 Probar conexión</button>
-        <button class="btn btn-gold" id="gh-save">💾 Guardar config</button>
-      </div>
-      <div id="alerta-github" class="alerta" style="margin-top:10px"></div>
-    `;
-    sec.appendChild(card);
-  }
-  function ghAlert(tipo,msg){ const el=document.getElementById('alerta-github'); if(!el) return; el.className='alerta show alerta-'+(tipo==='ok'?'ok':tipo); el.innerHTML=msg; clearTimeout(el._t); el._t=setTimeout(()=>{ el.className='alerta' }, 8000); }
-  function val(id){ const e=document.getElementById(id); return e?e.value.trim():'' }
-  function setVal(id,v){ const e=document.getElementById(id); if(e) e.value=v||'' }
-  function ensureCfg(){ const cfg={ owner:localStorage.getItem('pcq_gh_owner')||'', repo:localStorage.getItem('pcq_gh_repo')||'', branch:localStorage.getItem('pcq_gh_branch')||'main', base:localStorage.getItem('pcq_gh_base')||'live' }; setVal('gh-owner',cfg.owner); setVal('gh-repo',cfg.repo); setVal('gh-branch',cfg.branch); setVal('gh-base',cfg.base); const remember=localStorage.getItem('pcq_gh_remember')==='1'; const pat=remember?(localStorage.getItem('pcq_gh_pat')||''):(sessionStorage.getItem('pcq_gh_pat')||''); const chk=document.getElementById('gh-remember'); if(chk) chk.checked=remember; setVal('gh-pat', pat); }
-  function readCfg(){ return { owner:val('gh-owner'), repo:val('gh-repo'), branch:val('gh-branch')||'main', base:val('gh-base')||'live', pat:(function(){ const t=val('gh-pat'); const remember=document.getElementById('gh-remember')?.checked; if(remember){ localStorage.setItem('pcq_gh_pat',t); localStorage.setItem('pcq_gh_remember','1'); } else { localStorage.removeItem('pcq_gh_pat'); localStorage.setItem('pcq_gh_remember','0'); sessionStorage.setItem('pcq_gh_pat',t); } return t; })() }; }
-  function saveCfgOnly(){ localStorage.setItem('pcq_gh_owner',val('gh-owner')); localStorage.setItem('pcq_gh_repo',val('gh-repo')); localStorage.setItem('pcq_gh_branch',val('gh-branch')||'main'); localStorage.setItem('pcq_gh_base',val('gh-base')||'live'); const remember=document.getElementById('gh-remember')?.checked; localStorage.setItem('pcq_gh_remember', remember?'1':'0'); if(!remember){ localStorage.removeItem('pcq_gh_pat'); } ghAlert('ok','✅ Config guardada'); }
-
-  const GH='https://api.github.com';
-  async function ghFetch(url, cfg, opts){ const headers={'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Authorization':'Bearer '+cfg.pat}; return await fetch(url,{headers,...opts}); }
-  function joinPath(a,b){ a=a.replace(/^\/+|\/+$/g,''); b=b.replace(/^\/+/,''); return a?(a+'/'+b):b }
-  async function ghGetSHA(path,cfg){ const url=`${GH}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(cfg.branch)}`; const r=await ghFetch(url,cfg,{method:'GET'}); if(r.status===404) return null; if(!r.ok) throw new Error('GET contents '+r.status); const j=await r.json(); return j.sha||null; }
-  function toBase64(s){ return btoa(unescape(encodeURIComponent(s))) }
-  function fromBase64(b64){ try{ return decodeURIComponent(escape(atob(b64))) }catch(e){ return atob(b64) } }
-  function xmlEscape(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
-  function toXml(tag, arr){ const rows=(arr||[]).map(o=>{ const inner=Object.keys(o).map(k=>`<${k}>${xmlEscape(o[k])}</${k}>`).join(''); return `<row>${inner}</row>` }).join(''); return `<?xml version="1.0" encoding="UTF-8"?>\n<${tag}>${rows}</${tag}>`; }
-  function parseXmlRows(xml){ const doc=new DOMParser().parseFromString(xml,'application/xml'); return Array.from(doc.getElementsByTagName('row')).map(r=>{ const obj={}; Array.from(r.children).forEach(n=>obj[n.tagName]=n.textContent); return obj; }); }
-  async function ghPutXml(filename, rootTag, dataArr, cfg){ const xml=toXml(rootTag,dataArr); const path=joinPath(cfg.base||'live', filename); const sha=await ghGetSHA(path,cfg); const body={ message:`feat(data): sync ${filename} (${new Date().toISOString()})`, content:toBase64(xml), branch:cfg.branch }; if(sha) body.sha=sha; const url=`${GH}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(path)}`; const r=await ghFetch(url,cfg,{method:'PUT', body:JSON.stringify(body)}); if(!r.ok){ const t=await r.text(); throw new Error('PUT '+filename+' → '+r.status+' '+t); } return true; }
-  async function ghGetXml(filename,cfg){ const path=joinPath(cfg.base||'live', filename); const url=`${GH}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(cfg.branch)}`; let r=await ghFetch(url,cfg,{method:'GET'}); if(r.status===404) return null; if(!r.ok) throw new Error('GET '+filename+' → '+r.status); const j=await r.json(); if(j && j.content){ return fromBase64(j.content.replace(/\n/g,'')); } const r2=await fetch(url,{headers:{'Accept':'application/vnd.github.raw+json','Authorization':'Bearer '+cfg.pat,'X-GitHub-Api-Version':'2022-11-28'}}); if(!r2.ok) throw new Error('RAW '+filename+' → '+r2.status); return await r2.text(); }
-  async function uploadAll(){ const cfg=readCfg(); if(!cfg.owner||!cfg.repo||!cfg.pat){ ghAlert('error','Completá Owner, Repo y Token.'); return; } const map=[ {k:window.KEYS?KEYS.ingresos:'pcq_ingresos',file:'ingresos.xml',tag:'ingresos'}, {k:window.KEYS?KEYS.personas:'pcq_personas',file:'personas.xml',tag:'personas'}, {k:window.KEYS?KEYS.apercibimientos:'pcq_apercibimientos',file:'apercibimientos.xml',tag:'apercibimientos'}, {k:window.KEYS?KEYS.suspensiones:'pcq_suspensiones',file:'suspensiones.xml',tag:'suspensiones'}, {k:window.KEYS?KEYS.inspectores:'pcq_inspectores',file:'inspectores.xml',tag:'inspectores'}, {k:window.KEYS?KEYS.inspActivos:'pcq_inspectores_activos',file:'activos.xml',tag:'activos'} ]; let ok=0,fail=[]; for(const m of map){ try{ const raw=localStorage.getItem(m.k)||'[]'; const data = (m.k.indexOf('activos')!==-1) ? (JSON.parse(raw).map(id=>({id}))) : JSON.parse(raw); await ghPutXml(m.file,m.tag,data,cfg); ok++; }catch(e){ console.error(e); fail.push(m.file+': '+e.message);} } if(fail.length){ ghAlert('warn',`Subido ${ok}/${map.length}. Errores:<br/>• ${fail.join('<br/>• ')}`);} else { ghAlert('ok',`✅ Subido ${ok}/${map.length} XML a GitHub.`);} }
-  async function downloadAll(){ const cfg=readCfg(); if(!cfg.owner||!cfg.repo||!cfg.pat){ ghAlert('error','Completá Owner, Repo y Token.'); return; } const map=[ {k:window.KEYS?KEYS.ingresos:'pcq_ingresos',file:'ingresos.xml'}, {k:window.KEYS?KEYS.personas:'pcq_personas',file:'personas.xml'}, {k:window.KEYS?KEYS.apercibimientos:'pcq_apercibimientos',file:'apercibimientos.xml'}, {k:window.KEYS?KEYS.suspensiones:'pcq_suspensiones',file:'suspensiones.xml'}, {k:window.KEYS?KEYS.inspectores:'pcq_inspectores',file:'inspectores.xml'}, {k:window.KEYS?KEYS.inspActivos:'pcq_inspectores_activos',file:'activos.xml'} ]; let ok=0,miss=[],fail=[]; for(const m of map){ try{ const xml=await ghGetXml(m.file,cfg); if(!xml){ miss.push(m.file); continue; } const rows=parseXmlRows(xml); localStorage.setItem(m.k, JSON.stringify( (m.k.indexOf('activos')!==-1) ? rows.map(r=>r.id) : rows)); ok++; }catch(e){ console.error(e); fail.push(m.file+': '+e.message);} } try{ window.renderInspectoresUI&&renderInspectoresUI(); window.renderTablaAperc&&renderTablaAperc(); window.renderTablaSusp&&renderTablaSusp(); window.renderVencidos&&renderVencidos(); }catch(e){} ghAlert(fail.length?'warn':'ok',`Descargado ${ok}/${map.length}. ${miss.length?'Sin archivo: '+miss.join(', '):'Listo.'}${fail.length?'<br/>Errores:<br/>• '+fail.join('<br/>• '):''}`); }
-  async function testConn(){ const cfg=readCfg(); if(!cfg.owner||!cfg.repo||!cfg.pat){ ghAlert('error','Completá Owner, Repo y Token.'); return; } const url=`${GH}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(cfg.base||'live')}?ref=${encodeURIComponent(cfg.branch)}`; const r=await ghFetch(url,cfg,{method:'GET'}); if(r.status===404){ ghAlert('warn','La ruta base no existe (se creará al subir). Conexión OK.'); return; } if(!r.ok){ ghAlert('error','Error conexión: '+r.status); return; } ghAlert('ok','✅ Conexión OK'); }
-
-  document.addEventListener('DOMContentLoaded', function(){ ensureGithubCard(); ensureCfg(); const sec=document.getElementById('gh-card'); if(!sec) return; sec.querySelector('#gh-save').addEventListener('click', saveCfgOnly); sec.querySelector('#gh-upload').addEventListener('click', uploadAll); sec.querySelector('#gh-download').addEventListener('click', downloadAll); sec.querySelector('#gh-test').addEventListener('click', testConn); });
-})();
-</script>
-<!-- ====== FIN INYECTADO v4 (standalone) ====== -->
-</body>
-</html>
+</body></html>
