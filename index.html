@@ -1,150 +1,113 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
- <meta charset="utf-8"/>
- <meta name="viewport" content="width=device-width, initial-scale=1"/>
- <title>Pejerrey Club Quilmes — Sistema</title>
- <meta name="gh-data" content=""> <!-- Poné acá la URL RAW de GitHub si aplica -->
- <style>
- body{margin:0;font-family:Arial;background:#111;color:#eee}
- header{padding:12px;background:#0c1c0c;border-bottom:3px solid #c8a84b;position:sticky;top:0;z-index:10}
- h1{margin:0;color:#c8a84b;font-size:1.2rem}
- .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
- .chip{padding:6px 12px;border-radius:20px;background:#222;border:1px solid #555}
- .btn{background:#225122;color:white;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
- .btn-warn{background:#8a5a0d}
- nav{display:flex;gap:8px;padding:8px;background:#0e1e0e;border-bottom:2px solid #c8a84b}
- nav button{background:#1b331b;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer}
- nav button.act{border:2px solid #c8a84b}
- .card{background:#0f1f0f;border:1px solid #244;padding:14px;margin:14px;border-radius:8px}
- .form-row{display:flex;gap:12px;flex-wrap:wrap}
- input,select{background:#111;border:1px solid #355;padding:8px;border-radius:6px;color:white}
- .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:1000}
- .modal-box{background:#0c1c0c;padding:20px;border-radius:10px;border:2px solid #c8a84b;width:90%;max-width:400px}
- </style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Pejerrey Club Quilmes — Sistema</title>
+  <!-- Opcional: URL RAW de GitHub para recargar datos sin tocar la UI -->
+  <meta name="gh-data" content="">
+  <style>
+    body{margin:0;font-family:Arial;background:#111;color:#eee}
+    header{padding:12px;background:#0c1c0c;border-bottom:3px solid #c8a84b;position:sticky;top:0;z-index:10}
+    h1{margin:0;color:#c8a84b;font-size:1.2rem}
+    .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .chip{padding:6px 12px;border-radius:20px;background:#222;border:1px solid #555}
+    .btn{background:#225122;color:white;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+    .btn-warn{background:#8a5a0d}
+    nav{display:flex;gap:8px;padding:8px;background:#0e1e0e;border-bottom:2px solid #c8a84b}
+    nav button{background:#1b331b;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer}
+    nav button.act{border:2px solid #c8a84b}
+    .card{background:#0f1f0f;border:1px solid #244;padding:14px;margin:14px;border-radius:8px}
+    .form-row{display:flex;gap:12px;flex-wrap:wrap}
+    input,select{background:#111;border:1px solid #355;padding:8px;border-radius:6px;color:white}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:1000}
+    .modal-box{background:#0c1c0c;padding:20px;border-radius:10px;border:2px solid #c8a84b;width:90%;max-width:400px}
+  </style>
 </head>
 <body>
 <header>
- <h1>Pejerrey Club Quilmes — Sistema</h1>
- <div class="row" style="margin-top:8px">
- <div id="reloj" class="chip">--:--:--</div>
- <div id="sync-badge" class="chip">Offline</div>
- <div style="flex:1"></div>
- <button class="btn btn-warn" onclick="abrirModal()">⚡ Activar sistema</button>
- </div>
+  <h1>Pejerrey Club Quilmes — Sistema</h1>
+  <div class="row" style="margin-top:8px">
+    <div id="reloj" class="chip">--:--:--</div>
+    <div id="sync-badge" class="chip">Offline</div>
+    <div style="flex:1"></div>
+    <button class="btn btn-warn" onclick="abrirModal()">⚡ Activar sistema</button>
+  </div>
 </header>
 <nav>
- <button class="act" onclick="mostrar('ingreso', this)">Ingreso</button>
- <button onclick="mostrar('consulta', this)">Consulta</button>
+  <button class="act" onclick="mostrar('ingreso', this)">Ingreso</button>
+  <button onclick="mostrar('consulta', this)">Consulta</button>
 </nav>
 <main>
- <section id="ingreso" class="card">
- <h2>Ingreso</h2>
- <input placeholder="DNI">
- </section>
- <section id="consulta" class="card" style="display:none">
- <h2>Consulta</h2>
- <input placeholder="Buscar...">
- </section>
+  <section id="ingreso" class="card">
+    <h2>Ingreso</h2>
+    <div class="form-row">
+      <input placeholder="DNI">
+    </div>
+  </section>
+  <section id="consulta" class="card" style="display:none">
+    <h2>Consulta</h2>
+    <div class="form-row">
+      <input placeholder="Buscar...">
+    </div>
+  </section>
 </main>
 <!-- ==== MODAL SIMPLE ==== -->
 <div id="modal" class="modal">
- <div class="modal-box">
- <h3>Activar sistema</h3>
- <p>Esto es un modal simple. Funciona siempre.</p>
- <input id="token" type="password" placeholder="Pegá tu token (si querés)">
- <div style="margin-top:12px;display:flex;gap:10px">
- <button class="btn" onclick="guardar()">Guardar</button>
- <button class="btn btn-warn" onclick="cerrarModal()">Cancelar</button>
- </div>
- </div>
+  <div class="modal-box">
+    <h3>Activar sistema</h3>
+    <p>Esto es un modal simple. Funciona siempre.</p>
+    <input id="token" type="password" placeholder="Pegá tu token (si querés)">
+    <div style="margin-top:12px;display:flex;gap:10px">
+      <button class="btn" onclick="guardar()">Guardar</button>
+      <button class="btn btn-warn" onclick="cerrarModal()">Cancelar</button>
+    </div>
+  </div>
 </div>
 <script>
 /* ======== RELOJ ======== */
 setInterval(() => {
- document.getElementById("reloj").textContent = new Date().toLocaleTimeString();
+  document.getElementById("reloj").textContent = new Date().toLocaleTimeString();
 }, 1000);
 
 /* ======== MODAL ======== */
 function abrirModal(){
- document.getElementById("modal").style.display = "flex";
+  document.getElementById("modal").style.display = "flex";
 }
 function cerrarModal(){
- document.getElementById("modal").style.display = "none";
+  document.getElementById("modal").style.display = "none";
 }
 function guardar(){
- const t = document.getElementById("token").value.trim();
- // Fix: alert concatenation
- alert("Token guardado (local): " + (t ? t : "vacío"));
- cerrarModal();
+  const t = document.getElementById("token").value.trim();
+  // Bugfix: concatenación del alert
+  alert("Token guardado (local): " + (t ? t : "vacío"));
+  cerrarModal();
 }
 
 /* ======== NAV ======== */
 function mostrar(id, btn){
- document.querySelectorAll("main section").forEach(s => s.style.display="none");
- document.getElementById(id).style.display="block";
- document.querySelectorAll("nav button").forEach(b=>b.classList.remove("act"));
- btn.classList.add("act");
+  document.querySelectorAll("main section").forEach(s => s.style.display="none");
+  document.getElementById(id).style.display="block";
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("act"));
+  btn.classList.add("act");
 }
 
-/* ======== MEJORAS SIN CAMBIAR UI ======== */
+/* ======== LECTURA DE GITHUB (SILENCIOSA, SIN CAMBIAR UI) ======== */
 (function(){
- const LS_TOKEN = 'pcq_token_v1';
- const badge = document.getElementById('sync-badge');
- const GH_META = document.querySelector('meta[name="gh-data"]');
- const GH_URL = (GH_META && GH_META.content || '').trim();
- const ENDPOINT_PING = '/api/ping'; // opcional, si existe backend
- let retry = 0, timer = null;
-
- function setBadge(text){ // no cambiamos estilos ni estructura, solo texto
-   badge.textContent = text; // mantenemos "Offline" por compatibilidad si así lo querés
- }
-
- async function ping(){
-   try{
-     const ctrl = new AbortController();
-     const to = setTimeout(() => ctrl.abort(), 4000);
-     const res = await fetch(ENDPOINT_PING + '?t=' + Date.now(), {cache:'no-store', signal: ctrl.signal});
-     clearTimeout(to);
-     return res.ok;
-   }catch(e){ return false; }
- }
-
- async function cargarDesdeGitHub(){
-   if(!GH_URL) return; // si no configuraste la URL, no hacemos nada
-   try{
-     const res = await fetch(GH_URL + (GH_URL.includes('?')?'&':'?') + 't=' + Date.now(), {cache:'no-store'});
-     if(!res.ok) throw new Error('HTTP '+res.status);
-     const data = await res.json().catch(()=>res.text());
-     // callback hook: dejá una función global para procesar
-     if (window.onGitHubData) window.onGitHubData(data);
-   }catch(e){
-     // silencioso: no rompemos UI
-   }
- }
-
- async function verificarYReconectar(){
-   // Política: NO tocamos la UI salvo el texto del chip
-   if(!navigator.onLine){ setBadge('Offline'); programar(); return; }
-   const ok = await ping();
-   if(ok){ retry=0; setBadge('Online'); } else { setBadge('Offline'); }
-   programar();
- }
-
- function programar(){
-   if(timer) clearTimeout(timer);
-   const delay = Math.min(30000, 1000 * Math.pow(2, Math.min(5, retry++)));
-   timer = setTimeout(verificarYReconectar, delay);
- }
-
- // Atajos: click en el chip fuerza reconexión manual (sin cambiar UI)
- badge.addEventListener('click', () => { retry=0; verificarYReconectar(); cargarDesdeGitHub(); });
- window.addEventListener('online', () => { retry=0; verificarYReconectar(); cargarDesdeGitHub(); });
- document.addEventListener('visibilitychange', () => { if(!document.hidden){ verificarYReconectar(); cargarDesdeGitHub(); }});
-
- // Al cargar, intentamos leer GitHub sin modificar UI
- cargarDesdeGitHub();
- verificarYReconectar();
+  const GH_URL = (document.querySelector('meta[name="gh-data"]').content || '').trim();
+  async function cargarDesdeGitHub(){
+    if(!GH_URL) return; // si no hay URL, no hacemos nada
+    try{
+      const res = await fetch(GH_URL + (GH_URL.includes('?')?'&':'?') + 't=' + Date.now(), {cache:'no-store'});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data = await res.json().catch(()=>res.text());
+      if(window.onGitHubData) window.onGitHubData(data); // hook opcional de la app
+    }catch(e){ /* silencioso: no modificamos UI */ }
+  }
+  // Lee al cargar, y cuando vuelve el foco o la conexión
+  window.addEventListener('online', cargarDesdeGitHub);
+  document.addEventListener('visibilitychange', () => { if(!document.hidden) cargarDesdeGitHub(); });
+  cargarDesdeGitHub();
 })();
 </script>
 </body>
