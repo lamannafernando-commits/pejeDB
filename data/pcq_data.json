@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-03-15T09:36:32.853Z",
+  "updatedAt": "2026-03-15T09:37:02.413Z",
   "ingresos": [
     {
       "dni": "000",
@@ -2424,6 +2424,15 @@
       "personaId": "00009",
       "nombre": "Test2",
       "motivo": "2 calas",
+      "fechaISO": "2026-03-15",
+      "rnd": false
+    },
+    {
+      "id": "ap-1773567421522",
+      "tipo": "apercibimiento",
+      "personaId": "00009",
+      "nombre": "Test2",
+      "motivo": "2calas",
       "fechaISO": "2026-03-15",
       "rnd": false
     }
