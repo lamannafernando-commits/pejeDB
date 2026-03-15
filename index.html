@@ -401,8 +401,8 @@ async function sincronizarDesdeGitHub(){
 }
 
 /* ==== Ingreso & sanciones ==== */
-function getTipo(){ return (document.querySelector('input[name="tipo-ing"]:checked')?.value)||'invitado'; }
-function getId(){ return getTipo()==='socio' ? (document.getElementById('nroSocio').value||'').trim() : (document.getElementById('dni').value||'').trim(); }
+function getTipo(){ return (document.querySelector('input[name="tipo-ing"]:checked')?.value) || 'invitado'; }
+function getId(){ return getTipo()==='socio' ? (document.getElementById('nroSocio').value || '').trim() : (document.getElementById('dni').value || '').trim(); }
 function setEstadoChip(tipo, texto){
   const ch=document.getElementById('estado-chip');
   ch.style.display= texto? 'inline-flex':'none';
@@ -432,7 +432,7 @@ function ultimoApercPara(id){
 function suspActivaPara(id){
   if(!id) return null;
   const hoy=hoyISO();
-  return getSanciones().find(s=> s.tipo==='suspension' && s.activo!==false && (s.desdeISO||'0001-01-01')<=hoy && hoy<= (s.hastaISO||'9999-12-31'));
+  return getSanciones().find(s=> s.tipo==='suspension' && s.personaId===id && s.activo!==false && (s.desdeISO||'0001-01-01')<=hoy && hoy<= (s.hastaISO||'9999-12-31'));
 }
 
 async function onIdentificadorChange(){
@@ -609,7 +609,7 @@ function listarAperc(){
 }
 function suspActivasHoy(){
   const hoy=hoyISO();
-  return getSanciones().filter(s=> s.tipo==='suspension' && s.activo!==false && s.desdeISO<=hoy && hoy<=s.hastaISO );
+  return getSanciones().filter(s=> s.tipo==='suspension' && s.personaId===id && s.activo!==false && s.desdeISO<=hoy && hoy<=s.hastaISO );
 }
 function refrescarSanciones(){
   const wrap=document.getElementById('su-wrap'); const tb=document.getElementById('su-tbody');
