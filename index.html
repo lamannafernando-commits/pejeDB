@@ -1,344 +1,362 @@
+<!-- Guarda también un archivo "logo-pejerrey.png" en esta misma carpeta -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Pejerrey Club Quilmes – Sistema (FIX hora local + Admin + Estadísticas)</title>
-<link rel="preconnect" href="https://cdn.jsdelivr.net"/>
-<style>
-  :root{
-    --verde-oscuro:#1a3a1a;--verde-medio:#1e5c1e;--verde-logo:#2d6e2d;--verde-claro:#3a8a3a;
-    --dorado:#c8a84b;--dorado-claro:#e8c86a;--blanco:#ffffff;--crema:#f5f0e8;
-    --gris-claro:#e8ede8;--texto-oscuro:#1a1a1a;--rojo:#cc2222;--naranja:#d4841a;
-  }
-  *{box-sizing:border-box}
-  body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,'Open Sans',sans-serif;background:linear-gradient(160deg,#0d1f0d 0%,#1a3a1a 40%,#0d2a1a 100%);color:#fff;min-height:100vh;margin:0}
-  header{position:sticky;top:0;background:linear-gradient(180deg,#0a1a0a 0%,#1a3a1a 100%);border-bottom:3px solid var(--dorado);padding:12px 14px;z-index:10}
-  h1{margin:0;color:var(--dorado);font-size:1.2rem;letter-spacing:1px}
-  .sub{color:#aacfaa;font-size:.9rem}
-  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
-  .badge{background:rgba(0,0,0,.35);border:1px solid #555;border-radius:20px;padding:4px 12px;font-size:.85rem}
-  #sync-badge.sync-ok{background:rgba(26,107,26,.6);border-color:#2a8a2a}
-  #sync-badge.sync-error{background:rgba(180,30,30,.5);border-color:#b33}
-  #sync-badge.sync-syncing{background:rgba(26,90,138,.5);border-color:#2a7aaa}
-  nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;background:#0d1f0d;border-bottom:2px solid var(--dorado);padding:8px}
-  nav button{cursor:pointer;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#cce8cc;border-radius:6px;padding:7px 12px;font-weight:600}
-  nav button.activo{background:var(--dorado);color:#102010}
-  main{max-width:980px;margin:16px auto;padding:0 12px 40px}
-  .seccion{display:none}
-  .seccion.activa{display:block}
-  .card{background:linear-gradient(160deg,#f5f0e8 0%,#ece8de 100%);border:2px solid var(--dorado);color:var(--texto-oscuro);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.25);padding:18px;margin:12px 0}
-  .card h2{margin:0 0 10px 0;color:var(--verde-oscuro);font-size:1.1rem}
-  label{display:flex;flex-direction:column;gap:4px;font-weight:700;color:var(--verde-oscuro);font-size:.9rem}
-  input,textarea,select{padding:9px 10px;border:1.5px solid #8aaa8a;border-radius:6px;font-size:1rem}
-  .rowf{display:flex;flex-wrap:wrap;gap:10px}
-  .btn{cursor:pointer;border:none;border-radius:6px;padding:9px 14px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
-  .btn-primary{background:var(--verde-logo);color:#fff;border:2px solid var(--verde-claro)}
-  .btn-danger{background:var(--rojo);color:#fff;border:2px solid #b11}
-  .btn-gold{background:var(--dorado);color:#102010;border:2px solid var(--dorado-claro)}
-  .btn-secondary{background:#4a5a4a;color:#fff;border:2px solid #5a6a5a}
-  table{width:100%;border-collapse:collapse;font-size:.9rem}
-  th,td{border-bottom:1px solid #ddd;padding:8px 10px}
-  th{background:#153015;color:var(--dorado);text-align:left}
-  .alerta{margin-top:8px;display:none;padding:8px 12px;border-radius:6px;font-weight:700}
-  .alerta.show{display:block}
-  .alerta-ok{background:#d1fae5;color:#065f46}
-  .alerta-warn{background:#fff3cd;color:#92400e}
-  .alerta-error{background:#fee2e2;color:#991b1b}
-  .muted{color:#657b83;font-size:.85rem}
-  @media(max-width:640px){ nav{justify-content:flex-start;overflow:auto} }
-</style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Gestion de Ingresos Pejerrey Club Quilmes</title>
+  <style>
+    :root{ --verde:#1e5c1e;--dorado:#c8a84b;--rojo:#c62828;--naranja:#d4841a;--bg:#0d1f0d;--panel:#112411;--borde:#2d6e2d;--txt:#f8fff8;--sub:#cfe9cf; }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(160deg,#0b1c0b,#143414);color:var(--txt);font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif}
+    header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,#0a1a0a,#143414);border-bottom:3px solid var(--dorado);padding:10px 14px}
+    h1{margin:0;font-size:1.2rem;letter-spacing:.3px;color:var(--dorado)}
+    h2,h3,h4{margin:.2rem 0}
+    .sub{color:var(--sub);font-size:.85rem}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px}
+    .spacer{flex:1}
+    .chip{border:1px solid var(--borde);border-radius:999px;padding:4px 10px;background:#0a140a;display:inline-flex;align-items:center;gap:6px}
+    #sync-badge{display:inline-flex;gap:6px;align-items:center}
+    #sync-badge.syncing{border-color:#2a7aaa;background:#0c2130}
+    #sync-badge.ok{border-color:#2a8a2a;background:#0f2410}
+    #sync-badge.err{border-color:#7a2a2a;background:#2a0f0f}
+    /* Chip de estado (Ingreso) */
+    #estado-chip{display:none}
+    .state-ok{border-color:#2a8a2a;background:#0f2410;color:#e8ffe8}
+    .state-warn{border-color:#b06f18;background:#2a1a0a;color:#ffe5b8}
+    .state-block{border-color:#b03b3b;background:#2a0f0f;color:#ffd6d6}
+    nav{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;border-bottom:2px solid var(--dorado);background:#0b1b0b}
+    nav button{background:#0e2210;border:1px solid #2a4a2a;color:#e6ffe6;padding:6px 10px;border-radius:6px;cursor:pointer}
+    nav button.act{outline:2px solid var(--dorado)}
+    main{padding:14px}
+    .card{background:var(--panel);border:1px solid var(--borde);border-radius:10px;padding:12px;margin-bottom:14px}
+    .form-row{display:flex;gap:12px;flex-wrap:wrap}
+    label{display:flex;flex-direction:column;gap:6px;min-width:220px;flex:1}
+    input[type=text], input[type=date], input[type=password], select, textarea{padding:8px;border-radius:8px;border:1px solid #365e36;background:#0a1a0a;color:var(--txt)}
+    textarea{resize:vertical}
+    .btn{cursor:pointer;border-radius:8px;border:1px solid #2f5f2f;background:#184718;color:#fff;padding:8px 12px}
+    .btn-xs{padding:3px 6px;font-size:12px;line-height:1.1;border-radius:6px}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn-warn{background:#5a3a0c;border-color:#b06f18}
+    .btn-danger{background:#701818;border-color:#b03b3b}
+    .btn-ghost{background:#0e2210;border:1px dashed #3b5a3b}
+    .alerta{margin-top:8px;padding:8px 10px;border-radius:8px;border:1px solid #3a3a3a;background:#101010;color:#eee}
+    .alerta.ok{border-color:#2d7a2d;background:#0f2a0f}
+    .alerta.warn{border-color:#b06f18;background:#2a1a0a}
+    .alerta.error{border-color:#b03b3b;background:#2a0f0f}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
+    .thumb{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--dorado);cursor:zoom-in;background:#000}
+    /* Modal imagen con caption */
+    #img-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:1000}
+    #img-modal-box{text-align:center}
+    #img-modal-img{max-width:90vw;max-height:80vh;border:3px solid var(--dorado);border-radius:10px}
+    #img-modal-cap{margin-top:8px;color:#f3f8f3;font-size:14px}
+    /* Modal genérico */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:1200}
+    .modal-box{background:#0c1c0c;border:1px solid var(--dorado);border-radius:12px;padding:16px;max-width:560px;width:calc(100% - 32px)}
+    /* Cámara */
+    #cam-wrap{display:none;margin-top:8px}
+    #cam-video{width:260px;height:260px;border-radius:10px;border:3px solid var(--dorado);background:#000;object-fit:cover}
+    #cam-canvas{display:none}
+  </style>
 </head>
 <body>
 <header>
-  <h1>🎣 Pejerrey Club Quilmes</h1>
-  <div class="sub">Sistema de Gestión – FIX hora local + Admin + Estadísticas</div>
+  <h1>Gestion de Ingresos Pejerrey Club Quilmes</h1>
   <div class="row">
-    <div id="reloj-header" class="badge">--/--/---- --:--:--</div>
-    <div id="header-inspector" class="badge">🔒 Sin inspector activo</div>
-    <div id="sync-badge" class="badge sync-ok"><span id="sync-txt">Local</span></div>
+    <div class="chip" id="reloj">--:--:-- — --/--/----</div>
+    <div class="chip" id="sync-badge">☁️ Datos local</div>
+    <div class="spacer"></div>
+    <button id="btn-activar-sistema" class="btn btn-warn" onclick="abrirActivar()">⚡ Activar sistema</button>
   </div>
 </header>
+
 <nav>
-  <button id="btn-nav-ingreso" onclick="navClick('ingreso',this)" class="activo">🚪 Ingreso</button>
-  <button id="btn-nav-apercibamiento" onclick="navClick('apercibamiento',this)">⚠️ Apercibamiento</button>
-  <button id="btn-nav-suspension" onclick="navClick('suspension',this)">🚫 Suspensión</button>
-  <button id="btn-nav-consulta" onclick="navClick('consulta',this)">📋 Consulta</button>
-  <button id="btn-nav-vencidos" onclick="navClick('vencidos',this)">⏰ Vencidos</button>
-  <button id="btn-nav-inspectores" onclick="navClick('inspectores',this)">👮 Inspectores</button>
-  <button id="btn-nav-backup" onclick="navClick('backup',this)">🛠️ Administrar Inspectores</button>
-  <button id="btn-nav-estadisticas" onclick="navClick('estadisticas',this)">📊 Estadísticas</button>
+  <button id="btn-nav-ingreso" class="act" onclick="navClick('ingreso',this)">Ingreso</button>
+  <button id="btn-nav-consulta" onclick="navClick('consulta',this)">Consulta</button>
+  <button id="btn-nav-estadisticas" onclick="navClick('estadisticas',this)">Estadísticas</button>
+  <button id="btn-nav-sanciones" onclick="navClick('sanciones',this)">Sanciones</button>
+  <button id="btn-nav-utils" onclick="navClick('utils',this)">Utils</button>
 </nav>
+
 <main>
-  <section id="sec-ingreso" class="seccion activa">
-    <div class="card">
-      <h2>🚪 Registro de Ingreso</h2>
-      <div class="row">
-        <div id="reloj-grande" style="font-size:1.8rem;color:var(--dorado);font-weight:800">--:--:--</div>
-        <div id="fecha-grande" class="badge" style="background:rgba(0,0,0,.25);border:1px solid #666">--/--/----</div>
-      </div>
-      <div id="fuente-hora" class="muted">🕒 Usando hora local del dispositivo</div>
-      <br/>
-      <div class="rowf">
-        <label style="flex:1;min-width:180px">DNI
-          <input id="dni-ingreso" type="text" maxlength="12" placeholder="30123456" oninput="this.value=this.value.replace(/\D/g,'')"/>
-        </label>
-        <label style="flex:2;min-width:200px">Nombre (opcional)
-          <input id="nombre-ingreso" type="text" placeholder="Apellido, Nombre"/>
-        </label>
-      </div>
-      <div class="row" style="gap:8px">
-        <button class="btn btn-primary" onclick="registrarIngreso()">✅ Registrar Ingreso</button>
-        <button class="btn btn-secondary" onclick="limpiarCamposIngreso()">🧽 Limpiar</button>
-      </div>
-      <div id="alerta-ingreso" class="alerta"></div>
-      <div id="ultimos-ingresos" class="card" style="margin:14px 0 0 0;display:none">
-        <h2>Últimos 10 ingresos del DNI</h2>
-        <div class="muted">Estado basado en 24 h de vigencia.</div>
-        <div class="table-wrap">
-          <table id="tabla-ultimos"><thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Nombre</th><th>Estado</th></tr></thead><tbody></tbody></table>
+  <!-- INGRESO -->
+  <section id="sec-ingreso" class="card">
+    <h2>Ingreso</h2>
+    <div class="form-row">
+      <label>Tipo de ingreso
+        <div class="row" style="padding:6px 2px">
+          <label style="display:inline-flex;align-items:center;gap:6px"><input type="radio" name="tipo-ingreso" value="invitado" onchange="toggleIngresoFields()" checked> Invitado</label>
+          <label style="display:inline-flex;align-items:center;gap:6px"><input type="radio" name="tipo-ingreso" value="socio" onchange="toggleIngresoFields()"> Socio</label>
         </div>
+      </label>
+    </div>
+
+    <div class="form-row">
+      <label id="wrap-dni-ingreso">Nº Documento (DNI)
+        <input type="text" id="dni-ingreso" placeholder="Ej: 30123456" maxlength="12"
+               oninput="this.value=this.value.replace(/\\D/g,'');onIdentificadorChange()"
+               onkeydown="if(event.key==='Enter')buscarInvitado()">
+      </label>
+      <label id="wrap-socio-ingreso" style="display:none">N° de socio
+        <input type="text" id="nroSocio-ingreso" placeholder="Ej: S-12345" maxlength="20"
+               oninput="onIdentificadorChange()"
+               onkeydown="if(event.key==='Enter')buscarInvitado()">
+      </label>
+    </div>
+
+    <div class="row"><div id="estado-chip" class="chip state-ok">—</div></div>
+
+    <div class="form-row">
+      <label>Nombre
+        <input type="text" id="nombre-ingreso" placeholder="Apellido, Nombre" onkeydown="if(event.key==='Enter')registrarIngreso()">
+        <span class="sub" id="nombre-autocomplete-hint"></span>
+      </label>
+    </div>
+
+    <!-- Cámara y foto (OBLIGATORIA) -->
+    <div class="card" style="margin-top:12px">
+      <h3>Foto (obligatoria)</h3>
+      <div class="row">
+        <button class="btn" id="btn-cam-start" type="button" onclick="iniciarCamara()">🎥 Iniciar cámara</button>
+        <button class="btn" id="btn-cam-shot" type="button" onclick="tomarFoto()" style="display:none">📸 Tomar foto</button>
+        <button class="btn btn-danger" id="btn-cam-stop" type="button" onclick="detenerCamara()" style="display:none">✖ Detener cámara</button>
+        <button class="btn btn-danger" id="btn-borrar-foto" onclick="borrarFoto()" style="display:none">🗑️ Borrar foto</button>
       </div>
+      <div id="cam-wrap">
+        <video id="cam-video" autoplay playsinline></video>
+        <canvas id="cam-canvas" width="320" height="320"></canvas>
+      </div>
+      <div id="foto-preview-wrap" style="display:none;margin-top:8px">
+        <img id="foto-preview" alt="Foto" style="width:260px;height:260px;border-radius:10px;border:3px solid var(--dorado);object-fit:cover;background:#000"/>
+        <div class="sub" id="foto-preview-dni">ID: --</div>
+        <div class="sub" id="foto-aviso" style="color:#f3d28a">La foto es obligatoria para registrar.</div>
+      </div>
+    </div>
+
+    <div class="row" style="gap:8px;margin-top:8px">
+      <button class="btn" onclick="buscarInvitado()">Buscar / Estado</button>
+      <button class="btn" onclick="registrarIngreso()">Registrar ingreso</button>
+    </div>
+    <div id="alerta-ingreso" class="alerta" role="alert"></div>
+  </section>
+
+  <!-- CONSULTA -->
+  <section id="sec-consulta" class="card" style="display:none">
+    <h2>Consulta</h2>
+    <div class="form-row">
+      <label>Identificador (DNI o N° socio) — <span class="sub">opcional</span>
+        <input type="text" id="consulta-id" onkeydown="if(event.key==='Enter')consulta()">
+      </label>
+      <label>Tipo
+        <select id="consulta-tipo" onkeydown="if(event.key==='Enter')consulta()">
+          <option value="ambos" selected>Ambos</option>
+          <option value="invitado">Invitado</option>
+          <option value="socio">Socio</option>
+        </select>
+      </label>
+    </div>
+    <div class="form-row">
+      <label>Desde
+        <input type="date" id="consulta-desde" onkeydown="if(event.key==='Enter')consulta()">
+      </label>
+      <label>Hasta
+        <input type="date" id="consulta-hasta" onkeydown="if(event.key==='Enter')consulta()">
+      </label>
+    </div>
+    <div class="row" style="gap:8px;margin-top:8px">
+      <button class="btn" onclick="consulta()">Buscar</button>
+      <button class="btn btn-ghost" onclick="syncManual()">🔁 Sincronizar</button>
+      <button class="btn btn-warn" onclick="limpiarConsulta()">Limpiar</button>
+    </div>
+    <div id="consulta-res" class="alerta" role="alert"></div>
+    <div id="consulta-tabla-wrap" style="margin-top:8px;display:none">
+      <table id="consulta-tabla">
+        <thead>
+        <tr><th>Foto</th><th>Inv/Soc</th><th>DNI / N° socio</th><th>Fecha</th><th>Acción</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
   </section>
 
-  <section id="sec-apercibamiento" class="seccion">
-    <div class="card">
-      <h2>⚠️ Registrar Apercibamiento</h2>
-      <div class="rowf">
-        <label style="flex:1;min-width:180px">DNI<input id="dni-aperc" type="text" maxlength="12" oninput="this.value=this.value.replace(/\D/g,'')"/></label>
-        <label style="flex:2;min-width:220px">Nombre<input id="nombre-aperc" type="text"/></label>
-      </div>
-      <div class="rowf"><label style="flex:1">Motivo<textarea id="motivo-aperc" rows="3" placeholder="Describa el motivo..."></textarea></label></div>
-      <button class="btn btn-gold" onclick="registrarApercibamiento()">💾 Guardar</button>
-      <div id="alerta-aperc" class="alerta"></div>
+  <!-- ESTADÍSTICAS -->
+  <section id="sec-estadisticas" class="card" style="display:none">
+    <h2>Estadísticas</h2>
+    <div class="form-row">
+      <label>Identificador (opcional)
+        <input type="text" id="stats-id" onkeydown="if(event.key==='Enter')aplicarStats()">
+      </label>
+      <label>Tipo
+        <select id="stats-tipo" onkeydown="if(event.key==='Enter')aplicarStats()">
+          <option value="ambos" selected>Ambos</option>
+          <option value="invitado">Invitado</option>
+          <option value="socio">Socio</option>
+        </select>
+      </label>
     </div>
-    <div class="card">
-      <h2>📋 Apercibamientos</h2>
-      <table id="tabla-aperc"><thead><tr><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Motivo</th><th>Inspector</th><th></th></tr></thead><tbody></tbody></table>
+    <div class="form-row">
+      <label>Desde
+        <input type="date" id="stats-desde" onkeydown="if(event.key==='Enter')aplicarStats()">
+      </label>
+      <label>Hasta
+        <input type="date" id="stats-hasta" onkeydown="if(event.key==='Enter')aplicarStats()">
+      </label>
     </div>
-  </section>
-
-  <section id="sec-suspension" class="seccion">
-    <div class="card">
-      <h2>🚫 Registrar Suspensión</h2>
-      <div class="rowf">
-        <label style="flex:1;min-width:180px">DNI<input id="dni-susp" type="text" maxlength="12" oninput="this.value=this.value.replace(/\D/g,'')"/></label>
-        <label style="flex:2;min-width:220px">Nombre<input id="nombre-susp" type="text"/></label>
-      </div>
-      <div class="rowf">
-        <label>Desde<input id="susp-desde" type="date"/></label>
-        <label>Hasta<input id="susp-hasta" type="date"/></label>
-      </div>
-      <div class="rowf"><label style="flex:1">Motivo<textarea id="motivo-susp" rows="3"></textarea></label></div>
-      <button class="btn btn-danger" onclick="registrarSuspension()">💾 Guardar</button>
-      <div id="alerta-susp" class="alerta"></div>
+    <div class="row" style="gap:8px;margin-top:8px">
+      <button class="btn" onclick="aplicarStats()">Aplicar filtros</button>
     </div>
-    <div class="card">
-      <h2>📋 Suspensiones</h2>
-      <table id="tabla-susp"><thead><tr><th>DNI</th><th>Nombre</th><th>Desde</th><th>Hasta</th><th>Motivo</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table>
+    <div class="sub" id="stats-resumen" style="margin:8px 0"></div>
+    <div class="charts">
+      <div class="chart-card"><h4>Totales por día</h4><canvas id="ch-trend-day" width="500" height="240"></canvas></div>
+      <div class="chart-card"><h4>Totales por semana</h4><canvas id="ch-trend-week" width="500" height="240"></canvas></div>
+      <div class="chart-card"><h4>Totales por mes</h4><canvas id="ch-trend-month" width="500" height="240"></canvas></div>
+      <div class="chart-card"><h4>Distribución diaria por tipo</h4><canvas id="ch-trend-day-type" width="500" height="240"></canvas></div>
     </div>
   </section>
 
-  <section id="sec-consulta" class="seccion">
-    <div class="card">
-      <h2>📋 Consulta por Fechas</h2>
-      <div class="rowf">
-        <label>Desde<input id="consulta-desde" type="date"/></label>
-        <label>Hasta<input id="consulta-hasta" type="date"/></label>
-        <label>DNI (opcional)<input id="consulta-dni" type="text" oninput="this.value=this.value.replace(/\D/g,'')"/></label>
+  <!-- SANCIONES -->
+  <section id="sec-sanciones" class="card" style="display:none">
+    <h2>Sanciones</h2>
+    <div class="card" style="margin-bottom:10px">
+      <h3>Apercibimientos</h3>
+      <div class="form-row">
+        <label>Desde <input type="date" id="aperc-desde"></label>
+        <label>Hasta <input type="date" id="aperc-hasta"></label>
       </div>
-      <button class="btn btn-primary" onclick="consultarIngresos()">🔍 Consultar</button>
-      <div id="resumen-consulta" class="muted" style="margin-top:8px"></div>
-      <table id="tabla-consulta"><thead><tr><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Estado</th></tr></thead><tbody></tbody></table>
-    </div>
-  </section>
-
-  <section id="sec-vencidos" class="seccion">
-    <div class="card">
-      <h2>⏰ Ingresos Vencidos / Por Vencer</h2>
       <div class="row" style="gap:8px">
-        <button class="btn btn-primary" onclick="renderVencidos()">🔄 Actualizar</button>
-        <button class="btn btn-danger" onclick="limpiarVencidos()">🗑️ Eliminar todos los vencidos</button>
+        <button class="btn" onclick="listarApercibimientos()">Buscar</button>
+        <button class="btn btn-warn" onclick="limpiarAperc()">Limpiar</button>
       </div>
-      <table id="tabla-vencidos"><thead><tr><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Transcurrido</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table>
-      <div id="alerta-vencidos" class="alerta"></div>
+      <div id="aperc-res" class="alerta"></div>
+      <div id="aperc-tabla-wrap" style="display:none;margin-top:8px">
+        <table>
+          <thead id="aperc-thead"><tr><th>Foto</th><th>Nombre</th><th>Fecha</th></tr></thead>
+          <tbody id="aperc-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Suspensiones activas</h3>
+      <div id="susp-res" class="alerta"></div>
+      <div id="susp-tabla-wrap" style="display:none;margin-top:8px">
+        <table>
+          <thead id="susp-thead"><tr><th>Foto</th><th>Nombre</th><th>Desde</th><th>Hasta</th></tr></thead>
+          <tbody id="susp-tbody"></tbody>
+        </table>
+      </div>
     </div>
   </section>
 
-  <section id="sec-inspectores" class="seccion">
-    <div class="card">
-      <h2>👮 Inspector de Turno</h2>
-      <div id="insp-activo" class="muted">Sin inspector activo</div>
-      <div class="row" style="gap:8px;margin-top:6px">
-        <button class="btn btn-secondary" onclick="desactivarInspector()">✖ Desactivar</button>
-      </div>
+  <!-- UTILS -->
+  <section id="sec-utils" class="card" style="display:none">
+    <h2>Utils</h2>
+    <div class="row" style="gap:8px;margin-bottom:8px">
+      <button class="btn btn-ghost" onclick="generarRandomDesdeEnero2026()">🎲 Generar datos aleatorios (01/2026 · 100)</button>
+      <button class="btn btn-danger" onclick="borrarRandom()">🧹 Borrar datos aleatorios</button>
     </div>
-    <div class="card">
-      <h2>📋 Inspectores</h2>
-      <table id="tabla-insp"><thead><tr><th>Nombre</th><th>Usuario</th><th>Tel</th><th>Obs</th><th>Acciones</th></tr></thead><tbody></tbody></table>
-    </div>
-  </section>
-
-  <section id="sec-backup" class="seccion">
-    <div class="card"><h2>🛠️ Administrar / Alta de Inspectores</h2>
-      <div class="rowf">
-        <label style="flex:1;min-width:200px">Nombre<input id="insp-nombre" type="text" placeholder="Apellido, Nombre"/></label>
-        <label style="flex:1;min-width:160px">Usuario (obligatorio)<input id="insp-usuario" type="text"/></label>
-        <label style="flex:1;min-width:160px">Contraseña (obligatoria)<input id="insp-pass" type="password"/></label>
-      </div>
-      <div class="rowf">
-        <label style="flex:1;min-width:180px">Teléfono<input id="insp-tel" type="text"/></label>
-        <label style="flex:2;min-width:220px">Observaciones<input id="insp-obs" type="text"/></label>
-      </div>
-      <div class="row" style="gap:8px"><button class="btn btn-gold" onclick="guardarInspector()">💾 Guardar Inspector</button></div>
-      <div id="alerta-insp" class="alerta"></div>
-      <div class="muted" style="margin-top:8px">Los datos se guardan en este dispositivo (LocalStorage).</div>
-    </div>
-  </section>
-
-  <section id="sec-estadisticas" class="seccion">
-    <div class="card">
-      <h2>📊 Estadísticas</h2>
-      <p class="muted">Gráfico por rango de edad estimado a partir del número de DNI (aproximación por rangos históricos y RN 70M desde 09/2023). Fuente: Chart.js por CDN. <a target="_blank" href="https://www.chartjs.org/docs/latest/getting-started/">Doc</a>.</p>
-      <div style="max-width:760px;margin:auto"><canvas id="chart-edad" height="220"></canvas></div>
-      <div id="estad-nota" class="muted" style="margin-top:8px"></div>
-    </div>
+    <div id="utils-alert" class="alerta"></div>
   </section>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js">
-async function urlToDataURL(url){
-  try{
-    const res = await fetch(url, {mode:'cors', cache:'no-store'});
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const blob = await res.blob();
-    return await new Promise((resolve)=>{ const rd=new FileReader(); rd.onload=()=>resolve(rd.result); rd.readAsDataURL(blob); });
-  }catch(e){ return null; }
-}
-function generarPlaceholderB64(){
-  try{
-    const c=document.createElement('canvas'); c.width=320; c.height=320; const ctx=c.getContext('2d');
-    ctx.fillStyle='#0e2210'; ctx.fillRect(0,0,320,320);
-    ctx.fillStyle='#c8a84b'; ctx.font='bold 28px system-ui, Segoe UI, Roboto, Arial';
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('Invitado',160,160);
-    return c.toDataURL('image/png');
-  }catch(e){ return 'data:image/png;base64,'; }
-}
-async function getRandomAvatarB64(){
-  try{
-    const cached = localStorage.getItem(RANDOM_AVATAR_KEY);
-    if(cached) return cached;
-    let b64 = await urlToDataURL(RANDOM_PHOTO_URL); // intenta leer './logo-pejerrey.png' (mismo folder)
-    if(!b64) b64 = generarPlaceholderB64();
-    localStorage.setItem(RANDOM_AVATAR_KEY, b64);
-    return b64;
-  }catch(_){ return generarPlaceholderB64(); }
-}
+<!-- Modal Activar -->
+<div id="activar-modal" class="modal" role="dialog" aria-modal="true">
+  <div id="activar-box" class="modal-box">
+    <h3>Activar sistema</h3>
+    <div class="form-row" style="margin-top:6px">
+      <label>Token de GitHub (scope: gist o repo)
+        <input type="password" id="activar-token" placeholder="ghp_… / github_pat_…" autocomplete="off">
+      </label>
+    </div>
+    <div class="row" style="gap:8px;margin-top:10px">
+      <button class="btn" onclick="guardarYActivar()">Guardar y activar</button>
+      <button class="btn btn-warn" onclick="cerrarActivar()">Cancelar</button>
+    </div>
+    <div class="sub" id="activar-msg"></div>
+  </div>
+</div>
 
-</script>
+<!-- Modales (Apercibir/Suspender/Observación/Imagen) -->
+<div id="mdl-aperc" class="modal" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <h3>Apercibir</h3>
+    <div class="sub" id="aperc-idtxt">ID: —</div>
+    <label style="margin-top:8px">Motivo
+      <textarea id="aperc-motivo" rows="3" placeholder="Motivo del apercibimiento..."></textarea>
+    </label>
+    <div class="row" style="gap:8px;margin-top:10px">
+      <button class="btn" onclick="guardarAperc()">Guardar</button>
+      <button class="btn btn-warn" onclick="closeAperc()">Cancelar</button>
+    </div>
+    <div class="sub" id="aperc-msg"></div>
+  </div>
+</div>
+
+<div id="mdl-susp" class="modal" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <h3>Suspender</h3>
+    <div class="sub" id="susp-idtxt">ID: —</div>
+    <div class="form-row" style="margin-top:6px">
+      <label>Desde <input type="date" id="susp-desde"></label>
+      <label>Hasta <input type="date" id="susp-hasta"></label>
+    </div>
+    <label>Motivo
+      <textarea id="susp-motivo" rows="3" placeholder="Motivo de la suspensión..."></textarea>
+    </label>
+    <div class="row" style="gap:8px;margin-top:10px">
+      <button class="btn" onclick="guardarSusp()">Guardar</button>
+      <button class="btn btn-warn" onclick="closeSusp()">Cancelar</button>
+    </div>
+    <div class="sub" id="susp-msg"></div>
+  </div>
+</div>
+
+<div id="mdl-observ" class="modal" role="dialog" aria-modal="true" style="display:none">
+  <div class="modal-box">
+    <h3>Observación</h3>
+    <div id="observ-head" class="sub">—</div>
+    <div style="margin-top:10px; white-space:pre-wrap" id="observ-text">—</div>
+    <div class="row" style="gap:8px;margin-top:12px">
+      <button class="btn" onclick="cerrarObserv()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div id="img-modal" onclick="cerrarImgModal()">
+  <div id="img-modal-box">
+    <img id="img-modal-img" alt="Foto"/>
+    <div id="img-modal-cap" class="sub"></div>
+    <!-- Opción A: estado debajo de la foto -->
+    <div id="img-modal-status" class="sub" style="margin-top:6px"></div>
+  </div>
+</div>
+
 <script>
-// =========================
-//  CONFIG / CONSTANTES
-// =========================
-const KEYS={ingresos:'pcq_ingresos',apercibimientos:'pcq_apercibimientos',suspensiones:'pcq_suspensiones',inspectores:'pcq_inspectores',inspActivo:'pcq_inspector_activo'};
-const HS_VIGENCIA=24, MIN_POR_VENCER=60; // 24h vigencia
-let offsetMs=0; // FIX: siempre hora local
+/* ======= CONFIG / KEYS ======= */
+const KEYS={
+  ingresos:'app_ingresos',
+  fotos:'app_fotos',
+  token:'app_token',
+  gistId:'app_gist_id',
+  lastSync:'app_lastsync',
+  dirty:'app_dirty',
+  sanciones:'app_sanciones',
+  rndIds:'app_rnd_ids'
+};
+const BACKUP={ modeKey:'app_backup_mode', repoOwnerKey:'app_repo_owner', repoNameKey:'app_repo_name' };
+const GIST_DESC='Pejerrey Club — Backup (auto)';
+const ACTIVATED_KEY = 'app_activated';
+/* Logo del club como imagen para aleatorios */
+const CLUB_LOGO_URL = './logo-pejerrey.png'; // ⬅️ colocá tu logo aquí (mismo folder del HTML)
+const RANDOM_PHOTO_URL = CLUB_LOGO_URL;
+let nubeActiva=false, _camStream=null, _syncTimer=null;
+let _apercPersonaId='', _apercNombre='';
+let _suspPersonaId='', _suspNombre='';
 
-// =========================
-//  UTILIDADES HORA
-// =========================
-function ahoraReal(){return new Date(Date.now()+offsetMs)}
-function pad(n){return String(n).padStart(2,'0')}
-function formatFecha(dt){return `${pad(dt.getDate())}/${pad(dt.getMonth()+1)}/${dt.getFullYear()}`}
-function formatHora(dt){return `${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(dt.getSeconds())}`}
-function isoFecha(dt){return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`}
-function parseFechaHora(f,h){const [d,m,y]=f.split('/');return new Date(`${y}-${m}-${d}T${h}`)}
-function tiempoTranscurrido(ms){const h=Math.floor(ms/3600000),min=Math.floor((ms%3600000)/60000);return h>=24?`${Math.floor(h/24)}d ${h%24}h ${min}m`:`${h}h ${min}m`}
-
-// =========================
-//  LOCAL STORAGE
-// =========================
-function cargarDatos(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return []}}
-function guardarDatos(k,v){localStorage.setItem(k,JSON.stringify(v))}
-function cargarItem(k){return localStorage.getItem(k)}
-function guardarItem(k,v){localStorage.setItem(k,v)}
-
-// =========================
-//  UI BASICA
-// =========================
-function setSyncBadge(e,t){const b=document.getElementById('sync-badge');if(b)b.className='badge sync-'+(e||'ok');const s=document.getElementById('sync-txt');if(s)s.textContent=t||'Local'}
-function tickReloj(){const now=ahoraReal();document.getElementById('reloj-header').textContent=`${formatFecha(now)} ${formatHora(now)}`;document.getElementById('reloj-grande').textContent=formatHora(now);document.getElementById('fecha-grande').textContent=formatFecha(now)}
-setInterval(tickReloj,1000);tickReloj();
-
-function navClick(id,btn){_navegarSeccion(id,btn)}
-function _navegarSeccion(id,btn){document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('activa'));document.getElementById('sec-'+id).classList.add('activa');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('activo'));if(btn)btn.classList.add('activo');if(id==='estadisticas')renderEstadisticas();if(id==='vencidos')renderVencidos();if(id==='inspectores')renderInspectoresUI()}
-
-// =========================
-//  INSPECTORES
-// =========================
-function getInspectorActivo(){const id=cargarItem(KEYS.inspActivo);if(!id)return null;return cargarDatos(KEYS.inspectores).find(i=>String(i.id)===String(id))||null}
-function actualizarHeaderInspector(){const i=getInspectorActivo();const el=document.getElementById('header-inspector');if(i)el.textContent=`👮 ${i.nombre}`;else el.textContent='🔒 Sin inspector activo'}
-function guardarInspector(){const nombre=document.getElementById('insp-nombre').value.trim();const usuario=document.getElementById('insp-usuario').value.trim();const pass=document.getElementById('insp-pass').value.trim();const tel=document.getElementById('insp-tel').value.trim();const obs=document.getElementById('insp-obs').value.trim();if(!nombre){return mostrarAlerta('alerta-insp','error','Ingresá el nombre.')}if(!usuario){return mostrarAlerta('alerta-insp','error','Ingresá el usuario (obligatorio).')}if(!pass){return mostrarAlerta('alerta-insp','error','Ingresá la contraseña (obligatoria).')}const lista=cargarDatos(KEYS.inspectores);if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase())){return mostrarAlerta('alerta-insp','error','Ya existe un inspector con ese nombre.')}lista.push({id:Date.now(),nombre,usuario,password:pass,tel,obs});guardarDatos(KEYS.inspectores,lista);['insp-nombre','insp-usuario','insp-pass','insp-tel','insp-obs'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderInspectoresUI();mostrarAlerta('alerta-insp','ok','✅ Inspector registrado.')}
-function renderInspectoresUI(){const tbody=document.querySelector('#tabla-insp tbody');if(!tbody)return;tbody.innerHTML='';const lista=cargarDatos(KEYS.inspectores);if(!lista.length){tbody.innerHTML='<tr><td colspan="5" class="muted">No hay inspectores</td></tr>';return}lista.forEach(insp=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${insp.nombre}</td><td>${insp.usuario||'—'}</td><td>${insp.tel||'—'}</td><td>${insp.obs||'—'}</td><td><button class="btn btn-gold" onclick="activarInspector(${insp.id})">⚡ Activar</button> <button class="btn btn-danger" onclick="eliminarInspector(${insp.id})">🗑️</button></td>`;tbody.appendChild(tr)});const act=getInspectorActivo();document.getElementById('insp-activo').textContent=act?`Activo: ${act.nombre}`:'Sin inspector activo';actualizarHeaderInspector()}
-function activarInspector(id){guardarItem(KEYS.inspActivo,String(id));renderInspectoresUI();mostrarAlerta('alerta-insp','ok','✅ Inspector activado.');}
-function desactivarInspector(){localStorage.removeItem(KEYS.inspActivo);renderInspectoresUI();mostrarAlerta('alerta-insp','warn','Inspector desactivado.');}
-function eliminarInspector(id){const lista=cargarDatos(KEYS.inspectores).filter(i=>i.id!==id);if(String(cargarItem(KEYS.inspActivo))===String(id)){localStorage.removeItem(KEYS.inspActivo)}guardarDatos(KEYS.inspectores,lista);renderInspectoresUI()}
-
-// =========================
-//  ALERTAS
-// =========================
-function mostrarAlerta(id,tipo,msg){const el=document.getElementById(id);if(!el)return;el.className='alerta show alerta-'+(tipo==='ok'?'ok':tipo);el.innerHTML=msg;clearTimeout(el._t);el._t=setTimeout(()=>{el.className='alerta'},6000)}
-
-// =========================
-//  INGRESOS / APERC / SUSP
-// =========================
-function estadoIngreso(ing){const ms=ahoraReal().getTime()-parseFechaHora(ing.fecha,ing.hora).getTime();const lim=HS_VIGENCIA*3600000,prev=lim-MIN_POR_VENCER*60000;if(ms>=lim)return{texto:'⏰ Vencido',clase:'vencido'};if(ms>=prev)return{texto:'⏳ Por vencer',clase:'por-vencer'};return{texto:'✅ Vigente',clase:'vigente'}}
-function registrarIngreso(){const dni=document.getElementById('dni-ingreso').value.trim();const nombre=document.getElementById('nombre-ingreso').value.trim();if(!dni){return mostrarAlerta('alerta-ingreso','error','Ingresá el DNI.')}const now=ahoraReal();const lista=cargarDatos(KEYS.ingresos);lista.push({dni,nombre,fecha:formatFecha(now),hora:formatHora(now),isoFecha:isoFecha(now)});guardarDatos(KEYS.ingresos,lista);document.getElementById('nombre-ingreso').value='';mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado – DNI ${dni}`);cargarUltimos(dni)}
-function limpiarCamposIngreso(){['dni-ingreso','nombre-ingreso'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''})}
-function cargarUltimos(dni){const wrap=document.getElementById('ultimos-ingresos');const tbody=document.querySelector('#tabla-ultimos tbody');wrap.style.display='block';tbody.innerHTML='';const mis=cargarDatos(KEYS.ingresos).filter(i=>i.dni===dni).slice(-10).reverse();if(!mis.length){tbody.innerHTML='<tr><td colspan="5" class="muted">Sin ingresos previos</td></tr>';return}mis.forEach((i,n)=>{const est=estadoIngreso(i);const tr=document.createElement('tr');tr.innerHTML=`<td>${n+1}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${i.nombre||'—'}</td><td>${est.texto}</td>`;tbody.appendChild(tr)})}
-
-function registrarApercibamiento(){const dni=document.getElementById('dni-aperc').value.trim();const nombre=document.getElementById('nombre-aperc').value.trim();const motivo=document.getElementById('motivo-aperc').value.trim();if(!dni||!motivo){return mostrarAlerta('alerta-aperc','error','Completá DNI y motivo.')}const now=ahoraReal();const lista=cargarDatos(KEYS.apercibimientos);const insp=getInspectorActivo();lista.push({id:Date.now(),dni,nombre,motivo,fecha:formatFecha(now),hora:formatHora(now),inspector:insp?insp.nombre:null});guardarDatos(KEYS.apercibimientos,lista);['dni-aperc','nombre-aperc','motivo-aperc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderTablaAperc();mostrarAlerta('alerta-aperc','ok','⚠️ Apercibamiento registrado.')}
-function renderTablaAperc(){const tbody=document.querySelector('#tabla-aperc tbody');if(!tbody)return;tbody.innerHTML='';const lista=cargarDatos(KEYS.apercibimientos).slice().reverse();if(!lista.length){tbody.innerHTML='<tr><td colspan="6" class="muted">Sin registros</td></tr>';return}lista.forEach(a=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${a.dni}</td><td>${a.nombre||'—'}</td><td>${a.fecha} ${a.hora}</td><td>${a.motivo}</td><td>${a.inspector||'—'}</td><td><button class="btn btn-danger" onclick="eliminarAperc(${a.id})">🗑️</button></td>`;tbody.appendChild(tr)})}
-function eliminarAperc(id){guardarDatos(KEYS.apercibimientos,cargarDatos(KEYS.apercibimientos).filter(a=>a.id!==id));renderTablaAperc()}
-
-function registrarSuspension(){const dni=document.getElementById('dni-susp').value.trim();const nombre=document.getElementById('nombre-susp').value.trim();const desde=document.getElementById('susp-desde').value;const hasta=document.getElementById('susp-hasta').value;const motivo=document.getElementById('motivo-susp').value.trim();if(!dni||!desde||!hasta||!motivo){return mostrarAlerta('alerta-susp','error','Completá todos los campos.')}if(hasta<desde){return mostrarAlerta('alerta-susp','error','"Hasta" debe ser ≥ "Desde".')}const lista=cargarDatos(KEYS.suspensiones);lista.push({id:Date.now(),dni,nombre,desde,hasta,motivo});guardarDatos(KEYS.suspensiones,lista);['dni-susp','nombre-susp','susp-desde','susp-hasta','motivo-susp'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''}) ;renderTablaSusp();mostrarAlerta('alerta-susp','ok','🚫 Suspensión registrada.')}
-function renderTablaSusp(){const tbody=document.querySelector('#tabla-susp tbody');if(!tbody)return;tbody.innerHTML='';const lista=cargarDatos(KEYS.suspensiones).slice().reverse();if(!lista.length){tbody.innerHTML='<tr><td colspan="7" class="muted">Sin registros</td></tr>';return}const hoy=isoFecha(ahoraReal());lista.forEach(s=>{const act=hoy>=s.desde&&hoy<=s.hasta;const tr=document.createElement('tr');tr.innerHTML=`<td>${s.dni}</td><td>${s.nombre||'—'}</td><td>${s.desde}</td><td>${s.hasta}</td><td>${s.motivo}</td><td>${act?'🚫 ACTIVA':'✔️ Vencida'}</td><td><button class="btn btn-danger" onclick="eliminarSusp(${s.id})">🗑️</button></td>`;tbody.appendChild(tr)})}
-function eliminarSusp(id){guardarDatos(KEYS.suspensiones,cargarDatos(KEYS.suspensiones).filter(s=>s.id!==id));renderTablaSusp()}
-
-// =========================
-//  VENCIDOS
-// =========================
-function renderVencidos(){const tbody=document.querySelector('#tabla-vencidos tbody');tbody.innerHTML='';const now=ahoraReal();const lim=HS_VIGENCIA*3600000,prev=lim-MIN_POR_VENCER*60000;const ing=cargarDatos(KEYS.ingresos).slice().sort((a,b)=>parseFechaHora(a.fecha,a.hora)-parseFechaHora(b.fecha,b.hora));const pv=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);return ms>=prev&&ms<lim});const ven=ing.filter(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);return ms>=lim});const todos=[...pv,...ven];if(!todos.length){tbody.innerHTML='<tr><td colspan="7" class="muted">No hay ingresos por vencer/vencidos</td></tr>';return}todos.forEach(i=>{const ms=now-parseFechaHora(i.fecha,i.hora);let est='';if(ms>=lim)est='⏰ Vencido';else if(ms>=prev)est='⏳ Por vencer';else est='✅ Vigente';const tr=document.createElement('tr');tr.innerHTML=`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${tiempoTranscurrido(ms)}</td><td>${est}</td><td><button class="btn btn-danger" onclick="darBajaIngreso('${i.dni}','${i.fecha}','${i.hora}')">🗑️</button></td>`;tbody.appendChild(tr)})}
-function darBajaIngreso(dni,fecha,hora){guardarDatos(KEYS.ingresos,cargarDatos(KEYS.ingresos).filter(i=>!(i.dni===dni&&i.fecha===fecha&&i.hora===hora)));renderVencidos()}
-function limpiarVencidos(){const now=ahoraReal(),lim=HS_VIGENCIA*3600000;const ing=cargarDatos(KEYS.ingresos);const vig=ing.filter(i=>now-parseFechaHora(i.fecha,i.hora)<lim);guardarDatos(KEYS.ingresos,vig);renderVencidos();mostrarAlerta('alerta-vencidos','ok','✅ Vencidos eliminados.')} 
-
-// =========================
-//  CONSULTA
-// =========================
-(function setFechasConsultaHoy(){const hoy=isoFecha(ahoraReal());const d=document.getElementById('consulta-desde');const h=document.getElementById('consulta-hasta');if(d&&!d.value)d.value=hoy;if(h&&!h.value)h.value=hoy})();
-function consultarIngresos(){const desde=document.getElementById('consulta-desde').value;const hasta=document.getElementById('consulta-hasta').value;const dni=document.getElementById('consulta-dni').value.trim();const tbody=document.querySelector('#tabla-consulta tbody');if(!desde||!hasta){document.getElementById('resumen-consulta').textContent='Seleccioná ambas fechas.';tbody.innerHTML='';return}if(hasta<desde){document.getElementById('resumen-consulta').textContent='La fecha "hasta" debe ser ≥ "desde".';tbody.innerHTML='';return}let res=cargarDatos(KEYS.ingresos).filter(i=>i.isoFecha>=desde&&i.isoFecha<=hasta);if(dni)res=res.filter(i=>i.dni===dni);res.sort((a,b)=> (a.isoFecha+a.hora)>(b.isoFecha+b.hora)?-1:1);document.getElementById('resumen-consulta').textContent=`Resultados: ${res.length}`;tbody.innerHTML='';if(!res.length){tbody.innerHTML='<tr><td colspan="5" class="muted">Sin resultados</td></tr>';return}res.forEach(i=>{const est=estadoIngreso(i);const tr=document.createElement('tr');tr.innerHTML=`<td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${est.texto}</td>`;tbody.appendChild(tr)})}
-
-// =========================
-//  ESTADÍSTICAS (Chart.js por CDN)
-//  Doc oficial: https://www.chartjs.org/docs/latest/getting-started/  
-//  CDN jsDelivr: https://cdn.jsdelivr.net/npm/chart.js  
-// =========================
-let _chartEdad=null;
-function _edadAproxDesdeDNI(dni){const n=Number(String(dni).replace(/\D/g,''));if(!n||isNaN(n))return 0; if(n>=70000000)return 5; if(n>=50000000&&n<60000000)return 16; if(n>=40000000&&n<50000000)return 25; if(n>=30000000&&n<40000000)return 35; if(n>=20000000&&n<30000000)return 45; if(n>=10000000&&n<20000000)return 60; return 90}
-function _bucketEdad(a){if(a<18)return '<18';if(a<30)return '18–29';if(a<45)return '30–44';if(a<60)return '45–59';return '60+'}
-function calcularDistribucionEdad(){const res={'<18':0,'18–29':0,'30–44':0,'45–59':0,'60+':0};const unicos=new Set();cargarDatos(KEYS.ingresos).forEach(i=>{if(i&&i.dni)unicos.add(String(i.dni))});unicos.forEach(d=>{res[_bucketEdad(_edadAproxDesdeDNI(d))]++});return{res,total:unicos.size}}
-function renderEstadisticas(){const {res,total}=calcularDistribucionEdad();const ctx=document.getElementById('chart-edad').getContext('2d');if(_chartEdad){_chartEdad.destroy()}_chartEdad=new Chart(ctx,{type:'bar',data:{labels:Object.keys(res),datasets:[{label:'Personas (DNIs únicos)',data:Object.keys(res).map(k=>res[k]),backgroundColor:'#2d6e2d'}]},options:{plugins:{legend:{display:false},title:{display:true,text:'Distribución por rango de edad (aprox.)'}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});document.getElementById('estad-nota').textContent='Estimación por rango de DNI (numeración secuencial + RN 70M desde 09/2023).'}
-
-// =========================
-//  INIT
-// =========================
-(function init(){
-  // Hora SIEMPRE local (no dependemos de internet)
-  offsetMs=0; setSyncBadge('ok','Local'); actualizarHeaderInspector(); renderInspectoresUI(); // arranque básico
-})();
-
+/* ==== Helpers para logo/placeholder (descarga 1 vez y cachea en localStorage) ==== */
+const RANDOM_AVATAR_KEY = 'app_random_avatar_b64';
 async function urlToDataURL(url){
   try{
     const res = await fetch(url, {mode:'cors', cache:'no-store'});
@@ -353,7 +371,7 @@ function generarPlaceholderB64(){
     ctx.fillStyle='#0e2210'; ctx.fillRect(0,0,320,320);
     ctx.fillStyle='#c8a84b'; ctx.font='bold 28px system-ui, Segoe UI, Roboto, Arial';
     ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('Invitado',160,160);
+    ctx.fillText('Pejerrey Club',160,160);
     return c.toDataURL('image/png');
   }catch(e){ return 'data:image/png;base64,'; }
 }
@@ -361,13 +379,604 @@ async function getRandomAvatarB64(){
   try{
     const cached = localStorage.getItem(RANDOM_AVATAR_KEY);
     if(cached) return cached;
-    let b64 = await urlToDataURL(RANDOM_PHOTO_URL); // intenta leer './logo-pejerrey.png' (mismo folder)
+    let b64 = await urlToDataURL(RANDOM_PHOTO_URL); // intenta leer './logo-pejerrey.png'
     if(!b64) b64 = generarPlaceholderB64();
     localStorage.setItem(RANDOM_AVATAR_KEY, b64);
     return b64;
   }catch(_){ return generarPlaceholderB64(); }
 }
 
+/* ======= UTIL ======= */
+const load=(k,def)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):def;}catch{return def}};
+const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const getToken=()=> (localStorage.getItem(KEYS.token) || '');
+const setToken=t=> { localStorage.setItem(KEYS.token, (t || '')); };
+const getGistId=()=> (localStorage.getItem(KEYS.gistId) || '');
+const setGistId=id=> { localStorage.setItem(KEYS.gistId, (id || '')); };
+const getBackupMode=()=> (localStorage.getItem(BACKUP.modeKey) || 'gist');
+const setBackupMode=m=> { localStorage.setItem(BACKUP.modeKey, (m || 'gist')); };
+const online=()=> (typeof navigator!=='undefined' && 'onLine' in navigator) ? navigator.onLine : true;
+const now=()=>new Date();
+const dos=n=>n<10?('0'+n):(''+n);
+const fDate=d=>[dos(d.getDate()),dos(d.getMonth()+1),d.getFullYear()].join('/');
+const fTime=d=>[dos(d.getHours()),dos(d.getMinutes()),dos(d.getSeconds())].join(':');
+const iso=d=>d.toISOString().slice(0,10);
+const hoyISO=()=>iso(now());
+const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&','<':'<','>':'>','"':'"'}[c]));
+const isActivated = () => localStorage.getItem(ACTIVATED_KEY) === '1';
+const setActivated = (v) => localStorage.setItem(ACTIVATED_KEY, v ? '1' : '0');
+function setSyncBadge(state,text){ const el=document.getElementById('sync-badge'); if(!el) return; el.textContent=text; el.className='chip '+(state||''); }
+
+/* ======= RELOJ / NAV ======= */
+function tick(){ const el=document.getElementById('reloj'); if(el) el.textContent=fTime(now())+' — '+fDate(now()); }
+function navClick(id,btn){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');
+  document.querySelectorAll('main > section').forEach(s=>s.style.display='none');
+  document.getElementById('sec-'+id).style.display='block';
+  if(id==='ingreso') toggleIngresoFields();
+  if(id==='sanciones') refrescarSanciones();
+}
+
+/* ======= CÁMARA ======= */
+async function iniciarCamara(){
+  try{
+    if(!_camStream){ _camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false}); }
+    const v=document.getElementById('cam-video'); v.srcObject=_camStream; v.play();
+    document.getElementById('cam-wrap').style.display='block';
+    document.getElementById('btn-cam-start').style.display='none';
+    document.getElementById('btn-cam-shot').style.display='inline-flex';
+    document.getElementById('btn-cam-stop').style.display='inline-flex';
+  }catch(e){ alert('No se pudo acceder a la cámara'); }
+}
+function tomarFoto(){
+  const v=document.getElementById('cam-video');
+  const c=document.getElementById('cam-canvas'), ctx=c.getContext('2d');
+  const vw=v.videoWidth, vh=v.videoHeight; if(!vw || !vh) return;
+  const size=Math.min(vw,vh), sx=Math.floor((vw-size)/2), sy=Math.floor((vh-size)/2);
+  c.width=320; c.height=320;
+  ctx.drawImage(v,sx,sy,size,size,0,0,320,320);
+  const data=c.toDataURL('image/jpeg',0.9);
+  _guardarFoto(data); detenerCamara(); focusIdInput();
+}
+function _guardarFoto(b64){
+  const id=getIdIngreso();
+  const prev=document.getElementById('foto-preview');
+  const wrap=document.getElementById('foto-preview-wrap');
+  prev.src=b64; wrap.style.display='block';
+  document.getElementById('btn-borrar-foto').style.display='inline-flex';
+  if(id){ const m=getFotosMap(); m[id]=b64; setFotosMap(m); document.getElementById('foto-preview-dni').textContent='ID: '+id+' ✅'; }
+}
+function borrarFoto(){
+  const id=getIdIngreso();
+  if(id){ const m=getFotosMap(); delete m[id]; setFotosMap(m); }
+  document.getElementById('foto-preview').src='';
+  document.getElementById('foto-preview-wrap').style.display='none';
+  document.getElementById('btn-borrar-foto').style.display='none';
+  document.getElementById('foto-preview-dni').textContent='ID: --';
+  focusIdInput();
+}
+function detenerCamara(){
+  try{ if(_camStream){ _camStream.getTracks().forEach(t=>t.stop()); _camStream=null; } }catch(e){}
+  const v=document.getElementById('cam-video'); if(v) v.srcObject=null;
+  document.getElementById('cam-wrap').style.display='none';
+  document.getElementById('btn-cam-start').style.display='inline-flex';
+  document.getElementById('btn-cam-shot').style.display='none';
+  document.getElementById('btn-cam-stop').style.display='none';
+}
+
+/* ======= ESTADO / SANCIONES ======= */
+function suspActivaPara(id){
+  if(!id) return null;
+  const hoy=hoyISO();
+  return getSanciones().find(s=> s.tipo==='suspension' && s.personaId===id && s.activo!==false &&
+    (s.desdeISO||'0001-01-01')<=hoy && hoy<= (s.hastaISO||'9999-12-31'));
+}
+function ultimoApercPara(id){
+  if(!id) return null;
+  const lista=getSanciones().filter(s=> s.tipo==='apercibimiento' && s.personaId===id);
+  if(!lista.length) return null;
+  lista.sort((a,b)=> (b.fechaISO||'').localeCompare(a.fechaISO||'')); return lista[0];
+}
+function setEstadoChip(tipo, texto){
+  const ch=document.getElementById('estado-chip'); if(!ch) return;
+  ch.style.display='inline-flex'; ch.className='chip ';
+  if(tipo==='block'){ ch.classList.add('state-block'); ch.textContent='🚫 '+texto; }
+  else if(tipo==='warn'){ ch.classList.add('state-warn'); ch.textContent='⚠️ '+texto; }
+  else if(tipo==='ok'){ ch.classList.add('state-ok'); ch.textContent='✅ '+texto; }
+  else { ch.style.display='none'; }
+}
+function updateEstadoChip(){
+  const id=getIdIngreso(); if(!id){ setEstadoChip(null,''); return; }
+  const s=suspActivaPara(id);
+  if(s){ setEstadoChip('block', `Suspendido hasta ${s.hastaISO}. Motivo: ${s.motivo||'—'}`); return; }
+  const a=ultimoApercPara(id);
+  if(a){ setEstadoChip('warn', `Apercibido (último: ${a.fechaISO||'—'}). Motivo: ${a.motivo||'—'}`); return; }
+  setEstadoChip('ok','Sin sanciones');
+}
+
+/* ======= INGRESO ======= */
+function toggleIngresoFields(){ const t=getTipo(); document.getElementById('wrap-dni-ingreso').style.display=(t==='invitado')?'':'none'; document.getElementById('wrap-socio-ingreso').style.display=(t==='socio')?'':'none'; onIdentificadorChange(); }
+const getTipo=()=> (document.querySelector('input[name="tipo-ingreso"]:checked')?.value)||'invitado';
+const getIdIngreso=()=> getTipo()==='socio' ? (document.getElementById('nroSocio-ingreso')?.value||'').trim() : (document.getElementById('dni-ingreso')?.value||'').trim();
+function focusIdInput(){ const el=(getTipo()==='socio')?document.getElementById('nroSocio-ingreso'):document.getElementById('dni-ingreso'); el?.focus(); el?.select?.(); }
+function onIdentificadorChange(){
+  const id=getIdIngreso(); const hint=document.getElementById('nombre-autocomplete-hint'); const nombre=document.getElementById('nombre-ingreso');
+  if(!id){ hint.textContent=''; nombre.value=''; setEstadoChip(null,''); return; }
+  const lista=getIngresos(); const u=lista.filter(x=>x.dni===id).slice(-1)[0];
+  if(u&&u.nombre){ nombre.value=u.nombre; hint.textContent='Autocompletado por historial'; } else hint.textContent='';
+  const foto=getFoto(id), prev=document.getElementById('foto-preview'), wrap=document.getElementById('foto-preview-wrap');
+  if(foto){ prev.src=foto; wrap.style.display='block'; document.getElementById('btn-borrar-foto').style.display='inline-flex'; document.getElementById('foto-preview-dni').textContent='ID: '+id+' ✅'; }
+  else { if(document.getElementById('cam-wrap').style.display==='none'){ wrap.style.display='none'; document.getElementById('btn-borrar-foto').style.display='none'; } document.getElementById('foto-preview-dni').textContent='ID: '+id; }
+  updateEstadoChip();
+}
+function mostrarAlerta(id,tipo,msg){ const el=document.getElementById(id); el.className='alerta'; if(tipo==='ok') el.classList.add('ok'); else if(tipo==='warn') el.classList.add('warn'); else el.classList.add('error'); el.innerHTML=msg||''; }
+function buscarInvitado(){
+  const id=getIdIngreso(); if(!id){ mostrarAlerta('alerta-ingreso','error','Ingresá un identificador.'); return; }
+  updateEstadoChip();
+  const lista=getIngresos(); const u=lista.filter(x=>x.dni===id).slice(-1)[0];
+  if(u&&u.nombre) document.getElementById('nombre-ingreso').value=u.nombre;
+  const foto=getFoto(id);
+  if(foto){
+    const prev=document.getElementById('foto-preview'); prev.src=foto;
+    document.getElementById('foto-preview-wrap').style.display='block';
+    document.getElementById('btn-borrar-foto').style.display='inline-flex';
+    document.getElementById('foto-preview-dni').textContent='ID: '+id+' ✅';
+  }
+  mostrarAlerta('alerta-ingreso','ok',`✅ Estado de <strong>${esc(id)}</strong> consultado.`);
+}
+function abrirImg(el){
+  const src = el?.src || '';
+  const id = el?.dataset?.id || '';
+  const nombre = el?.dataset?.nombre || '';
+  const cap = (nombre ? (nombre+' — ') : '') + (id || '');
+  const m = document.getElementById('img-modal');
+  const img = document.getElementById('img-modal-img');
+  const c = document.getElementById('img-modal-cap');
+  const sEl = document.getElementById('img-modal-status');
+  if(img) img.src = src; if(c) c.textContent = cap;
+  // Estado detallado (Opción A)
+  let estadoTxt = 'Estado: —'; let tipo = null;
+  try{
+    const susp = suspActivaPara(id);
+    if(susp){
+      estadoTxt = `Estado: Suspendido hasta ${susp.hastaISO}. Motivo: ${susp.motivo || '—'}`;
+      tipo = 'block';
+    }else{
+      const a = ultimoApercPara(id);
+      if(a){
+        estadoTxt = `Estado: Apercibido (último: ${a.fechaISO || '—'}). Motivo: ${a.motivo || '—'}`;
+        tipo = 'warn';
+      }else{
+        estadoTxt = 'Estado: Sin sanciones';
+        tipo = 'ok';
+      }
+    }
+  }catch(_){ }
+  if(sEl){ sEl.textContent = estadoTxt; sEl.className = 'sub ' + (tipo==='block'?'state-block':(tipo==='warn'?'state-warn':'state-ok')); }
+  if(m) m.style.display = 'flex';
+}
+function cerrarImgModal(){ const m=document.getElementById('img-modal'); if(m) m.style.display='none'; }
+function registrarIngreso(){
+  const tipo=getTipo(); const id=getIdIngreso(); const nombre=(document.getElementById('nombre-ingreso').value||'').trim();
+  const susp=suspActivaPara(id);
+  if(susp){ mostrarAlerta('alerta-ingreso','error',`🚫 Ingreso denegado. Suspensión vigente hasta <strong>${esc(susp.hastaISO)}</strong> · Motivo: <em>${esc(susp.motivo||'—')}</em>`); return; }
+  if(tipo==='invitado'){
+    if(!id) return mostrarAlerta('alerta-ingreso','error','Ingresá el DNI.');
+    if(!/^\\d{6,10}$/.test(id)) return mostrarAlerta('alerta-ingreso','error','DNI inválido.');
+    if(!nombre) return mostrarAlerta('alerta-ingreso','error','El nombre es obligatorio.');
+  } else {
+    if(!id) return mostrarAlerta('alerta-ingreso','error','Ingresá el N° de socio.');
+    if(!/^[A-Za-z0-9\\-]{3,20}$/.test(id)) return mostrarAlerta('alerta-ingreso','error','N° socio inválido.');
+  }
+  const existeFoto=!!getFoto(id);
+  const prevSrc=document.getElementById('foto-preview')?.src||'';
+  const hayNueva=prevSrc && prevSrc.startsWith('data:image/');
+  if(!existeFoto && !hayNueva) return mostrarAlerta('alerta-ingreso','error','📸 La foto es obligatoria.');
+  if(!existeFoto && hayNueva){ const m=getFotosMap(); m[id]=prevSrc; setFotosMap(m); }
+  const t=now(); const lista=getIngresos();
+  lista.push({dni:id,tipo,nombre,fecha:fDate(t),hora:fTime(t),isoFecha:iso(t)});
+  save(KEYS.ingresos,lista); markDirty();
+  mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado — ${tipo==='socio'?'Socio':'Invitado'} <strong>${esc(id)}</strong> ${esc(fDate(t))} ${esc(fTime(t))}`);
+  const ultA=ultimoApercPara(id);
+  if(ultA){ mostrarAlerta('alerta-ingreso','warn',`⚠️ Apercibimiento registrado el <strong>${esc(ultA.fechaISO||'—')}</strong>. Motivo: <em>${esc(ultA.motivo||'—')}</em>`); }
+  resetIngresoForm();
+  setEstadoChip(null,'');
+}
+
+/* ======= CONSULTA ======= */
+function renderFotoCell(personaId, nombre){
+  const foto=getFoto(personaId);
+  if(!foto) return '—';
+  const safeSrc=String(foto).replace(/"/g,'&quot;');
+  const safeNom=String(nombre||'').replace(/"/g,'&quot;');
+  const safeId=String(personaId||'').replace(/"/g,'&quot;');
+  return `<img class="thumb" src="${safeSrc}" alt="Foto de ${safeNom}" data-id="${safeId}" data-nombre="${safeNom}" onclick="abrirImg(this)">`;
+}
+function limpiarConsulta(){
+  ['consulta-id','consulta-desde','consulta-hasta'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+  document.getElementById('consulta-tipo').value='ambos';
+  const res=document.getElementById('consulta-res'); res.className='alerta'; res.innerHTML='';
+  document.getElementById('consulta-tabla-wrap').style.display='none';
+  document.querySelector('#consulta-tabla tbody').innerHTML='';
+  document.getElementById('consulta-desde').value=hoyISO();
+  document.getElementById('consulta-hasta').value=hoyISO();
+}
+function toISO(fecha){
+  if(!fecha) return '0001-01-01';
+  if(/^\\d{4}-\\d{2}-\\d{2}$/.test(fecha)) return fecha;
+  const p=fecha.split('/'); if(p.length!==3) return '0001-01-01';
+  const d=new Date(+p[2],+p[1]-1,+p[0]); return d.toISOString().slice(0,10);
+}
+function filtrarIngresos({id,desdeISO,hastaISO,tipo}){
+  const ing=getIngresos(); let d=desdeISO||null, h=hastaISO||null;
+  if(d && !/^\\d{4}-\\d{2}-\\d{2}$/.test(d)) return {error:'Fecha "Desde" inválida.'};
+  if(h && !/^\\d{4}-\\d{2}-\\d{2}$/.test(h)) return {error:'Fecha "Hasta" inválida.'};
+  if(d && !h) h='9999-12-31'; if(!d && h) d='0001-01-01';
+  const filas=ing.filter(x=>{
+    const okId=id?x.dni===id:true;
+    const f=x.isoFecha||toISO(x.fecha);
+    const okF=(d?f>=d:true)&&(h?f<=h:true);
+    const okT=(tipo==='ambos')?true:(x.tipo===tipo);
+    return okId&&okF&&okT;
+  }).sort((a,b)=>{
+    const ka=(a.isoFecha||toISO(a.fecha||''))+' '+(a.hora||'00:00:00');
+    const kb=(b.isoFecha||toISO(b.fecha||''))+' '+(b.hora||'00:00:00');
+    return kb.localeCompare(ka);
+  });
+  return {filas};
+}
+function btnApercClick(btn){ openAperc(btn.dataset.id, btn.dataset.nombre || ''); }
+function btnSuspClick(btn){ openSusp(btn.dataset.id, btn.dataset.nombre || ''); }
+function consulta(){
+  const id=(document.getElementById('consulta-id').value||'').trim();
+  const d=(document.getElementById('consulta-desde').value||'').trim();
+  const h=(document.getElementById('consulta-hasta').value||'').trim();
+  const t=document.getElementById('consulta-tipo').value;
+  const wrap=document.getElementById('consulta-tabla-wrap');
+  const tbody=document.querySelector('#consulta-tabla tbody');
+  const res=document.getElementById('consulta-res');
+  res.className='alerta'; res.innerHTML=''; wrap.style.display='none'; tbody.innerHTML='';
+  const {filas,error}=filtrarIngresos({id,desdeISO:d,hastaISO:h,tipo:t});
+  if(error){ res.classList.add('error'); res.innerHTML='❌ '+error; return; }
+  if(!filas.length){ res.classList.add('warn'); res.innerHTML='Sin resultados para los filtros aplicados.'; return; }
+  wrap.style.display='block';
+  for(const x of filas){
+    const tipoTxt=(x.tipo||'').toLowerCase()==='socio'?'Socio':'Invitado';
+    const nombre = x.nombre || '';
+    const fotoCell = renderFotoCell(x.dni, nombre);
+    const acciones =
+`<div class="row" style="gap:6px">
+  <button class="btn btn-ghost btn-xs" data-id="${esc(x.dni)}" data-nombre="${esc(nombre)}" onclick="btnApercClick(this)">Aperc.</button>
+  <button class="btn btn-danger btn-xs" data-id="${esc(x.dni)}" data-nombre="${esc(nombre)}" onclick="btnSuspClick(this)">Susp.</button>
+</div>`;
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${fotoCell}</td><td>${tipoTxt}</td><td>${x.dni}</td><td>${x.fecha||'—'}</td><td>${acciones}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+/* ====== ACCIONES: APERCIBIR / SUSPENDER ====== */
+function openAperc(personaId, nombre){
+  _apercPersonaId=personaId||''; _apercNombre=nombre||'';
+  document.getElementById('aperc-idtxt').textContent='ID: '+personaId+(nombre?(' · '+nombre):'');
+  document.getElementById('aperc-motivo').value='';
+  document.getElementById('aperc-msg').textContent='';
+  document.getElementById('mdl-aperc').style.display='flex';
+}
+function closeAperc(){ document.getElementById('mdl-aperc').style.display='none'; }
+function guardarAperc(){
+  const motivo=(document.getElementById('aperc-motivo').value||'').trim();
+  if(!motivo){ document.getElementById('aperc-msg').textContent='Ingresá un motivo.'; return; }
+  const arr=getSanciones();
+  arr.push({ id:'ap-'+Date.now(), tipo:'apercibimiento', personaId:_apercPersonaId, nombre:_apercNombre, motivo, fechaISO: hoyISO(), rnd:false });
+  setSanciones(arr); markDirty();
+  closeAperc();
+  alert('Apercibimiento registrado.');
+  updateEstadoChip();
+}
+function openSusp(personaId, nombre){
+  _suspPersonaId=personaId||''; _suspNombre=nombre||'';
+  const hoy=hoyISO(); const d = new Date(); d.setDate(d.getDate()+7);
+  document.getElementById('susp-idtxt').textContent='ID: '+personaId+(nombre?(' · '+nombre):'');
+  document.getElementById('susp-desde').value=hoy;
+  document.getElementById('susp-hasta').value=d.toISOString().slice(0,10);
+  document.getElementById('susp-motivo').value='';
+  document.getElementById('susp-msg').textContent='';
+  document.getElementById('mdl-susp').style.display='flex';
+}
+function closeSusp(){ document.getElementById('mdl-susp').style.display='none'; }
+function guardarSusp(){
+  const desdeISO=(document.getElementById('susp-desde').value||'').trim();
+  const hastaISO=(document.getElementById('susp-hasta').value||'').trim();
+  const motivo=(document.getElementById('susp-motivo').value||'').trim();
+  if(!desdeISO || !hastaISO || !motivo){ document.getElementById('susp-msg').textContent='Completá motivo y rango de fechas.'; return; }
+  if(hastaISO<desdeISO){ document.getElementById('susp-msg').textContent='La fecha fin no puede ser anterior al inicio.'; return; }
+  const arr=getSanciones();
+  arr.push({ id:'su-'+Date.now(), tipo:'suspension', personaId:_suspPersonaId, nombre:_suspNombre, motivo, desdeISO, hastaISO, fechaISO:hoyISO(), activo:true, rnd:false });
+  setSanciones(arr); markDirty();
+  closeSusp();
+  alert('Suspensión registrada.');
+  updateEstadoChip();
+  refrescarSanciones();
+}
+
+/* ====== MODAL OBSERVACIÓN ====== */
+function verObserv(titulo, texto){
+  const head = document.getElementById('observ-head');
+  const body = document.getElementById('observ-text');
+  head.textContent = titulo || 'Observación';
+  body.textContent = texto || '—';
+  document.getElementById('mdl-observ').style.display='flex';
+}
+function cerrarObserv(){ document.getElementById('mdl-observ').style.display='none'; }
+
+/* ====== SANCIONES (listados) ====== */
+function limpiarAperc(){
+  document.getElementById('aperc-desde').value=hoyISO();
+  document.getElementById('aperc-hasta').value=hoyISO();
+  const res = document.getElementById('aperc-res');
+  res.className='alerta'; res.innerHTML='';
+  document.getElementById('aperc-tabla-wrap').style.display='none';
+  document.getElementById('aperc-tbody').innerHTML='';
+}
+function rowClickObs(e){
+  const tr = e.currentTarget;
+  const nombre = tr.dataset.nombre || '—';
+  const id = tr.dataset.id || '—';
+  const motivo = tr.dataset.motivo || '—';
+  const desde = tr.dataset.desde || '';
+  const hasta = tr.dataset.hasta || '';
+  let titulo = `ID: ${id} · ${nombre}`;
+  if (desde || hasta) titulo += ` · ${desde||''}${(desde && hasta)?' → ':''}${hasta||''}`;
+  verObserv(titulo, motivo);
+}
+function listarApercibimientos(){
+  const d=(document.getElementById('aperc-desde').value||'').trim();
+  const h=(document.getElementById('aperc-hasta').value||'').trim();
+  const arr=getSanciones().filter(s=>s.tipo==='apercibimiento');
+  const enRango = arr.filter(s=>{
+    const f=s.fechaISO||'0001-01-01';
+    return (!d || f>=d)&&(!h || f<=h);
+  });
+  const wrap=document.getElementById('aperc-tabla-wrap');
+  const tbody=document.getElementById('aperc-tbody');
+  const res=document.getElementById('aperc-res');
+  tbody.innerHTML=''; wrap.style.display='none'; res.className='alerta'; res.innerHTML='';
+  if(!enRango.length){ return; }
+  enRango.sort((a,b)=> (b.fechaISO||'').localeCompare(a.fechaISO||''));
+  enRango.forEach(s=>{
+    const tr=document.createElement('tr');
+    tr.dataset.id = s.personaId || '';
+    tr.dataset.nombre = s.nombre || '';
+    tr.dataset.motivo = s.motivo || '';
+    tr.addEventListener('click', rowClickObs);
+    const fotoCell = renderFotoCell(s.personaId, s.nombre);
+    tr.innerHTML = `<td>${fotoCell}</td><td>${esc(s.nombre||'—')}</td><td>${esc(s.fechaISO||'—')}</td>`;
+    tbody.appendChild(tr);
+  });
+  wrap.style.display='block';
+}
+function suspActivasHoy(){
+  const hoy=hoyISO();
+  return getSanciones().filter(s=>
+    s.tipo==='suspension' &&
+    s.activo!==false &&
+    s.desdeISO<=hoy && hoy<=s.hastaISO
+  );
+}
+function refrescarSanciones(){
+  if(!document.getElementById('aperc-desde').value) limpiarAperc();
+  const res=document.getElementById('susp-res');
+  const tbody=document.getElementById('susp-tbody');
+  const wrap=document.getElementById('susp-tabla-wrap');
+  tbody.innerHTML=''; wrap.style.display='none'; res.className='alerta'; res.innerHTML='';
+  const act=suspActivasHoy();
+  if(!act.length){ return; }
+  act.sort((a,b)=> (a.hastaISO||'').localeCompare(b.hastaISO||''));
+  act.forEach(s=>{
+    const tr=document.createElement('tr');
+    tr.dataset.id = s.personaId || '';
+    tr.dataset.nombre = s.nombre || '';
+    tr.dataset.motivo = s.motivo || '';
+    tr.dataset.desde = s.desdeISO || '';
+    tr.dataset.hasta = s.hastaISO || '';
+    tr.addEventListener('click', rowClickObs);
+    const fotoCell = renderFotoCell(s.personaId, s.nombre);
+    tr.innerHTML = `<td>${fotoCell}</td><td>${esc(s.nombre||'—')}</td><td>${esc(s.desdeISO||'—')}</td><td>${esc(s.hastaISO||'—')}</td>`;
+    tbody.appendChild(tr);
+  });
+  wrap.style.display='block';
+}
+
+/* ======= ESTADISTICAS ======= */
+function aplicarStats(){
+  const id=(document.getElementById('stats-id').value||'').trim();
+  const d=(document.getElementById('stats-desde').value||'').trim();
+  const h=(document.getElementById('stats-hasta').value||'').trim();
+  const t=document.getElementById('stats-tipo').value;
+  const {filas,error}=filtrarIngresos({id,desdeISO:d,hastaISO:h,tipo:t});
+  const lbl=(id?`ID ${esc(id)} · `:'')+(t==='ambos'?'Ambos':(t==='socio'?'Socios':'Invitados'))+(d||h?` · Rango ${esc(d||'inicio')} → ${esc(h||'fin')}`:' · (todos)');
+  const box=document.getElementById('stats-resumen');
+  if(error){ box.textContent=error; limpiarCharts(); return; }
+  box.textContent=`Registros: ${filas.length} · ${lbl}`;
+  trends(filas);
+}
+function limpiarCharts(){ ['ch-trend-day','ch-trend-week','ch-trend-month','ch-trend-day-type'].forEach(id=>{ const ctx=document.getElementById(id).getContext('2d'); ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height); }); }
+/* Series agregadas */
+function rangoDias(f){ if(!f.length){ const h=now(); return [new Date(h.getFullYear(),h.getMonth(),h.getDate()), new Date(h.getFullYear(),h.getMonth(),h.getDate())]; } let mi=Infinity, ma=0; f.forEach(x=>{ const t=new Date((x.isoFecha||toISO(x.fecha))+'T00:00:00').getTime(); if(t<mi)mi=t; if(t>ma)ma=t; }); return [new Date(mi), new Date(ma)]; }
+function serieDiaria(f){ const [d0,d1]=rangoDias(f); const labels=[], values=[], agg={}; f.forEach(x=>{ const k=x.isoFecha||toISO(x.fecha); agg[k]=(agg[k]||0)+1; }); for(let d=new Date(d0); d<=d1; d.setDate(d.getDate()+1)){ const k=iso(d); labels.push(k); values.push(agg[k]||0); } return {labels,values}; }
+function isoWeekKey(d){ const dt=new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const dayNum=dt.getUTCDay()||7; dt.setUTCDate(dt.getUTCDate()+4-dayNum); const yearStart=new Date(Date.UTC(dt.getUTCFullYear(),0,1)); const weekNo=Math.ceil((((dt-yearStart)/86400000)+1)/7); const y=dt.getUTCFullYear(); return `${y}-W${String(weekNo).padStart(2,'0')}`; }
+function serieSemanal(f){ const labels=[], values=[], agg={}; f.forEach(x=>{ const d=new Date((x.isoFecha||toISO(x.fecha))+'T00:00:00'); const k=isoWeekKey(d); agg[k]=(agg[k]||0)+1; }); Object.keys(agg).sort().forEach(k=>{ labels.push(k); values.push(agg[k]); }); return {labels,values}; }
+function serieMensual(f){ const labels=[], values=[], agg={}; f.forEach(x=>{ const ym=(x.isoFecha||toISO(x.fecha)).slice(0,7); agg[ym]=(agg[ym]||0)+1; }); Object.keys(agg).sort().forEach(k=>{ labels.push(k); values.push(agg[k]); }); return {labels,values}; }
+function serieDiariaPorTipo(f){ const [d0,d1]=rangoDias(f); const labels=[], inv=[], soc=[], ai={}, as={}; f.forEach(x=>{ const k=x.isoFecha||toISO(x.fecha); if((x.tipo||'').toLowerCase()==='socio') as[k]=(as[k]||0)+1; else ai[k]=(ai[k]||0)+1; }); for(let d=new Date(d0); d<=d1; d.setDate(d.getDate()+1)){ const k=iso(d); labels.push(k); inv.push(ai[k]||0); soc.push(as[k]||0); } return {labels,inv,soc}; }
+/* Dibujadores livianos */
+function drawLine(ctx, labels, series, titulo){
+  const c=ctx.canvas,W=c.width,H=c.height,L=50,R=15,T=24,B=28;
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a140a'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#cfe9cf'; ctx.font='12px system-ui'; ctx.fillText(titulo||'',L,16);
+  const n=labels.length||1;
+  const max=Math.max(1,...series.flatMap(s=>s.data));
+  const yScale=(H-T-B)/max, xStep=(W-L-R)/Math.max(1,n-1);
+  ctx.strokeStyle='#264'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,H-B); ctx.lineTo(W-R,H-B); ctx.stroke();
+  ctx.fillStyle='#9abf9a'; ctx.textAlign='right';
+  const stepY=Math.max(1,Math.ceil(max/5));
+  for(let t=0;t<=max;t+=stepY){ const y=H-B - t*yScale; ctx.fillText(String(t), L-6, y+4); ctx.strokeStyle='#123'; ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(W-R,y); ctx.stroke(); }
+  ctx.textAlign='center';
+  const stepX=Math.ceil(n/8)||1;
+  for(let i=0;i<n;i+=stepX){ const x=L+i*xStep; ctx.fillText(labels[i]||'', x, H-8); }
+  series.forEach((s,i)=>{
+    const col=s.color||['#2a7a2a','#c8a84b','#9dd49d','#d4841a'][i%4];
+    ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath();
+    for(let k=0;k<n;k++){ const v=s.data[k]||0; const x=L+k*xStep; const y=H-B - v*yScale; if(k===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }
+    ctx.stroke(); ctx.fillStyle=col;
+    for(let k=0;k<n;k+=Math.max(1,Math.floor(n/30))){ const v=s.data[k]||0; const x=L+k*xStep; const y=H-B - v*yScale; ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2); ctx.fill(); }
+  });
+}
+function drawBars(ctx, labels, series, titulo){
+  const c=ctx.canvas,W=c.width,H=c.height,L=50,R=15,T=24,B=28;
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a140a'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#cfe9cf'; ctx.font='12px system-ui'; ctx.fillText(titulo||'',L,16);
+  const n=labels.length||1;
+  const max=Math.max(1,...series.flatMap(s=>s.data));
+  const plotW=(W-L-R), plotH=(H-T-B);
+  const xStep=plotW/Math.max(1,n);
+  const groupPad=0.2; // % espacio lateral del grupo
+  const barW=(xStep*(1-groupPad))/Math.max(1,series.length);
+  // Ejes
+  ctx.strokeStyle='#264'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,H-B); ctx.lineTo(W-R,H-B); ctx.stroke();
+  // Rejilla y labels Y
+  ctx.fillStyle='#9abf9a'; ctx.textAlign='right';
+  const stepY=Math.max(1,Math.ceil(max/5));
+  for(let t=0;t<=max;t+=stepY){ const y=H-B - (t/max)*plotH; ctx.fillText(String(t), L-6, y+4); ctx.strokeStyle='#123'; ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(W-R,y); ctx.stroke(); }
+  // Labels X
+  ctx.textAlign='center'; ctx.fillStyle='#cfe9cf';
+  const stepX=Math.ceil(n/8)||1;
+  for(let i=0;i<n;i+=stepX){ const x=L+i*xStep + xStep/2; ctx.fillText(labels[i]||'', x, H-8); }
+  // Barras
+  series.forEach((s,si)=>{
+    const col=s.color||['#2a7a2a','#c8a84b','#9dd49d','#d4841a'][si%4];
+    ctx.fillStyle=col;
+    for(let i=0;i<n;i++){
+      const v=s.data[i]||0;
+      const x0=L+i*xStep + (xStep*(groupPad/2)) + si*barW;
+      const h=v/max*plotH;
+      const y=H-B - h;
+      ctx.fillRect(x0,y,Math.max(2,barW-2),h);
+    }
+  });
+}
+function trends(f){
+  const days=serieDiaria(f);
+  const weeks=serieSemanal(f);
+  const months=serieMensual(f);
+  const dayByType=serieDiariaPorTipo(f);
+  drawLine(document.getElementById('ch-trend-day').getContext('2d'), days.labels,[{name:'Total',data:days.values,color:'#2a7a2a'}],'Totales por día');
+  drawBars(document.getElementById('ch-trend-week').getContext('2d'), weeks.labels,[{name:'Total',data:weeks.values,color:'#c8a84b'}],'Totales por semana');
+  drawBars(document.getElementById('ch-trend-month').getContext('2d'), months.labels,[{name:'Total',data:months.values,color:'#9dd49d'}],'Totales por mes');
+  drawBars(document.getElementById('ch-trend-day-type').getContext('2d'), dayByType.labels,[
+    {name:'Invitados',data:dayByType.inv,color:'#d4841a'},
+    {name:'Socios',data:dayByType.soc,color:'#2a7a2a'}
+  ],'Distribución diaria por tipo');
+}
+
+/* ======= ACTIVAR / VALIDAR ======= */
+// (… se mantiene igual …)
+
+/* ======= UTILS ======= */
+function getRndIds(){ return load(KEYS.rndIds,[]); }
+function setRndIds(a){ save(KEYS.rndIds,a||[]); }
+async function generarRandomDesdeEnero2026(){
+  const start = new Date(2026,0,1);
+  const end = new Date();
+  const nombres = ['Pérez, Juan','Gómez, Ana','Rodríguez, Luis','Fernández, Marta','López, Diego','Sosa, Carla','Martínez, Pablo','Romero, Julia','Torres, Sofia','Ruiz, Martín'];
+  const tipos = ['invitado','socio'];
+  const rnd = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
+  const toISOo = d=> d.toISOString().slice(0,10);
+  const lista = getIngresos();
+  const fotos = getFotosMap();
+  const rndIds = new Set(getRndIds());
+  // Descargar una sola vez la imagen base64 para todos los aleatorios
+  const avatarB64 = await getRandomAvatarB64();
+  let creados = 0;
+  for(let i=0;i<100;i++){
+    const tipo = tipos[rnd(0,1)];
+    const id = tipo==='invitado' ? String(rnd(20000000,50000000)) : 'S-'+String(rnd(1000,99999));
+    const nombre = nombres[rnd(0,nombres.length-1)];
+    const ts = new Date(start.getTime() + Math.random()*(end.getTime()-start.getTime()));
+    ts.setHours(rnd(8,20), rnd(0,59), rnd(0,59), 0);
+    lista.push({dni:id, tipo, nombre, fecha:fDate(ts), hora:fTime(ts), isoFecha:toISOo(ts), rnd:true});
+    if(!fotos[id]) fotos[id] = avatarB64; // usar SIEMPRE la misma imagen base64
+    rndIds.add(id);
+    creados++;
+  }
+  save(KEYS.ingresos, lista);
+  setFotosMap(fotos);
+  setRndIds(Array.from(rndIds));
+  markDirty();
+  const el = document.getElementById('utils-alert');
+  if(el) el.textContent = `✅ Generados ${creados} ingresos aleatorios desde 2026-01-01.`;
+  // Mostrar todo lo generado
+  try{
+    navClick('consulta', document.getElementById('btn-nav-consulta'));
+    const d = document.getElementById('consulta-desde');
+    const h = document.getElementById('consulta-hasta');
+    if(d) d.value = '2026-01-01';
+    if(h) h.value = hoyISO();
+    const id = document.getElementById('consulta-id'); if(id) id.value = '';
+    const t = document.getElementById('consulta-tipo'); if(t) t.value = 'ambos';
+    consulta();
+  }catch(e){}
+}
+function borrarRandom(){
+  const rndIds = new Set(getRndIds());
+  const el = document.getElementById('utils-alert');
+  if(!rndIds.size){
+    if(el) el.textContent = 'No hay datos aleatorios para borrar.';
+    return;
+  }
+  // Ingresos
+  const ing = getIngresos().filter(x=> !x.rnd && !rndIds.has(x.dni));
+  save(KEYS.ingresos, ing);
+  // Fotos
+  const fot = getFotosMap();
+  rndIds.forEach(id=>{ if(fot[id]) delete fot[id]; });
+  setFotosMap(fot);
+  // Sanciones
+  const san = getSanciones().filter(s=> !s.rnd && !rndIds.has(s.personaId));
+  setSanciones(san);
+  // Limpiar registro
+  setRndIds([]);
+  markDirty();
+  if(el) el.textContent = '🧹 Datos aleatorios eliminados.';
+  // Refrescar Consulta
+  try{
+    navClick('consulta', document.getElementById('btn-nav-consulta'));
+    const d = document.getElementById('consulta-desde'); const h = document.getElementById('consulta-hasta');
+    if(d) d.value = '2026-01-01'; if(h) h.value = hoyISO();
+    const id = document.getElementById('consulta-id'); if(id) id.value = '';
+    consulta();
+  }catch(e){}
+}
+
+/* ======= STORAGE HELPERS ======= */
+function getIngresos(){ return load(KEYS.ingresos,[]); }
+function getFotosMap(){ return load(KEYS.fotos,{}); }
+function setFotosMap(m){ save(KEYS.fotos,m||{}); }
+function getFoto(id){ const m=getFotosMap(); return m[id]; }
+function getSanciones(){ return load(KEYS.sanciones,[]); }
+function setSanciones(a){ save(KEYS.sanciones,a||[]); }
+function markDirty(){ localStorage.setItem(KEYS.dirty,'1'); }
+function clearDirty(){ localStorage.removeItem(KEYS.dirty); }
+function hayPendientes(){ return !!localStorage.getItem(KEYS.dirty); }
+
+/* ======= INIT ======= */
+(function(){
+  tick(); setInterval(tick,1000);
+  ['consulta-desde','consulta-hasta','stats-desde','stats-hasta','aperc-desde','aperc-hasta'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=hoyISO(); });
+  // ... (resto del bootstrap/sync sin cambios) ...
+  navClick('ingreso', document.getElementById('btn-nav-ingreso'));
+})();
 </script>
 </body>
 </html>
