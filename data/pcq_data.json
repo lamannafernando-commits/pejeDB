@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-03-15T07:22:28.099Z",
+  "updatedAt": "2026-03-15T07:22:34.521Z",
   "ingresos": [
     {
       "dni": "000",
@@ -2492,6 +2492,15 @@
       "hastaISO": "2026-03-15",
       "fechaISO": "2026-03-15",
       "activo": true,
+      "rnd": false
+    },
+    {
+      "id": "ap-1773559353391",
+      "tipo": "apercibimiento",
+      "personaId": "24776950",
+      "nombre": "Fer",
+      "motivo": "fffg",
+      "fechaISO": "2026-03-15",
       "rnd": false
     }
   ],
