@@ -169,7 +169,7 @@ th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
     <div id="consulta-tabla-wrap" style="margin-top:8px;display:none">
       <table id="consulta-tabla">
         <thead>
-          <tr><th>Foto</th><th>Inv/Soc</th><th>ID</th><th>Fecha</th><th>Acción</th></tr>
+          <tr><th>Foto</th><th>Inv/Soc</th><th>DNI / N° socio</th><th>Fecha</th><th>Acción</th></tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -333,15 +333,7 @@ th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
 
 <script>
 /* ======= CONFIG / KEYS ======= */
-const KEYS={
-  ingresos:'app_ingresos',
-  fotos:'app_fotos',
-  token:'app_token',
-  gistId:'app_gist_id',
-  lastSync:'app_lastsync',
-  dirty:'app_dirty',
-  sanciones:'app_sanciones'
-};
+const KEYS={ ingresos:'app_ingresos', fotos:'app_fotos', token:'app_token', gistId:'app_gist_id', lastSync:'app_lastsync', dirty:'app_dirty', sanciones:'app_sanciones' };
 const BACKUP={ modeKey:'app_backup_mode', repoOwnerKey:'app_repo_owner', repoNameKey:'app_repo_name' };
 const GIST_DESC='Pejerrey Club — Backup (auto)';
 let nubeActiva=false, _camStream=null, _syncTimer=null;
@@ -496,7 +488,7 @@ function registrarIngreso(){
   mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado — ${tipo==='socio'?'Socio':'Invitado'} <strong>${esc(id)}</strong> ${esc(fDate(t))} ${esc(fTime(t))}`);
   const ultA=ultimoApercPara(id);
   if(ultA){ mostrarAlerta('alerta-ingreso','warn',`⚠️ Apercibimiento registrado el <strong>${esc(ultA.fechaISO||'—')}</strong>. Motivo: <em>${esc(ultA.motivo||'—')}</em>`); }
-  resetIngresoForm();
+  resetIngresoForm?.();
   setEstadoChip(null,'');
 }
 
@@ -504,14 +496,12 @@ function registrarIngreso(){
 function renderFotoCell(personaId, nombre){
   const foto=getFoto(personaId); if(!foto) return '—';
   if(typeof foto==='string' && foto.startsWith('data:image/')){
-    const safeSrc=foto.replace(/"/g,'&quot;'); const safeAlt=`Foto de ${nombre||''} (${personaId||''})`.replace(/"/g,'&quot;');
-    const safeNom=String(nombre||'').replace(/"/g,'&quot;'); const safeId=String(personaId||'').replace(/"/g,'&quot;');
-    return `<img class="thumb" src="${safeSrc}" alt="${safeAlt}" data-id="${safeId}" data-nombre="${safeNom}" onclick="abrirImg(this)">`;
+    const safeSrc=foto.replace(/"/g,'&quot;');
+    return `<img class="thumb" src="${safeSrc}" alt="Foto" data-id="${esc(personaId)}" data-nombre="${esc(nombre||'')}" onclick="abrirImg(this)">`;
   }
   if(typeof foto==='string' && (/^https?:\/\//i).test(foto)){
-    const safeSrc=foto.replace(/"/g,'&quot;'); const safeAlt=`Foto de ${nombre||''} (${personaId||''})`.replace(/"/g,'&quot;');
-    const safeNom=String(nombre||'').replace(/"/g,'&quot;'); const safeId=String(personaId||'').replace(/"/g,'&quot;');
-    return `<img class="thumb" src="${safeSrc}" alt="${safeAlt}" data-id="${safeId}" data-nombre="${safeNom}" onclick="abrirImg(this)">`;
+    const safeSrc=foto.replace(/"/g,'&quot;');
+    return `<img class="thumb" src="${safeSrc}" alt="Foto" data-id="${esc(personaId)}" data-nombre="${esc(nombre||'')}" onclick="abrirImg(this)">`;
   }
   return foto;
 }
@@ -561,8 +551,8 @@ function consulta(){
     const fotoCell = renderFotoCell(x.dni, nombre);
     const acciones =
 `<div class="row" style="gap:6px">
-  <button class="btn btn-ghost btn-xs" data-id="${esc(x.dni)}" data-nombre="${esc(nombre)}" onclick="btnApercClick(this)">Apercibir</button>
-  <button class="btn btn-danger btn-xs" data-id="${esc(x.dni)}" data-nombre="${esc(nombre)}" onclick="btnSuspClick(this)">Suspender</button>
+  <button class="btn btn-ghost btn-xs" data-id="${esc(x.dni)}" data-nombre="${esc(nombre)}" onclick="btnApercClick(this)">Aperc.</button>
+  <button class="btn btn-danger btn-xs" data-id="${esc(x.dni)}" data-nombre="${esc(nombre)}" onclick="btnSuspClick(this)">Susp.</button>
 </div>`;
     const tr=document.createElement('tr');
     tr.innerHTML = `<td>${fotoCell}</td><td>${tipoTxt}</td><td>${x.dni}</td><td>${x.fecha||'—'}</td><td>${acciones}</td>`;
@@ -841,14 +831,8 @@ function generarRandomDesdeEnero2026(){
   setFotosMap(fotos);
   markDirty();
   const el = document.getElementById('backup-alert'); if(el) el.textContent = `✅ Generados ${creados} ingresos aleatorios desde 2026-01-01.`;
-}
-function borrarRandom(){
-  const ing = getIngresos().filter(x=>!x.rnd);
-  save(KEYS.ingresos, ing);
-  const san = getSanciones().filter(x=>!x.rnd);
-  save(KEYS.sanciones, san);
-  markDirty();
-  const el = document.getElementById('backup-alert'); if(el) el.textContent = '🧹 Datos aleatorios eliminados.';
+  /* >>> NUEVO: llevar automáticamente a Consulta y mostrar los registros de hoy */
+  mostrarIngresosDeHoy();
 }
 
 /* ======= STORAGE HELPERS ======= */
@@ -909,6 +893,19 @@ window.guardarSusp = guardarSusp;
 window.cerrarObserv = cerrarObserv;
 window.cerrarImgModal = cerrarImgModal;
 window.aplicarStats = aplicarStats;
+
+/* Pequeño helper que estaba referenciado en registrarIngreso(): */
+function resetIngresoForm(){
+  const nombre=document.getElementById('nombre-ingreso');
+  const dni=document.getElementById('dni-ingreso');
+  const socio=document.getElementById('nroSocio-ingreso');
+  if(nombre) nombre.value='';
+  if(getTipo()==='invitado'){ if(dni) dni.value=''; } else { if(socio) socio.value=''; }
+  const prev=document.getElementById('foto-preview'); const wrap=document.getElementById('foto-preview-wrap');
+  if(prev) prev.src=''; if(wrap) wrap.style.display='none';
+  document.getElementById('btn-borrar-foto').style.display='none';
+  focusIdInput();
+}
 </script>
 </body>
 </html>
