@@ -10,7 +10,6 @@
     body{margin:0;background:linear-gradient(160deg,#0b1c0b,#143414);color:var(--txt);font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif}
     header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,#0a1a0a,#143414);border-bottom:3px solid var(--dorado);padding:10px 14px}
     h1{margin:0;font-size:1.2rem;letter-spacing:.3px;color:var(--dorado)}
-    h2,h3,h4{margin:.2rem 0}
     .sub{color:var(--sub);font-size:.85rem}
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px}
     .spacer{flex:1}
@@ -42,7 +41,6 @@
     .thumb{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--dorado);cursor:zoom-in;background:#000}
     #img-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:1000}
     #img-modal img{max-width:90vw;max-height:90vh;border:3px solid var(--dorado);border-radius:10px}
-    /* modal genérico */
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:1200}
     .modal-box{background:#0c1c0c;border:1px solid var(--dorado);border-radius:12px;padding:16px;max-width:560px;width:calc(100% - 32px)}
     /* cámara */
@@ -74,15 +72,15 @@
     <!-- INGRESO -->
     <section id="sec-ingreso" class="card">
       <h2>Ingreso</h2>
-      <div class="form-row" id="row-tipo-ingreso">
-        <label style="flex:1;min-width:220px">Tipo de ingreso
+      <div class="form-row">
+        <label>Tipo de ingreso
           <div class="row" style="padding:6px 2px">
             <label style="display:inline-flex;align-items:center;gap:6px"><input type="radio" name="tipo-ingreso" value="invitado" onchange="toggleIngresoFields()" checked> Invitado</label>
             <label style="display:inline-flex;align-items:center;gap:6px"><input type="radio" name="tipo-ingreso" value="socio" onchange="toggleIngresoFields()"> Socio</label>
           </div>
         </label>
       </div>
-      <div class="form-row" id="row-identificadores">
+      <div class="form-row">
         <label id="wrap-dni-ingreso">Nº Documento (DNI)
           <input type="text" id="dni-ingreso" placeholder="Ej: 30123456" maxlength="12"
                  oninput="this.value=this.value.replace(/\D/g,'');onIdentificadorChange()"
@@ -94,7 +92,7 @@
                  onkeydown="if(event.key==='Enter')buscarInvitado()">
         </label>
       </div>
-      <div class="form-row" id="row-nombre">
+      <div class="form-row">
         <label>Nombre
           <input type="text" id="nombre-ingreso" placeholder="Apellido, Nombre" onkeydown="if(event.key==='Enter')registrarIngreso()">
           <span class="sub" id="nombre-autocomplete-hint"></span>
@@ -143,7 +141,7 @@
           </select>
         </label>
       </div>
-      <div class="form-row" id="consulta-fechas">
+      <div class="form-row">
         <label>Desde
           <input type="date" id="consulta-desde" onkeydown="if(event.key==='Enter')consulta()">
         </label>
@@ -315,7 +313,7 @@
     gistId:'app_gist_id',
     lastSync:'app_lastsync',
     dirty:'app_dirty',
-    sanciones:'app_sanciones' // {id, tipo:'apercibimiento'|'suspension', personaId, nombre?, motivo, desdeISO?, hastaISO?, fechaISO, activo?}
+    sanciones:'app_sanciones'
   };
   const BACKUP={ modeKey:'app_backup_mode', repoOwnerKey:'app_repo_owner', repoNameKey:'app_repo_name' };
   const GIST_DESC='Pejerrey Club — Backup (auto)';
@@ -343,8 +341,6 @@
   const hoyISO=()=>iso(now());
 
   function setSyncBadge(state,text){ const el=document.getElementById('sync-badge'); if(!el) return; el.textContent=text; el.className='chip '+(state||''); }
-
-  // ======= LOCAL DATA =======
   const getIngresos=()=>load(KEYS.ingresos,[]);
   const setIngresos=v=>{ save(KEYS.ingresos,v); markDirty(); };
   const getFotosMap=()=>load(KEYS.fotos,{});
@@ -359,7 +355,7 @@
 
   // ======= UI BASICA =======
   function tick(){ const el=document.getElementById('reloj'); if(el) el.textContent=fTime(now())+' — '+fDate(now()); }
-  function navClick(id,btn){ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('act')); btn.classList.add('act'); document.querySelectorAll('main > section').forEach(s=>s.style.display='none'); document.getElementById('sec-'+id).style.display='block'; if(id==='ingreso') toggleIngresoFields(); if(id==='sanciones'){refrescarSanciones();} }
+  function navClick(id,btn){ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('act')); btn.classList.add('act'); document.querySelectorAll('main > section').forEach(s=>s.style.display='none'); document.getElementById('sec-'+id).style.display='block'; if(id==='ingreso') toggleIngresoFields(); if(id==='sanciones') refrescarSanciones(); }
 
   // ======= CÁMARA =======
   async function iniciarCamara(){ try{ if(!_camStream){ _camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false}); } const v=document.getElementById('cam-video'); v.srcObject=_camStream; v.play(); document.getElementById('cam-wrap').style.display='block'; document.getElementById('btn-cam-start').style.display='none'; document.getElementById('btn-cam-shot').style.display='inline-flex'; document.getElementById('btn-cam-stop').style.display='inline-flex'; }catch(e){ alert('No se pudo acceder a la cámara'); } }
@@ -381,7 +377,7 @@
   // ======= CONSULTA =======
   function abrirImgModal(src){ const m=document.getElementById('img-modal'); const i=document.getElementById('img-modal-img'); i.src=src; m.style.display='flex'; }
   function cerrarImgModal(){ const m=document.getElementById('img-modal'); if(m) m.style.display='none'; }
-  function limpiarConsulta(){ ['consulta-id','consulta-desde','consulta-hasta'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';}); document.getElementById('consulta-tipo').value='ambos'; const res=document.getElementById('consulta-res'); res.className='alerta'; res.innerHTML=''; document.getElementById('consulta-tabla-wrap').style.display='none'; document.querySelector('#consulta-tabla tbody').innerHTML=''; document.getElementById('consulta-desde').value=hoyISO(); document.getElementById('consulta-hasta').value=hoyISO(); }
+  function limpiarConsulta(){ ['consulta-id','consulta-desde','consulta-hasta'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';}); document.getElementById('consulta-tipo').value='ambos'; document.getElementById('consulta-res').className='alerta'; document.getElementById('consulta-res').innerHTML=''; document.getElementById('consulta-tabla-wrap').style.display='none'; document.querySelector('#consulta-tabla tbody').innerHTML=''; document.getElementById('consulta-desde').value=hoyISO(); document.getElementById('consulta-hasta').value=hoyISO(); }
   function toISO(fecha){ if(!fecha) return '0001-01-01'; if(/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return fecha; const p=fecha.split('/'); if(p.length!==3) return '0001-01-01'; const d=new Date(+p[2],+p[1]-1,+p[0]); return d.toISOString().slice(0,10); }
   function filtrarIngresos({id,desdeISO,hastaISO,tipo}){ const ing=getIngresos(); let d=desdeISO||null, h=hastaISO||null; if(d && !/^\d{4}-\d{2}-\d{2}$/.test(d)) return {error:'Fecha "Desde" inválida.'}; if(h && !/^\d{4}-\d{2}-\d{2}$/.test(h)) return {error:'Fecha "Hasta" inválida.'}; if(d && !h) h='9999-12-31'; if(!d && h) d='0001-01-01'; const filas=ing.filter(x=>{ const okId=id?x.dni===id:true; const f=x.isoFecha||toISO(x.fecha); const okF=(d?f>=d:true)&&(h?f<=h:true); const okT=(tipo==='ambos')?true:(x.tipo===tipo); return okId&&okF&&okT; }).sort((a,b)=>{const ka=(a.isoFecha||toISO(a.fecha))+' '+(a.hora||'00:00:00'); const kb=(b.isoFecha||toISO(b.fecha))+' '+(b.hora||'00:00:00'); return kb.localeCompare(ka);}); return {filas}; }
   function consulta(){
@@ -389,6 +385,7 @@
     const d=(document.getElementById('consulta-desde').value||'').trim();
     const h=(document.getElementById('consulta-hasta').value||'').trim();
     const t=document.getElementById('consulta-tipo').value;
+
     const res=document.getElementById('consulta-res');
     const wrap=document.getElementById('consulta-tabla-wrap');
     const tbody=document.querySelector('#consulta-tabla tbody');
@@ -396,7 +393,7 @@
 
     const {filas,error}=filtrarIngresos({id,desdeISO:d,hastaISO:h,tipo:t});
     if(error){ res.classList.add('error'); res.innerHTML='❌ '+error; return; }
-    if(!filas.length){ res.classList.add('warn'); res.innerHTML=''; return; } // 👈 si hoy no hay, no mostrar nada
+    if(!filas.length){ /* no mostrar nada */ return; }
 
     wrap.style.display='block';
     filas.forEach(x=>{
@@ -408,8 +405,11 @@
            <button class="btn btn-ghost" onclick="openAperc('${x.dni}','${(x.nombre||'').replace(/"/g,'&quot;')}')">Apercibir</button>
            <button class="btn btn-danger" onclick="openSusp('${x.dni}','${(x.nombre||'').replace(/"/g,'&quot;')}')">Suspender</button>
          </div>`;
+      const fotocell = foto
+        ? `<img class="thumb" src="${foto}" alt="Foto" onclick="abrirImgModal('${foto.replace(/'/g,'&#39;')}')">`
+        : '—';
       tr.innerHTML =
-        `<td>${foto?`${foto}`:'—'}</td>`+
+        `<td>${fotocell}</td>`+
         `<td>${tipoTxt}</td>`+
         `<td>${x.dni}</td>`+
         `<td>${x.fecha||'—'}</td>`+
@@ -419,112 +419,20 @@
   }
 
   // ====== ACCIONES: APERCIBIR / SUSPENDER ======
-  function openAperc(personaId, nombre){
-    _apercPersonaId=personaId||''; _apercNombre=nombre||'';
-    document.getElementById('aperc-idtxt').textContent='ID: '+personaId+(nombre?(' · '+nombre):'');
-    document.getElementById('aperc-motivo').value='';
-    document.getElementById('aperc-msg').textContent='';
-    document.getElementById('mdl-aperc').style.display='flex';
-  }
+  function openAperc(personaId, nombre){ _apercPersonaId=personaId||''; _apercNombre=nombre||''; document.getElementById('aperc-idtxt').textContent='ID: '+personaId+(nombre?(' · '+nombre):''); document.getElementById('aperc-motivo').value=''; document.getElementById('aperc-msg').textContent=''; document.getElementById('mdl-aperc').style.display='flex'; }
   function closeAperc(){ document.getElementById('mdl-aperc').style.display='none'; }
-  function guardarAperc(){
-    const motivo=(document.getElementById('aperc-motivo').value||'').trim();
-    if(!motivo){ document.getElementById('aperc-msg').textContent='Ingresá un motivo.'; return; }
-    const arr=getSanciones();
-    arr.push({ id:'ap-'+Date.now(), tipo:'apercibimiento', personaId:_apercPersonaId, nombre:_apercNombre, motivo, fechaISO: hoyISO() });
-    setSanciones(arr);
-    closeAperc();
-    alert('Apercibimiento registrado.');
-  }
+  function guardarAperc(){ const motivo=(document.getElementById('aperc-motivo').value||'').trim(); if(!motivo){ document.getElementById('aperc-msg').textContent='Ingresá un motivo.'; return; } const arr=getSanciones(); arr.push({ id:'ap-'+Date.now(), tipo:'apercibimiento', personaId:_apercPersonaId, nombre:_apercNombre, motivo, fechaISO: hoyISO() }); setSanciones(arr); closeAperc(); alert('Apercibimiento registrado.'); }
 
-  function openSusp(personaId, nombre){
-    _suspPersonaId=personaId||''; _suspNombre=nombre||'';
-    const hoy=hoyISO(); const d = new Date(); d.setDate(d.getDate()+7);
-    document.getElementById('susp-idtxt').textContent='ID: '+personaId+(nombre?(' · '+nombre):'');
-    document.getElementById('susp-desde').value=hoy;
-    document.getElementById('susp-hasta').value=d.toISOString().slice(0,10);
-    document.getElementById('susp-motivo').value='';
-    document.getElementById('susp-msg').textContent='';
-    document.getElementById('mdl-susp').style.display='flex';
-  }
+  function openSusp(personaId, nombre){ _suspPersonaId=personaId||''; _suspNombre=nombre||''; const hoy=hoyISO(); const d=new Date(); d.setDate(d.getDate()+7); document.getElementById('susp-idtxt').textContent='ID: '+personaId+(nombre?(' · '+nombre):''); document.getElementById('susp-desde').value=hoy; document.getElementById('susp-hasta').value=d.toISOString().slice(0,10); document.getElementById('susp-motivo').value=''; document.getElementById('susp-msg').textContent=''; document.getElementById('mdl-susp').style.display='flex'; }
   function closeSusp(){ document.getElementById('mdl-susp').style.display='none'; }
-  function guardarSusp(){
-    const desdeISO=(document.getElementById('susp-desde').value||'').trim();
-    const hastaISO=(document.getElementById('susp-hasta').value||'').trim();
-    const motivo=(document.getElementById('susp-motivo').value||'').trim();
-    if(!desdeISO||!hastaISO||!motivo){ document.getElementById('susp-msg').textContent='Completá motivo y rango de fechas.'; return; }
-    if(hastaISO<desdeISO){ document.getElementById('susp-msg').textContent='La fecha fin no puede ser anterior al inicio.'; return; }
-    const arr=getSanciones();
-    arr.push({ id:'su-'+Date.now(), tipo:'suspension', personaId:_suspPersonaId, nombre:_suspNombre, motivo, desdeISO, hastaISO, fechaISO:hoyISO(), activo:true });
-    setSanciones(arr);
-    closeSusp();
-    alert('Suspensión registrada.');
-    refrescarSanciones();
-  }
+  function guardarSusp(){ const desdeISO=(document.getElementById('susp-desde').value||'').trim(); const hastaISO=(document.getElementById('susp-hasta').value||'').trim(); const motivo=(document.getElementById('susp-motivo').value||'').trim(); if(!desdeISO||!hastaISO||!motivo){ document.getElementById('susp-msg').textContent='Completá motivo y rango de fechas.'; return; } if(hastaISO<desdeISO){ document.getElementById('susp-msg').textContent='La fecha fin no puede ser anterior al inicio.'; return; } const arr=getSanciones(); arr.push({ id:'su-'+Date.now(), tipo:'suspension', personaId:_suspPersonaId, nombre:_suspNombre, motivo, desdeISO, hastaISO, fechaISO:hoyISO(), activo:true }); setSanciones(arr); closeSusp(); alert('Suspensión registrada.'); refrescarSanciones(); }
 
-  // ====== SECCIÓN SANCIONES ======
-  function limpiarAperc(){
-    document.getElementById('aperc-desde').value=hoyISO();
-    document.getElementById('aperc-hasta').value=hoyISO();
-    document.getElementById('aperc-res').className='alerta'; document.getElementById('aperc-res').innerHTML='';
-    document.getElementById('aperc-tabla-wrap').style.display='none';
-    document.getElementById('aperc-tbody').innerHTML='';
-  }
-  function listarApercibimientos(){
-    const d=(document.getElementById('aperc-desde').value||'').trim();
-    const h=(document.getElementById('aperc-hasta').value||'').trim();
-    const arr=getSanciones().filter(s=>s.tipo==='apercibimiento');
-    const enRango=arr.filter(s=>{
-      const f=s.fechaISO||'0001-01-01';
-      return (!d||f>=d)&&(!h||f<=h);
-    });
-    const wrap=document.getElementById('aperc-tabla-wrap');
-    const tbody=document.getElementById('aperc-tbody');
-    const res=document.getElementById('aperc-res');
-    tbody.innerHTML=''; wrap.style.display='none'; res.className='alerta'; res.innerHTML='';
-
-    if(!enRango.length){ res.classList.add('warn'); res.innerHTML=''; return; }
-    enRango.sort((a,b)=> (b.fechaISO||'').localeCompare(a.fechaISO||''));
-    enRango.forEach(s=>{
-      const tr=document.createElement('tr');
-      tr.innerHTML = `<td>${s.id}</td><td>${s.nombre||'—'}</td><td>${s.personaId}</td><td>${s.fechaISO||'—'}</td><td>${s.motivo||'—'}</td>`;
-      tbody.appendChild(tr);
-    });
-    wrap.style.display='block';
-    res.classList.add('ok'); res.innerHTML=`✅ ${enRango.length} apercibimiento(s).`;
-  }
-
-  function suspActivasHoy(){
-    const hoy=hoyISO();
-    return getSanciones().filter(s=>s.tipo==='suspension' && s.activo!==false && s.desdeISO<=hoy && hoy<=s.hastaISO);
-  }
-  function darBajaSusp(id){
-    const arr=getSanciones();
-    const s=arr.find(x=>x.id===id);
-    if(s){ s.activo=false; setSanciones(arr); alert('Suspensión dada de baja.'); refrescarSanciones(); }
-  }
-  function refrescarSanciones(){
-    // set defaults
-    if(!document.getElementById('aperc-desde').value) limpiarAperc();
-
-    // Suspensiones activas
-    const res=document.getElementById('susp-res');
-    const tbody=document.getElementById('susp-tbody');
-    const wrap=document.getElementById('susp-tabla-wrap');
-    tbody.innerHTML=''; wrap.style.display='none'; res.className='alerta'; res.innerHTML='';
-
-    const act=suspActivasHoy();
-    if(!act.length){ res.classList.add('warn'); res.innerHTML=''; return; }
-    act.sort((a,b)=> (a.hastaISO||'').localeCompare(b.hastaISO||''));
-    act.forEach(s=>{
-      const tr=document.createElement('tr');
-      tr.innerHTML = `<td>${s.id}</td><td>${s.nombre||'—'}</td><td>${s.personaId}</td><td>${s.desdeISO}</td><td>${s.hastaISO}</td><td>${s.motivo||'—'}</td>
-                      <td><button class="btn btn-ghost" onclick="darBajaSusp('${s.id}')">Dar de baja</button></td>`;
-      tbody.appendChild(tr);
-    });
-    wrap.style.display='block';
-    res.classList.add('ok'); res.innerHTML=`✅ ${act.length} suspensión(es) activas.`;
-  }
+  // ====== SANCIONES (listados) ======
+  function limpiarAperc(){ document.getElementById('aperc-desde').value=hoyISO(); document.getElementById('aperc-hasta').value=hoyISO(); document.getElementById('aperc-res').className='alerta'; document.getElementById('aperc-res').innerHTML=''; document.getElementById('aperc-tabla-wrap').style.display='none'; document.getElementById('aperc-tbody').innerHTML=''; }
+  function listarApercibimientos(){ const d=(document.getElementById('aperc-desde').value||'').trim(); const h=(document.getElementById('aperc-hasta').value||'').trim(); const arr=getSanciones().filter(s=>s.tipo==='apercibimiento'); const enRango=arr.filter(s=>{ const f=s.fechaISO||'0001-01-01'; return (!d||f>=d)&&(!h||f<=h); }); const wrap=document.getElementById('aperc-tabla-wrap'); const tbody=document.getElementById('aperc-tbody'); const res=document.getElementById('aperc-res'); tbody.innerHTML=''; wrap.style.display='none'; res.className='alerta'; res.innerHTML=''; if(!enRango.length){ res.classList.add('warn'); res.innerHTML=''; return; } enRango.sort((a,b)=> (b.fechaISO||'').localeCompare(a.fechaISO||'')); enRango.forEach(s=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${s.id}</td><td>${s.nombre||'—'}</td><td>${s.personaId}</td><td>${s.fechaISO||'—'}</td><td>${s.motivo||'—'}</td>`; tbody.appendChild(tr); }); wrap.style.display='block'; res.classList.add('ok'); res.innerHTML=`✅ ${enRango.length} apercibimiento(s).`; }
+  function suspActivasHoy(){ const hoy=hoyISO(); return getSanciones().filter(s=>s.tipo==='suspension' && s.activo!==false && s.desdeISO<=hoy && hoy<=s.hastaISO); }
+  function darBajaSusp(id){ const arr=getSanciones(); const s=arr.find(x=>x.id===id); if(s){ s.activo=false; setSanciones(arr); alert('Suspensión dada de baja.'); refrescarSanciones(); } }
+  function refrescarSanciones(){ if(!document.getElementById('aperc-desde').value) limpiarAperc(); const res=document.getElementById('susp-res'); const tbody=document.getElementById('susp-tbody'); const wrap=document.getElementById('susp-tabla-wrap'); tbody.innerHTML=''; wrap.style.display='none'; res.className='alerta'; res.innerHTML=''; const act=suspActivasHoy(); if(!act.length){ res.classList.add('warn'); res.innerHTML=''; return; } act.sort((a,b)=> (a.hastaISO||'').localeCompare(b.hastaISO||'')); act.forEach(s=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${s.id}</td><td>${s.nombre||'—'}</td><td>${s.personaId}</td><td>${s.desdeISO}</td><td>${s.hastaISO}</td><td>${s.motivo||'—'}</td><td><button class="btn btn-ghost" onclick="darBajaSusp('${s.id}')">Dar de baja</button></td>`; tbody.appendChild(tr); }); wrap.style.display='block'; res.classList.add('ok'); res.innerHTML=`✅ ${act.length} suspensión(es) activas.`; }
 
   // ======= ESTADISTICAS (tendencia) =======
   function aplicarStats(){ const id=(document.getElementById('stats-id').value||'').trim(); const d=(document.getElementById('stats-desde').value||'').trim(); const h=(document.getElementById('stats-hasta').value||'').trim(); const t=document.getElementById('stats-tipo').value; const {filas,error}=filtrarIngresos({id,desdeISO:d,hastaISO:h,tipo:t}); const lbl=(id?`ID ${id} · `:'')+(t==='ambos'?'Ambos':(t==='socio'?'Socios':'Invitados'))+(d||h?` · Rango ${d||'inicio'} → ${h||'fin'}`:' · (todos)'); const box=document.getElementById('stats-resumen'); if(error){ box.textContent=error; limpiarCharts(); return; } box.textContent=`Registros: ${filas.length} · ${lbl}`; trends(filas); }
@@ -538,9 +446,10 @@
   function serieDiariaPorTipo(f){ const [d0,d1]=rangoDias(f); const labels=[], inv=[], soc=[], ai={}, as={}; f.forEach(x=>{ const k=x.isoFecha||toISO(x.fecha); if((x.tipo||'').toLowerCase()==='socio') as[k]=(as[k]||0)+1; else ai[k]=(ai[k]||0)+1; }); for(let d=new Date(d0); d<=d1; d.setDate(d.getDate()+1)){ const k=iso(d); labels.push(k); inv.push(ai[k]||0); soc.push(as[k]||0); } return {labels,inv,soc}; }
   function drawLine(ctx, labels, series, titulo){ const c=ctx.canvas,W=c.width,H=c.height,L=50,R=15,T=24,B=28; ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a140a'; ctx.fillRect(0,0,W,H); ctx.fillStyle='#cfe9cf'; ctx.font='12px system-ui'; ctx.fillText(titulo||'',L,16); const n=labels.length||1; const max=Math.max(1,...series.flatMap(s=>s.data)); const yScale=(H-T-B)/max, xStep=(W-L-R)/Math.max(1,n-1); ctx.strokeStyle='#264'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,H-B); ctx.lineTo(W-R,H-B); ctx.stroke(); ctx.fillStyle='#9abf9a'; ctx.textAlign='right'; for(let t=0;t<=max;t+=Math.max(1,Math.ceil(max/5))){ const y=H-B - t*yScale; ctx.fillText(String(t), L-6, y+4); ctx.strokeStyle='#123'; ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(W-R,y); ctx.stroke(); } ctx.textAlign='center'; const step=Math.ceil(n/8)||1; for(let i=0;i<n;i+=step){ const x=L+i*xStep; ctx.fillText(labels[i]||'', x, H-8); } series.forEach((s,i)=>{ const col=s.color||['#2a7a2a','#c8a84b','#9dd49d','#d4841a'][i%4]; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); for(let k=0;k<n;k++){ const v=s.data[k]||0; const x=L+k*xStep; const y=H-B - v*yScale; if(k===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke(); ctx.fillStyle=col; for(let k=0;k<n;k+=Math.max(1,Math.floor(n/30))){ const v=s.data[k]||0; const x=L+k*xStep; const y=H-B - v*yScale; ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2); ctx.fill(); } }); }
 
-  // ======= ACTIVAR =======
+  // ======= ACTIVAR (ocultar botón tras activar) =======
   function abrirActivar(){ const m=document.getElementById('activar-modal'), i=document.getElementById('activar-token'); document.getElementById('activar-msg').textContent=''; i.value=getToken(); m.style.display='flex'; try{i.focus();}catch{} }
   function cerrarActivar(){ document.getElementById('activar-modal').style.display='none'; }
+  function hideActivateBtn(){ const b=document.getElementById('btn-activar-sistema'); if(b) b.style.display='none'; }
   async function guardarYActivar(){
     const t=(document.getElementById('activar-token').value||'').trim();
     if(!t){ document.getElementById('activar-msg').textContent='Ingresá el token.'; return; }
@@ -553,10 +462,11 @@
     const r=await validarToken();
     if(r && r.ok){
       nubeActiva=true; setSyncBadge('ok','☁️ Datos online');
+      hideActivateBtn(); // 👈 ocultar botón activar apenas queda activo
       document.getElementById('activar-msg').textContent='Activado.';
       setTimeout(()=>{
         cerrarActivar();
-        bootstrapFromGitHub().then(()=>mostrarIngresosDeHoy()); // 👈 solo hoy, sin fallback si no hay
+        bootstrapFromGitHub().then(()=>mostrarIngresosDeHoy());
       }, 400);
     } else {
       nubeActiva=false;
@@ -578,7 +488,6 @@
       if(r.status===401) return {ok:false,error:'Token inválido (401)'};
       if(r.status===403) return {ok:false,error:'Acceso denegado (403)'};
       if(!r.ok)         return {ok:false,error:'Error: '+r.status};
-      // Scopes informativos
       const scopes=(r.headers.get('x-oauth-scopes')||'').toLowerCase();
       localStorage.setItem('app_scopes', scopes);
       if(!scopes.includes('gist') && !scopes.includes('repo')){
@@ -590,7 +499,7 @@
     }
   }
 
-  // ======= GITHUB (Gist + Repo fallback, con textos “Datos online / local”) =======
+  // ======= GITHUB (Gist + fallback Repo) =======
   function ghHeaders(){ return {'Accept':'application/vnd.github+json','Authorization':'Bearer '+getToken(),'X-GitHub-Api-Version':'2022-11-28'}; }
   function b64(s){ return btoa(unescape(encodeURIComponent(s))); }
   async function ghUser(){ const r=await fetch('https://api.github.com/user',{method:'GET',mode:'cors',cache:'no-store',headers:ghHeaders()}); if(!r.ok) throw new Error('user:'+r.status); return await r.json(); }
@@ -609,7 +518,7 @@
 
   async function bootstrapFromGitHub(){
     if(!nubeActiva || !online()) return;
-    setSyncBadge('syncing','☁️ Datos online');
+    setSyncBadge('ok','☁️ Datos online');
     let mode=getBackupMode(); let gid=getGistId();
     if(mode==='gist'){
       try{
@@ -620,12 +529,10 @@
           const fot=mergeFotos(getFotosMap(),remote.fotos||{});
           save(KEYS.ingresos,ing); save(KEYS.fotos,fot);
           await patchGist(gid);
-          setSyncBadge('ok','☁️ Datos online');
           return;
         }
         const hasLocal=getIngresos().length||Object.keys(getFotosMap()).length;
-        if(hasLocal){ await createGistFromLocal(); setSyncBadge('ok','☁️ Datos online'); return; }
-        setSyncBadge('ok','☁️ Datos online');
+        if(hasLocal){ await createGistFromLocal(); return; }
         return;
       }catch(e){
         if(String(e.message||'').startsWith('GIST_UNAVAILABLE')){ setBackupMode('repo'); }
@@ -644,7 +551,6 @@
       await putFileJson(owner,repo,'fotos.json',fot,'sync: fotos');
       await putFileJson(owner,repo,'meta.json',{updatedAt:new Date().toISOString(),app:'PejerreyClub'},'sync: meta');
       localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now()));
-      setSyncBadge('ok','☁️ Datos online');
     }catch(e){
       setSyncBadge('err','☁️ Datos local');
     }
@@ -674,16 +580,14 @@
       clearDirty(); setSyncBadge('ok','☁️ Datos online');
     }catch(e){ setSyncBadge('err','☁️ Datos local'); }
   }
-
   function scheduleSync(){ if(_syncTimer) clearInterval(_syncTimer); _syncTimer=setInterval(async()=>{ if(hayPendientes()) await persistir(); }, 60*1000); }
 
-  // ======= SYNC MANUAL (botón en Consulta) =======
+  // ======= SYNC MANUAL (en Consulta) =======
   async function syncManual(){
     if(!getToken()){ alert('Ingresá tu token y activá el sistema.'); return; }
     const v=await validarToken(); if(!(v&&v.ok)){ alert('Token inválido o sin permisos.'); return; }
-    nubeActiva=true;
-    await bootstrapFromGitHub();    // pull + merge + push
-    // no se fuerza consulta — queda a criterio del operador
+    nubeActiva=true; hideActivateBtn();
+    await bootstrapFromGitHub(); // pull + merge (+ push)
   }
 
   // ======= MOSTRAR HOY (sin fallback si está vacío) =======
@@ -692,10 +596,10 @@
     document.getElementById('consulta-desde').value=hoy;
     document.getElementById('consulta-hasta').value=hoy;
     navClick('consulta', document.getElementById('btn-nav-consulta'));
-    consulta(); // si hoy no hay registros, grilla oculta y sin mensaje
+    consulta(); // si no hay hoy → no muestra nada
   }
 
-  // ======= BACKUP MANUAL =======
+  // ======= BACKUP manual =======
   function exportarJSON(){ const txt=JSON.stringify({ingresos:getIngresos(),fotos:getFotosMap(),sanciones:getSanciones()},null,2); document.getElementById('backup-json').value=txt; document.getElementById('backup-alert').textContent='Exportado.'; }
   function importarJSON(){ try{ const txt=document.getElementById('backup-json').value||'{}'; const data=JSON.parse(txt); if(data.ingresos) save(KEYS.ingresos,data.ingresos); if(data.fotos) save(KEYS.fotos,data.fotos); if(data.sanciones) save(KEYS.sanciones,data.sanciones); document.getElementById('backup-alert').textContent='Importación OK.'; markDirty(); }catch(e){ document.getElementById('backup-alert').textContent='Error al importar JSON.'; } }
 
@@ -712,8 +616,13 @@
     else if(!getToken()){ setSyncBadge('err','☁️ Datos local'); }
     else {
       validarToken().then(r=>{
-        if(r&&r.ok){ nubeActiva=true; setSyncBadge('ok','☁️ Datos online'); bootstrapFromGitHub().then(()=>mostrarIngresosDeHoy()); }
-        else { nubeActiva=false; setSyncBadge('err','☁️ Datos local'); }
+        if(r&&r.ok){
+          nubeActiva=true; setSyncBadge('ok','☁️ Datos online');
+          hideActivateBtn();         // 👈 ocultar botón si ya estaba activo
+          bootstrapFromGitHub().then(()=>mostrarIngresosDeHoy());
+        } else {
+          nubeActiva=false; setSyncBadge('err','☁️ Datos local');
+        }
       });
     }
 
