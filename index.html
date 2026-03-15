@@ -1,33 +1,905 @@
-<section id="sec-sanciones" class="card" style="display:none">
-  <h2>Sanciones</h2>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Gestion de Ingresos Pejerrey Club Quilmes</title>
+  <style>
+    :root{ --verde:#1e5c1e;--dorado:#c8a84b;--rojo:#c62828;--naranja:#d4841a;--bg:#0d1f0d;--panel:#112411;--borde:#2d6e2d;--txt:#f8fff8;--sub:#cfe9cf; }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(160deg,#0b1c0b,#143414);color:var(--txt);font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif}
+    header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,#0a1a0a,#143414);border-bottom:3px solid var(--dorado);padding:10px 14px}
+    h1{margin:0;font-size:1.2rem;letter-spacing:.3px;color:var(--dorado)}
+    h2,h3,h4{margin:.2rem 0}
+    .sub{color:var(--sub);font-size:.85rem}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px}
+    .spacer{flex:1}
+    .chip{border:1px solid var(--borde);border-radius:999px;padding:4px 10px;background:#0a140a}
+    #sync-badge{display:inline-flex;gap:6px;align-items:center}
+    #sync-badge.syncing{border-color:#2a7aaa;background:#0c2130}
+    #sync-badge.ok{border-color:#2a8a2a;background:#0f2410}
+    #sync-badge.err{border-color:#7a2a2a;background:#2a0f0f}
+    nav{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;border-bottom:2px solid var(--dorado);background:#0b1b0b}
+    nav button{background:#0e2210;border:1px solid #2a4a2a;color:#e6ffe6;padding:6px 10px;border-radius:6px;cursor:pointer}
+    nav button.act{outline:2px solid var(--dorado)}
+    main{padding:14px}
+    .card{background:var(--panel);border:1px solid var(--borde);border-radius:10px;padding:12px;margin-bottom:14px}
+    .form-row{display:flex;gap:12px;flex-wrap:wrap}
+    label{display:flex;flex-direction:column;gap:6px;min-width:220px;flex:1}
+    input[type=text], input[type=date], input[type=password], select, textarea{padding:8px;border-radius:8px;border:1px solid #365e36;background:#0a1a0a;color:var(--txt)}
+    textarea{resize:vertical}
+    .btn{cursor:pointer;border-radius:8px;border:1px solid #2f5f2f;background:#184718;color:#fff;padding:8px 12px}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn-warn{background:#5a3a0c;border-color:#b06f18}
+    .btn-danger{background:#701818;border-color:#b03b3b}
+    .btn-ghost{background:#0e2210;border:1px dashed #3b5a3b}
+    .alerta{margin-top:8px;padding:8px 10px;border-radius:8px;border:1px solid #3a3a3a;background:#101010;color:#eee}
+    .alerta.ok{border-color:#2d7a2d;background:#0f2a0f}
+    .alerta.warn{border-color:#b06f18;background:#2a1a0a}
+    .alerta.error{border-color:#b03b3b;background:#2a0f0f}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
+    .thumb{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--dorado);cursor:zoom-in;background:#000}
+    #img-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:1000}
+    #img-modal img{max-width:90vw;max-height:90vh;border:3px solid var(--dorado);border-radius:10px}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:1200}
+    .modal-box{background:#0c1c0c;border:1px solid var(--dorado);border-radius:12px;padding:16px;max-width:560px;width:calc(100% - 32px)}
+    /* cámara */
+    #cam-wrap{display:none;margin-top:8px}
+    #cam-video{width:260px;height:260px;border-radius:10px;border:3px solid var(--dorado);background:#000;object-fit:cover}
+    #cam-canvas{display:none}
+    /* Banner de error fatal */
+    #fatal{position:fixed;left:0;right:0;bottom:0;background:#8b0000;color:#fff;padding:8px 12px;font:14px/1.3 system-ui;z-index:99999;display:none}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Gestion de Ingresos Pejerrey Club Quilmes</h1>
+    <div class="row">
+      <div class="chip" id="reloj">--:--:-- — --/--/----</div>
+      <div class="chip" id="sync-badge">☁️ Datos local</div>
+      <div class="spacer"></div>
+      <button id="btn-activar-sistema" class="btn btn-warn" onclick="abrirActivar()">⚡ Activar sistema</button>
+    </div>
+  </header>
 
-  <div class="card" style="margin-bottom:10px">
-    <h3>Apercibimientos</h3>
-    <div class="form-row">
-      <label>Desde <input type="date" id="aperc-desde"></label>
-      <label>Hasta <input type="date" id="aperc-hasta"></label>
-    </div>
-    <div class="row" style="gap:8px">
-      <button class="btn" onclick="listarApercibimientos()">Buscar</button>
-      <button class="btn btn-warn" onclick="limpiarAperc()">Limpiar</button>
-    </div>
-    <div id="aperc-res" class="alerta"></div>
-    <div id="aperc-tabla-wrap" style="display:none;margin-top:8px">
-      <table>
-        <thead id="aperc-thead"><tr><th>Foto</th><th>Nombre</th><th>Fecha</th></tr></thead>
-        <tbody id="aperc-tbody"></tbody>
-      </table>
+  <nav>
+    <button id="btn-nav-ingreso" class="act" onclick="navClick('ingreso',this)">Ingreso</button>
+    <button id="btn-nav-consulta" onclick="navClick('consulta',this)">Consulta</button>
+    <button id="btn-nav-estadisticas" onclick="navClick('estadisticas',this)">Estadísticas</button>
+    <button id="btn-nav-sanciones" onclick="navClick('sanciones',this)">Sanciones</button>
+    <button id="btn-nav-backup" onclick="navClick('backup',this)">Backup</button>
+  </nav>
+
+  <main>
+    <!-- INGRESO -->
+    <section id="sec-ingreso" class="card">
+      <h2>Ingreso</h2>
+      <div class="form-row">
+        <label>Tipo de ingreso
+          <div class="row" style="padding:6px 2px">
+            <label style="display:inline-flex;align-items:center;gap:6px"><input type="radio" name="tipo-ingreso" value="invitado" onchange="toggleIngresoFields()" checked> Invitado</label>
+            <label style="display:inline-flex;align-items:center;gap:6px"><input type="radio" name="tipo-ingreso" value="socio" onchange="toggleIngresoFields()"> Socio</label>
+          </div>
+        </label>
+      </div>
+      <div class="form-row">
+        <label id="wrap-dni-ingreso">Nº Documento (DNI)
+          <input type="text" id="dni-ingreso" placeholder="Ej: 30123456" maxlength="12"
+                 oninput="this.value=this.value.replace(/\D/g,'');onIdentificadorChange()"
+                 onkeydown="if(event.key==='Enter')buscarInvitado()">
+        </label>
+        <label id="wrap-socio-ingreso" style="display:none">N° de socio
+          <input type="text" id="nroSocio-ingreso" placeholder="Ej: S-12345" maxlength="20"
+                 oninput="onIdentificadorChange()"
+                 onkeydown="if(event.key==='Enter')buscarInvitado()">
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Nombre
+          <input type="text" id="nombre-ingreso" placeholder="Apellido, Nombre" onkeydown="if(event.key==='Enter')registrarIngreso()">
+          <span class="sub" id="nombre-autocomplete-hint"></span>
+        </label>
+      </div>
+
+      <!-- Cámara y foto (OBLIGATORIA) -->
+      <div class="card" style="margin-top:12px">
+        <h3>Foto (obligatoria)</h3>
+        <div class="row">
+          <button class="btn" id="btn-cam-start" type="button" onclick="iniciarCamara()">🎥 Iniciar cámara</button>
+          <button class="btn" id="btn-cam-shot" type="button" onclick="tomarFoto()" style="display:none">📸 Tomar foto</button>
+          <button class="btn btn-danger" id="btn-cam-stop" type="button" onclick="detenerCamara()" style="display:none">✖ Detener cámara</button>
+          <button class="btn btn-danger" id="btn-borrar-foto" onclick="borrarFoto()" style="display:none">🗑️ Borrar foto</button>
+        </div>
+        <div id="cam-wrap">
+          <video id="cam-video" autoplay playsinline></video>
+          <canvas id="cam-canvas" width="320" height="320"></canvas>
+        </div>
+        <div id="foto-preview-wrap" style="display:none;margin-top:8px">
+          <img id="foto-preview" alt="Foto" style="width:260px;height:260px;border-radius:10px;border:3px solid var(--dorado);object-fit:cover;background:#000"/>
+          <div class="sub" id="foto-preview-dni">ID: --</div>
+          <div class="sub" id="foto-aviso" style="color:#f3d28a">La foto es obligatoria para registrar.</div>
+        </div>
+      </div>
+
+      <div class="row" style="gap:8px;margin-top:8px">
+        <button class="btn" onclick="buscarInvitado()">Buscar / Estado</button>
+        <button class="btn" onclick="registrarIngreso()">Registrar ingreso</button>
+      </div>
+      <div id="alerta-ingreso" class="alerta" role="alert"></div>
+    </section>
+
+    <!-- CONSULTA -->
+    <section id="sec-consulta" class="card" style="display:none">
+      <h2>Consulta</h2>
+      <div class="form-row">
+        <label>Identificador (DNI o N° socio) — <span class="sub">opcional</span>
+          <input type="text" id="consulta-id" onkeydown="if(event.key==='Enter')consulta()">
+        </label>
+        <label>Tipo
+          <select id="consulta-tipo" onkeydown="if(event.key==='Enter')consulta()">
+            <option value="ambos" selected>Ambos</option>
+            <option value="invitado">Invitado</option>
+            <option value="socio">Socio</option>
+          </select>
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Desde
+          <input type="date" id="consulta-desde" onkeydown="if(event.key==='Enter')consulta()">
+        </label>
+        <label>Hasta
+          <input type="date" id="consulta-hasta" onkeydown="if(event.key==='Enter')consulta()">
+        </label>
+      </div>
+      <div class="row" style="gap:8px;margin-top:8px">
+        <button class="btn" onclick="consulta()">Buscar</button>
+        <button class="btn btn-ghost" onclick="syncManual()">🔁 Sincronizar</button>
+        <button class="btn btn-warn" onclick="limpiarConsulta()">Limpiar</button>
+      </div>
+      <div id="consulta-res" class="alerta" role="alert"></div>
+      <div id="consulta-tabla-wrap" style="margin-top:8px;display:none">
+        <table id="consulta-tabla">
+          <thead>
+            <tr><th>Foto</th><th>Inv/Soc</th><th>ID</th><th>Fecha</th><th>Acción</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ESTADÍSTICAS -->
+    <section id="sec-estadisticas" class="card" style="display:none">
+      <h2>Estadísticas</h2>
+      <div class="form-row">
+        <label>Identificador (opcional)
+          <input type="text" id="stats-id" onkeydown="if(event.key==='Enter')aplicarStats()">
+        </label>
+        <label>Tipo
+          <select id="stats-tipo" onkeydown="if(event.key==='Enter')aplicarStats()">
+            <option value="ambos" selected>Ambos</option>
+            <option value="invitado">Invitado</option>
+            <option value="socio">Socio</option>
+          </select>
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Desde
+          <input type="date" id="stats-desde" onkeydown="if(event.key==='Enter')aplicarStats()">
+        </label>
+        <label>Hasta
+          <input type="date" id="stats-hasta" onkeydown="if(event.key==='Enter')aplicarStats()">
+        </label>
+      </div>
+      <div class="row" style="gap:8px;margin-top:8px">
+        <button class="btn" onclick="aplicarStats()">Aplicar filtros</button>
+      </div>
+      <div class="sub" id="stats-resumen" style="margin:8px 0"></div>
+      <div class="charts">
+        <div class="chart-card"><h4>Tendencia diaria (totales)</h4><canvas id="ch-trend-day" width="500" height="240"></canvas></div>
+        <div class="chart-card"><h4>Tendencia semanal (totales)</h4><canvas id="ch-trend-week" width="500" height="240"></canvas></div>
+        <div class="chart-card"><h4>Tendencia mensual (totales)</h4><canvas id="ch-trend-month" width="500" height="240"></canvas></div>
+        <div class="chart-card"><h4>Tendencia diaria por tipo</h4><canvas id="ch-trend-day-type" width="500" height="240"></canvas></div>
+      </div>
+    </section>
+
+    <!-- SANCIONES -->
+    <section id="sec-sanciones" class="card" style="display:none">
+      <h2>Sanciones</h2>
+
+      <div class="card" style="margin-bottom:10px">
+        <h3>Apercibimientos</h3>
+        <div class="form-row">
+          <label>Desde <input type="date" id="aperc-desde"></label>
+          <label>Hasta <input type="date" id="aperc-hasta"></label>
+        </div>
+        <div class="row" style="gap:8px">
+          <button class="btn" onclick="listarApercibimientos()">Buscar</button>
+          <button class="btn btn-warn" onclick="limpiarAperc()">Limpiar</button>
+        </div>
+        <div id="aperc-res" class="alerta"></div>
+        <div id="aperc-tabla-wrap" style="display:none;margin-top:8px">
+          <table>
+            <thead id="aperc-thead"><tr><th>Foto</th><th>Nombre</th><th>Fecha</th></tr></thead>
+            <tbody id="aperc-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Suspensiones activas</h3>
+        <div id="susp-res" class="alerta"></div>
+        <div id="susp-tabla-wrap" style="display:none;margin-top:8px">
+          <table>
+            <thead id="susp-thead"><tr><th>Foto</th><th>Nombre</th><th>Desde</th><th>Hasta</th></tr></thead>
+            <tbody id="susp-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- BACKUP -->
+    <section id="sec-backup" class="card" style="display:none">
+      <h2>Backup</h2>
+      <div class="row" style="gap:8px">
+        <button class="btn" onclick="exportarJSON()">Exportar JSON</button>
+        <button class="btn" onclick="importarJSON()">Importar JSON</button>
+      </div>
+      <textarea id="backup-json" style="width:100%;height:160px;margin-top:8px;background:#081508;color:#e8ffe8;border:1px solid #335a33;border-radius:8px"></textarea>
+      <div id="backup-alert" class="alerta"></div>
+    </section>
+  </main>
+
+  <!-- Modal Activar -->
+  <div id="activar-modal" class="modal" role="dialog" aria-modal="true">
+    <div id="activar-box" class="modal-box">
+      <h3>Activar sistema</h3>
+      <div class="form-row" style="margin-top:6px">
+        <label>Token de GitHub (scope: gist o repo)
+          <input type="password" id="activar-token" placeholder="ghp_..." autocomplete="off">
+        </label>
+      </div>
+      <div class="row" style="gap:8px;margin-top:10px">
+        <button class="btn" onclick="guardarYActivar()">Guardar y activar</button>
+        <button class="btn btn-warn" onclick="cerrarActivar()">Cancelar</button>
+      </div>
+      <div class="sub" id="activar-msg"></div>
     </div>
   </div>
 
-  <div class="card">
-    <h3>Suspensiones activas</h3>
-    <div id="susp-res" class="alerta"></div>
-    <div id="susp-tabla-wrap" style="display:none;margin-top:8px">
-      <table>
-        <thead id="susp-thead"><tr><th>Foto</th><th>Nombre</th><th>Desde</th><th>Hasta</th></tr></thead>
-        <tbody id="susp-tbody"></tbody>
-      </table>
+  <!-- Modal Apercibir -->
+  <div id="mdl-aperc" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <h3>Apercibir</h3>
+      <div class="sub" id="aperc-idtxt">ID: —</div>
+      <label style="margin-top:8px">Motivo
+        <textarea id="aperc-motivo" rows="3" placeholder="Motivo del apercibimiento..."></textarea>
+      </label>
+      <div class="row" style="gap:8px;margin-top:10px">
+        <button class="btn" onclick="guardarAperc()">Guardar</button>
+        <button class="btn btn-warn" onclick="closeAperc()">Cancelar</button>
+      </div>
+      <div class="sub" id="aperc-msg"></div>
     </div>
   </div>
-</section>
+
+  <!-- Modal Suspender -->
+  <div id="mdl-susp" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <h3>Suspender</h3>
+      <div class="sub" id="susp-idtxt">ID: —</div>
+      <div class="form-row" style="margin-top:6px">
+        <label>Desde <input type="date" id="susp-desde"></label>
+        <label>Hasta <input type="date" id="susp-hasta"></label>
+      </div>
+      <label>Motivo
+        <textarea id="susp-motivo" rows="3" placeholder="Motivo de la suspensión..."></textarea>
+      </label>
+      <div class="row" style="gap:8px;margin-top:10px">
+        <button class="btn" onclick="guardarSusp()">Guardar</button>
+        <button class="btn btn-warn" onclick="closeSusp()">Cancelar</button>
+      </div>
+      <div class="sub" id="susp-msg"></div>
+    </div>
+  </div>
+
+  <!-- Modal Observación -->
+  <div id="mdl-observ" class="modal" role="dialog" aria-modal="true" style="display:none">
+    <div class="modal-box">
+      <h3>Observación</h3>
+      <div class="sub" id="observ-head">—</div>
+      <div style="margin-top:10px; white-space:pre-wrap" id="observ-text">—</div>
+      <div class="row" style="gap:8px;margin-top:12px">
+        <button class="btn" onclick="cerrarObserv()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal ver imagen -->
+  <div id="img-modal" onclick="cerrarImgModal()"><img id="img-modal-img" alt="Foto"/></div>
+
+  <div id="fatal"></div>
+
+  <div id="bloqueo-overlay"></div>
+
+  <script>
+  /* ======= Capturador de errores JS para evitar "pantalla en blanco" ======= */
+  function showFatal(msg){
+    try{
+      const el=document.getElementById('fatal');
+      el.textContent='⚠️ Error JS: '+msg;
+      el.style.display='block';
+      console.error(msg);
+    }catch(e){}
+  }
+  window.addEventListener('error', e=> showFatal((e && e.message) ? (e.message+' @'+e.filename+':'+e.lineno) : 'Error desconocido'));
+  window.addEventListener('unhandledrejection', e=> showFatal('Promise rechazada: '+(e && e.reason ? (e.reason.message||e.reason) : 'sin razón')));
+
+  // ======= CONFIG / KEYS =======
+  const KEYS={ ingresos:'app_ingresos', fotos:'app_fotos', token:'app_token', gistId:'app_gist_id', lastSync:'app_lastsync', dirty:'app_dirty', sanciones:'app_sanciones' };
+  const BACKUP={ modeKey:'app_backup_mode', repoOwnerKey:'app_repo_owner', repoNameKey:'app_repo_name' };
+  const GIST_DESC='Pejerrey Club — Backup (auto)';
+  let nubeActiva=false, _camStream=null, _syncTimer=null;
+  let _apercPersonaId='', _apercNombre='';
+  let _suspPersonaId='', _suspNombre='';
+
+  // ======= UTIL =======
+  const load=(k,def)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):def;}catch{return def}};
+  const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+  const getToken=()=>localStorage.getItem(KEYS.token)||'';
+  const setToken=t=>localStorage.setItem(KEYS.token,t||'');
+  const getGistId=()=>localStorage.getItem(KEYS.gistId)||'';
+  const setGistId=id=>localStorage.setItem(KEYS.gistId,id||'');
+  const getBackupMode=()=>localStorage.getItem(BACKUP.modeKey)||'gist';
+  const setBackupMode=m=>localStorage.setItem(BACKUP.modeKey,m||'gist');
+
+  const online=()=> (typeof navigator!=='undefined' && 'onLine' in navigator) ? navigator.onLine : true;
+  const now=()=>new Date();
+  const dos=n=>n<10?('0'+n):(''+n);
+  const fDate=d=>[dos(d.getDate()),dos(d.getMonth()+1),d.getFullYear()].join('/');
+  const fTime=d=>[dos(d.getHours()),dos(d.getMinutes()),dos(d.getSeconds())].join(':');
+  const iso=d=>d.toISOString().slice(0,10);
+  const hoyISO=()=>iso(now());
+
+  function setSyncBadge(state,text){ const el=document.getElementById('sync-badge'); if(!el) return; el.textContent=text; el.className='chip '+(state||''); }
+
+  // ======= LOCAL DATA =======
+  const getIngresos=()=>load(KEYS.ingresos,[]);
+  const setIngresos=v=>{ save(KEYS.ingresos,v); markDirty(); };
+  const getFotosMap=()=>load(KEYS.fotos,{});
+  const setFotosMap=m=>{ save(KEYS.fotos,m); markDirty(); };
+  const getFoto=id=>getFotosMap()[id]||'';
+  const getSanciones=()=>load(KEYS.sanciones,[]);
+  const setSanciones=arr=>{ save(KEYS.sanciones,arr); markDirty(); };
+
+  function markDirty(){ localStorage.setItem(KEYS.dirty,String(Date.now())); }
+  function clearDirty(){ localStorage.removeItem(KEYS.dirty); }
+  function hayPendientes(){ return !!localStorage.getItem(KEYS.dirty); }
+
+  // ======= UI BASICA =======
+  function tick(){ const el=document.getElementById('reloj'); if(el) el.textContent=fTime(now())+' — '+fDate(now()); }
+  function navClick(id,btn){ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('act')); btn.classList.add('act'); document.querySelectorAll('main > section').forEach(s=>s.style.display='none'); document.getElementById('sec-'+id).style.display='block'; if(id==='ingreso') toggleIngresoFields(); if(id==='sanciones') refrescarSanciones(); }
+
+  // ======= ESCAPES / RENDER FOTO =======
+  function escAttr(s){
+    return String(s||'')
+      .replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')
+      .replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function renderFotoCell(personaId){
+    const foto = getFoto(personaId);
+    if (!foto) return '—';
+    // Si está guardado como dataURL, armamos <img>
+    if (typeof foto === 'string' && foto.startsWith('data:image/')) {
+      const safe = escAttr(foto);
+      return `<img class="thumb" src="${safe}" alt="Foto" onclick="abrirImgModal('${safe}')">`;
+    }
+    // Si está guardado por error como HTML <img>, lo devolvemos tal cual
+    return foto;
+  }
+
+  // ======= CÁMARA =======
+  async function iniciarCamara(){ try{ if(!_camStream){ _camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false}); } const v=document.getElementById('cam-video'); v.srcObject=_camStream; v.play(); document.getElementById('cam-wrap').style.display='block'; document.getElementById('btn-cam-start').style.display='none'; document.getElementById('btn-cam-shot').style.display='inline-flex'; document.getElementById('btn-cam-stop').style.display='inline-flex'; }catch(e){ alert('No se pudo acceder a la cámara'); } }
+  function tomarFoto(){ const v=document.getElementById('cam-video'); const c=document.getElementById('cam-canvas'), ctx=c.getContext('2d'); const vw=v.videoWidth, vh=v.videoHeight; if(!vw||!vh) return; const size=Math.min(vw,vh), sx=Math.floor((vw-size)/2), sy=Math.floor((vh-size)/2); c.width=320; c.height=320; ctx.drawImage(v,sx,sy,size,size,0,0,320,320); const data=c.toDataURL('image/jpeg',0.9); _guardarFoto(data); detenerCamara(); focusIdInput(); }
+  function _guardarFoto(b64){ const id=getIdIngreso(); const prev=document.getElementById('foto-preview'); const wrap=document.getElementById('foto-preview-wrap'); prev.src=b64; wrap.style.display='block'; document.getElementById('btn-borrar-foto').style.display='inline-flex'; if(id){ const m=getFotosMap(); m[id]=b64; setFotosMap(m); document.getElementById('foto-preview-dni').textContent='ID: '+id+' ✅'; } }
+  function borrarFoto(){ const id=getIdIngreso(); if(id){ const m=getFotosMap(); delete m[id]; setFotosMap(m); } document.getElementById('foto-preview').src=''; document.getElementById('foto-preview-wrap').style.display='none'; document.getElementById('btn-borrar-foto').style.display='none'; document.getElementById('foto-preview-dni').textContent='ID: --'; focusIdInput(); }
+  function detenerCamara(){ try{ if(_camStream){ _camStream.getTracks().forEach(t=>t.stop()); _camStream=null; } }catch(e){} const v=document.getElementById('cam-video'); if(v) v.srcObject=null; document.getElementById('cam-wrap').style.display='none'; document.getElementById('btn-cam-start').style.display='inline-flex'; document.getElementById('btn-cam-shot').style.display='none'; document.getElementById('btn-cam-stop').style.display='none'; }
+
+  // ======= INGRESO =======
+  function toggleIngresoFields(){ const t=getTipo(); document.getElementById('wrap-dni-ingreso').style.display=(t==='invitado')?'':'none'; document.getElementById('wrap-socio-ingreso').style.display=(t==='socio')?'':'none'; onIdentificadorChange(); }
+  const getTipo=()=> (document.querySelector('input[name="tipo-ingreso"]:checked')?.value)||'invitado';
+  const getIdIngreso=()=> getTipo()==='socio' ? (document.getElementById('nroSocio-ingreso')?.value||'').trim() : (document.getElementById('dni-ingreso')?.value||'').trim();
+  function focusIdInput(){ const el=(getTipo()==='socio')?document.getElementById('nroSocio-ingreso'):document.getElementById('dni-ingreso'); el?.focus(); el?.select?.(); }
+  function onIdentificadorChange(){ const id=getIdIngreso(); const hint=document.getElementById('nombre-autocomplete-hint'); const nombre=document.getElementById('nombre-ingreso'); if(!id){ hint.textContent=''; nombre.value=''; return; } const lista=getIngresos(); const u=lista.filter(x=>x.dni===id).slice(-1)[0]; if(u&&u.nombre){ nombre.value=u.nombre; hint.textContent='Autocompletado por historial'; } else hint.textContent=''; const foto=getFoto(id), prev=document.getElementById('foto-preview'), wrap=document.getElementById('foto-preview-wrap'); if(foto){ prev.src=foto; wrap.style.display='block'; document.getElementById('btn-borrar-foto').style.display='inline-flex'; document.getElementById('foto-preview-dni').textContent='ID: '+id+' ✅'; } else { if(document.getElementById('cam-wrap').style.display==='none'){ wrap.style.display='none'; document.getElementById('btn-borrar-foto').style.display='none'; } document.getElementById('foto-preview-dni').textContent='ID: '+id; } }
+  function mostrarAlerta(id,tipo,msg){ const el=document.getElementById(id); el.className='alerta'; el.classList.add(tipo==='ok'?'ok':(tipo==='warn'?'warn':'error')); el.innerHTML=msg||''; }
+  function buscarInvitado(){ const id=getIdIngreso(); if(!id){ mostrarAlerta('alerta-ingreso','error','Ingresá un identificador.'); return; } const lista=getIngresos(); const u=lista.filter(x=>x.dni===id).slice(-1)[0]; if(u&&u.nombre) document.getElementById('nombre-ingreso').value=u.nombre; const foto=getFoto(id); if(foto){ const prev=document.getElementById('foto-preview'); prev.src=foto; document.getElementById('foto-preview-wrap').style.display='block'; document.getElementById('btn-borrar-foto').style.display='inline-flex'; document.getElementById('foto-preview-dni').textContent='ID: '+id+' ✅'; } mostrarAlerta('alerta-ingreso','ok',`✅ Estado de <strong>${id}</strong> consultado.`); }
+  function resetIngresoForm(){
+    const radioInv = document.querySelector('input[name="tipo-ingreso"][value="invitado"]');
+    if (radioInv) radioInv.checked = true;
+    toggleIngresoFields();
+    const dni = document.getElementById('dni-ingreso');
+    const socio = document.getElementById('nroSocio-ingreso');
+    const nombre = document.getElementById('nombre-ingreso');
+    if (dni) dni.value = ''; if (socio) socio.value = ''; if (nombre) nombre.value = '';
+    const hint = document.getElementById('nombre-autocomplete-hint'); if (hint) hint.textContent = '';
+    const prevWrap = document.getElementById('foto-preview-wrap'); const prev = document.getElementById('foto-preview');
+    const btnBorrar = document.getElementById('btn-borrar-foto'); const idTxt = document.getElementById('foto-preview-dni');
+    if (prev) prev.src = ''; if (prevWrap) prevWrap.style.display = 'none'; if (btnBorrar) btnBorrar.style.display = 'none'; if (idTxt) idTxt.textContent = 'ID: --';
+    try { detenerCamara(); } catch(e) {}
+    const dniFocus = document.getElementById('dni-ingreso'); if (dniFocus) { dniFocus.focus(); dniFocus.select?.(); }
+  }
+  function registrarIngreso(){
+    const tipo=getTipo(); const id=getIdIngreso(); const nombre=(document.getElementById('nombre-ingreso').value||'').trim();
+    if(tipo==='invitado'){ if(!id) return mostrarAlerta('alerta-ingreso','error','Ingresá el DNI.'); if(!/^\d{6,10}$/.test(id)) return mostrarAlerta('alerta-ingreso','error','DNI inválido.'); if(!nombre) return mostrarAlerta('alerta-ingreso','error','El nombre es obligatorio.'); }
+    else { if(!id) return mostrarAlerta('alerta-ingreso','error','Ingresá el N° de socio.'); if(!/^[A-Za-z0-9\-]{3,20}$/.test(id)) return mostrarAlerta('alerta-ingreso','error','N° socio inválido.'); }
+    const existeFoto=!!getFoto(id); const prevSrc=document.getElementById('foto-preview')?.src||''; const hayNueva=prevSrc && prevSrc.startsWith('data:image/');
+    if(!existeFoto && !hayNueva) return mostrarAlerta('alerta-ingreso','error','📸 La foto es obligatoria.');
+    if(!existeFoto && hayNueva){ const m=getFotosMap(); m[id]=prevSrc; setFotosMap(m); }
+    const t=now(); const lista=getIngresos(); lista.push({dni:id,tipo,nombre,fecha:fDate(t),hora:fTime(t),isoFecha:iso(t)}); save(KEYS.ingresos,lista); markDirty();
+    mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado — ${tipo==='socio'?'Socio':'Invitado'} <strong>${id}</strong> ${fDate(t)} ${fTime(t)}`);
+    resetIngresoForm();
+  }
+
+  // ======= CONSULTA =======
+  function abrirImgModal(src){ const m=document.getElementById('img-modal'); const i=document.getElementById('img-modal-img'); i.src=src; m.style.display='flex'; }
+  function cerrarImgModal(){ const m=document.getElementById('img-modal'); if(m) m.style.display='none'; }
+  function limpiarConsulta(){ ['consulta-id','consulta-desde','consulta-hasta'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';}); document.getElementById('consulta-tipo').value='ambos'; const res=document.getElementById('consulta-res'); res.className='alerta'; res.innerHTML=''; document.getElementById('consulta-tabla-wrap').style.display='none'; document.querySelector('#consulta-tabla tbody').innerHTML=''; document.getElementById('consulta-desde').value=hoyISO(); document.getElementById('consulta-hasta').value=hoyISO(); }
+  function toISO(fecha){ if(!fecha) return '0001-01-01'; if(/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return fecha; const p=fecha.split('/'); if(p.length!==3) return '0001-01-01'; const d=new Date(+p[2],+p[1]-1,+p[0]); return d.toISOString().slice(0,10); }
+  function filtrarIngresos({id,desdeISO,hastaISO,tipo}){ const ing=getIngresos(); let d=desdeISO||null, h=hastaISO||null; if(d && !/^\d{4}-\d{2}-\d{2}$/.test(d)) return {error:'Fecha "Desde" inválida.'}; if(h && !/^\d{4}-\d{2}-\d{2}$/.test(h)) return {error:'Fecha "Hasta" inválida.'}; if(d && !h) h='9999-12-31'; if(!d && h) d='0001-01-01'; const filas=ing.filter(x=>{ const okId=id?x.dni===id:true; const f=x.isoFecha||toISO(x.fecha); const okF=(d?f>=d:true)&&(h?f<=h:true); const okT=(tipo==='ambos')?true:(x.tipo===tipo); return okId&&okF&&okT; }).sort((a,b)=>{const ka=(a.isoFecha||toISO(a.fecha))+' '+(a.hora||'00:00:00'); const kb=(b.isoFecha||toISO(b.fecha))+' '+(b.hora||'00:00:00'); return kb.localeCompare(ka);}); return {filas}; }
+  function btnApercClick(btn){ openAperc(btn.dataset.id, btn.dataset.nombre || ''); }
+  function btnSuspClick(btn){ openSusp(btn.dataset.id, btn.dataset.nombre || ''); }
+  function consulta(){
+    const id=(document.getElementById('consulta-id').value||'').trim();
+    const d=(document.getElementById('consulta-desde').value||'').trim();
+    const h=(document.getElementById('consulta-hasta').value||'').trim();
+    const t=document.getElementById('consulta-tipo').value;
+
+    const wrap=document.getElementById('consulta-tabla-wrap');
+    const tbody=document.querySelector('#consulta-tabla tbody');
+    const res=document.getElementById('consulta-res');
+    res.className='alerta'; res.innerHTML=''; wrap.style.display='none'; tbody.innerHTML='';
+
+    const {filas,error}=filtrarIngresos({id,desdeISO:d,hastaISO:h,tipo:t});
+    if(error){ res.classList.add('error'); res.innerHTML='❌ '+error; return; }
+    if(!filas.length){ return; } // hoy vacío → no se muestra nada
+
+    wrap.style.display='block';
+    for(const x of filas){
+      const tipoTxt=(x.tipo||'').toLowerCase()==='socio'?'Socio':'Invitado';
+      const nombre = x.nombre || '';
+      const fotoCell = renderFotoCell(x.dni);
+      const acciones =
+        `<div class="row" style="gap:6px">
+           <button class="btn btn-ghost" data-id="${escAttr(x.dni)}" data-nombre="${escAttr(nombre)}" onclick="btnApercClick(this)">Apercibir</button>
+           <button class="btn btn-danger" data-id="${escAttr(x.dni)}" data-nombre="${escAttr(nombre)}" onclick="btnSuspClick(this)">Suspender</button>
+         </div>`;
+      const tr=document.createElement('tr');
+      tr.innerHTML = `<td>${fotoCell}</td><td>${tipoTxt}</td><td>${x.dni}</td><td>${x.fecha||'—'}</td><td>${acciones}</td>`;
+      tbody.appendChild(tr);
+    }
+  }
+
+  // ====== ACCIONES: APERCIBIR / SUSPENDER ======
+  function openAperc(personaId, nombre){
+    _apercPersonaId=personaId||''; _apercNombre=nombre||'';
+    document.getElementById('aperc-idtxt').textContent='ID: '+personaId+(nombre?(' · '+nombre):'');
+    document.getElementById('aperc-motivo').value='';
+    document.getElementById('aperc-msg').textContent='';
+    document.getElementById('mdl-aperc').style.display='flex';
+  }
+  function closeAperc(){ document.getElementById('mdl-aperc').style.display='none'; }
+  function guardarAperc(){
+    const motivo=(document.getElementById('aperc-motivo').value||'').trim();
+    if(!motivo){ document.getElementById('aperc-msg').textContent='Ingresá un motivo.'; return; }
+    const arr=getSanciones();
+    arr.push({ id:'ap-'+Date.now(), tipo:'apercibimiento', personaId:_apercPersonaId, nombre:_apercNombre, motivo, fechaISO: hoyISO() });
+    setSanciones(arr);
+    closeAperc();
+    alert('Apercibimiento registrado.');
+  }
+
+  function openSusp(personaId, nombre){
+    _suspPersonaId=personaId||''; _suspNombre=nombre||'';
+    const hoy=hoyISO(); const d = new Date(); d.setDate(d.getDate()+7);
+    document.getElementById('susp-idtxt').textContent='ID: '+personaId+(nombre?(' · '+nombre):'');
+    document.getElementById('susp-desde').value=hoy;
+    document.getElementById('susp-hasta').value=d.toISOString().slice(0,10);
+    document.getElementById('susp-motivo').value='';
+    document.getElementById('susp-msg').textContent='';
+    document.getElementById('mdl-susp').style.display='flex';
+  }
+  function closeSusp(){ document.getElementById('mdl-susp').style.display='none'; }
+  function guardarSusp(){
+    const desdeISO=(document.getElementById('susp-desde').value||'').trim();
+    const hastaISO=(document.getElementById('susp-hasta').value||'').trim();
+    const motivo=(document.getElementById('susp-motivo').value||'').trim();
+    if(!desdeISO||!hastaISO||!motivo){ document.getElementById('susp-msg').textContent='Completá motivo y rango de fechas.'; return; }
+    if(hastaISO<desdeISO){ document.getElementById('susp-msg').textContent='La fecha fin no puede ser anterior al inicio.'; return; }
+    const arr=getSanciones();
+    arr.push({ id:'su-'+Date.now(), tipo:'suspension', personaId:_suspPersonaId, nombre:_suspNombre, motivo, desdeISO, hastaISO, fechaISO:hoyISO(), activo:true });
+    setSanciones(arr);
+    closeSusp();
+    alert('Suspensión registrada.');
+    refrescarSanciones();
+  }
+
+  // ====== MODAL OBSERVACIÓN ======
+  function verObserv(titulo, texto){
+    const head = document.getElementById('observ-head');
+    const body = document.getElementById('observ-text');
+    head.textContent = titulo || 'Observación';
+    body.textContent = texto || '—';
+    document.getElementById('mdl-observ').style.display='flex';
+  }
+  function cerrarObserv(){ document.getElementById('mdl-observ').style.display='none'; }
+
+  // ====== SANCIONES (listados con columnas pedidas) ======
+  function limpiarAperc(){
+    document.getElementById('aperc-desde').value=hoyISO();
+    document.getElementById('aperc-hasta').value=hoyISO();
+    const res = document.getElementById('aperc-res');
+    res.className='alerta'; res.innerHTML='';
+    document.getElementById('aperc-tabla-wrap').style.display='none';
+    document.getElementById('aperc-tbody').innerHTML='';
+  }
+  function rowClickObs(e){
+    const tr = e.currentTarget;
+    const nombre = tr.dataset.nombre || '—';
+    const id = tr.dataset.id || '—';
+    const motivo = tr.dataset.motivo || '—';
+    const desde = tr.dataset.desde || '';
+    const hasta = tr.dataset.hasta || '';
+    let titulo = `ID: ${id} · ${nombre}`;
+    if (desde || hasta) titulo += ` · ${desde || ''}${(desde && hasta)?' → ':''}${hasta || ''}`;
+    verObserv(titulo, motivo);
+  }
+  function listarApercibimientos(){
+    const d=(document.getElementById('aperc-desde').value||'').trim();
+    const h=(document.getElementById('aperc-hasta').value||'').trim();
+    const arr=getSanciones().filter(s=>s.tipo==='apercibimiento');
+
+    const enRango = arr.filter(s=>{
+      const f=s.fechaISO||'0001-01-01';
+      return (!d||f>=d)&&(!h||f<=h);
+    });
+
+    const wrap=document.getElementById('aperc-tabla-wrap');
+    const tbody=document.getElementById('aperc-tbody');
+    const res=document.getElementById('aperc-res');
+    tbody.innerHTML=''; wrap.style.display='none'; res.className='alerta'; res.innerHTML='';
+
+    if(!enRango.length){ return; } // no mostrar nada
+
+    enRango.sort((a,b)=> (b.fechaISO||'').localeCompare(a.fechaISO||''));
+    enRango.forEach(s=>{
+      const tr=document.createElement('tr');
+      tr.dataset.id = s.personaId || '';
+      tr.dataset.nombre = s.nombre || '';
+      tr.dataset.motivo = s.motivo || '';
+      tr.addEventListener('click', rowClickObs);
+      const fotoCell = renderFotoCell(s.personaId);
+      tr.innerHTML = `<td>${fotoCell}</td><td>${s.nombre||'—'}</td><td>${s.fechaISO||'—'}</td>`;
+      tbody.appendChild(tr);
+    });
+    wrap.style.display='block';
+  }
+
+  function suspActivasHoy(){
+    const hoy=hoyISO();
+    return getSanciones().filter(s=>
+      s.tipo==='suspension' &&
+      s.activo!==false &&
+      s.desdeISO<=hoy && hoy<=s.hastaISO
+    );
+  }
+  function refrescarSanciones(){
+    if(!document.getElementById('aperc-desde').value) limpiarAperc();
+    const res=document.getElementById('susp-res');
+    const tbody=document.getElementById('susp-tbody');
+    const wrap=document.getElementById('susp-tabla-wrap');
+    tbody.innerHTML=''; wrap.style.display='none'; res.className='alerta'; res.innerHTML='';
+
+    const act=suspActivasHoy();
+    if(!act.length){ return; } // no mostrar nada
+
+    act.sort((a,b)=> (a.hastaISO||'').localeCompare(b.hastaISO||''));
+    act.forEach(s=>{
+      const tr=document.createElement('tr');
+      tr.dataset.id = s.personaId || '';
+      tr.dataset.nombre = s.nombre || '';
+      tr.dataset.motivo = s.motivo || '';
+      tr.dataset.desde = s.desdeISO || '';
+      tr.dataset.hasta = s.hastaISO || '';
+      tr.addEventListener('click', rowClickObs);
+      const fotoCell = renderFotoCell(s.personaId);
+      tr.innerHTML = `<td>${fotoCell}</td><td>${s.nombre||'—'}</td><td>${s.desdeISO||'—'}</td><td>${s.hastaISO||'—'}</td>`;
+      tbody.appendChild(tr);
+    });
+    wrap.style.display='block';
+  }
+
+  // ======= ESTADISTICAS (tendencia) =======
+  function aplicarStats(){ const id=(document.getElementById('stats-id').value||'').trim(); const d=(document.getElementById('stats-desde').value||'').trim(); const h=(document.getElementById('stats-hasta').value||'').trim(); const t=document.getElementById('stats-tipo').value; const {filas,error}=filtrarIngresos({id,desdeISO:d,hastaISO:h,tipo:t}); const lbl=(id?`ID ${id} · `:'')+(t==='ambos'?'Ambos':(t==='socio'?'Socios':'Invitados'))+(d||h?` · Rango ${d||'inicio'} → ${h||'fin'}`:' · (todos)'); const box=document.getElementById('stats-resumen'); if(error){ box.textContent=error; limpiarCharts(); return; } box.textContent=`Registros: ${filas.length} · ${lbl}`; trends(filas); }
+  function limpiarCharts(){ ['ch-trend-day','ch-trend-week','ch-trend-month','ch-trend-day-type'].forEach(id=>{ const ctx=document.getElementById(id).getContext('2d'); ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height); }); }
+  function trends(f){ const days=serieDiaria(f); const weeks=serieSemanal(f); const months=serieMensual(f); const dayByType=serieDiariaPorTipo(f); drawLine(document.getElementById('ch-trend-day').getContext('2d'), days.labels,[{name:'Total',data:days.values,color:'#2a7a2a'}],'Ingresos diarios'); drawLine(document.getElementById('ch-trend-week').getContext('2d'), weeks.labels,[{name:'Total',data:weeks.values,color:'#c8a84b'}],'Ingresos semanales'); drawLine(document.getElementById('ch-trend-month').getContext('2d'), months.labels,[{name:'Total',data:months.values,color:'#9dd49d'}],'Ingresos mensuales'); drawLine(document.getElementById('ch-trend-day-type').getContext('2d'), dayByType.labels,[{name:'Invitados',data:dayByType.inv,color:'#d4841a'},{name:'Socios',data:dayByType.soc,color:'#2a7a2a'}],'Tendencia diaria por tipo'); }
+  function rangoDias(f){ if(!f.length){ const h=now(); return [new Date(h.getFullYear(),h.getMonth(),h.getDate()), new Date(h.getFullYear(),h.getMonth(),h.getDate())]; } let mi=Infinity, ma=0; f.forEach(x=>{ const t=new Date((x.isoFecha||toISO(x.fecha))+'T00:00:00').getTime(); if(t<mi)mi=t; if(t>ma)ma=t; }); return [new Date(mi), new Date(ma)]; }
+  function serieDiaria(f){ const [d0,d1]=rangoDias(f); const labels=[], values=[], agg={}; f.forEach(x=>{ const k=x.isoFecha||toISO(x.fecha); agg[k]=(agg[k]||0)+1; }); for(let d=new Date(d0); d<=d1; d.setDate(d.getDate()+1)){ const k=iso(d); labels.push(k); values.push(agg[k]||0); } return {labels,values}; }
+  function isoWeekKey(d){ const dt=new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const dayNum=dt.getUTCDay()||7; dt.setUTCDate(dt.getUTCDate()+4-dayNum); const yearStart=new Date(Date.UTC(dt.getUTCFullYear(),0,1)); const weekNo=Math.ceil((((dt-yearStart)/86400000)+1)/7); const y=dt.getUTCFullYear(); return `${y}-W${String(weekNo).padStart(2,'0')}`; }
+  function serieSemanal(f){ const labels=[], values=[], agg={}; f.forEach(x=>{ const d=new Date((x.isoFecha||toISO(x.fecha))+'T00:00:00'); const k=isoWeekKey(d); agg[k]=(agg[k]||0)+1; }); Object.keys(agg).sort().forEach(k=>{ labels.push(k); values.push(agg[k]); }); return {labels,values}; }
+  function serieMensual(f){ const labels=[], values=[], agg={}; f.forEach(x=>{ const ym=(x.isoFecha||toISO(x.fecha)).slice(0,7); agg[ym]=(agg[ym]||0)+1; }); Object.keys(agg).sort().forEach(k=>{ labels.push(k); values.push(agg[k]); }); return {labels,values}; }
+  function serieDiariaPorTipo(f){ const [d0,d1]=rangoDias(f); const labels=[], inv=[], soc=[], ai={}, as={}; f.forEach(x=>{ const k=x.isoFecha||toISO(x.fecha); if((x.tipo||'').toLowerCase()==='socio') as[k]=(as[k]||0)+1; else ai[k]=(ai[k]||0)+1; }); for(let d=new Date(d0); d<=d1; d.setDate(d.getDate()+1)){ const k=iso(d); labels.push(k); inv.push(ai[k]||0); soc.push(as[k]||0); } return {labels,inv,soc}; }
+  function drawLine(ctx, labels, series, titulo){ const c=ctx.canvas,W=c.width,H=c.height,L=50,R=15,T=24,B=28; ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a140a'; ctx.fillRect(0,0,W,H); ctx.fillStyle='#cfe9cf'; ctx.font='12px system-ui'; ctx.fillText(titulo||'',L,16); const n=labels.length||1; const max=Math.max(1,...series.flatMap(s=>s.data)); const yScale=(H-T-B)/max, xStep=(W-L-R)/Math.max(1,n-1); ctx.strokeStyle='#264'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,H-B); ctx.lineTo(W-R,H-B); ctx.stroke(); ctx.fillStyle='#9abf9a'; ctx.textAlign='right'; for(let t=0;t<=max;t+=Math.max(1,Math.ceil(max/5))){ const y=H-B - t*yScale; ctx.fillText(String(t), L-6, y+4); ctx.strokeStyle='#123'; ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(W-R,y); ctx.stroke(); } ctx.textAlign='center'; const step=Math.ceil(n/8)||1; for(let i=0;i<n;i+=step){ const x=L+i*xStep; ctx.fillText(labels[i]||'', x, H-8); } series.forEach((s,i)=>{ const col=s.color||['#2a7a2a','#c8a84b','#9dd49d','#d4841a'][i%4]; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); for(let k=0;k<n;k++){ const v=s.data[k]||0; const x=L+k*xStep; const y=H-B - v*yScale; if(k===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke(); ctx.fillStyle=col; for(let k=0;k<n;k+=Math.max(1,Math.floor(n/30))){ const v=s.data[k]||0; const x=L+k*xStep; const y=H-B - v*yScale; ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2); ctx.fill(); } }); }
+
+  // ======= ACTIVAR (ocultar botón tras activar) =======
+  function abrirActivar(){ const m=document.getElementById('activar-modal'), i=document.getElementById('activar-token'); document.getElementById('activar-msg').textContent=''; i.value=getToken(); m.style.display='flex'; try{i.focus();}catch{} }
+  function cerrarActivar(){ document.getElementById('activar-modal').style.display='none'; }
+  function hideActivateBtn(){ const b=document.getElementById('btn-activar-sistema'); if(b) b.style.display='none'; }
+  async function guardarYActivar(){
+    const t=(document.getElementById('activar-token').value||'').trim();
+    if(!t){ document.getElementById('activar-msg').textContent='Ingresá el token.'; return; }
+    setToken(t);
+    if(!online()){
+      document.getElementById('activar-msg').textContent='Token guardado. Conectate y volvé a presionar.';
+      return;
+    }
+    document.getElementById('activar-msg').textContent='Validando token…';
+    const r=await validarToken();
+    if(r && r.ok){
+      nubeActiva=true; setSyncBadge('ok','☁️ Datos online');
+      hideActivateBtn();
+      document.getElementById('activar-msg').textContent='Activado.';
+      setTimeout(()=>{
+        cerrarActivar();
+        bootstrapFromGitHub().then(()=>mostrarIngresosDeHoy());
+      }, 400);
+    } else {
+      nubeActiva=false;
+      setSyncBadge('err','☁️ Datos local');
+      document.getElementById('activar-msg').textContent='No se pudo activar: '+(r && r.error?r.error:'Token inválido');
+    }
+  }
+  async function validarToken(){
+    if(!online()) return {ok:true,modo:'local'};
+    const token=getToken(); if(!token) return {ok:false,error:'Falta token'};
+    try{
+      setSyncBadge('syncing','☁️ Sincronizando…');
+      const ping=await fetch('https://api.github.com/zen',{method:'GET',mode:'cors',cache:'no-store'});
+      if(!ping.ok) return {ok:false,error:'No se puede contactar a GitHub'};
+      const r=await fetch('https://api.github.com/user',{
+        method:'GET',mode:'cors',cache:'no-store',
+        headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+token,'X-GitHub-Api-Version':'2022-11-28'}
+      });
+      if(r.status===401) return {ok:false,error:'Token inválido (401)'};
+      if(r.status===403) return {ok:false,error:'Acceso denegado (403)'};
+      if(!r.ok)         return {ok:false,error:'Error: '+r.status};
+      const scopes=(r.headers.get('x-oauth-scopes')||'').toLowerCase();
+      localStorage.setItem('app_scopes', scopes);
+      if(!scopes.includes('gist') && !scopes.includes('repo')){
+        return {ok:false,error:'El token no tiene permisos de Gist ni de Repo. Agregá scope gist o repo.'};
+      }
+      return {ok:true,scopes};
+    }catch(e){
+      return {ok:false,error:'Red/CORS: '+(e?.message||e)};
+    }
+  }
+
+  // ======= GITHUB (Gist + fallback Repo) =======
+  function ghHeaders(){ return {'Accept':'application/vnd.github+json','Authorization':'Bearer '+getToken(),'X-GitHub-Api-Version':'2022-11-28'}; }
+  function b64(s){ return btoa(unescape(encodeURIComponent(s))); }
+  async function ghUser(){ const r=await fetch('https://api.github.com/user',{method:'GET',mode:'cors',cache:'no-store',headers:ghHeaders()}); if(!r.ok) throw new Error('user:'+r.status); return await r.json(); }
+  async function discoverGistId(){
+    for(let page=1; page<=5; page++){
+      const r=await fetch(`https://api.github.com/gists?per_page=50&page=${page}`,{method:'GET',mode:'cors',cache:'no-store',headers:ghHeaders()});
+      if(!r.ok) break;
+      const arr=await r.json();
+      const g=arr.find(x=>{
+        const has=x.files && x.files['ingresos.json'] && x.files['fotos.json'];
+        const desc=(x.description||'').toLowerCase().includes('pejerrey club');
+        return has||desc;
+      });
+      if(g){ setGistId(g.id); setBackupMode('gist'); return g.id; }
+      if(arr.length<50) break;
+    }
+    return '';
+  }
+  async function pullFromGist(gid){
+    const r=await fetch('https://api.github.com/gists/'+gid,{method:'GET',mode:'cors',cache:'no-store',headers:ghHeaders()});
+    if(!r.ok) throw new Error('GIST_GET:'+r.status);
+    const j=await r.json();
+    async function readFile(name){
+      const f=j.files[name]; if(!f) return null;
+      if(f.content) return JSON.parse(f.content);
+      const rr=await fetch(f.raw_url,{mode:'cors',cache:'no-store'}); return await rr.json();
+    }
+    return {
+      ingresos: await readFile('ingresos.json')||[],
+      fotos:    await readFile('fotos.json')||{}
+    };
+  }
+  async function createGistFromLocal(){
+    const body={ description:GIST_DESC, public:false, files:{
+      'ingresos.json':{content:JSON.stringify(getIngresos(),null,2)},
+      'fotos.json':   {content:JSON.stringify(getFotosMap(),null,2)},
+      'meta.json':    {content:JSON.stringify({createdAt:new Date().toISOString(),app:'PejerreyClub'},null,2)}
+    }};
+    const r=await fetch('https://api.github.com/gists',{method:'POST',mode:'cors',cache:'no-store',headers:ghHeaders(),body:JSON.stringify(body)});
+    if(!r.ok){
+      if([401,403,404].includes(r.status)) throw new Error('GIST_UNAVAILABLE:'+r.status);
+      let t=''; try{t=await r.text();}catch{}; throw new Error('GIST_CREATE:'+r.status+' '+t);
+    }
+    const j=await r.json(); setGistId(j.id||''); setBackupMode('gist');
+    localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now()));
+    return j.id;
+  }
+  async function patchGist(gid){
+    const body={ files:{
+      'ingresos.json':{content:JSON.stringify(getIngresos(),null,2)},
+      'fotos.json':   {content:JSON.stringify(getFotosMap(),null,2)},
+      'meta.json':    {content:JSON.stringify({updatedAt:new Date().toISOString(),app:'PejerreyClub'},null,2)}
+    }};
+    const r=await fetch('https://api.github.com/gists/'+gid,{method:'PATCH',mode:'cors',cache:'no-store',headers:ghHeaders(),body:JSON.stringify(body)});
+    if(!r.ok){ let t=''; try{t=await r.text();}catch{}; throw new Error('GIST_PATCH:'+r.status+' '+t); }
+    localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now())); clearDirty();
+  }
+
+  async function ensureRepo(owner, name){
+    let r=await fetch(`https://api.github.com/repos/${owner}/${name}`,{headers:ghHeaders(),mode:'cors',cache:'no-store'});
+    if(r.status===404){
+      r=await fetch('https://api.github.com/user/repos',{
+        method:'POST',mode:'cors',cache:'no-store',headers:ghHeaders(),
+        body:JSON.stringify({name,description:GIST_DESC,'private':true})
+      });
+      if(!r.ok) throw new Error('REPO_CREATE:'+r.status);
+    } else if(!r.ok){ throw new Error('REPO_GET:'+r.status); }
+    localStorage.setItem(BACKUP.repoOwnerKey, owner||''); localStorage.setItem(BACKUP.repoNameKey, name||''); setBackupMode('repo');
+  }
+  async function getFileSha(owner, repo, path){
+    const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`,{headers:ghHeaders(),mode:'cors',cache:'no-store'});
+    if(r.status===404) return null;
+    if(!r.ok) throw new Error('GET_SHA:'+r.status);
+    const j=await r.json(); return j.sha||null;
+  }
+  async function putFileJson(owner, repo, path, obj, message){
+    const sha=await getFileSha(owner,repo,path);
+    const body={ message, content:b64(JSON.stringify(obj,null,2)) };
+    if(sha) body.sha=sha;
+    const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`,{
+      method:'PUT',mode:'cors',cache:'no-store',headers:ghHeaders(), body:JSON.stringify(body)
+    });
+    if(!r.ok){ let t=''; try{t=await r.text();}catch{}; throw new Error('PUT_FILE:'+r.status+' '+t); }
+  }
+  async function getFileJson(owner, repo, path){
+    const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`,{headers:ghHeaders(),mode:'cors',cache:'no-store'});
+    if(r.status===404) return null;
+    if(!r.ok) throw new Error('GET_FILE:'+r.status);
+    const j=await r.json();
+    const raw=atob(j.content||'');
+    // Nota: escape/unescape están deprecados, pero mantienen compatibilidad
+    return JSON.parse(decodeURIComponent(escape(raw)));
+  }
+
+  function mergeIngresos(localArr, remoteArr){
+    const key=x=>[x.dni||'',x.isoFecha||toISO(x.fecha||''),x.hora||'',x.tipo||'',x.nombre||''].join('|');
+    const map=new Map(); [...localArr,...remoteArr].forEach(x=>map.set(key(x),x));
+    return Array.from(map.values()).sort((a,b)=> ((b.isoFecha||toISO(b.fecha||''))+' '+(b.hora||'00:00:00')).localeCompare((a.isoFecha||toISO(a.fecha||''))+' '+(a.hora||'00:00:00')) );
+  }
+  function mergeFotos(localMap, remoteMap){ return {...remoteMap, ...localMap}; }
+
+  async function bootstrapFromGitHub(){
+    if(!nubeActiva || !online()) return;
+    setSyncBadge('ok','☁️ Datos online');
+    let mode=getBackupMode(); let gid=getGistId();
+    if(mode==='gist'){
+      try{
+        if(!gid) gid=await discoverGistId();
+        if(gid){
+          const remote=await pullFromGist(gid);
+          const ing=mergeIngresos(getIngresos(),remote.ingresos||[]);
+          const fot=mergeFotos(getFotosMap(),remote.fotos||{});
+          save(KEYS.ingresos,ing); save(KEYS.fotos,fot);
+          await patchGist(gid);
+          return;
+        }
+        const hasLocal=getIngresos().length||Object.keys(getFotosMap()).length;
+        if(hasLocal){ await createGistFromLocal(); return; }
+        return;
+      }catch(e){
+        if(String(e.message||'').startsWith('GIST_UNAVAILABLE')){ setBackupMode('repo'); }
+        else { setSyncBadge('err','☁️ Datos local'); showFatal(e.message||e); return; }
+      }
+    }
+    try{
+      const user=await ghUser(); const owner=user.login; const repo='pejerrey-backup';
+      await ensureRepo(owner,repo);
+      const rIng=await getFileJson(owner,repo,'ingresos.json')||[];
+      const rFot=await getFileJson(owner,repo,'fotos.json')||{};
+      const ing=mergeIngresos(getIngresos(), rIng);
+      const fot=mergeFotos(getFotosMap(), rFot);
+      save(KEYS.ingresos,ing); save(KEYS.fotos,fot);
+      await putFileJson(owner,repo,'ingresos.json',ing,'sync: ingresos');
+      await putFileJson(owner,repo,'fotos.json',fot,'sync: fotos');
+      await putFileJson(owner,repo,'meta.json',{updatedAt:new Date().toISOString(),app:'PejerreyClub'},'sync: meta');
+      localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now()));
+    }catch(e){
+      setSyncBadge('err','☁️ Datos local'); showFatal(e.message||e);
+    }
+  }
+
+  async function persistir(){
+    if(!nubeActiva || !online()) return;
+    setSyncBadge('syncing','☁️ Datos online');
+    let mode=getBackupMode();
+    if(mode==='gist'){
+      try{
+        let gid=getGistId(); if(!gid) gid=await discoverGistId();
+        if(!gid){ await createGistFromLocal(); clearDirty(); setSyncBadge('ok','☁️ Datos online'); return; }
+        await patchGist(gid); clearDirty(); setSyncBadge('ok','☁️ Datos online'); return;
+      }catch(e){
+        if(String(e.message||'').startsWith('GIST_')){ setBackupMode('repo'); }
+        else { setSyncBadge('err','☁️ Datos local'); showFatal(e.message||e); return; }
+      }
+    }
+    try{
+      const user=await ghUser(); const owner=user.login; const repo='pejerrey-backup';
+      await ensureRepo(owner,repo);
+      await putFileJson(owner,repo,'ingresos.json',getIngresos(),'sync: ingresos');
+      await putFileJson(owner,repo,'fotos.json',getFotosMap(),'sync: fotos');
+      await putFileJson(owner,repo,'meta.json',{updatedAt:new Date().toISOString(),app:'PejerreyClub'},'sync: meta');
+      localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now()));
+      clearDirty(); setSyncBadge('ok','☁️ Datos online');
+    }catch(e){ setSyncBadge('err','☁️ Datos local'); showFatal(e.message||e); }
+  }
+  function scheduleSync(){ if(_syncTimer) clearInterval(_syncTimer); _syncTimer=setInterval(async()=>{ if(hayPendientes()) await persistir(); }, 60*1000); }
+
+  // ======= SYNC MANUAL (en Consulta) =======
+  async function syncManual(){
+    if(!getToken()){ alert('Ingresá tu token y activá el sistema.'); return; }
+    const v=await validarToken(); if(!(v&&v.ok)){ alert('Token inválido o sin permisos.'); return; }
+    nubeActiva=true; hideActivateBtn();
+    await bootstrapFromGitHub();
+  }
+
+  // ======= MOSTRAR HOY (sin fallback si está vacío) =======
+  function mostrarIngresosDeHoy(){
+    const hoy = hoyISO();
+    document.getElementById('consulta-desde').value=hoy;
+    document.getElementById('consulta-hasta').value=hoy;
+    navClick('consulta', document.getElementById('btn-nav-consulta'));
+    consulta();
+  }
+
+  // ======= BACKUP manual =======
+  function exportarJSON(){ const txt=JSON.stringify({ingresos:getIngresos(),fotos:getFotosMap(),sanciones:getSanciones()},null,2); document.getElementById('backup-json').value=txt; document.getElementById('backup-alert').textContent='Exportado.'; }
+  function importarJSON(){ try{ const txt=document.getElementById('backup-json').value||'{}'; const data=JSON.parse(txt); if(data.ingresos) save(KEYS.ingresos,data.ingresos); if(data.fotos) save(KEYS.fotos,data.fotos); if(data.sanciones) save(KEYS.sanciones,data.sanciones); document.getElementById('backup-alert').textContent='Importación OK.'; markDirty(); }catch(e){ document.getElementById('backup-alert').textContent='Error al importar JSON.'; } }
+
+  // ======= INIT =======
+  (function(){
+    try{
+      tick(); setInterval(tick,1000);
+      // Date pickers hoy
+      ['consulta-desde','consulta-hasta','stats-desde','stats-hasta','aperc-desde','aperc-hasta'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=hoyISO(); });
+
+      window.addEventListener('online',()=>{ if(getToken()) setSyncBadge('ok','☁️ Datos online'); else setSyncBadge('err','☁️ Datos local'); });
+      window.addEventListener('offline',()=> setSyncBadge('err','☁️ Datos local'));
+
+      if(!online()){ setSyncBadge('err','☁️ Datos local'); }
+      else if(!getToken()){ setSyncBadge('err','☁️ Datos local'); }
+      else {
+        validarToken().then(r=>{
+          if(r&&r.ok){
+            nubeActiva=true; setSyncBadge('ok','☁️ Datos online');
+            hideActivateBtn();
+            bootstrapFromGitHub().then(()=>mostrarIngresosDeHoy()).catch(showFatal);
+          } else {
+            nubeActiva=false; setSyncBadge('err','☁️ Datos local');
+          }
+        }).catch(showFatal);
+      }
+
+      scheduleSync();
+      navClick('ingreso', document.getElementById('btn-nav-ingreso'));
+    }catch(e){ showFatal(e.message||e); }
+  })();
+  </script>
+</body>
+</html>
