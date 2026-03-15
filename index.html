@@ -726,12 +726,14 @@
   function drawLine(ctx, labels, series, titulo){ const c=ctx.canvas,W=c.width,H=c.height,L=50,R=15,T=24,B=28; ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a140a'; ctx.fillRect(0,0,W,H); ctx.fillStyle='#cfe9cf'; ctx.font='12px system-ui'; ctx.fillText(titulo||'',L,16); const n=labels.length||1; const max=Math.max(1,...series.flatMap(s=>s.data)); const yScale=(H-T-B)/max, xStep=(W-L-R)/Math.max(1,n-1); ctx.strokeStyle='#264'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,H-B); ctx.lineTo(W-R,H-B); ctx.stroke(); ctx.fillStyle='#9abf9a'; ctx.textAlign='right'; const stepY=Math.max(1,Math.ceil(max/5)); for(let t=0;t<=max;t+=stepY){ const y=H-B - t*yScale; ctx.fillText(String(t), L-6, y+4); ctx.strokeStyle='#123'; ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(W-R,y); ctx.stroke(); } ctx.textAlign='center'; const stepX=Math.ceil(n/8)||1; for(let i=0;i<n;i+=stepX){ const x=L+i*xStep; ctx.fillText(labels[i]||'', x, H-8); } series.forEach((s,i)=>{ const col=s.color||['#2a7a2a','#c8a84b','#9dd49d','#d4841a'][i%4]; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); for(let k=0;k<n;k++){ const v=s.data[k]||0; const x=L+k*xStep; const y=H-B - v*yScale; if(k===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke(); ctx.fillStyle=col; for(let k=0;k<n;k+=Math.max(1,Math.floor(n/30))){ const v=s.data[k]||0; const x=L+k*xStep; const y=H-B - v*yScale; ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2); ctx.fill(); } }); }
 
   // ======= ACTIVAR / VALIDAR =======
-  function abrirActivar(){ const m=document.getElementById('activar-modal'), i=document.getElementById('activar-token'); document.getElementById('activar-msg').textContent=''; i.value=getToken(); m.style.display='flex'; try{i.focus();}catch{} }
+  function abrirActivar(){ try{ const m=document.getElementById('activar-modal'); const i=document.getElementById('activar-token'); document.getElementById('activar-msg').textContent=''; if(i) i.value=getToken(); if(m) m.style.display='flex'; setTimeout(()=>{try{i&&i.focus();}catch(e){}},0); }catch(e){ console.error('abrirActivar()', e); alert('No se pudo abrir el diálogo de activación.'); } }
   function cerrarActivar(){ document.getElementById('activar-modal').style.display='none'; }
   function hideActivateBtn(){ const b=document.getElementById('btn-activar-sistema'); if(b) b.style.display='none'; }
   async function guardarYActivar(){
+  try{
     const t=(document.getElementById('activar-token').value||'').trim();
     if(!t){ document.getElementById('activar-msg').textContent='Ingresá el token.'; return; }
+  if(!online()){ setToken(t); nubeActiva=false; setSyncBadge('err','☁️ Datos local'); document.getElementById('activar-msg').textContent='Token guardado (sin conexión).'; setTimeout(()=>cerrarActivar(),700); return; }
     setToken(t);
     if(!online()){ document.getElementById('activar-msg').textContent='Token guardado. Conectate y volvé a presionar.'; return; }
     document.getElementById('activar-msg').textContent='Validando token…';
@@ -742,7 +744,7 @@
       setTimeout(()=>{ cerrarActivar(); bootstrapFromGitHub().then(()=>mostrarIngresosDeHoy()); }, 400);
     } else {
       nubeActiva=false; setSyncBadge('err','☁️ Datos local');
-      document.getElementById('activar-msg').textContent='No se pudo activar: '+(r && r.error?r.error:'Token inválido');
+      document.getElementById('activar-msg').textContent='No se pudo activar: '+(r && r.error?r.error:'Token inválido'); console.error('Activar error', r);
     }
   }
   async function validarToken(){
