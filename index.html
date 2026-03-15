@@ -262,7 +262,7 @@
       <div class="row" style="gap:8px;margin-bottom:8px">
         <button class="btn" onclick="exportarJSON()">Exportar JSON</button>
         <button class="btn" onclick="importarJSON()">Importar JSON</button>
-        <button class="btn btn-ghost" onclick="generarRandom6M()">🎲 Generar datos aleatorios (6 meses)</button>
+        <button class="btn btn-ghost" onclick="generarRandomDesdeEnero2026()">🎲 Generar datos aleatorios (desde 01/2026 · 100)</button>
         <button class="btn btn-danger" onclick="borrarRandom()">🧹 Borrar datos aleatorios</button>
       </div>
       <textarea id="backup-json" style="width:100%;height:160px;margin-top:8px;background:#081508;color:#e8ffe8;border:1px solid #335a33;border-radius:8px" placeholder="Pegá acá para importar / se completa al exportar"></textarea>
@@ -514,12 +514,26 @@
 
   // ======= CONSULTA =======
   function renderFotoCell(personaId, nombre){
-    const foto=getFoto(personaId); if(!foto) return '—';
-    if(typeof foto==='string' && foto.startsWith('data:image/')){
-      const safeSrc=foto.replace(/"/g,'&quot;'); const safeAlt=`Foto de ${nombre||''} (${personaId||''})`.replace(/"/g,'&quot;');
-      const safeNom=String(nombre||'').replace(/"/g,'&quot;'); const safeId=String(personaId||'').replace(/"/g,'&quot;');
-      return `${safeSrc}" alt="${safeAlt}" data-id="${safeId}" data-nombre="${safeNom}" onclick="abrirImg(this)">`;
-    }
+  const foto = getFoto(personaId); if(!foto) return '—';
+  // Si es una dataURL base64
+  if (typeof foto==='string' && foto.startsWith('data:image/')) {
+    const safeSrc = foto.replace(/"/g,'&quot;');
+    const safeAlt = (`Foto de ${nombre||''} (${personaId||''})`).replace(/"/g,'&quot;');
+    const safeNom = String(nombre||'').replace(/"/g,'&quot;');
+    const safeId  = String(personaId||'').replace(/"/g,'&quot;');
+    return `<img class="thumb" src="${safeSrc}" alt="${safeAlt}" data-id="${safeId}" data-nombre="${safeNom}" onclick="abrirImg(this)">`;
+  }
+  // Si es una URL http(s), la envolvemos en <img>
+  if (typeof foto==='string' && (/^https?:\/\//i).test(foto)) {
+    const safeSrc = foto.replace(/"/g,'&quot;');
+    const safeAlt = (`Foto de ${nombre||''} (${personaId||''})`).replace(/"/g,'&quot;');
+    const safeNom = String(nombre||'').replace(/"/g,'&quot;');
+    const safeId  = String(personaId||'').replace(/"/g,'&quot;');
+    return `<img class="thumb" src="${safeSrc}" alt="${safeAlt}" data-id="${safeId}" data-nombre="${safeNom}" onclick="abrirImg(this)">`;
+  }
+  // Compat: si ya viene HTML, lo devolvemos tal cual
+  return foto;
+}
     return foto; // compat
   }
   function limpiarConsulta(){ ['consulta-id','consulta-desde','consulta-hasta'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';}); document.getElementById('consulta-tipo').value='ambos'; const res=document.getElementById('consulta-res'); res.className='alerta'; res.innerHTML=''; document.getElementById('consulta-tabla-wrap').style.display='none'; document.querySelector('#consulta-tabla tbody').innerHTML=''; document.getElementById('consulta-desde').value=hoyISO(); document.getElementById('consulta-hasta').value=hoyISO(); }
@@ -777,46 +791,48 @@
   function exportarJSON(){ const txt=JSON.stringify({ingresos:getIngresos(),fotos:getFotosMap(),sanciones:getSanciones()},null,2); document.getElementById('backup-json').value=txt; document.getElementById('backup-alert').textContent='Exportado.'; }
   function importarJSON(){ try{ const txt=document.getElementById('backup-json').value||'{}'; const data=JSON.parse(txt); if(data.ingresos) save(KEYS.ingresos,data.ingresos); if(data.fotos) save(KEYS.fotos,data.fotos); if(data.sanciones) save(KEYS.sanciones,data.sanciones); document.getElementById('backup-alert').textContent='Importación OK.'; markDirty(); }catch(e){ document.getElementById('backup-alert').textContent='Error al importar JSON.'; } }
 
-  // ======= RANDOM DATA (6 MESES) =======
-  function generarRandom6M(){
-    const hoy = new Date();
-    const start = new Date(hoy.getFullYear(), hoy.getMonth()-6, hoy.getDate());
-    const nombres = ['Pérez, Juan','Gómez, Ana','Rodríguez, Luis','Fernández, Marta','López, Diego','Sosa, Carla','Martínez, Pablo','Romero, Julia','Torres, Sofia','Ruiz, Martín'];
-    const tipos = ['invitado','socio'];
-    const rnd = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
-    const toISO = d=> d.toISOString().slice(0,10);
-    const dos=n=>n<10?('0'+n):(''+n);
-    const fDate=d=>[dos(d.getDate()),dos(d.getMonth()+1),d.getFullYear()].join('/');
-    const fTime=d=>[dos(d.getHours()),dos(d.getMinutes()),dos(d.getSeconds())].join(':');
-
-    const lista = getIngresos();
-    let creados = 0;
-    for(let d=new Date(start); d<=hoy; d.setDate(d.getDate()+1)){
-      const n = Math.max(0, Math.round((Math.sin(d.getTime()/8.64e7)+1)*3) + rnd(0,4));
-      for(let i=0;i<n;i++){
-        const tipo = tipos[rnd(0,1)];
-        const id = tipo==='invitado' ? String(rnd(20000000,50000000)) : 'S-'+String(rnd(1000,99999));
-        const nombre = nombres[rnd(0,nombres.length-1)];
-        const hh = rnd(8,20), mm=rnd(0,59), ss=rnd(0,59);
-        const ts = new Date(d.getFullYear(), d.getMonth(), d.getDate(), hh, mm, ss);
-        lista.push({dni:id, tipo, nombre, fecha:fDate(ts), hora:fTime(ts), isoFecha:toISO(d), rnd:true});
-        creados++;
-      }
-    }
-    save(KEYS.ingresos, lista);
-    markDirty();
-    document.getElementById('backup-alert').textContent = `✅ Generados ${creados} ingresos aleatorios en 6 meses.`;
+  // ======= RANDOM DATA (desde 01/2026 · 100) =======
+function generarRandomDesdeEnero2026(){
+  const start = new Date(2026,0,1);
+  const end = new Date();
+  const nombres = ['Pérez, Juan','Gómez, Ana','Rodríguez, Luis','Fernández, Marta','López, Diego','Sosa, Carla','Martínez, Pablo','Romero, Julia','Torres, Sofia','Ruiz, Martín'];
+  const tipos = ['invitado','socio'];
+  const rnd = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
+  const toISO = d=> d.toISOString().slice(0,10);
+  const dos=n=>n<10?('0'+n):(''+n);
+  const fDate=d=>[dos(d.getDate()),dos(d.getMonth()+1),d.getFullYear()].join('/');
+  const fTime=d=>[dos(d.getHours()),dos(d.getMinutes()),dos(d.getSeconds())].join(':');
+  const lista = getIngresos();
+  const fotos = getFotosMap();
+  // Placeholder libre (Wikimedia Commons)
+  const URL_NO_FOTO = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/450px-No_image_available.svg.png?20221208232400';
+  let creados = 0;
+  for(let i=0;i<100;i++){
+    const tipo = tipos[rnd(0,1)];
+    const id = tipo==='invitado' ? String(rnd(20000000,50000000)) : 'S-'+String(rnd(1000,99999));
+    const nombre = nombres[rnd(0,nombres.length-1)];
+    const ts = new Date(start.getTime() + Math.random()*(end.getTime()-start.getTime()));
+    ts.setHours(rnd(8,20), rnd(0,59), rnd(0,59), 0);
+    lista.push({dni:id, tipo, nombre, fecha:fDate(ts), hora:fTime(ts), isoFecha:toISO(ts), rnd:true});
+    if(!fotos[id]) fotos[id] = URL_NO_FOTO;
+    creados++;
   }
-  function borrarRandom(){
-    const ing = getIngresos().filter(x=>!x.rnd);
-    save(KEYS.ingresos, ing);
-    const san = getSanciones().filter(x=>!x.rnd);
-    save(KEYS.sanciones, san);
-    markDirty();
-    document.getElementById('backup-alert').textContent = '🧹 Datos aleatorios eliminados.';
-  }
+  save(KEYS.ingresos, lista);
+  setFotosMap(fotos);
+  markDirty();
+  const el = document.getElementById('backup-alert'); if(el) el.textContent = `✅ Generados ${creados} ingresos aleatorios desde 2026-01-01.`;
+}
 
-  // ======= INIT =======
+function borrarRandom(){
+  const ing = getIngresos().filter(x=>!x.rnd);
+  save(KEYS.ingresos, ing);
+  const san = getSanciones().filter(x=>!x.rnd);
+  save(KEYS.sanciones, san);
+  markDirty();
+  const el = document.getElementById('backup-alert'); if(el) el.textContent = '🧹 Datos aleatorios eliminados.';
+}
+
+// ======= INIT =======
   (function(){
     tick(); setInterval(tick,1000);
     ['consulta-desde','consulta-hasta','stats-desde','stats-hasta','aperc-desde','aperc-hasta'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=hoyISO(); });
