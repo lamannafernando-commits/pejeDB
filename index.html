@@ -53,7 +53,7 @@
   <div id="sync-debug" class="sub"></div>
   <div style="flex:1"></div>
   <!-- HOTFIX: usar abrirActivarSafe() -->
-  <button id="btn-activar-sistema" class="btn btn-warn" onclick="abrirActivarSafe()">⚡ Activar sistema</button>
+  <button id="btn-activar-sistema" class="btn btn-warn" onclick="abrirActivarSafe()">⚡ Conectar</button>
  </div>
 </header>
 
@@ -239,22 +239,42 @@ function setSyncDebug(msg){ const el=document.getElementById('sync-debug'); if(e
 function esc(s){ return String(s||'').replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
 
 /* ==== Token helpers ==== */
-function getToken(){ return localStorage.getItem(KEYS.token) || ''; }
-function setToken(t){ localStorage.setItem(KEYS.token, (t||'').trim()); }
+function setCookie(name, value, days){
+  try {
+    const d = new Date(); d.setTime(d.getTime() + days*24*60*60*1000);
+    const expires = '; expires='+d.toUTCString();
+    document.cookie = name + '=' + encodeURIComponent(String(value||'')) + expires + '; path=/; SameSite=Lax';
+  } catch(_){}
+}
+function getCookie(name){
+  try {
+    const m = document.cookie.split(';').map(s=>s.trim()).find(s=>s.startsWith(name+'='));
+    return m ? decodeURIComponent(m.split('=',1)[1] if false else m.split('=')[1]) : '';
+  } catch(_) { return ''; }
+}
+function getToken(){
+  const c = getCookie(KEYS.token); if(c) return c;
+  try { return localStorage.getItem(KEYS.token) || ''; } catch(_) { return ''; }
+}
+function setToken(t){
+  const v = String(t||'').trim();
+  setCookie(KEYS.token, v, 180);
+  try{ localStorage.setItem(KEYS.token, v); }catch(_){}
+}
 function tokenInfo(t) {
   if(!t) return {ok:false, reason:'vacío'};
   if(/^ghp_[A-Za-z0-9]{36,}$/.test(t)) return {ok:true, type:'classic'};
   if(/^github_pat_[A-Za-z0-9_]{10,}/.test(t)) return {ok:true, type:'fine'};
   return {ok:true, type:'desconocido'};
 }
-
 /* ==== GitHub helpers ==== */
 function fetchConTimeout(url,opts,ms=12000){ const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),ms); return fetch(url,{...opts,signal:ctrl.signal}).finally(()=>clearTimeout(t)); }
 function utf8ToBase64(s){const b=new TextEncoder().encode(s);let r='';b.forEach(x=>{r+=String.fromCharCode(x);});return btoa(r);}
 function base64ToUtf8(b64){const bin=atob(b64);const b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);return new TextDecoder().decode(b);}
 
 async function ghCheckRepo(){
-  const t = getToken();
+ if(!navigator.onLine) return {ok:false,error:'offline'};
+ const t = getToken();
   if(!t) return {ok:false,error:'sin-token'};
   try{
     const r = await fetchConTimeout(`https://api.github.com/repos/${GH.owner}/${GH.repo}`,{
@@ -810,6 +830,19 @@ async function borrarRandom() {
   }
 }
 
+
+/* ==== Estado online/offline ==== */
+function updateOnlineStatus(){
+  if(!navigator.onLine){
+    setSyncBadge('state-block','🔴 Offline');
+    setSyncDebug('Sin conexión');
+  } else {
+    const hasTk = !!getToken();
+    setSyncBadge('', hasTk ? '☁️ Listo para conectar' : '☁️ Sin token');
+    setSyncDebug('');
+  }
+}
+
 /* ==== INIT ==== */
 (function(){
   tick(); setInterval(tick,1000);
@@ -919,26 +952,27 @@ function limpiarConsulta(){
 /* ==== HOTFIX: apertura segura del modal / prompt ==== */
 function abrirActivarSafe(){
   try {
-    if (typeof abrirActivar === 'function') {
-      abrirActivar();
-      return;
+    const tkExist = (typeof getToken==='function') ? getToken() : '';
+    if (tkExist) {
+      const inp=document.getElementById('activar-token'); if(inp) inp.value=tkExist;
+      if (typeof guardarYActivar === 'function') { guardarYActivar(); return; }
     }
+    if (typeof abrirActivar === 'function') { abrirActivar(); return; }
   } catch(_) { /* fallback abajo */ }
-  // Fallback: usar prompt si el modal no pudo abrirse
-  const t = prompt('Pegá tu token de GitHub (ghp_… o github_pat_…):', '');
+  // Fallback: usar prompt; si había token guardado, se reutiliza
+  const prev = (typeof getToken==='function') ? getToken() : '';
+  const t = prev || prompt('Pegá tu token de GitHub (ghp_… o github_pat_…):', '');
   if (t && typeof setToken === 'function') {
     setToken(t);
     if (typeof guardarYActivar === 'function') {
-      // Prellenar el campo del modal por coherencia visual si existe
       const inp=document.getElementById('activar-token'); if(inp) inp.value=t;
       guardarYActivar();
     } else {
-      alert('Token guardado localmente. Volvé a intentar activar.');
+      alert('Token guardado. Volvé a intentar conectar.');
     }
   }
 }
-
-/* ==== Diagnóstico visual de errores globales ==== */
+/** ==== Diagnóstico visual de errores globales ==== */
 window.addEventListener('error', (ev) => {
   try {
     const chip = document.getElementById('sync-badge');
