@@ -50,6 +50,8 @@
   <div class="row" style="margin-top:6px">
     <div id="reloj" class="chip">--:--:-- — --/--/----</div>
     <div id="sync-badge" class="chip">☁️ Datos local</div>
+    <img id="gh-avatar" alt="avatar" style="display:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--dorado);background:#000;object-fit:cover"/>
+    <div id="gh-chip" class="chip" style="display:none">GitHub — —</div>
     <div style="flex:1"></div>
     <button id="btn-activar-sistema" class="btn btn-warn" onclick="abrirActivar()">⚡ Activar sistema</button>
   </div>
@@ -253,6 +255,15 @@ const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&','<':'<','>':'>','"':'"
 function online(){ return (typeof navigator!=='undefined' && 'onLine' in navigator) ? navigator.onLine : true; }
 function setSyncBadge(state,text){ const el=document.getElementById('sync-badge'); if(!el) return; el.textContent=text; el.className='chip '+(state||''); }
 
+function hideGitHubInfo(){ const chip=document.getElementById('gh-chip'); const av=document.getElementById('gh-avatar'); if(chip){ chip.style.display='none'; chip.textContent=''; } if(av){ av.style.display='none'; av.src=''; } }
+function showGitHubInfo(user, scopes, rate){ try{ const chip=document.getElementById('gh-chip'); const av=document.getElementById('gh-avatar'); const name=user?.name||user?.login||'GitHub'; const login=user?.login?(' @'+user.login):''; const sc=(scopes||'').split(',').map(s=>s.trim()).filter(Boolean); const haveGist=sc.some(s=>/gist/i.test(s)); const haveRepo=sc.some(s=>/repo/i.test(s)); const rateTxt = rate?` · rate ${rate.remaining}/${rate.limit}`:''; if(chip){ chip.style.display='inline-flex'; chip.textContent=`${name}${login} · ${haveGist?'gist✓':'gist×'} · ${haveRepo?'repo✓':'repo×'}${rateTxt}`; } if(av && user?.avatar_url){ av.src=user.avatar_url; av.style.display='inline-block'; } }catch(e){ console.error('showGitHubInfo', e); }
+}
+async function fetchGitHubProfile(){ const token=getToken(); if(!token){ hideGitHubInfo(); return null; } try{ const u=await fetch('https://api.github.com/user',{ headers:{ 'Accept':'application/vnd.github+json', 'Authorization':'Bearer '+token, 'X-GitHub-Api-Version':'2022-11-28' } }); if(!u.ok){ hideGitHubInfo(); return null; } const user=await u.json(); const scopes=(u.headers.get('x-oauth-scopes')||'').toLowerCase(); let rate=null; try{ const r=await fetch('https://api.github.com/rate_limit',{ headers:{ 'Accept':'application/vnd.github+json', 'Authorization':'Bearer '+token, 'X-GitHub-Api-Version':'2022-11-28' } }); if(r.ok){ const j=await r.json(); rate=j?.resources?.core || null; } }catch(_){ }
+  showGitHubInfo(user, scopes, rate);
+  return {user, scopes, rate};
+ }catch(e){ console.error('fetchGitHubProfile', e); hideGitHubInfo(); return null; }
+}
+
 /* ===== Reloj & Nav ===== */
 function tick(){ const el=document.getElementById('reloj'); if(el) el.textContent=fTime(now())+' — '+fDate(now()); }
 function navClick(id,btn){ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('act')); btn.classList.add('act'); document.querySelectorAll('main > section').forEach(s=>s.style.display='none'); document.getElementById('sec-'+id).style.display='block'; if(id==='ingreso') toggleIngresoFields(); if(id==='sanc') refrescarSanciones(); }
@@ -339,7 +350,7 @@ function getFoto(id){ const m=getFotosMap(); return m[id]; }
 function markDirty(){ localStorage.setItem(KEYS.dirty,'1'); }
 
 /* ===== INIT ===== */
-(function(){ tick(); setInterval(tick,1000); ['c-desde','c-hasta','s-desde','s-hasta','ap-desde','ap-hasta'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=hoyISO(); }); if(isActivated()) { hideActivateBtn(); setSyncBadge(nubeActiva?'ok':'','☁️ '+(nubeActiva?'Datos online':'Activado (local)')); } window.addEventListener('online', ()=> setSyncBadge('ok','☁️ Conectado')); window.addEventListener('offline', ()=> setSyncBadge('','☁️ Sin conexión')); navClick('ingreso', document.getElementById('btn-nav-ingreso')); const _dni=document.getElementById('dni'); _dni?.focus(); _dni?.select?.(); })();
+(function(){ tick(); setInterval(tick,1000); ['c-desde','c-hasta','s-desde','s-hasta','ap-desde','ap-hasta'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=hoyISO(); }); if(isActivated()) { hideActivateBtn(); setSyncBadge(nubeActiva?'ok':'','☁️ '+(nubeActiva?'Datos online':'Activado (local)')); if(online() && getToken()) { fetchGitHubProfile(); } else { hideGitHubInfo(); } } window.addEventListener('online', ()=> setSyncBadge('ok','☁️ Conectado')); window.addEventListener('offline', ()=> setSyncBadge('','☁️ Sin conexión')); navClick('ingreso', document.getElementById('btn-nav-ingreso')); const _dni=document.getElementById('dni'); _dni?.focus(); _dni?.select?.(); })();
 </script>
 </body>
 </html>
