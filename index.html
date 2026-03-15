@@ -1,1631 +1,931 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pejerrey Club Quilmes – Gestión de Ingreso</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Open+Sans:wght@400;600;700&display=swap');
-    :root{
-      --verde-oscuro:#1a3a1a;--verde-medio:#1e5c1e;--verde-logo:#2d6e2d;--verde-claro:#3a8a3a;
-      --dorado:#c8a84b;--dorado-claro:#e8c86a;--blanco:#ffffff;--crema:#f5f0e8;
-      --gris-claro:#e8ede8;--texto-oscuro:#1a1a1a;--texto-medio:#3a3a3a;
-      --rojo:#cc2222;--rojo-claro:#ff4444;--naranja:#d4841a;
-      --sombra:0 6px 24px rgba(0,0,0,.35);--sombra-card:0 4px 16px rgba(0,0,0,.20);
-    }
-    *{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:'Open Sans','Segoe UI',sans-serif;background:linear-gradient(160deg,#0d1f0d 0%,#1a3a1a 40%,#0d2a1a 100%);background-attachment:fixed;color:var(--blanco);min-height:100vh;}
-    header{background:linear-gradient(180deg,#0a1a0a 0%,#1a3a1a 100%);border-bottom:3px solid var(--dorado);text-align:center;padding:16px 12px 12px;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,.5);}
-    .header-logo-row{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
-    .logo-svg-wrap{background:#fff;border-radius:10px;padding:6px 14px 4px;display:flex;flex-direction:column;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.4);}
-    .logo-fish{width:90px;height:36px;}
-    .logo-club-text{font-family:'Open Sans',sans-serif;font-size:8px;font-weight:700;letter-spacing:2px;color:#1a3a1a;margin-top:2px;}
-    .header-titles{text-align:left;}
-    header h1{font-family:'Oswald',sans-serif;font-size:1.6rem;font-weight:700;color:var(--dorado);letter-spacing:2px;text-transform:uppercase;text-shadow:0 2px 8px rgba(0,0,0,.5);}
-    header p{font-size:.82rem;color:#aacfaa;margin-top:2px;letter-spacing:1px;}
-    .header-info-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px;}
-    #reloj-header{font-family:'Oswald',sans-serif;font-size:.95rem;color:var(--dorado);background:rgba(0,0,0,.35);border:1px solid var(--dorado);display:inline-block;padding:4px 16px;border-radius:20px;letter-spacing:1px;}
-    #header-inspector{font-size:.82rem;color:var(--blanco);background:rgba(45,110,45,.5);border:1px solid var(--verde-claro);display:inline-block;padding:4px 16px;border-radius:20px;}
-    #header-inspector.sin-inspector{background:rgba(180,30,30,.35);border-color:var(--rojo-claro);color:#ffaaaa;}
-    #sync-badge{font-size:.78rem;color:var(--blanco);background:rgba(0,0,0,.4);border:1px solid #555;display:inline-flex;align-items:center;gap:5px;padding:4px 14px;border-radius:20px;font-family:'Oswald',sans-serif;letter-spacing:.5px;transition:background .3s,border-color .3s;}
-    #sync-badge.sync-ok{background:rgba(26,107,26,.6);border-color:#2a8a2a;}
-    #sync-badge.sync-error{background:rgba(180,30,30,.5);border-color:var(--rojo-claro);}
-    #sync-badge.sync-syncing{background:rgba(26,90,138,.5);border-color:#2a7aaa;}
-    #sync-dot{width:8px;height:8px;border-radius:50%;background:#888;display:inline-block;}
-    #sync-badge.sync-ok #sync-dot{background:#4aff4a;box-shadow:0 0 6px #4aff4a;}
-    #sync-badge.sync-error #sync-dot{background:var(--rojo-claro);box-shadow:0 0 6px var(--rojo-claro);}
-    #sync-badge.sync-syncing #sync-dot{background:#88ccff;box-shadow:0 0 6px #88ccff;animation:pulse 1s infinite;}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-    nav{display:flex;flex-wrap:wrap;gap:4px;background:#0d1f0d;border-bottom:2px solid var(--dorado);padding:8px 12px;justify-content:center;position:relative;z-index:95;}
-    nav button{background:rgba(255,255,255,.08);color:#cce8cc;border:1px solid rgba(255,255,255,.12);padding:7px 16px;border-radius:6px;cursor:pointer;font-size:.82rem;font-family:'Oswald',sans-serif;letter-spacing:.5px;transition:.2s;text-transform:uppercase;}
-    nav button:hover{background:var(--verde-logo);border-color:var(--dorado);color:var(--dorado);}
-    nav button.activo{background:var(--dorado);color:var(--verde-oscuro);border-color:var(--dorado);font-weight:700;}
-    nav button#btn-nav-inspectores{background:rgba(200,168,75,.15);border-color:var(--dorado);color:var(--dorado);}
-    nav button#btn-nav-inspectores:hover,nav button#btn-nav-inspectores.activo{background:var(--dorado);color:var(--verde-oscuro);}
-    nav button.nav-bloqueado{opacity:.35;cursor:not-allowed;}
-    nav button.nav-bloqueado:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);color:#cce8cc;}
-    main{max-width:980px;margin:24px auto;padding:0 14px 40px;}
-    .seccion{display:none;}.seccion.activa{display:block;}
-    .card{background:linear-gradient(160deg,#f5f0e8 0%,#eae6dc 100%);color:var(--texto-oscuro);border-radius:12px;border:2px solid var(--dorado);box-shadow:var(--sombra-card);padding:22px 24px;margin-bottom:20px;}
-    .card h2{font-family:'Oswald',sans-serif;font-size:1.15rem;color:var(--verde-oscuro);border-bottom:2px solid var(--dorado);padding-bottom:8px;margin-bottom:16px;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:1px;}
-    .form-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;}
-    .form-row label{display:flex;flex-direction:column;gap:4px;flex:1;min-width:160px;font-size:.85rem;font-weight:700;color:var(--verde-oscuro);text-transform:uppercase;letter-spacing:.5px;}
-    .form-row input,.form-row textarea{padding:9px 12px;border:1.5px solid #8aaa8a;border-radius:6px;font-size:.95rem;background:#fff;color:var(--texto-oscuro);font-family:'Open Sans',sans-serif;transition:border-color .2s;}
-    .form-row input:focus,.form-row textarea:focus{outline:none;border-color:var(--verde-logo);box-shadow:0 0 0 3px rgba(45,110,45,.15);}
-    .form-row input.autocompletado{border-color:var(--verde-logo);background:#f0fff4;}
-    textarea{resize:vertical;min-height:70px;}
-    .btn{padding:9px 22px;border:none;border-radius:6px;cursor:pointer;font-size:.88rem;font-weight:700;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.5px;transition:.2s;display:inline-flex;align-items:center;gap:6px;}
-    .btn-primary{background:var(--verde-logo);color:#fff;border:2px solid var(--verde-claro);}.btn-primary:hover{background:var(--verde-oscuro);border-color:var(--dorado);}
-    .btn-success{background:#1a6b1a;color:#fff;border:2px solid #2a8a2a;}.btn-success:hover{background:#0f4a0f;}
-    .btn-danger{background:var(--rojo);color:#fff;border:2px solid #aa1111;}.btn-danger:hover{background:#991111;}
-    .btn-warning{background:var(--naranja);color:#fff;border:2px solid #b06010;}.btn-warning:hover{background:#a06010;}
-    .btn-secondary{background:#4a5a4a;color:#fff;border:2px solid #5a6a5a;}.btn-secondary:hover{background:#3a4a3a;}
-    .btn-gold{background:var(--dorado);color:var(--verde-oscuro);border:2px solid var(--dorado-claro);}.btn-gold:hover{background:var(--dorado-claro);}
-    .btn-info{background:#1a5a8a;color:#fff;border:2px solid #2a7aaa;}.btn-info:hover{background:#0f4a7a;}
-    .btn-sm{padding:4px 12px;font-size:.75rem;}
-    .alerta{padding:10px 16px;border-radius:6px;margin:10px 0;font-size:.88rem;font-weight:600;display:none;}
-    .alerta.show{display:block;}
-    .alerta-ok{background:#d1fae5;color:#065f46;border-left:4px solid #1a8a1a;}
-    .alerta-error{background:#fee2e2;color:#991b1b;border-left:4px solid var(--rojo);}
-    .alerta-warn{background:#fff3cd;color:#92400e;border-left:4px solid var(--naranja);}
-    .alerta-info{background:#dbeafe;color:#1e3a8a;border-left:4px solid #3a6aaa;}
-    .badge{display:inline-block;padding:2px 10px;border-radius:4px;font-size:.75rem;font-weight:700;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.5px;}
-    .badge-rojo{background:#fee2e2;color:var(--rojo);}.badge-naranja{background:#fff3cd;color:#b45309;}
-    .badge-verde{background:#d1fae5;color:#065f46;}.badge-azul{background:#dbeafe;color:#1e3a8a;}
-    .badge-gris{background:#f1f5f9;color:#475569;}.badge-dorado{background:#fef3c7;color:#92400e;}
-    .tabla-wrap{overflow-x:auto;}
-    table{width:100%;border-collapse:collapse;font-size:.85rem;}
-    th{background:var(--verde-oscuro);color:var(--dorado);padding:9px 12px;text-align:left;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.5px;}
-    td{padding:8px 12px;border-bottom:1px solid #ddd;color:var(--texto-oscuro);background:#fff;}
-    tr:hover td{background:#f0f5f0;}tr:last-child td{border-bottom:none;}
-    tr.vencido td{background:#fff5f5;color:#991b1b;}tr.vencido:hover td{background:#fee2e2;}
-    tr.por-vencer td{background:#fffbeb;color:#92400e;}tr.por-vencer:hover td{background:#fef3c7;}
-    #panel-estado{display:none;border:2px solid var(--dorado);border-radius:8px;padding:16px 20px;margin:14px 0;background:#fff;color:var(--texto-oscuro);}
-    #panel-estado.show{display:block;}
-    #panel-estado h3{font-size:1rem;margin-bottom:8px;color:var(--verde-oscuro);font-family:'Oswald',sans-serif;}
-    #reloj-grande{font-family:'Oswald',sans-serif;font-size:2.2rem;font-weight:700;color:var(--dorado);text-align:center;letter-spacing:4px;margin:6px 0 2px;text-shadow:0 2px 8px rgba(0,0,0,.3);}
-    #fecha-grande{text-align:center;color:#aacfaa;font-size:.95rem;font-family:'Oswald',sans-serif;letter-spacing:1px;}
-    .fuente-hora{text-align:center;font-size:.72rem;color:#88aa88;margin-top:4px;}
-    .backup-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
-    .contador-vencidos{background:linear-gradient(135deg,#fee2e2,#fce7f3);border:2px solid var(--rojo);border-radius:10px;padding:12px 20px;display:flex;align-items:center;gap:14px;margin-bottom:16px;}
-    .contador-vencidos .cv-num{font-size:2.2rem;font-weight:800;color:var(--rojo);line-height:1;font-family:'Oswald',sans-serif;}
-    .contador-vencidos .cv-txt{font-size:.85rem;color:#991b1b;font-weight:700;}
-    .contador-vencidos .cv-sub{font-size:.75rem;color:#b91c1c;}
-    .contador-por-vencer{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid var(--naranja);border-radius:10px;padding:12px 20px;display:flex;align-items:center;gap:14px;margin-bottom:16px;}
-    .contador-por-vencer .cpv-num{font-size:2.2rem;font-weight:800;color:var(--naranja);line-height:1;font-family:'Oswald',sans-serif;}
-    .contador-por-vencer .cpv-txt{font-size:.85rem;color:#92400e;font-weight:700;}
-    .contador-por-vencer .cpv-sub{font-size:.75rem;color:#b45309;}
-    .inspector-activo-panel{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:linear-gradient(135deg,#d1fae5,#dcfce7);border:2px solid var(--verde-logo);border-radius:10px;padding:14px 18px;margin-bottom:16px;}
-    .inspector-activo-panel .ia-icono{font-size:2rem;line-height:1;}
-    .inspector-activo-panel .ia-info{display:flex;flex-direction:column;gap:3px;flex:1;}
-    .inspector-activo-panel .ia-nombre{font-size:1rem;font-weight:700;color:var(--verde-oscuro);font-family:'Oswald',sans-serif;}
-    .inspector-activo-panel .ia-sub{font-size:.8rem;color:#2a6a2a;}
-    .inspector-activo-panel.sin-inspector{background:#fff3cd;border-color:var(--naranja);}
-    .inspector-activo-panel.sin-inspector .ia-nombre{color:#92400e;}
-    .inspector-activo-panel.sin-inspector .ia-sub{color:#b45309;}
-    .insp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:16px;}
-    .insp-card{border-radius:10px;border:2px solid #c8d8c8;padding:16px;background:#f5f5f0;display:flex;flex-direction:column;gap:8px;transition:box-shadow .2s,border-color .2s;color:var(--texto-oscuro);}
-    .insp-card.activo{border-color:var(--dorado);background:linear-gradient(135deg,#fef9ec,#fff8dc);box-shadow:0 4px 14px rgba(200,168,75,.3);}
-    .insp-card .ic-nombre{font-size:.97rem;font-weight:700;color:var(--verde-oscuro);font-family:'Oswald',sans-serif;}
-    .insp-card .ic-sub{font-size:.78rem;color:#4a6a4a;}
-    .insp-card .ic-acciones{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
-    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;align-items:center;justify-content:center;}
-    .modal-overlay.show{display:flex;}
-    .modal-box{background:var(--crema);border-radius:12px;border:2px solid var(--dorado);padding:28px 28px 22px;max-width:420px;width:94%;box-shadow:0 8px 40px rgba(0,0,0,.5);color:var(--texto-oscuro);}
-    .modal-box h3{font-size:1.1rem;color:var(--verde-oscuro);margin-bottom:16px;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:1px;}
-    .modal-acciones{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;}
-    #modal-foto{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.92);align-items:center;justify-content:center;flex-direction:column;}
-    #modal-foto.show{display:flex;}
-    #modal-foto-container{position:relative;overflow:hidden;border-radius:10px;border:3px solid var(--dorado);box-shadow:0 8px 40px rgba(0,0,0,.7);cursor:grab;user-select:none;max-width:90vw;max-height:80vh;width:500px;height:500px;background:#111;}
-    #modal-foto-container.grabbing{cursor:grabbing;}
-    #modal-foto-img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;transform-origin:0 0;pointer-events:none;}
-    .foto-zoom-controls{display:flex;gap:8px;margin-top:12px;align-items:center;}
-    .foto-zoom-controls button{background:rgba(200,168,75,.2);border:1px solid var(--dorado);color:var(--dorado);border-radius:6px;padding:6px 14px;cursor:pointer;font-family:'Oswald',sans-serif;font-size:.9rem;transition:.2s;}
-    .foto-zoom-controls button:hover{background:var(--dorado);color:var(--verde-oscuro);}
-    #modal-foto-info{color:#fff;margin-top:8px;font-family:'Oswald',sans-serif;font-size:.9rem;letter-spacing:1px;text-align:center;}
-    #zoom-level-display{color:var(--dorado);font-family:'Oswald',sans-serif;font-size:.85rem;min-width:48px;text-align:center;}
-    .foto-zoom-hint{font-size:.72rem;color:#88aa88;margin-top:4px;text-align:center;}
-    #bloqueo-overlay{display:none;position:fixed;inset:0;z-index:90;background:linear-gradient(160deg,rgba(10,25,10,.97) 0%,rgba(20,50,20,.97) 100%);align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px;}
-    #bloqueo-overlay.show{display:flex;}
-    .bloqueo-logo{background:#fff;border-radius:14px;padding:10px 20px 8px;margin-bottom:28px;box-shadow:0 4px 20px rgba(0,0,0,.5);}
-    .bloqueo-logo .logo-fish{width:120px;height:48px;}
-    .bloqueo-logo .logo-club-text{font-size:10px;}
-    .bloqueo-titulo{font-family:'Oswald',sans-serif;font-size:1.8rem;font-weight:700;color:var(--dorado);letter-spacing:3px;text-transform:uppercase;text-shadow:0 2px 12px rgba(0,0,0,.6);margin-bottom:8px;}
-    .bloqueo-subtitulo{font-size:.9rem;color:#88bb88;margin-bottom:32px;letter-spacing:1px;}
-    .bloqueo-icono{font-size:4rem;margin-bottom:20px;}
-    .bloqueo-mensaje{background:rgba(200,168,75,.12);border:2px solid var(--dorado);border-radius:12px;padding:20px 28px;max-width:420px;margin-bottom:28px;}
-    .bloqueo-mensaje h2{font-family:'Oswald',sans-serif;font-size:1.3rem;color:var(--dorado);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;}
-    .bloqueo-mensaje p{font-size:.88rem;color:#cce8cc;line-height:1.6;}
-    .bloqueo-reloj{font-family:'Oswald',sans-serif;font-size:2.5rem;font-weight:700;color:var(--dorado);letter-spacing:4px;margin-bottom:6px;text-shadow:0 2px 12px rgba(200,168,75,.4);}
-    .bloqueo-fecha{font-size:.9rem;color:#88bb88;margin-bottom:28px;letter-spacing:1px;}
-    .bloqueo-btn{background:var(--dorado);color:var(--verde-oscuro);border:none;border-radius:8px;padding:14px 36px;font-family:'Oswald',sans-serif;font-size:1.1rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;cursor:pointer;box-shadow:0 4px 16px rgba(200,168,75,.4);transition:.2s;}
-    .bloqueo-btn:hover{background:var(--dorado-claro);transform:translateY(-2px);}
-    .separador-dorado{display:flex;align-items:center;gap:12px;margin:20px 0 16px;color:var(--dorado);font-size:.75rem;font-family:'Oswald',sans-serif;letter-spacing:2px;text-transform:uppercase;}
-    .separador-dorado::before,.separador-dorado::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--dorado),transparent);}
-    .foto-section{background:#f0f5f0;border:2px dashed #8aaa8a;border-radius:10px;padding:16px;margin:14px 0;}
-    .foto-section h4{font-family:'Oswald',sans-serif;font-size:.9rem;color:var(--verde-oscuro);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
-    .foto-controles{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;}
-    #cam-status{font-size:.8rem;color:#4a6a4a;font-style:italic;margin-bottom:6px;min-height:1.2em;}
-    #foto-preview-wrap{display:none;flex-direction:column;align-items:center;gap:8px;margin-top:8px;}
-    #foto-preview-wrap.show{display:flex;}
-    #foto-preview{width:220px;height:220px;object-fit:cover;border-radius:10px;border:3px solid var(--verde-logo);box-shadow:0 4px 16px rgba(0,0,0,.25);cursor:zoom-in;transition:transform .15s,box-shadow .15s;}
-    #foto-preview:hover{transform:scale(1.03);box-shadow:0 6px 20px rgba(0,0,0,.35);}
-    .foto-dni-label{font-size:.72rem;font-weight:700;color:#4a6a4a;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.5px;}
-    .estado-foto-wrap{float:right;margin:0 0 10px 14px;display:flex;flex-direction:column;align-items:center;gap:4px;}
-    .estado-foto{width:90px;height:90px;object-fit:cover;border-radius:8px;border:3px solid var(--dorado);box-shadow:0 2px 8px rgba(0,0,0,.2);cursor:zoom-in;transition:transform .15s;}
-    .estado-foto:hover{transform:scale(1.08);}
-    .estado-foto.foto-suspendido{border-color:var(--rojo);box-shadow:0 0 0 3px rgba(204,34,34,.3);}
-    .estado-foto.foto-apercibido{border-color:var(--naranja);box-shadow:0 0 0 3px rgba(212,132,26,.3);}
-    .estado-foto.foto-vencido{border-color:#888;}
-    .estado-foto.foto-por-vencer{border-color:var(--naranja);}
-    .estado-foto-label{font-size:.68rem;font-weight:700;color:#4a6a4a;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.4px;text-align:center;}
-    .foto-thumb{width:44px;height:44px;object-fit:cover;border-radius:5px;border:2px solid #ccc;vertical-align:middle;cursor:zoom-in;transition:transform .15s,box-shadow .15s;}
-    .foto-thumb:hover{transform:scale(1.18);box-shadow:0 4px 14px rgba(0,0,0,.4);border-color:var(--dorado);}
-    .foto-thumb-placeholder{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:5px;background:#e8ede8;border:2px dashed #aaa;color:#aaa;font-size:1.2rem;vertical-align:middle;}
-    #sync-loading{display:none;position:fixed;inset:0;z-index:999;background:rgba(10,25,10,.95);align-items:center;justify-content:center;flex-direction:column;gap:16px;}
-    #sync-loading.show{display:flex;}
-    .sync-spinner{width:48px;height:48px;border:5px solid rgba(200,168,75,.3);border-top-color:var(--dorado);border-radius:50%;animation:spin 1s linear infinite;}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .sync-loading-txt{font-family:'Oswald',sans-serif;font-size:1.1rem;color:var(--dorado);letter-spacing:2px;text-align:center;}
-    .sync-loading-sub{font-size:.8rem;color:#88aa88;letter-spacing:1px;}
-    #token-modal{display:none;position:fixed;inset:0;z-index:998;background:rgba(0,0,0,.85);align-items:center;justify-content:center;}
-    #token-modal.show{display:flex;}
-    .token-box{background:linear-gradient(160deg,#0d1f0d,#1a3a1a);border:2px solid var(--dorado);border-radius:16px;padding:32px 28px;max-width:480px;width:94%;text-align:center;}
-    .token-box h2{font-family:'Oswald',sans-serif;color:var(--dorado);font-size:1.4rem;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;}
-    .token-box p{font-size:.85rem;color:#aacfaa;margin-bottom:20px;line-height:1.7;}
-    .token-box input{width:100%;padding:11px 14px;border:2px solid var(--dorado);border-radius:8px;background:#0d1f0d;color:var(--dorado);font-family:monospace;font-size:.95rem;letter-spacing:1px;margin-bottom:14px;}
-    .token-box input:focus{outline:none;box-shadow:0 0 0 3px rgba(200,168,75,.3);}
-    .token-box .token-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
-    .token-box .pasos{background:rgba(200,168,75,.1);border:1px solid rgba(200,168,75,.3);border-radius:8px;padding:12px 16px;margin-bottom:18px;text-align:left;font-size:.82rem;color:#cce8cc;line-height:1.8;}
-    .token-box .pasos strong{color:var(--dorado);}
-    .token-status{font-size:.85rem;margin-bottom:10px;}
-    .token-status.ok{color:#4aff4a;}
-    .token-status.error{color:var(--rojo-claro);}
-    #modal-pass{display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.75);align-items:center;justify-content:center;}
-    #modal-pass.show{display:flex;}
-    .pass-box{background:var(--crema);border-radius:12px;border:2px solid var(--dorado);padding:28px 28px 22px;max-width:360px;width:94%;box-shadow:0 8px 40px rgba(0,0,0,.5);color:var(--texto-oscuro);text-align:center;}
-    .pass-box h3{font-family:'Oswald',sans-serif;font-size:1.1rem;color:var(--verde-oscuro);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;}
-    .pass-box input{width:100%;padding:10px 14px;border:2px solid #8aaa8a;border-radius:6px;font-size:1rem;background:#fff;color:var(--texto-oscuro);margin-bottom:12px;font-family:'Open Sans',sans-serif;}
-    .pass-box input:focus{outline:none;border-color:var(--verde-logo);}
-    .pass-box .pass-btns{display:flex;gap:10px;justify-content:center;}
-    .autocomplete-hint{font-size:.72rem;color:#2a6a2a;font-style:italic;margin-top:2px;min-height:1em;display:block;}
-    @media(max-width:600px){
-      header h1{font-size:1.15rem;}
-      .form-row{flex-direction:column;}
-      .insp-grid{grid-template-columns:1fr;}
-      .bloqueo-titulo{font-size:1.3rem;}
-      .bloqueo-reloj{font-size:1.8rem;}
-      .estado-foto-wrap{float:none;margin:0 0 10px 0;}
-      #foto-preview{width:160px;height:160px;}
-      #modal-foto-container{width:95vw;height:70vw;}
-    }
-  </style>
-</head>
-<body>
-
-<!-- SYNC LOADING -->
-<div id="sync-loading">
-  <div class="bloqueo-logo">
-    <svg class="logo-fish" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="10,10 10,70 55,40" fill="none" stroke="#2d6e2d" stroke-width="5" stroke-linejoin="round"/>
-      <ellipse cx="120" cy="40" rx="70" ry="28" fill="none" stroke="#2d6e2d" stroke-width="5"/>
-      <circle cx="168" cy="34" r="5" fill="#2d6e2d"/>
-      <path d="M90,18 Q120,10 150,18" fill="none" stroke="#2d6e2d" stroke-width="3"/>
-    </svg>
-    <div class="logo-club-text">PEJERREY CLUB</div>
-  </div>
-  <div class="sync-spinner"></div>
-  <div class="sync-loading-txt" id="sync-loading-txt">Conectando...</div>
-  <div class="sync-loading-sub" id="sync-loading-sub">Sincronizando datos entre dispositivos</div>
-</div>
-
-<!-- TOKEN MODAL -->
-<div id="token-modal">
-  <div class="token-box">
-    <h2>🔑 Token de GitHub requerido</h2>
-    <p>Para sincronizar datos entre dispositivos necesitás un <strong style="color:var(--dorado)">Personal Access Token</strong> de GitHub.</p>
-    <div class="pasos">
-      <strong>Cómo obtenerlo:</strong><br/>
-      1. Entrá a <strong>github.com</strong> → tu perfil<br/>
-      2. <strong>Settings → Developer settings</strong><br/>
-      3. <strong>Personal access tokens → Tokens (classic)</strong><br/>
-      4. <strong>Generate new token (classic)</strong><br/>
-      5. Permiso: ✅ <strong>repo</strong> | Expiración: <strong>No expiration</strong><br/>
-      6. Copiá el token (empieza con <strong>ghp_</strong>)
-    </div>
-    <input type="password" id="token-input-modal" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off"/>
-    <div class="token-btns">
-      <button class="btn btn-gold" onclick="guardarTokenModal()">💾 Guardar y continuar</button>
-      <button class="btn btn-secondary" onclick="continuarSinToken()">▶ Continuar sin token (solo local)</button>
-    </div>
-    <div id="alerta-token-modal" class="alerta" style="margin-top:12px;"></div>
-  </div>
-</div>
-
-<!-- BLOQUEO -->
-<div id="bloqueo-overlay">
-  <div class="bloqueo-logo">
-    <svg class="logo-fish" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="10,10 10,70 55,40" fill="none" stroke="#2d6e2d" stroke-width="5" stroke-linejoin="round"/>
-      <ellipse cx="120" cy="40" rx="70" ry="28" fill="none" stroke="#2d6e2d" stroke-width="5"/>
-      <circle cx="168" cy="34" r="5" fill="#2d6e2d"/>
-      <path d="M90,18 Q120,10 150,18" fill="none" stroke="#2d6e2d" stroke-width="3"/>
-    </svg>
-    <div class="logo-club-text">PEJERREY CLUB</div>
-  </div>
-  <div class="bloqueo-titulo">Pejerrey Club Quilmes</div>
-  <div class="bloqueo-subtitulo">Sistema de Gestión de Ingreso de Invitados</div>
-  <div class="bloqueo-reloj" id="bloqueo-reloj">--:--:--</div>
-  <div class="bloqueo-fecha" id="bloqueo-fecha">--/--/----</div>
-  <div class="bloqueo-icono">🔒</div>
-  <div class="bloqueo-mensaje">
-    <h2>⚠️ Sin Inspector Activo</h2>
-    <p>Para acceder al sistema es necesario tener un <strong style="color:var(--dorado)">inspector de turno activo</strong>.<br/><br/>
-    Hacé clic en <strong style="color:var(--dorado)">👮 Inspectores</strong> en el menú y presioná <strong style="color:var(--dorado)">⚡ Activar</strong>.</p>
-  </div>
-  <button class="bloqueo-btn" onclick="irAInspectores()">👮 Ir a Inspectores</button>
-</div>
-
-<!-- PASSWORD MODAL -->
-<div id="modal-pass">
-  <div class="pass-box">
-    <h3 id="pass-titulo">🔒 Contraseña requerida</h3>
-    <p style="font-size:.85rem;color:#4a6a4a;margin-bottom:14px;" id="pass-subtitulo">Ingresá la contraseña para continuar.</p>
-    <input type="password" id="pass-input" placeholder="Contraseña..." onkeydown="if(event.key==='Enter')confirmarPass()"/>
-    <div id="alerta-pass" class="alerta"></div>
-    <div class="pass-btns">
-      <button class="btn btn-secondary" onclick="cerrarModalPass()">✖ Cancelar</button>
-      <button class="btn btn-gold" onclick="confirmarPass()">✅ Confirmar</button>
-    </div>
-  </div>
-</div>
-
-<!-- HEADER -->
-<header>
-  <div class="header-logo-row">
-    <div class="logo-svg-wrap">
-      <svg class="logo-fish" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
-        <polygon points="10,10 10,70 55,40" fill="none" stroke="#2d6e2d" stroke-width="5" stroke-linejoin="round"/>
-        <ellipse cx="120" cy="40" rx="70" ry="28" fill="none" stroke="#2d6e2d" stroke-width="5"/>
-        <circle cx="168" cy="34" r="5" fill="#2d6e2d"/>
-        <path d="M90,18 Q120,10 150,18" fill="none" stroke="#2d6e2d" stroke-width="3"/>
-      </svg>
-      <div class="logo-club-text">PEJERREY CLUB</div>
-    </div>
-    <div class="header-titles">
-      <h1>🎣 Pejerrey Club Quilmes</h1>
-      <p>Sistema de Gestión de Ingreso de Invitados</p>
-    </div>
-  </div>
-  <div class="header-info-row">
-    <div id="reloj-header">Cargando hora...</div>
-    <div id="header-inspector" class="sin-inspector">🔒 Sin inspector activo</div>
-    <div id="sync-badge"><span id="sync-dot"></span><span id="sync-txt">Conectando...</span></div>
-  </div>
-</header>
-
-<!-- NAV -->
-<nav>
-  <button id="btn-nav-ingreso"        onclick="navClick('ingreso',this)">🚪 Ingreso</button>
-  <button id="btn-nav-apercibamiento" onclick="navClick('apercibamiento',this)">⚠️ Apercibamiento</button>
-  <button id="btn-nav-suspension"     onclick="navClick('suspension',this)">🚫 Suspensión</button>
-  <button id="btn-nav-consulta"       onclick="navClick('consulta',this)">📋 Consulta por Fechas</button>
-  <button id="btn-nav-vencidos"       onclick="navClick('vencidos',this)">⏰ Ingresos Vencidos</button>
-  <button id="btn-nav-inspectores"    onclick="navClick('inspectores',this)">👮 Inspectores</button>
-  <button id="btn-nav-backup"         onclick="navClick('backup',this)">💾 Backup</button>
-</nav>
-
-<main>
-  <!-- INGRESO -->
-  <section id="sec-ingreso" class="seccion">
-    <div class="card">
-      <h2>🚪 Registro de Ingreso</h2>
-      <div id="reloj-grande">--:--:--</div>
-      <div id="fecha-grande">--/--/----</div>
-      <div class="fuente-hora" id="fuente-hora">Sincronizando hora...</div>
-      <br/>
-      <div class="form-row">
-        <label>Nº Documento (DNI)
-          <input type="text" id="dni-ingreso" placeholder="Ej: 30123456" maxlength="12"
-                 oninput="this.value=this.value.replace(/\D/g,'');onDniIngresoChange()"
-                 onkeydown="if(event.key==='Enter')buscarInvitado()"/>
-        </label>
-        <label>Nombre (opcional)
-          <input type="text" id="nombre-ingreso" placeholder="Apellido, Nombre"
-                 onkeydown="if(event.key==='Enter')registrarIngreso()"/>
-          <span class="autocomplete-hint" id="nombre-autocomplete-hint"></span>
-        </label>
-      </div>
-      <div class="foto-section">
-        <h4>📷 Foto del Invitado</h4>
-        <div id="cam-status"></div>
-        <div class="foto-controles">
-          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('foto-archivo').click()">📁 Cargar Foto</button>
-          <input type="file" id="foto-archivo" accept="image/*" capture="environment" style="display:none" onchange="cargarFotoArchivo(event)"/>
-          <button class="btn btn-danger btn-sm" id="btn-borrar-foto" onclick="borrarFoto()" style="display:none">🗑️ Borrar foto</button>
-        </div>
-        <div id="foto-preview-wrap">
-          <img id="foto-preview" src="" alt="Foto del invitado" onclick="verFotoGrandePreview()"/>
-          <span class="foto-dni-label" id="foto-preview-dni">DNI: --</span>
-        </div>
-        <div id="alerta-foto" class="alerta"></div>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn btn-primary" onclick="buscarInvitado()">🔍 Buscar Invitado</button>
-        <button class="btn btn-success" onclick="registrarIngreso()">✅ Registrar Ingreso</button>
-      </div>
-      <div id="alerta-ingreso" class="alerta"></div>
-      <div id="panel-estado">
-        <h3 id="estado-nombre">Invitado</h3>
-        <div id="estado-foto-contenedor"></div>
-        <div id="estado-badges" style="margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap;"></div>
-        <div id="estado-detalles" style="font-size:.87rem;color:#555;"></div>
-        <div style="clear:both;"></div>
-      </div>
-      <div id="ultimos-ingresos" style="display:none;margin-top:18px;">
-        <div class="separador-dorado">Últimos 10 ingresos del invitado</div>
-        <div class="tabla-wrap">
-          <table id="tabla-ultimos">
-            <thead><tr><th>#</th><th>Fecha</th><th>Hora</th><th>Nombre</th><th>Estado</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- APERCIBAMIENTO -->
-  <section id="sec-apercibamiento" class="seccion">
-    <div class="card">
-      <h2>⚠️ Registrar Apercibamiento</h2>
-      <div id="aperc-inspector-panel" class="inspector-activo-panel sin-inspector">
-        <div class="ia-icono">👮</div>
-        <div class="ia-info">
-          <span class="ia-nombre" id="aperc-inspector-nombre">Sin inspector activo</span>
-          <span class="ia-sub" id="aperc-inspector-sub">Asigná un inspector en la sección Inspectores</span>
-        </div>
-      </div>
-      <div class="form-row">
-        <label>Nº Documento (DNI)<input type="text" id="dni-aperc" placeholder="Ej: 30123456" maxlength="12" oninput="this.value=this.value.replace(/\D/g,'');autocompletarNombre('dni-aperc','nombre-aperc')"/></label>
-        <label>Nombre (opcional)<input type="text" id="nombre-aperc" placeholder="Apellido, Nombre"/></label>
-      </div>
-      <div class="form-row">
-        <label style="flex:2">Motivo<textarea id="motivo-aperc" placeholder="Describa el motivo..."></textarea></label>
-      </div>
-      <button class="btn btn-warning" onclick="registrarApercibamiento()">⚠️ Registrar Apercibamiento</button>
-      <div id="alerta-aperc" class="alerta"></div>
-    </div>
-    <div class="card">
-      <h2>📋 Apercibamientos Registrados</h2>
-      <div class="tabla-wrap">
-        <table id="tabla-aperc">
-          <thead><tr><th>Foto</th><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Motivo</th><th>Inspector</th><th>Acción</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- SUSPENSIÓN -->
-  <section id="sec-suspension" class="seccion">
-    <div class="card">
-      <h2>🚫 Registrar Suspensión</h2>
-      <div class="form-row">
-        <label>Nº Documento (DNI)<input type="text" id="dni-susp" placeholder="Ej: 30123456" maxlength="12" oninput="this.value=this.value.replace(/\D/g,'');autocompletarNombre('dni-susp','nombre-susp')"/></label>
-        <label>Nombre (opcional)<input type="text" id="nombre-susp" placeholder="Apellido, Nombre"/></label>
-      </div>
-      <div class="form-row">
-        <label>Suspendido desde<input type="date" id="susp-desde"/></label>
-        <label>Suspendido hasta<input type="date" id="susp-hasta"/></label>
-      </div>
-      <div class="form-row">
-        <label style="flex:2">Motivo<textarea id="motivo-susp" placeholder="Describa el motivo..."></textarea></label>
-      </div>
-      <button class="btn btn-danger" onclick="registrarSuspension()">🚫 Registrar Suspensión</button>
-      <div id="alerta-susp" class="alerta"></div>
-    </div>
-    <div class="card">
-      <h2>📋 Suspensiones Registradas</h2>
-      <div class="tabla-wrap">
-        <table id="tabla-susp">
-          <thead><tr><th>Foto</th><th>DNI</th><th>Nombre</th><th>Desde</th><th>Hasta</th><th>Motivo</th><th>Estado</th><th>Acción</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- CONSULTA -->
-  <section id="sec-consulta" class="seccion">
-    <div class="card">
-      <h2>📋 Consulta por Rango de Fechas</h2>
-      <div class="form-row">
-        <label>Fecha Desde<input type="date" id="consulta-desde"/></label>
-        <label>Fecha Hasta<input type="date" id="consulta-hasta"/></label>
-        <label>DNI (opcional)<input type="text" id="consulta-dni" placeholder="Filtrar por DNI" oninput="this.value=this.value.replace(/\D/g,'')"/></label>
-      </div>
-      <button class="btn btn-primary" onclick="consultarIngresos()">🔍 Consultar</button>
-      <div id="alerta-consulta" class="alerta"></div>
-      <div id="resumen-consulta" style="font-size:.88rem;color:#88aa88;margin:8px 0;"></div>
-      <div class="tabla-wrap" style="margin-top:12px;">
-        <table id="tabla-consulta">
-          <thead><tr><th>Foto</th><th>DNI</th><th>Nombre</th><th>Fecha</th><th>Hora</th><th>Estado</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- VENCIDOS -->
-  <section id="sec-vencidos" class="seccion">
-    <div class="card">
-      <h2>⏰ Ingresos Vencidos / Por Vencer</h2>
-      <div id="contador-por-vencer" class="contador-por-vencer" style="display:none;">
-        <div class="cpv-num" id="cpv-num">0</div>
-        <div><div class="cpv-txt">⏳ Por vencer (menos de 1 hora)</div><div class="cpv-sub">Ingresaron hace más de 23 horas</div></div>
-      </div>
-      <div id="contador-vencidos" class="contador-vencidos" style="display:none;">
-        <div class="cv-num" id="cv-num">0</div>
-        <div><div class="cv-txt">Entradas vencidas</div><div class="cv-sub">Ingresaron hace más de 24 horas</div></div>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
-        <button class="btn btn-primary" onclick="renderVencidos()">🔄 Actualizar</button>
-        <button class="btn btn-danger" onclick="limpiarVencidos()">🗑️ Eliminar todos los vencidos</button>
-      </div>
-      <div id="alerta-vencidos" class="alerta"></div>
-      <div class="tabla-wrap">
-        <table id="tabla-vencidos">
-          <thead><tr><th>Foto</th><th>DNI</th><th>Nombre</th><th>Fecha ingreso</th><th>Hora ingreso</th><th>Tiempo transcurrido</th><th>Estado</th><th>Acción</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- INSPECTORES -->
-  <section id="sec-inspectores" class="seccion">
-    <div id="banner-activar" style="display:none;background:rgba(200,168,75,.12);border:2px solid var(--dorado);border-radius:10px;padding:14px 20px;margin-bottom:18px;color:var(--dorado);font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:1px;text-align:center;">
-      ⚡ Seleccioná un inspector y presioná <strong>Activar</strong> para habilitar el sistema
-    </div>
-    <div class="card">
-      <h2>👮 Inspector de Turno Activo</h2>
-      <div id="insp-activo-panel" class="inspector-activo-panel sin-inspector">
-        <div class="ia-icono">👮</div>
-        <div class="ia-info">
-          <span class="ia-nombre" id="insp-activo-nombre">Sin inspector activo</span>
-          <span class="ia-sub" id="insp-activo-sub">Seleccioná un inspector y presioná "Activar"</span>
-        </div>
-        <button class="btn btn-danger btn-sm" id="btn-desactivar" onclick="desactivarInspector()" style="display:none;">✖ Desactivar</button>
-      </div>
-    </div>
-    <div class="card">
-      <h2>➕ Agregar Inspector</h2>
-      <div class="form-row">
-        <label>Nombre completo<input type="text" id="insp-nombre" placeholder="Apellido, Nombre"/></label>
-        <label>Teléfono (opcional)<input type="text" id="insp-tel" placeholder="Ej: 11-1234-5678" maxlength="30"/></label>
-      </div>
-      <div class="form-row">
-        <label>Observaciones (opcional)<input type="text" id="insp-obs" placeholder="Turno, área, etc." maxlength="80"/></label>
-      </div>
-      <button class="btn btn-success" onclick="guardarInspector()">💾 Guardar Inspector</button>
-      <div id="alerta-insp" class="alerta"></div>
-    </div>
-    <div class="card">
-      <h2>📋 Inspectores Registrados</h2>
-      <div id="insp-grid" class="insp-grid"></div>
-      <div id="insp-vacio" style="text-align:center;color:#8aaa8a;padding:20px;display:none;">No hay inspectores registrados aún.</div>
-    </div>
-  </section>
-
-  <!-- BACKUP -->
-  <section id="sec-backup" class="seccion">
-    <div class="card">
-      <h2>🔑 Token de Sincronización</h2>
-      <div id="token-status-card" class="token-status error">❌ No hay token configurado</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0;">
-        <input type="password" id="token-campo-backup" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-               style="flex:1;min-width:200px;padding:9px 12px;border:2px solid var(--dorado);border-radius:6px;background:#fff;color:#333;font-family:monospace;font-size:.9rem;"/>
-        <button class="btn btn-gold btn-sm" onclick="guardarTokenBackup()">💾 Guardar</button>
-        <button class="btn btn-secondary btn-sm" onclick="toggleVerTokenBackup()">👁️</button>
-        <button class="btn btn-danger btn-sm" onclick="borrarTokenBackup()">🗑️ Borrar</button>
-      </div>
-      <div id="alerta-token-backup" class="alerta"></div>
-      <p style="font-size:.78rem;color:#4a6a4a;margin-top:6px;">El token se guarda solo en este dispositivo (localStorage). Generalo en GitHub con permiso <strong>repo</strong>.</p>
-    </div>
-    <div class="card">
-      <h2>☁️ Sincronización en la Nube</h2>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-        <button class="btn btn-primary" onclick="sincronizarDesdeGitHub(true)">🔄 Sincronizar ahora</button>
-        <button class="btn btn-info" onclick="verificarConexionGitHub()">🔍 Verificar conexión</button>
-      </div>
-      <div id="alerta-github" class="alerta"></div>
-      <div id="ultimo-sync-info" style="font-size:.82rem;color:#4a6a4a;margin-top:8px;"></div>
-    </div>
-    <div class="card">
-      <h2>💾 Backup XML Local</h2>
-      <p style="font-size:.9rem;color:#4a6a4a;margin-bottom:14px;">Descargá una copia local de todos los datos en formato <strong>.xml</strong>. Se requiere contraseña.</p>
-      <div class="backup-row">
-        <button class="btn btn-success" onclick="pedirPassBackup('descargar')">⬇️ Descargar XML</button>
-      </div>
-      <div id="alerta-backup-gen" class="alerta"></div>
-    </div>
-    <div class="card">
-      <h2>♻️ Restaurar Backup XML</h2>
-      <p style="font-size:.9rem;color:#4a6a4a;margin-bottom:14px;"><strong style="color:var(--rojo);">⚠️ Esto reemplazará TODOS los datos actuales.</strong> Se requiere contraseña.</p>
-      <div class="backup-row">
-        <input type="file" id="archivo-bak" accept=".xml" style="padding:6px;border:1.5px solid #8aaa8a;border-radius:6px;background:#fff;color:var(--texto-oscuro)"/>
-        <button class="btn btn-warning" onclick="pedirPassBackup('restaurar')">⬆️ Restaurar Backup</button>
-      </div>
-      <div id="alerta-backup-rest" class="alerta"></div>
-    </div>
-  </section>
-</main>
-
-<!-- MODAL INSPECTOR -->
-<div class="modal-overlay" id="modal-insp">
-  <div class="modal-box">
-    <h3>✏️ Editando Inspector</h3>
-    <div class="form-row"><label>Nombre completo<input type="text" id="m-insp-nombre"/></label></div>
-    <div class="form-row"><label>Teléfono (opcional)<input type="text" id="m-insp-tel" maxlength="30"/></label></div>
-    <div class="form-row"><label>Observaciones (opcional)<input type="text" id="m-insp-obs" maxlength="80"/></label></div>
-    <div id="alerta-modal-insp" class="alerta"></div>
-    <div class="modal-acciones">
-      <button class="btn btn-secondary" onclick="cerrarModalInspector()">✖ Cancelar</button>
-      <button class="btn btn-success" onclick="guardarModalInspector()">💾 Guardar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL CIERRE TURNO -->
-<div class="modal-overlay" id="modal-cierre">
-  <div class="modal-box" style="max-width:500px;">
-    <h3>📋 Resumen de Turno – <span id="mc-inspector-nombre"></span></h3>
-    <div id="mc-resumen" style="font-size:.88rem;color:#444;margin:12px 0;line-height:1.7;"></div>
-    <p style="font-size:.8rem;color:#666;margin-bottom:6px;">Se descargará el XML del turno y se abrirá WhatsApp con el resumen.</p>
-    <div id="alerta-modal-cierre" class="alerta"></div>
-    <div class="modal-acciones">
-      <button class="btn btn-secondary" onclick="cerrarModalCierre()">✖ Cancelar</button>
-      <button class="btn btn-danger" onclick="confirmarDesactivar()">✖ Desactivar y Enviar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL FOTO CON ZOOM -->
-<div id="modal-foto" onclick="cerrarModalFoto()">
-  <div id="modal-foto-container" onclick="event.stopPropagation()">
-    <img id="modal-foto-img" src="" alt="Foto invitado"/>
-  </div>
-  <div id="modal-foto-info"></div>
-  <div class="foto-zoom-controls" onclick="event.stopPropagation()">
-    <button onclick="zoomFoto(-0.3)">🔍−</button>
-    <span id="zoom-level-display">100%</span>
-    <button onclick="zoomFoto(0.3)">🔍+</button>
-    <button onclick="resetZoomFoto()">⟳ Reset</button>
-    <button onclick="cerrarModalFoto()">✖ Cerrar</button>
-  </div>
-  <div class="foto-zoom-hint">🖱️ Rueda del mouse para zoom · Arrastrá para mover · Clic fuera para cerrar</div>
-</div>
-
-<script>
-/* ══ GITHUB CONFIG ══ */
-const GH={
-  owner:'lamannafernando-commits',repo:'peje',
-  branch:'main',dataFile:'data/pcq_data.json',
-  get token(){return localStorage.getItem('pcq_gh_token')||'';}
-};
-
-/* ══ CONSTANTES ══ */
-const KEYS={
-  ingresos:'pcq_ingresos',apercibimientos:'pcq_apercibimientos',
-  suspensiones:'pcq_suspensiones',inspectores:'pcq_inspectores',
-  fotos:'pcq_fotos',inspActivo:'pcq_inspector_activo',
-  turnoInicio:'pcq_turno_inicio',lastSync:'pcq_last_sync',
-  lastRemoteTs:'pcq_last_remote_ts'
-};
-const HS_VIGENCIA=24,MIN_POR_VENCER=60,WA_NUMERO='541162544509';
-const FOTO_MAX_W=320,FOTO_QUALITY=0.72,SYNC_INTERVAL=20000;
-const BACKUP_PASS='gustavopeje';
-let offsetMs=0,_editInspId=null,_inspDesact=null;
-let _syncEnCurso=false,_ultimoSyncTs=null,_pendingPassAction=null;
-
-/* ══ ZOOM MODAL ══ */
-let _zoomScale=1,_zoomX=0,_zoomY=0,_zoomDragging=false,_zoomLastX=0,_zoomLastY=0;
-
-function _applyZoomTransform(){
-  const img=document.getElementById('modal-foto-img');
-  img.style.transform=`translate(${_zoomX}px,${_zoomY}px) scale(${_zoomScale})`;
-  img.style.transformOrigin='0 0';
-  document.getElementById('zoom-level-display').textContent=Math.round(_zoomScale*100)+'%';
-}
-function zoomFoto(delta){
-  const cont=document.getElementById('modal-foto-container');
-  const cx=cont.offsetWidth/2,cy=cont.offsetHeight/2;
-  const ns=Math.min(8,Math.max(0.5,_zoomScale+delta));
-  _zoomX=cx-(cx-_zoomX)*(ns/_zoomScale);
-  _zoomY=cy-(cy-_zoomY)*(ns/_zoomScale);
-  _zoomScale=ns;_applyZoomTransform();
-}
-function resetZoomFoto(){_zoomScale=1;_zoomX=0;_zoomY=0;_applyZoomTransform();}
-function _initZoomEvents(){
-  const cont=document.getElementById('modal-foto-container');
-  cont.onwheel=function(e){
-    e.preventDefault();
-    const r=cont.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
-    const d=e.deltaY<0?0.25:-0.25,ns=Math.min(8,Math.max(0.5,_zoomScale+d));
-    _zoomX=mx-(mx-_zoomX)*(ns/_zoomScale);_zoomY=my-(my-_zoomY)*(ns/_zoomScale);
-    _zoomScale=ns;_applyZoomTransform();
-  };
-  cont.onmousedown=e=>{_zoomDragging=true;_zoomLastX=e.clientX;_zoomLastY=e.clientY;cont.classList.add('grabbing');};
-  document.onmousemove=e=>{
-    if(!_zoomDragging)return;
-    _zoomX+=e.clientX-_zoomLastX;_zoomY+=e.clientY-_zoomLastY;
-    _zoomLastX=e.clientX;_zoomLastY=e.clientY;_applyZoomTransform();
-  };
-  document.onmouseup=()=>{_zoomDragging=false;document.getElementById('modal-foto-container').classList.remove('grabbing');};
-  let _ltd=null;
-  cont.ontouchstart=e=>{
-    if(e.touches.length===1){_zoomDragging=true;_zoomLastX=e.touches[0].clientX;_zoomLastY=e.touches[0].clientY;}
-    else if(e.touches.length===2){_zoomDragging=false;_ltd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);}
-  };
-  cont.ontouchmove=e=>{
-    e.preventDefault();
-    if(e.touches.length===1&&_zoomDragging){
-      _zoomX+=e.touches[0].clientX-_zoomLastX;_zoomY+=e.touches[0].clientY-_zoomLastY;
-      _zoomLastX=e.touches[0].clientX;_zoomLastY=e.touches[0].clientY;_applyZoomTransform();
-    } else if(e.touches.length===2&&_ltd!==null){
-      const dist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
-      const d=(dist-_ltd)*0.01,r=cont.getBoundingClientRect();
-      const mx=((e.touches[0].clientX+e.touches[1].clientX)/2)-r.left;
-      const my=((e.touches[0].clientY+e.touches[1].clientY)/2)-r.top;
-      const ns=Math.min(8,Math.max(0.5,_zoomScale+d));
-      _zoomX=mx-(mx-_zoomX)*(ns/_zoomScale);_zoomY=my-(my-_zoomY)*(ns/_zoomScale);
-      _zoomScale=ns;_ltd=dist;_applyZoomTransform();
-    }
-  };
-  cont.ontouchend=()=>{_zoomDragging=false;_ltd=null;};
-}
-function _abrirModalFoto(src,info){
-  if(!src||src===window.location.href||src==='')return;
-  resetZoomFoto();
-  document.getElementById('modal-foto-img').src=src;
-  document.getElementById('modal-foto-info').textContent=info||'';
-  document.getElementById('modal-foto').classList.add('show');
-}
-function cerrarModalFoto(){document.getElementById('modal-foto').classList.remove('show');_zoomDragging=false;}
-function verFotoGrande(dni){const f=getFoto(String(dni));if(f)_abrirModalFoto(f,'DNI: '+dni);}
-function verFotoGrandePreview(){
-  _abrirModalFoto(document.getElementById('foto-preview').src,
-    document.getElementById('dni-ingreso').value.trim()?'DNI: '+document.getElementById('dni-ingreso').value.trim():'Foto del invitado');
-}
-
-/* ══ AUTOCOMPLETAR NOMBRE ══ */
-function buscarNombrePorDni(dni){
-  if(!dni||dni.length<6)return '';
-  for(const key of[KEYS.ingresos,KEYS.apercibimientos,KEYS.suspensiones]){
-    const lista=cargarDatos(key).filter(i=>i.dni===dni&&i.nombre&&i.nombre.trim());
-    if(lista.length)return lista[lista.length-1].nombre.trim();
-  }
-  return '';
-}
-function autocompletarNombre(dniId,nombreId){
-  const dni=document.getElementById(dniId).value.trim();
-  const campo=document.getElementById(nombreId);
-  if(!dni||dni.length<6){campo.classList.remove('autocompletado');return;}
-  const nombre=buscarNombrePorDni(dni);
-  if(nombre){
-    if(!campo.value.trim()||campo.classList.contains('autocompletado')){
-      campo.value=nombre;campo.classList.add('autocompletado');
-    }
-  } else if(campo.classList.contains('autocompletado')){
-    campo.value='';campo.classList.remove('autocompletado');
-  }
-}
-function onDniIngresoChange(){
-  const dni=document.getElementById('dni-ingreso').value.trim();
-  const campo=document.getElementById('nombre-ingreso');
-  const hint=document.getElementById('nombre-autocomplete-hint');
-  const foto=dni?getFoto(dni):null;
-  if(foto){
-    document.getElementById('foto-preview').src=foto;
-    document.getElementById('foto-preview-wrap').classList.add('show');
-    document.getElementById('btn-borrar-foto').style.display='inline-flex';
-    document.getElementById('foto-preview-dni').textContent='DNI: '+dni+' ✅';
-  } else {
-    document.getElementById('foto-preview').src='';
-    document.getElementById('foto-preview-wrap').classList.remove('show');
-    document.getElementById('btn-borrar-foto').style.display='none';
-    document.getElementById('foto-preview-dni').textContent='DNI: --';
-  }
-  if(dni&&dni.length>=6){
-    const nombre=buscarNombrePorDni(dni);
-    if(nombre){
-      if(!campo.value.trim()||campo.classList.contains('autocompletado')){
-        campo.value=nombre;campo.classList.add('autocompletado');
-        hint.textContent='✅ Nombre encontrado en registros anteriores';
-      } else hint.textContent='';
-    } else {
-      if(campo.classList.contains('autocompletado')){campo.value='';campo.classList.remove('autocompletado');}
-      hint.textContent='';
-    }
-  } else {
-    if(campo.classList.contains('autocompletado')){campo.value='';campo.classList.remove('autocompletado');}
-    hint.textContent='';
-  }
-}
-
-/* ══ PASSWORD MODAL ══ */
-function pedirPassBackup(accion){
-  _pendingPassAction=accion;
-  const titulos={descargar:'🔒 Contraseña para descargar',restaurar:'🔒 Contraseña para restaurar'};
-  const subs={descargar:'Ingresá la contraseña para descargar el backup XML.',restaurar:'Ingresá la contraseña para restaurar el backup XML.'};
-  document.getElementById('pass-titulo').textContent=titulos[accion]||'🔒 Contraseña requerida';
-  document.getElementById('pass-subtitulo').textContent=subs[accion]||'Ingresá la contraseña para continuar.';
-  document.getElementById('pass-input').value='';
-  const a=document.getElementById('alerta-pass');a.className='alerta';a.textContent='';
-  document.getElementById('modal-pass').style.display='flex';
-  setTimeout(()=>document.getElementById('pass-input').focus(),120);
-}
-function cerrarModalPass(){
-  document.getElementById('modal-pass').style.display='none';
-  _pendingPassAction=null;
-  document.getElementById('pass-input').value='';
-  const a=document.getElementById('alerta-pass');a.className='alerta';a.textContent='';
-}
-function confirmarPass(){
-  if(document.getElementById('pass-input').value!==BACKUP_PASS){
-    const el=document.getElementById('alerta-pass');
-    el.className='alerta show alerta-error';el.textContent='❌ Contraseña incorrecta.';
-    document.getElementById('pass-input').value='';document.getElementById('pass-input').focus();return;
-  }
-  const accion=_pendingPassAction;cerrarModalPass();
-  setTimeout(()=>{if(accion==='descargar')generarBackup();else if(accion==='restaurar')restaurarBackup();},150);
-}
-
-/* ══ TOKEN ══ */
-function getToken(){return localStorage.getItem('pcq_gh_token')||'';}
-function setToken(t){localStorage.setItem('pcq_gh_token',t);}
-function clearToken(){localStorage.removeItem('pcq_gh_token');}
-function guardarTokenModal(){
-  const v=document.getElementById('token-input-modal').value.trim();
-  if(!v){mostrarAlertaEl('alerta-token-modal','error','Ingresá el token.');return;}
-  setToken(v);document.getElementById('token-modal').classList.remove('show');
-  document.getElementById('token-input-modal').value='';
-  actualizarTokenStatusCard();iniciarSyncConGitHub();
-}
-function continuarSinToken(){
-  document.getElementById('token-modal').classList.remove('show');
-  setSyncBadge('error','❌ Sin token');finalizarInit();
-}
-function guardarTokenBackup(){
-  const v=document.getElementById('token-campo-backup').value.trim();
-  if(!v){mostrarAlerta('alerta-token-backup','error','Ingresá el token.');return;}
-  setToken(v);document.getElementById('token-campo-backup').value='';
-  actualizarTokenStatusCard();mostrarAlerta('alerta-token-backup','ok','✅ Token guardado. Sincronizando...');
-  sincronizarDesdeGitHub(false);
-}
-function borrarTokenBackup(){
-  if(!confirm('¿Eliminar el token?'))return;
-  clearToken();actualizarTokenStatusCard();
-  mostrarAlerta('alerta-token-backup','warn','⚠️ Token eliminado.');setSyncBadge('error','❌ Sin token');
-}
-function toggleVerTokenBackup(){
-  const i=document.getElementById('token-campo-backup');i.type=i.type==='password'?'text':'password';
-}
-function actualizarTokenStatusCard(){
-  const el=document.getElementById('token-status-card');if(!el)return;
-  const t=getToken();
-  if(t){el.className='token-status ok';el.textContent='✅ Token configurado: '+t.substring(0,8)+'••••'+t.slice(-4);}
-  else{el.className='token-status error';el.textContent='❌ No hay token configurado';}
-}
-
-/* ══ BASE64 ══ */
-function utf8ToBase64(s){const b=new TextEncoder().encode(s);let r='';b.forEach(x=>{r+=String.fromCharCode(x);});return btoa(r);}
-function base64ToUtf8(b64){const bin=atob(b64);const b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);return new TextDecoder().decode(b);}
-
-/* ══ SYNC BADGE ══ */
-function setSyncBadge(e,t){
-  document.getElementById('sync-badge').className='sync-'+e;
-  document.getElementById('sync-txt').textContent=t;
-}
-
-/* ══ GITHUB API ══ */
-function fetchConTimeout(url,opts,ms=10000){
-  const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),ms);
-  return fetch(url,{...opts,signal:ctrl.signal}).finally(()=>clearTimeout(timer));
-}
-async function ghGetFile(path){
-  if(!getToken())return{sha:null,content:null,error:'sin-token'};
-  try{
-    const r=await fetchConTimeout(
-      `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${path}?ref=${GH.branch}&t=${Date.now()}`,
-      {cache:'no-store',headers:{'Authorization':`Bearer ${getToken()}`,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}}
-    );
-    if(r.status===404)return{sha:null,content:null};
-    if(r.status===401||r.status===403)return{sha:null,content:null,error:'token-invalido'};
-    if(!r.ok)return{sha:null,content:null,error:`HTTP ${r.status}`};
-    const d=await r.json();return{sha:d.sha||null,content:d.content||null};
-  }catch(e){return{sha:null,content:null,error:e.name==='AbortError'?'timeout':e.message};}
-}
-async function ghPutFile(path,contenido,mensaje,sha){
-  if(!getToken())return{ok:false,error:'sin-token'};
-  const body={message:mensaje,content:utf8ToBase64(contenido),branch:GH.branch};
-  if(sha)body.sha=sha;
-  try{
-    const r=await fetchConTimeout(
-      `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${path}`,
-      {method:'PUT',headers:{'Authorization':`Bearer ${getToken()}`,'Accept':'application/vnd.github+json','Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'},body:JSON.stringify(body)}
-    );
-    const d=await r.json();
-    if(r.ok)return{ok:true,sha:d.content?.sha||null};
-    if(r.status===401||r.status===403)return{ok:false,error:'token-invalido'};
-    if(r.status===409||r.status===422)return{ok:false,error:'sha-conflict'};
-    return{ok:false,error:`${r.status}: ${d.message||'Error'}`};
-  }catch(e){return{ok:false,error:e.name==='AbortError'?'timeout':e.message};}
-}
-
-/* ══ DATOS ══ */
-function construirDatos(){
-  return{version:2,updatedAt:ahoraReal().toISOString(),
-    ingresos:cargarDatos(KEYS.ingresos),apercibimientos:cargarDatos(KEYS.apercibimientos),
-    suspensiones:cargarDatos(KEYS.suspensiones),inspectores:cargarDatos(KEYS.inspectores),
-    fotos:cargarFotos(),inspActivo:cargarItem(KEYS.inspActivo)||'',turnoInicio:cargarItem(KEYS.turnoInicio)||''};
-}
-function aplicarDatos(d){
-  if(!d||typeof d!=='object')return false;
-  guardarDatos(KEYS.ingresos,d.ingresos||[]);guardarDatos(KEYS.apercibimientos,d.apercibimientos||[]);
-  guardarDatos(KEYS.suspensiones,d.suspensiones||[]);guardarDatos(KEYS.inspectores,d.inspectores||[]);
-  guardarFotos(d.fotos||{});
-  if(d.inspActivo)guardarItem(KEYS.inspActivo,d.inspActivo);else localStorage.removeItem(KEYS.inspActivo);
-  if(d.turnoInicio)guardarItem(KEYS.turnoInicio,d.turnoInicio);else localStorage.removeItem(KEYS.turnoInicio);
-  return true;
-}
-
-/* ══ GUARDAR EN GITHUB ══ */
-async function guardarEnGitHub(silencioso=false){
-  if(!getToken()){setSyncBadge('error','❌ Sin token');return{ok:false,error:'sin-token'};}
-  let w=0;while(_syncEnCurso&&w<27){await new Promise(r=>setTimeout(r,300));w++;}
-  _syncEnCurso=true;setSyncBadge('syncing',silencioso?'⏳ Sync...':'⏳ Guardando...');
-  try{
-    const json=JSON.stringify(construirDatos(),null,2);
-    const now=ahoraReal();const msg=`PCQ ${formatFecha(now)} ${formatHora(now)}`;
-    for(let i=0;i<3;i++){
-      const info=await ghGetFile(GH.dataFile);
-      if(info.error==='token-invalido'){setSyncBadge('error','❌ Token inválido');return{ok:false,error:'token-invalido'};}
-      if(info.error){setSyncBadge('error','❌ '+info.error);return{ok:false,error:info.error};}
-      const res=await ghPutFile(GH.dataFile,json,msg,info.sha||null);
-      if(res.ok){
-        _ultimoSyncTs=ahoraReal();guardarItem(KEYS.lastSync,_ultimoSyncTs.toISOString());guardarItem(KEYS.lastRemoteTs,now.toISOString());
-        setSyncBadge('ok','✅ '+formatHora(_ultimoSyncTs));_actualizarInfoSync();return{ok:true};
-      }
-      if(res.error==='sha-conflict'){await new Promise(r=>setTimeout(r,500*(i+1)));continue;}
-      if(res.error==='token-invalido'){setSyncBadge('error','❌ Token inválido');return{ok:false,error:res.error};}
-      setSyncBadge('error','❌ Error');return{ok:false,error:res.error};
-    }
-    setSyncBadge('error','❌ Conflicto');return{ok:false,error:'sha-conflict-max-retries'};
-  }catch(e){setSyncBadge('error','❌ Sin conexión');return{ok:false,error:e.message};}
-  finally{_syncEnCurso=false;}
-}
-
-/* ══ SINCRONIZAR DESDE GITHUB ══ */
-async function sincronizarDesdeGitHub(mostrarUI=false){
-  if(_syncEnCurso){if(mostrarUI)mostrarAlerta('alerta-github','info','⏳ Sincronización en curso...');return;}
-  _syncEnCurso=true;setSyncBadge('syncing','🔄 Sincronizando...');
-  if(mostrarUI)mostrarAlerta('alerta-github','info','⏳ Sincronizando...');
-  try{
-    if(!getToken()){setSyncBadge('error','❌ Sin token');if(mostrarUI)mostrarAlerta('alerta-github','error','❌ No hay token.');return;}
-    const info=await ghGetFile(GH.dataFile);
-    if(info.error==='token-invalido'){setSyncBadge('error','❌ Token inválido');if(mostrarUI)mostrarAlerta('alerta-github','error','❌ Token inválido.');return;}
-    if(info.error){setSyncBadge('error','❌ Error');if(mostrarUI)mostrarAlerta('alerta-github','error','❌ Error: '+info.error);return;}
-    if(!info.content){_syncEnCurso=false;await guardarEnGitHub(true);if(mostrarUI)mostrarAlerta('alerta-github','ok','✅ Datos subidos por primera vez.');return;}
-    const remoto=JSON.parse(base64ToUtf8(info.content.replace(/\n/g,'')));
-    const tsRemoto=remoto.updatedAt?new Date(remoto.updatedAt).getTime():0;
-    const tsLocal=cargarItem(KEYS.lastRemoteTs)?new Date(cargarItem(KEYS.lastRemoteTs)).getTime():0;
-    if(tsRemoto>tsLocal+500){
-      aplicarDatos(remoto);_ultimoSyncTs=new Date(remoto.updatedAt);
-      guardarItem(KEYS.lastSync,remoto.updatedAt);guardarItem(KEYS.lastRemoteTs,remoto.updatedAt);
-      setSyncBadge('ok','✅ '+formatHora(_ultimoSyncTs));_actualizarInfoSync();
-      actualizarUIInspectorActivo();actualizarEstadoBloqueo();_refrescarSeccionActiva();
-      if(mostrarUI)mostrarAlerta('alerta-github','ok',
-        `✅ Datos actualizados desde la nube.<br>📅 <strong>${formatFecha(_ultimoSyncTs)} ${formatHora(_ultimoSyncTs)}</strong> | 🚪 Ingresos: <strong>${remoto.ingresos?.length||0}</strong>`);
-    } else {
-      setSyncBadge('ok','✅ Al día');if(mostrarUI)mostrarAlerta('alerta-github','ok','✅ Los datos ya están actualizados.');
-    }
-  }catch(e){setSyncBadge('error','❌ Error');if(mostrarUI)mostrarAlerta('alerta-github','error','❌ Error: '+e.message);}
-  finally{_syncEnCurso=false;}
-}
-function _refrescarSeccionActiva(){
-  const activa=document.querySelector('.seccion.activa');if(!activa)return;
-  const id=activa.id.replace('sec-','');
-  if(id==='apercibamiento'){renderTablaApercibimientos();actualizarUIInspectorActivo();}
-  if(id==='suspension')renderTablaSuspensiones();
-  if(id==='vencidos')renderVencidos();
-  if(id==='inspectores'){renderInspectores();actualizarUIInspectorActivo();}
-  if(id==='backup'){_actualizarInfoSync();actualizarTokenStatusCard();}
-}
-function _actualizarInfoSync(){
-  const el=document.getElementById('ultimo-sync-info');
-  if(el&&_ultimoSyncTs)el.textContent=`🕐 Última sincronización: ${formatFecha(_ultimoSyncTs)} ${formatHora(_ultimoSyncTs)}`;
-}
-async function verificarConexionGitHub(){
-  mostrarAlerta('alerta-github','info','⏳ Verificando...');
-  if(!getToken()){mostrarAlerta('alerta-github','error','❌ No hay token.');return;}
-  try{
-    const r=await fetchConTimeout(`https://api.github.com/repos/${GH.owner}/${GH.repo}`,
-      {headers:{'Authorization':`Bearer ${getToken()}`,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}});
-    const d=await r.json();
-    if(r.ok)mostrarAlerta('alerta-github','ok','✅ Conexión exitosa.');
-    else if(r.status===401||r.status===403)mostrarAlerta('alerta-github','error','❌ Token inválido.');
-    else mostrarAlerta('alerta-github','error',`❌ Error ${r.status}: ${d.message}`);
-  }catch(e){mostrarAlerta('alerta-github','error','❌ Sin conexión: '+e.message);}
-}
-
-/* ══ LOCAL STORAGE ══ */
-function cargarDatos(k){return JSON.parse(localStorage.getItem(k)||'[]');}
-function guardarDatos(k,a){localStorage.setItem(k,JSON.stringify(a));}
-function cargarItem(k){return localStorage.getItem(k)||null;}
-function guardarItem(k,v){localStorage.setItem(k,v);}
-function cargarFotos(){return JSON.parse(localStorage.getItem(KEYS.fotos)||'{}');}
-function guardarFotos(o){localStorage.setItem(KEYS.fotos,JSON.stringify(o));}
-function getFoto(dni){return cargarFotos()[String(dni)]||null;}
-function setFoto(dni,b64){const f=cargarFotos();f[String(dni)]=b64;guardarFotos(f);}
-function deleteFoto(dni){const f=cargarFotos();delete f[String(dni)];guardarFotos(f);}
-
-/* ══ HORA ══ */
-async function sincronizarHora(){
-  const apis=['https://timeapi.io/api/time/current/zone?timeZone=America%2FArgentina%2FBuenos_Aires','https://worldtimeapi.org/api/timezone/America/Argentina/Buenos_Aires'];
-  for(const url of apis){
-    try{
-      const r=await fetchConTimeout(url,{},5000);if(!r.ok)continue;
-      const d=await r.json();const raw=d.dateTime||d.datetime;if(!raw)continue;
-      const dt=new Date(raw);if(isNaN(dt))continue;
-      offsetMs=dt.getTime()-Date.now();
-      document.getElementById('fuente-hora').textContent='🌐 Hora sincronizada desde internet (Argentina)';return;
-    }catch(e){}
-  }
-  offsetMs=0;document.getElementById('fuente-hora').textContent='⚠️ Sin conexión – usando hora local del dispositivo';
-}
-function ahoraReal(){return new Date(Date.now()+offsetMs);}
-function pad(n){return String(n).padStart(2,'0');}
-function formatFecha(dt){return `${pad(dt.getDate())}/${pad(dt.getMonth()+1)}/${dt.getFullYear()}`;}
-function formatHora(dt){return `${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(dt.getSeconds())}`;}
-function isoFecha(dt){return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;}
-function parseFechaHora(f,h){const[d,m,y]=f.split('/');return new Date(`${y}-${m}-${d}T${h}`);}
-function tiempoTranscurrido(ms){const h=Math.floor(ms/3600000),min=Math.floor((ms%3600000)/60000);return h>=24?`${Math.floor(h/24)}d ${h%24}h ${min}m`:`${h}h ${min}m`;}
-function tickReloj(){
-  const now=ahoraReal(),hs=formatHora(now);
-  const fs=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][now.getDay()]+', '+formatFecha(now);
-  document.getElementById('reloj-grande').textContent=hs;
-  document.getElementById('fecha-grande').textContent=fs;
-  document.getElementById('reloj-header').textContent=formatFecha(now)+'  '+hs;
-  document.getElementById('bloqueo-reloj').textContent=hs;
-  document.getElementById('bloqueo-fecha').textContent=fs;
-}
-
-/* ══ VIGENCIA ══ */
-function estadoIngreso(ing){
-  const ms=ahoraReal().getTime()-parseFechaHora(ing.fecha,ing.hora).getTime();
-  const lim=HS_VIGENCIA*3600000,prev=lim-MIN_POR_VENCER*60000;
-  if(ms<0)return{texto:'⏳ Pendiente',clase:'badge-azul',fila:''};
-  if(ms>=lim)return{texto:'⏰ Vencido',clase:'badge-rojo',fila:'vencido'};
-  if(ms>=prev){const rm=Math.ceil((lim-ms)/60000);return{texto:`⚠️ Vence en ${rm} min`,clase:'badge-naranja',fila:'por-vencer'};}
-  return{texto:'✅ Vigente',clase:'badge-verde',fila:''};
-}
-
-/* ══ FOTO ══ */
-function cargarFotoArchivo(ev){
-  const f=ev.target.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=e=>{const i=new Image();i.onload=()=>{_guardarFoto(comprimirImagen(i));};i.src=e.target.result;};
-  r.readAsDataURL(f);ev.target.value='';
-}
-function comprimirImagen(src){
-  const c=document.createElement('canvas');
-  let w=src.naturalWidth||src.width||320,h=src.naturalHeight||src.height||240;
-  if(w>FOTO_MAX_W){h=Math.round(h*FOTO_MAX_W/w);w=FOTO_MAX_W;}
-  c.width=w;c.height=h;c.getContext('2d').drawImage(src,0,0,w,h);return c.toDataURL('image/jpeg',FOTO_QUALITY);
-}
-async function _guardarFoto(b64){
-  document.getElementById('foto-preview').src=b64;
-  document.getElementById('foto-preview-wrap').classList.add('show');
-  document.getElementById('btn-borrar-foto').style.display='inline-flex';
-  document.getElementById('alerta-foto').className='alerta';
-  const dni=document.getElementById('dni-ingreso').value.trim();
-  if(dni){
-    setFoto(dni,b64);document.getElementById('foto-preview-dni').textContent='DNI: '+dni+' ✅';
-    mostrarAlerta('alerta-foto','info','📤 Guardando foto...');
-    await guardarEnGitHub(true);mostrarAlerta('alerta-foto','ok','✅ Foto guardada para DNI '+dni+'.');
-  } else {
-    document.getElementById('foto-preview-dni').textContent='⚠️ Ingresá el DNI para asociar la foto';
-    mostrarAlerta('alerta-foto','warn','⚠️ Ingresá el DNI del invitado para asociar la foto.');
-  }
-}
-async function borrarFoto(){
-  const dni=document.getElementById('dni-ingreso').value.trim();
-  if(dni&&getFoto(dni)){if(!confirm(`¿Eliminar la foto del DNI ${dni}?`))return;deleteFoto(dni);await guardarEnGitHub(true);}
-  document.getElementById('foto-preview').src='';
-  document.getElementById('foto-preview-wrap').classList.remove('show');
-  document.getElementById('btn-borrar-foto').style.display='none';
-  document.getElementById('foto-preview-dni').textContent='DNI: --';
-  mostrarAlerta('alerta-foto','warn','🗑️ Foto eliminada.');
-}
-function asociarFotoAlRegistrar(dni){
-  const s=document.getElementById('foto-preview').src;
-  if(s&&s!==window.location.href&&!getFoto(dni))setFoto(dni,s);
-}
-function fotoThumb(dni,cls){
-  const f=getFoto(String(dni));
-  return f
-    ?`<img src="${f}" class="foto-thumb ${cls||''}" onclick="verFotoGrande('${dni}')" title="🔍 Click para ampliar" alt="Foto"/>`
-    :`<span class="foto-thumb-placeholder" title="Sin foto">👤</span>`;
-}
-
-/* ══ BLOQUEO ══ */
-function getInspectorActivo(){
-  const id=cargarItem(KEYS.inspActivo);if(!id)return null;
-  return cargarDatos(KEYS.inspectores).find(i=>String(i.id)===String(id))||null;
-}
-function actualizarEstadoBloqueo(){
-  const ok=!!getInspectorActivo();
-  document.getElementById('bloqueo-overlay').classList[ok?'remove':'add']('show');
-  ['btn-nav-ingreso','btn-nav-apercibamiento','btn-nav-suspension','btn-nav-consulta','btn-nav-vencidos','btn-nav-backup'].forEach(id=>{
-    const b=document.getElementById(id);if(b)b.classList[ok?'remove':'add']('nav-bloqueado');
-  });
-}
-function irAInspectores(){
-  document.getElementById('bloqueo-overlay').classList.remove('show');
-  document.getElementById('banner-activar').style.display='block';
-  _navegarSeccion('inspectores',document.getElementById('btn-nav-inspectores'));
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function navClick(id,btn){if(!getInspectorActivo()&&id!=='inspectores')return;_navegarSeccion(id,btn);}
-function _navegarSeccion(id,btn){
-  document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('activa'));
-  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('activo'));
-  document.getElementById('sec-'+id).classList.add('activa');
-  if(btn)btn.classList.add('activo');
-  if(id==='apercibamiento'){renderTablaApercibimientos();actualizarUIInspectorActivo();}
-  if(id==='suspension')renderTablaSuspensiones();
-  if(id==='backup'){_actualizarInfoSync();actualizarTokenStatusCard();}
-  if(id==='inspectores'){renderInspectores();actualizarUIInspectorActivo();}
-  if(id==='vencidos')renderVencidos();
-  if(id==='consulta')setFechasConsultaHoy();
-}
-
-/* ══ INSPECTOR UI ══ */
-function actualizarUIInspectorActivo(){
-  const insp=getInspectorActivo();
-  const hi=document.getElementById('header-inspector');
-  if(insp){hi.textContent=`👮 ${insp.nombre}`;hi.classList.remove('sin-inspector');}
-  else{hi.textContent='🔒 Sin inspector activo';hi.classList.add('sin-inspector');}
-  const pA=document.getElementById('aperc-inspector-panel');
-  if(insp){
-    document.getElementById('aperc-inspector-nombre').textContent=insp.nombre;
-    document.getElementById('aperc-inspector-sub').textContent=insp.tel?`📞 ${insp.tel}`:'Inspector activo';
-    pA.classList.remove('sin-inspector');
-  } else {
-    document.getElementById('aperc-inspector-nombre').textContent='Sin inspector activo';
-    document.getElementById('aperc-inspector-sub').textContent='Asigná un inspector en la sección Inspectores';
-    pA.classList.add('sin-inspector');
-  }
-  const pI=document.getElementById('insp-activo-panel'),bD=document.getElementById('btn-desactivar');
-  if(insp){
-    document.getElementById('insp-activo-nombre').textContent=insp.nombre;
-    document.getElementById('insp-activo-sub').textContent=insp.obs||'Inspector de turno activo';
-    pI.classList.remove('sin-inspector');bD.style.display='inline-flex';
-  } else {
-    document.getElementById('insp-activo-nombre').textContent='Sin inspector activo';
-    document.getElementById('insp-activo-sub').textContent='Seleccioná un inspector y presioná "Activar"';
-    pI.classList.add('sin-inspector');bD.style.display='none';
-  }
-}
-async function activarInspector(id){
-  const ant=cargarItem(KEYS.inspActivo);
-  if(ant&&ant!==String(id)){localStorage.removeItem(KEYS.inspActivo);localStorage.removeItem(KEYS.turnoInicio);}
-  guardarItem(KEYS.inspActivo,String(id));guardarItem(KEYS.turnoInicio,ahoraReal().toISOString());
-  document.getElementById('banner-activar').style.display='none';
-  actualizarUIInspectorActivo();actualizarEstadoBloqueo();renderInspectores();
-  mostrarAlerta('alerta-insp','info','⏳ Activando y sincronizando...');
-  const res=await guardarEnGitHub(false);
-  if(res.ok)mostrarAlerta('alerta-insp','ok','✅ Inspector activado y sincronizado.');
-  else mostrarAlerta('alerta-insp','warn',`⚠️ Inspector activado localmente. Error sync: ${res.error||''}`);
-  _navegarSeccion('ingreso',document.getElementById('btn-nav-ingreso'));
-}
-function desactivarInspector(){
-  const insp=getInspectorActivo();if(!insp)return;
-  _inspDesact=insp;
-  const ts=cargarItem(KEYS.turnoInicio),now=ahoraReal();
-  const desde=ts?new Date(ts):new Date(isoFecha(now)+'T00:00:00');
-  const todos=cargarDatos(KEYS.ingresos);
-  const ingT=todos.filter(i=>{const dt=parseFechaHora(i.fecha,i.hora);return dt>=desde;});
-  const apT=cargarDatos(KEYS.apercibimientos).filter(a=>{const dt=parseFechaHora(a.fecha,a.hora);return dt>=desde;});
-  const suT=cargarDatos(KEYS.suspensiones).filter(s=>Number(s.id)>=desde.getTime());
-  const lim=HS_VIGENCIA*3600000;
-  const venT=todos.filter(i=>(now.getTime()-parseFechaHora(i.fecha,i.hora).getTime())>lim);
-  _inspDesact._turno={ingresos:ingT,apercibimientos:apT,suspensiones:suT,vencidos:venT,
-    inicio:ts?formatFecha(new Date(ts))+' '+formatHora(new Date(ts)):'Inicio del día',
-    fin:formatFecha(now)+' '+formatHora(now)};
-  document.getElementById('mc-inspector-nombre').textContent=insp.nombre;
-  document.getElementById('mc-resumen').innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:.87rem;">
-    <tr style="background:#f0f5f0;"><td style="padding:6px 10px;font-weight:700;color:#1a3a1a;">🕐 Inicio</td><td style="padding:6px 10px;">${_inspDesact._turno.inicio}</td></tr>
-    <tr><td style="padding:6px 10px;font-weight:700;color:#1a3a1a;">🕐 Cierre</td><td style="padding:6px 10px;">${_inspDesact._turno.fin}</td></tr>
-    <tr style="background:#f0f5f0;"><td style="padding:6px 10px;font-weight:700;color:#1a3a1a;">🚪 Ingresos</td><td style="padding:6px 10px;">${ingT.length}</td></tr>
-    <tr><td style="padding:6px 10px;font-weight:700;color:#1a3a1a;">⚠️ Apercibamientos</td><td style="padding:6px 10px;">${apT.length}</td></tr>
-    <tr style="background:#f0f5f0;"><td style="padding:6px 10px;font-weight:700;color:#1a3a1a;">🚫 Suspensiones</td><td style="padding:6px 10px;">${suT.length}</td></tr>
-    <tr><td style="padding:6px 10px;font-weight:700;color:#1a3a1a;">⏰ Vencidos</td><td style="padding:6px 10px;">${venT.length}</td></tr>
-  </table>`;
-  document.getElementById('alerta-modal-cierre').className='alerta';
-  document.getElementById('modal-cierre').classList.add('show');
-}
-function cerrarModalCierre(){document.getElementById('modal-cierre').classList.remove('show');_inspDesact=null;}
-async function confirmarDesactivar(){
-  if(!_inspDesact)return;
-  const insp=_inspDesact,turno=insp._turno,now=ahoraReal();
-  const xml=generarXMLTurno(insp,turno,now);
-  const nom=`PCQ_turno_${insp.nombre.replace(/\s+/g,'_')}_${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.xml`;
-  const blob=new Blob([xml],{type:'application/xml'});const url=URL.createObjectURL(blob);
-  Object.assign(document.createElement('a'),{href:url,download:nom}).click();URL.revokeObjectURL(url);
-  localStorage.removeItem(KEYS.inspActivo);localStorage.removeItem(KEYS.turnoInicio);
-  mostrarAlerta('alerta-modal-cierre','info','⏳ Sincronizando cierre...');
-  await guardarEnGitHub(false);
-  actualizarUIInspectorActivo();actualizarEstadoBloqueo();renderInspectores();
-  cerrarModalCierre();document.getElementById('banner-activar').style.display='block';
-  _navegarSeccion('inspectores',document.getElementById('btn-nav-inspectores'));
-  setTimeout(()=>window.open(`https://wa.me/${WA_NUMERO}?text=${encodeURIComponent(armarMensajeWA(insp,turno))}`,'_blank'),800);
-}
-function generarXMLTurno(insp,turno,now){
-  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  let x=`<?xml version="1.0" encoding="UTF-8"?>\n<TurnoPCQ>\n  <MetaData>\n    <Inspector>${esc(insp.nombre)}</Inspector>\n    <Inicio>${esc(turno.inicio)}</Inicio>\n    <Fin>${esc(turno.fin)}</Fin>\n    <TotalIngresos>${turno.ingresos.length}</TotalIngresos>\n    <TotalApercibamientos>${turno.apercibimientos.length}</TotalApercibamientos>\n    <TotalSuspensiones>${turno.suspensiones.length}</TotalSuspensiones>\n    <TotalVencidos>${turno.vencidos.length}</TotalVencidos>\n  </MetaData>\n  <Ingresos>\n`;
-  turno.ingresos.forEach(i=>{x+=`    <Ingreso><DNI>${esc(i.dni)}</DNI><Nombre>${esc(i.nombre||'')}</Nombre><Fecha>${esc(i.fecha)}</Fecha><Hora>${esc(i.hora)}</Hora></Ingreso>\n`;});
-  x+=`  </Ingresos>\n  <Apercibamientos>\n`;
-  turno.apercibimientos.forEach(a=>{x+=`    <Apercibamiento><DNI>${esc(a.dni)}</DNI><Nombre>${esc(a.nombre)}</Nombre><Motivo>${esc(a.motivo)}</Motivo><Fecha>${esc(a.fecha)}</Fecha><Hora>${esc(a.hora)}</Hora></Apercibamiento>\n`;});
-  x+=`  </Apercibamientos>\n  <Suspensiones>\n`;
-  turno.suspensiones.forEach(s=>{x+=`    <Suspension><DNI>${esc(s.dni)}</DNI><Nombre>${esc(s.nombre)}</Nombre><Desde>${esc(s.desde)}</Desde><Hasta>${esc(s.hasta)}</Hasta><Motivo>${esc(s.motivo)}</Motivo></Suspension>\n`;});
-  x+=`  </Suspensiones>\n  <IngresosVencidos>\n`;
-  turno.vencidos.forEach(i=>{const ms=ahoraReal().getTime()-parseFechaHora(i.fecha,i.hora).getTime();x+=`    <Vencido><DNI>${esc(i.dni)}</DNI><Nombre>${esc(i.nombre||'')}</Nombre><Transcurrido>${tiempoTranscurrido(ms)}</Transcurrido></Vencido>\n`;});
-  x+=`  </IngresosVencidos>\n</TurnoPCQ>`;return x;
-}
-function armarMensajeWA(insp,turno){
-  let m=`🎣 *Pejerrey Club Quilmes*\n📋 *Cierre de Turno*\n👮 Inspector: *${insp.nombre}*\n🕐 Inicio: ${turno.inicio}\n🕐 Cierre: ${turno.fin}\n──────────────────\n🚪 Ingresos: *${turno.ingresos.length}*\n`;
-  turno.ingresos.forEach(i=>{m+=`  • DNI ${i.dni}${i.nombre?' ('+i.nombre+')':''} (${i.fecha} ${i.hora})\n`;});
-  m+=`──────────────────\n⚠️ Apercibamientos: *${turno.apercibimientos.length}*\n`;
-  turno.apercibimientos.forEach(a=>{m+=`  • DNI ${a.dni}${a.nombre?' ('+a.nombre+')':''} – ${a.motivo}\n`;});
-  m+=`──────────────────\n🚫 Suspensiones: *${turno.suspensiones.length}*\n`;
-  turno.suspensiones.forEach(s=>{m+=`  • DNI ${s.dni}${s.nombre?' ('+s.nombre+')':''} – hasta ${s.hasta}\n`;});
-  m+=`──────────────────\n⏰ Vencidos: *${turno.vencidos.length}*\n`;
-  turno.vencidos.forEach(i=>{const ms=ahoraReal().getTime()-parseFechaHora(i.fecha,i.hora).getTime();m+=`  • DNI ${i.dni}${i.nombre?' ('+i.nombre+')':''} – hace ${tiempoTranscurrido(ms)}\n`;});
-  return m+`──────────────────\n✅ Turno cerrado.`;
-}
-
-/* ══ ABM INSPECTORES ══ */
-async function guardarInspector(){
-  const nombre=document.getElementById('insp-nombre').value.trim();
-  const tel=document.getElementById('insp-tel').value.trim();
-  const obs=document.getElementById('insp-obs').value.trim();
-  if(!nombre){mostrarAlerta('alerta-insp','error','Ingresá el nombre del inspector.');return;}
-  const lista=cargarDatos(KEYS.inspectores);
-  if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase())){mostrarAlerta('alerta-insp','error','Ya existe un inspector con ese nombre.');return;}
-  lista.push({id:Date.now(),nombre,tel,obs});guardarDatos(KEYS.inspectores,lista);
-  mostrarAlerta('alerta-insp','info','⏳ Guardando...');
-  const res=await guardarEnGitHub(false);
-  if(res.ok)mostrarAlerta('alerta-insp','ok',`✅ Inspector <strong>${nombre}</strong> registrado.`);
-  else mostrarAlerta('alerta-insp','warn',`⚠️ Guardado localmente. Error sync: ${res.error||''}`);
-  ['insp-nombre','insp-tel','insp-obs'].forEach(id=>{document.getElementById(id).value='';});
-  renderInspectores();
-}
-function editarInspector(id){
-  const insp=cargarDatos(KEYS.inspectores).find(i=>i.id===id);if(!insp)return;
-  _editInspId=id;
-  document.getElementById('m-insp-nombre').value=insp.nombre;
-  document.getElementById('m-insp-tel').value=insp.tel||'';
-  document.getElementById('m-insp-obs').value=insp.obs||'';
-  document.getElementById('alerta-modal-insp').className='alerta';
-  document.getElementById('modal-insp').classList.add('show');
-}
-function cerrarModalInspector(){document.getElementById('modal-insp').classList.remove('show');_editInspId=null;}
-async function guardarModalInspector(){
-  const nombre=document.getElementById('m-insp-nombre').value.trim();
-  const tel=document.getElementById('m-insp-tel').value.trim();
-  const obs=document.getElementById('m-insp-obs').value.trim();
-  if(!nombre){mostrarAlerta('alerta-modal-insp','error','Ingresá el nombre.');return;}
-  const lista=cargarDatos(KEYS.inspectores);
-  if(lista.find(i=>i.nombre.toLowerCase()===nombre.toLowerCase()&&i.id!==_editInspId)){mostrarAlerta('alerta-modal-insp','error','Ya existe ese nombre.');return;}
-  const idx=lista.findIndex(i=>i.id===_editInspId);if(idx===-1){cerrarModalInspector();return;}
-  lista[idx]={...lista[idx],nombre,tel,obs};guardarDatos(KEYS.inspectores,lista);
-  await guardarEnGitHub(false);cerrarModalInspector();actualizarUIInspectorActivo();renderInspectores();
-  mostrarAlerta('alerta-insp','ok','✅ Inspector actualizado.');
-}
-async function eliminarInspector(id){
-  const insp=cargarDatos(KEYS.inspectores).find(i=>i.id===id);if(!insp)return;
-  if(!confirm(`¿Eliminar al inspector "${insp.nombre}"?`))return;
-  if(cargarItem(KEYS.inspActivo)===String(id)){localStorage.removeItem(KEYS.inspActivo);localStorage.removeItem(KEYS.turnoInicio);}
-  guardarDatos(KEYS.inspectores,cargarDatos(KEYS.inspectores).filter(i=>i.id!==id));
-  await guardarEnGitHub(false);actualizarUIInspectorActivo();actualizarEstadoBloqueo();renderInspectores();
-  mostrarAlerta('alerta-insp','warn','⚠️ Inspector eliminado.');
-}
-function renderInspectores(){
-  const lista=cargarDatos(KEYS.inspectores),actId=cargarItem(KEYS.inspActivo);
-  const grid=document.getElementById('insp-grid'),vacio=document.getElementById('insp-vacio');
-  grid.innerHTML='';
-  if(!lista.length){vacio.style.display='block';grid.style.display='none';return;}
-  vacio.style.display='none';grid.style.display='grid';
-  lista.forEach(insp=>{
-    const esAct=String(insp.id)===String(actId);
-    const card=document.createElement('div');card.className='insp-card'+(esAct?' activo':'');
-    card.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
-      <div><div class="ic-nombre">👮 ${insp.nombre}</div>${insp.tel?`<div class="ic-sub">📞 ${insp.tel}</div>`:''}${insp.obs?`<div class="ic-sub">📝 ${insp.obs}</div>`:''}</div>
-      ${esAct?'<span class="badge badge-dorado">✅ ACTIVO</span>':''}
-    </div>
-    <div class="ic-acciones">
-      ${!esAct?`<button class="btn btn-gold btn-sm" onclick="activarInspector(${insp.id})">⚡ Activar</button>`:`<button class="btn btn-secondary btn-sm" onclick="desactivarInspector()">✖ Desactivar</button>`}
-      <button class="btn btn-warning btn-sm" onclick="editarInspector(${insp.id})">✏️ Editar</button>
-      <button class="btn btn-danger btn-sm" onclick="eliminarInspector(${insp.id})">🗑️ Eliminar</button>
-    </div>`;
-    grid.appendChild(card);
-  });
-}
-
-/* ══ VENCIDOS ══ */
-function renderVencidos(){
-  const ing=cargarDatos(KEYS.ingresos),now=ahoraReal();
-  const lim=HS_VIGENCIA*3600000,prev=lim-MIN_POR_VENCER*60000;
-  const ven=ing.filter(i=>(now.getTime()-parseFechaHora(i.fecha,i.hora).getTime())>=lim)
-    .sort((a,b)=>parseFechaHora(a.fecha,a.hora)-parseFechaHora(b.fecha,b.hora));
-  const pv=ing.filter(i=>{const ms=now.getTime()-parseFechaHora(i.fecha,i.hora).getTime();return ms>=prev&&ms<lim;})
-    .sort((a,b)=>parseFechaHora(a.fecha,a.hora)-parseFechaHora(b.fecha,b.hora));
-  const cpv=document.getElementById('contador-por-vencer');
-  if(pv.length){cpv.style.display='flex';document.getElementById('cpv-num').textContent=pv.length;}else cpv.style.display='none';
-  const cv=document.getElementById('contador-vencidos');
-  if(ven.length){cv.style.display='flex';document.getElementById('cv-num').textContent=ven.length;}else cv.style.display='none';
-  const tbody=document.querySelector('#tabla-vencidos tbody');tbody.innerHTML='';
-  const todos=[...pv,...ven];
-  if(!todos.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:#aaa;">✅ No hay ingresos vencidos ni por vencer</td></tr>';return;}
-  todos.forEach(i=>{
-    const ms=now.getTime()-parseFechaHora(i.fecha,i.hora).getTime();
-    const est=estadoIngreso(i);const tr=document.createElement('tr');tr.className=est.fila;
-    tr.innerHTML=`<td>${fotoThumb(i.dni)}</td><td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${tiempoTranscurrido(ms)}</td><td><span class="badge ${est.clase}">${est.texto}</span></td><td><button class="btn btn-danger btn-sm" onclick="eliminarIngreso('${i.dni}','${i.fecha}','${i.hora}')">🗑️ Dar de baja</button></td>`;
-    tbody.appendChild(tr);
-  });
-}
-async function eliminarIngreso(dni,fecha,hora){
-  if(!confirm(`¿Dar de baja el ingreso de DNI "${dni}"?`))return;
-  guardarDatos(KEYS.ingresos,cargarDatos(KEYS.ingresos).filter(i=>!(i.dni===dni&&i.fecha===fecha&&i.hora===hora)));
-  await guardarEnGitHub(true);renderVencidos();
-  mostrarAlerta('alerta-vencidos','ok',`✅ Ingreso de DNI <strong>${dni}</strong> eliminado.`);
-}
-async function limpiarVencidos(){
-  const ing=cargarDatos(KEYS.ingresos),now=ahoraReal(),lim=HS_VIGENCIA*3600000;
-  const vig=ing.filter(i=>(now.getTime()-parseFechaHora(i.fecha,i.hora).getTime())<lim);
-  const cant=ing.length-vig.length;
-  if(!cant){mostrarAlerta('alerta-vencidos','info','No hay ingresos vencidos.');return;}
-  if(!confirm(`¿Eliminar los ${cant} ingreso(s) vencido(s)?`))return;
-  guardarDatos(KEYS.ingresos,vig);await guardarEnGitHub(true);renderVencidos();
-  mostrarAlerta('alerta-vencidos','ok',`✅ Se eliminaron <strong>${cant}</strong> ingreso(s).`);
-}
-
-/* ══ CONSULTA ══ */
-function setFechasConsultaHoy(){
-  const hoy=isoFecha(ahoraReal());
-  const d=document.getElementById('consulta-desde');
-  const h=document.getElementById('consulta-hasta');
-  if(!d.value)d.value=hoy;if(!h.value)h.value=hoy;
-}
-function consultarIngresos(){
-  const desde=document.getElementById('consulta-desde').value,hasta=document.getElementById('consulta-hasta').value;
-  const dni=document.getElementById('consulta-dni').value.trim();
-  if(!desde||!hasta){mostrarAlerta('alerta-consulta','error','Seleccioná ambas fechas.');return;}
-  if(hasta<desde){mostrarAlerta('alerta-consulta','error','La fecha "hasta" debe ser ≥ "desde".');return;}
-  let res=cargarDatos(KEYS.ingresos).filter(i=>i.isoFecha>=desde&&i.isoFecha<=hasta);
-  if(dni)res=res.filter(i=>i.dni===dni);
-  res.sort((a,b)=>(a.isoFecha+a.hora)>(b.isoFecha+b.hora)?-1:1);
-  document.getElementById('resumen-consulta').textContent=`Se encontraron ${res.length} ingreso(s) entre ${desde} y ${hasta}${dni?' para DNI '+dni:''}.`;
-  const tbody=document.querySelector('#tabla-consulta tbody');tbody.innerHTML='';
-  if(!res.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:#aaa;">Sin resultados</td></tr>';return;}
-  res.forEach(i=>{
-    const est=estadoIngreso(i);const tr=document.createElement('tr');if(est.fila)tr.className=est.fila;
-    tr.innerHTML=`<td>${fotoThumb(i.dni)}</td><td>${i.dni}</td><td>${i.nombre||'—'}</td><td>${i.fecha}</td><td>${i.hora}</td><td><span class="badge ${est.clase}">${est.texto}</span></td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-/* ══ ALERTAS ══ */
-function mostrarAlerta(id,tipo,msg){
-  const el=document.getElementById(id);if(!el)return;
-  el.className='alerta show alerta-'+tipo;el.innerHTML=msg;
-  clearTimeout(el._t);el._t=setTimeout(()=>{el.className='alerta';},9000);
-}
-const mostrarAlertaEl=mostrarAlerta;
-
-/* ══ INGRESO ══ */
-function buscarInvitado(){
-  const dni=document.getElementById('dni-ingreso').value.trim();
-  if(!dni){mostrarAlerta('alerta-ingreso','error','Ingresá el número de documento.');return;}
-  const ing=cargarDatos(KEYS.ingresos),ap=cargarDatos(KEYS.apercibimientos),su=cargarDatos(KEYS.suspensiones);
-  const hoy=isoFecha(ahoraReal()),now=ahoraReal();
-  const lim=HS_VIGENCIA*3600000,prev=lim-MIN_POR_VENCER*60000;
-  const miIng=ing.filter(i=>i.dni===dni).slice(-10).reverse();
-  const miAp=ap.filter(a=>a.dni===dni);
-  const miSuAct=su.filter(s=>s.dni===dni&&hoy>=s.desde&&hoy<=s.hasta);
-  const ultimo=ing.filter(i=>i.dni===dni).slice(-1)[0];
-  const msU=ultimo?now.getTime()-parseFechaHora(ultimo.fecha,ultimo.hora).getTime():-1;
-  const tieneVen=msU>=lim,tienePV=msU>=prev&&msU<lim;
-  const panel=document.getElementById('panel-estado');
-  const badges=document.getElementById('estado-badges');
-  const detalles=document.getElementById('estado-detalles');
-  const fotoC=document.getElementById('estado-foto-contenedor');
-  panel.classList.add('show');document.getElementById('estado-nombre').textContent='DNI: '+dni;
-  badges.innerHTML='';fotoC.innerHTML='';
-  let tipo='info',msg=`✅ Invitado DNI <strong>${dni}</strong> sin restricciones.`,fotoClase='';
-  if(miSuAct.length){
-    const s=miSuAct[0];
-    badges.innerHTML+=`<span class="badge badge-rojo">🚫 SUSPENDIDO hasta ${s.hasta}</span>`;
-    detalles.innerHTML=`<strong>Motivo:</strong> ${s.motivo}`;
-    tipo='error';msg=`🚫 <strong>SUSPENDIDO</strong> – No puede ingresar. Vigente hasta <strong>${s.hasta}</strong>.`;
-    panel.style.borderColor='var(--rojo)';fotoClase='foto-suspendido';
-  } else if(miAp.length){
-    badges.innerHTML+=`<span class="badge badge-naranja">⚠️ ${miAp.length} apercibamiento(s)</span>`;
-    if(tieneVen)badges.innerHTML+=`<span class="badge badge-rojo">⏰ Ingreso vencido</span>`;
-    else if(tienePV){const rm=Math.ceil((lim-msU)/60000);badges.innerHTML+=`<span class="badge badge-naranja">⏳ Vence en ${rm} min</span>`;}
-    detalles.innerHTML=miAp.map(a=>`<div>• ${a.fecha} – ${a.motivo}${a.inspector?` <span class="badge badge-azul">👮 ${a.inspector}</span>`:''}</div>`).join('');
-    tipo='warn';msg=`⚠️ El invitado tiene <strong>${miAp.length} apercibamiento(s)</strong>. Puede ingresar con advertencia.`;
-    panel.style.borderColor='var(--naranja)';fotoClase='foto-apercibido';
-  } else if(tieneVen){
-    badges.innerHTML+=`<span class="badge badge-rojo">⏰ Ingreso vencido</span>`;
-    detalles.innerHTML='<span style="color:#991b1b;">Tiene un ingreso vencido (más de 24hs).</span>';
-    tipo='warn';msg=`⏰ El invitado tiene un <strong>ingreso vencido</strong>.`;
-    panel.style.borderColor='#888';fotoClase='foto-vencido';
-  } else if(tienePV){
-    const rm=Math.ceil((lim-msU)/60000);
-    badges.innerHTML+=`<span class="badge badge-naranja">⏳ Vence en ${rm} min</span>`;
-    detalles.innerHTML=`<span style="color:#92400e;">El ingreso vence en ${rm} minutos.</span>`;
-    tipo='warn';msg=`⏳ Ingreso que <strong>vence en ${rm} minutos</strong>.`;
-    panel.style.borderColor='var(--naranja)';fotoClase='foto-por-vencer';
-  } else {
-    badges.innerHTML=`<span class="badge badge-verde">✅ Sin restricciones</span>`;
-    detalles.innerHTML='';panel.style.borderColor='var(--dorado)';
-  }
-  const foto=getFoto(dni);
-  if(foto)fotoC.innerHTML=`<div class="estado-foto-wrap"><img src="${foto}" class="estado-foto ${fotoClase}" onclick="verFotoGrande('${dni}')" title="🔍 Click para ampliar"/><span class="estado-foto-label">📷 DNI ${dni}</span></div>`;
-  mostrarAlerta('alerta-ingreso',tipo,msg);
-  const wrap=document.getElementById('ultimos-ingresos'),tbody=document.querySelector('#tabla-ultimos tbody');
-  tbody.innerHTML='';wrap.style.display='block';
-  if(miIng.length){
-    miIng.forEach((i,n)=>{
-      const est=estadoIngreso(i);const tr=document.createElement('tr');if(est.fila)tr.className=est.fila;
-      tr.innerHTML=`<td>${n+1}</td><td>${i.fecha}</td><td>${i.hora}</td><td>${i.nombre||'—'}</td><td><span class="badge ${est.clase}">${est.texto}</span></td>`;
-      tbody.appendChild(tr);
-    });
-  } else tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#aaa;">Sin ingresos previos</td></tr>';
-  if(foto){
-    document.getElementById('foto-preview').src=foto;
-    document.getElementById('foto-preview-wrap').classList.add('show');
-    document.getElementById('btn-borrar-foto').style.display='inline-flex';
-    document.getElementById('foto-preview-dni').textContent='DNI: '+dni+' ✅';
-  }
-}
-async function registrarIngreso(){
-  const dni=document.getElementById('dni-ingreso').value.trim();
-  const nombre=document.getElementById('nombre-ingreso').value.trim();
-  if(!dni){mostrarAlerta('alerta-ingreso','error','Ingresá el número de documento.');return;}
-  const hoy=isoFecha(ahoraReal());
-  const susp=cargarDatos(KEYS.suspensiones).find(s=>s.dni===dni&&hoy>=s.desde&&hoy<=s.hasta);
-  if(susp){mostrarAlerta('alerta-ingreso','error',`🚫 Invitado <strong>SUSPENDIDO</strong> hasta <strong>${susp.hasta}</strong>.`);return;}
-  asociarFotoAlRegistrar(dni);
-  const now=ahoraReal();
-  const lista=cargarDatos(KEYS.ingresos);
-  lista.push({dni,nombre,fecha:formatFecha(now),hora:formatHora(now),isoFecha:isoFecha(now)});
-  guardarDatos(KEYS.ingresos,lista);
-  mostrarAlerta('alerta-ingreso','info','⏳ Guardando...');
-  const res=await guardarEnGitHub(false);
-  if(res.ok)mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado – DNI: <strong>${dni}</strong>${nombre?' | '+nombre:''} | ${formatFecha(now)} ${formatHora(now)}`);
-  else mostrarAlerta('alerta-ingreso','warn',`⚠️ Guardado localmente. Error sync: ${res.error||''}`);
-  document.getElementById('nombre-ingreso').classList.remove('autocompletado');
-  document.getElementById('nombre-autocomplete-hint').textContent='';
-  buscarInvitado();
-  document.getElementById('nombre-ingreso').value='';
-}
-
-/* ══ APERCIBAMIENTO ══ */
-async function registrarApercibamiento(){
-  const dni=document.getElementById('dni-aperc').value.trim();
-  const nombre=document.getElementById('nombre-aperc').value.trim();
-  const motivo=document.getElementById('motivo-aperc').value.trim();
-  if(!dni){mostrarAlerta('alerta-aperc','error','Ingresá el número de documento.');return;}
-  if(!motivo){mostrarAlerta('alerta-aperc','error','Ingresá el motivo.');return;}
-  const insp=getInspectorActivo();
-  if(!insp){if(!confirm('⚠️ No hay inspector activo. ¿Registrar de todas formas?'))return;}
-  const now=ahoraReal();
-  const lista=cargarDatos(KEYS.apercibimientos);
-  lista.push({id:Date.now(),dni,nombre,motivo,fecha:formatFecha(now),hora:formatHora(now),inspector:insp?insp.nombre:null,inspectorId:insp?insp.id:null});
-  guardarDatos(KEYS.apercibimientos,lista);
-  mostrarAlerta('alerta-aperc','info','⏳ Guardando...');
-  await guardarEnGitHub(false);
-  mostrarAlerta('alerta-aperc','ok',`⚠️ Apercibamiento registrado para DNI <strong>${dni}</strong>${insp?' | Inspector: <strong>'+insp.nombre+'</strong>':''}.`);
-  ['dni-aperc','nombre-aperc','motivo-aperc'].forEach(id=>{document.getElementById(id).value='';});
-  document.getElementById('nombre-aperc').classList.remove('autocompletado');
-  renderTablaApercibimientos();
-}
-async function eliminarApercibimiento(id){
-  if(!confirm('¿Eliminar este apercibamiento?'))return;
-  guardarDatos(KEYS.apercibimientos,cargarDatos(KEYS.apercibimientos).filter(a=>a.id!==id));
-  await guardarEnGitHub(true);renderTablaApercibimientos();
-}
-function renderTablaApercibimientos(){
-  const lista=cargarDatos(KEYS.apercibimientos).slice().reverse();
-  const tbody=document.querySelector('#tabla-aperc tbody');tbody.innerHTML='';
-  if(!lista.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#aaa;">Sin apercibamientos registrados</td></tr>';return;}
-  lista.forEach(a=>{
-    const ib=a.inspector?`<span class="badge badge-azul">👮 ${a.inspector}</span>`:'<span style="color:#aaa;font-size:.8rem">—</span>';
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${fotoThumb(a.dni)}</td><td>${a.dni}</td><td>${a.nombre||'—'}</td><td>${a.fecha} ${a.hora}</td><td style="max-width:240px">${a.motivo}</td><td>${ib}</td><td><button class="btn btn-danger btn-sm" onclick="eliminarApercibimiento(${a.id})">🗑️ Eliminar</button></td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-/* ══ SUSPENSIÓN ══ */
-async function registrarSuspension(){
-  const dni=document.getElementById('dni-susp').value.trim();
-  const nombre=document.getElementById('nombre-susp').value.trim();
-  const desde=document.getElementById('susp-desde').value;
-  const hasta=document.getElementById('susp-hasta').value;
-  const motivo=document.getElementById('motivo-susp').value.trim();
-  if(!dni){mostrarAlerta('alerta-susp','error','Ingresá el número de documento.');return;}
-  if(!desde){mostrarAlerta('alerta-susp','error','Ingresá la fecha de inicio.');return;}
-  if(!hasta){mostrarAlerta('alerta-susp','error','Ingresá la fecha de fin.');return;}
-  if(hasta<desde){mostrarAlerta('alerta-susp','error','La fecha "hasta" debe ser ≥ "desde".');return;}
-  if(!motivo){mostrarAlerta('alerta-susp','error','Ingresá el motivo.');return;}
-  const lista=cargarDatos(KEYS.suspensiones);
-  lista.push({id:Date.now(),dni,nombre,desde,hasta,motivo});
-  guardarDatos(KEYS.suspensiones,lista);
-  mostrarAlerta('alerta-susp','info','⏳ Guardando...');
-  await guardarEnGitHub(false);
-  mostrarAlerta('alerta-susp','ok',`🚫 Suspensión registrada para DNI <strong>${dni}</strong> hasta <strong>${hasta}</strong>.`);
-  ['dni-susp','nombre-susp','susp-desde','susp-hasta','motivo-susp'].forEach(id=>{document.getElementById(id).value='';});
-  document.getElementById('nombre-susp').classList.remove('autocompletado');
-  renderTablaSuspensiones();
-}
-async function eliminarSuspension(id){
-  if(!confirm('¿Eliminar esta suspensión?'))return;
-  guardarDatos(KEYS.suspensiones,cargarDatos(KEYS.suspensiones).filter(s=>s.id!==id));
-  await guardarEnGitHub(true);renderTablaSuspensiones();
-}
-function renderTablaSuspensiones(){
-  const lista=cargarDatos(KEYS.suspensiones).slice().reverse(),hoy=isoFecha(ahoraReal());
-  const tbody=document.querySelector('#tabla-susp tbody');tbody.innerHTML='';
-  if(!lista.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:#aaa;">Sin suspensiones registradas</td></tr>';return;}
-  lista.forEach(s=>{
-    const act=hoy>=s.desde&&hoy<=s.hasta;
-    const badge=act?'<span class="badge badge-rojo">🚫 ACTIVA</span>':'<span class="badge badge-verde">✔️ Vencida</span>';
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${fotoThumb(s.dni)}</td><td>${s.dni}</td><td>${s.nombre||'—'}</td><td>${s.desde}</td><td>${s.hasta}</td><td style="max-width:220px">${s.motivo}</td><td>${badge}</td><td><button class="btn btn-danger btn-sm" onclick="eliminarSuspension(${s.id})">🗑️ Eliminar</button></td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-/* ══ BACKUP XML ══ */
-function datosAXML(){
-  const ing=cargarDatos(KEYS.ingresos),ap=cargarDatos(KEYS.apercibimientos);
-  const su=cargarDatos(KEYS.suspensiones),ins=cargarDatos(KEYS.inspectores);
-  const fotos=cargarFotos(),actId=cargarItem(KEYS.inspActivo)||'';
-  const now=ahoraReal();
-  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  let x=`<?xml version="1.0" encoding="UTF-8"?>\n<PejerreyClubQuilmes>\n  <MetaData>\n    <FechaBackup>${formatFecha(now)} ${formatHora(now)}</FechaBackup>\n    <TotalIngresos>${ing.length}</TotalIngresos>\n    <TotalApercibamientos>${ap.length}</TotalApercibamientos>\n    <TotalSuspensiones>${su.length}</TotalSuspensiones>\n    <TotalInspectores>${ins.length}</TotalInspectores>\n    <TotalFotos>${Object.keys(fotos).length}</TotalFotos>\n    <InspectorActivoId>${esc(actId)}</InspectorActivoId>\n  </MetaData>\n  <Ingresos>\n`;
-  ing.forEach(i=>{x+=`    <Ingreso><DNI>${esc(i.dni)}</DNI><Nombre>${esc(i.nombre||'')}</Nombre><Fecha>${esc(i.fecha)}</Fecha><Hora>${esc(i.hora)}</Hora><IsoFecha>${esc(i.isoFecha)}</IsoFecha></Ingreso>\n`;});
-  x+=`  </Ingresos>\n  <Apercibamientos>\n`;
-  ap.forEach(a=>{x+=`    <Apercibamiento><ID>${esc(a.id)}</ID><DNI>${esc(a.dni)}</DNI><Nombre>${esc(a.nombre)}</Nombre><Motivo>${esc(a.motivo)}</Motivo><Fecha>${esc(a.fecha)}</Fecha><Hora>${esc(a.hora)}</Hora><Inspector>${esc(a.inspector)}</Inspector><InspectorId>${esc(a.inspectorId)}</InspectorId></Apercibamiento>\n`;});
-  x+=`  </Apercibamientos>\n  <Suspensiones>\n`;
-  su.forEach(s=>{x+=`    <Suspension><ID>${esc(s.id)}</ID><DNI>${esc(s.dni)}</DNI><Nombre>${esc(s.nombre)}</Nombre><Desde>${esc(s.desde)}</Desde><Hasta>${esc(s.hasta)}</Hasta><Motivo>${esc(s.motivo)}</Motivo></Suspension>\n`;});
-  x+=`  </Suspensiones>\n  <Inspectores>\n`;
-  ins.forEach(i=>{x+=`    <Inspector><ID>${esc(i.id)}</ID><Nombre>${esc(i.nombre)}</Nombre><Tel>${esc(i.tel)}</Tel><Obs>${esc(i.obs)}</Obs></Inspector>\n`;});
-  x+=`  </Inspectores>\n  <Fotos>\n`;
-  Object.entries(fotos).forEach(([d,b])=>{x+=`    <Foto><DNI>${esc(d)}</DNI><Data><![CDATA[${b}]]></Data></Foto>\n`;});
-  x+=`  </Fotos>\n</PejerreyClubQuilmes>`;return x;
-}
-function generarBackup(){
-  const xml=datosAXML(),now=ahoraReal();
-  const nom=`PCQ_backup_${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.xml`;
-  const blob=new Blob([xml],{type:'application/xml'});const url=URL.createObjectURL(blob);
-  Object.assign(document.createElement('a'),{href:url,download:nom}).click();URL.revokeObjectURL(url);
-  mostrarAlerta('alerta-backup-gen','ok',`⬇️ Backup descargado: <strong>${nom}</strong>`);
-}
-function restaurarBackup(){
-  const arch=document.getElementById('archivo-bak').files[0];
-  if(!arch){mostrarAlerta('alerta-backup-rest','error','Seleccioná un archivo .xml');return;}
-  if(!confirm('⚠️ ¿Estás seguro? Esto reemplazará TODOS los datos actuales.'))return;
-  const reader=new FileReader();
-  reader.onload=async function(e){
-    try{
-      const parser=new DOMParser();const doc=parser.parseFromString(e.target.result,'application/xml');
-      if(doc.querySelector('parsererror'))throw new Error('XML inválido');
-      const ing=[];doc.querySelectorAll('Ingreso').forEach(n=>{ing.push({dni:n.querySelector('DNI')?.textContent||'',nombre:n.querySelector('Nombre')?.textContent||'',fecha:n.querySelector('Fecha')?.textContent||'',hora:n.querySelector('Hora')?.textContent||'',isoFecha:n.querySelector('IsoFecha')?.textContent||''});});
-      const ap=[];doc.querySelectorAll('Apercibamiento,Apercibimiento').forEach(n=>{ap.push({id:Number(n.querySelector('ID')?.textContent)||Date.now(),dni:n.querySelector('DNI')?.textContent||'',nombre:n.querySelector('Nombre')?.textContent||'',motivo:n.querySelector('Motivo')?.textContent||'',fecha:n.querySelector('Fecha')?.textContent||'',hora:n.querySelector('Hora')?.textContent||'',inspector:n.querySelector('Inspector')?.textContent||null,inspectorId:n.querySelector('InspectorId')?.textContent||null});});
-      const su=[];doc.querySelectorAll('Suspension').forEach(n=>{su.push({id:Number(n.querySelector('ID')?.textContent)||Date.now(),dni:n.querySelector('DNI')?.textContent||'',nombre:n.querySelector('Nombre')?.textContent||'',desde:n.querySelector('Desde')?.textContent||'',hasta:n.querySelector('Hasta')?.textContent||'',motivo:n.querySelector('Motivo')?.textContent||''});});
-      const ins=[];doc.querySelectorAll('Inspector').forEach(n=>{ins.push({id:Number(n.querySelector('ID')?.textContent)||Date.now(),nombre:n.querySelector('Nombre')?.textContent||'',tel:n.querySelector('Tel')?.textContent||'',obs:n.querySelector('Obs')?.textContent||''});});
-      const fotosR={};doc.querySelectorAll('Foto').forEach(n=>{const d=n.querySelector('DNI')?.textContent||'';const b=n.querySelector('Data')?.textContent||'';if(d&&b)fotosR[d]=b;});
-      const actId=doc.querySelector('InspectorActivoId')?.textContent||'';
-      guardarDatos(KEYS.ingresos,ing);guardarDatos(KEYS.apercibimientos,ap);guardarDatos(KEYS.suspensiones,su);guardarDatos(KEYS.inspectores,ins);guardarFotos(fotosR);
-      const inspEx=actId&&ins.find(i=>String(i.id)===String(actId));
-      if(inspEx)guardarItem(KEYS.inspActivo,actId);else localStorage.removeItem(KEYS.inspActivo);
-      actualizarUIInspectorActivo();actualizarEstadoBloqueo();
-      mostrarAlerta('alerta-backup-rest','info','⏳ Restaurando y sincronizando...');
-      localStorage.removeItem(KEYS.lastRemoteTs);
-      await guardarEnGitHub(false);
-      mostrarAlerta('alerta-backup-rest','ok',`✅ Backup restaurado.<br>Ingresos: <strong>${ing.length}</strong> | Apercibamientos: <strong>${ap.length}</strong> | Suspensiones: <strong>${su.length}</strong>`);
-      document.getElementById('archivo-bak').value='';
-    }catch(ex){mostrarAlerta('alerta-backup-rest','error','❌ Error: '+ex.message);}
-  };reader.readAsText(arch);
-}
-
-/* ══ INIT ══ */
-function finalizarInit(){
-  document.getElementById('sync-loading').classList.remove('show');
-  actualizarUIInspectorActivo();actualizarEstadoBloqueo();actualizarTokenStatusCard();_initZoomEvents();
-  if(getInspectorActivo()){
-    _navegarSeccion('ingreso',document.getElementById('btn-nav-ingreso'));
-  } else {
-    document.getElementById('banner-activar').style.display='block';
-    _navegarSeccion('inspectores',document.getElementById('btn-nav-inspectores'));
-  }
-  setInterval(async()=>{if(!_syncEnCurso&&getToken())await sincronizarDesdeGitHub(false);},SYNC_INTERVAL);
-}
-async function iniciarSyncConGitHub(){
-  document.getElementById('sync-loading-txt').textContent='☁️ Descargando datos...';
-  document.getElementById('sync-loading-sub').textContent='Esto puede tardar unos segundos...';
-  setSyncBadge('syncing','🔄 Cargando...');
-  let terminado=false;
-  const timeoutId=setTimeout(()=>{
-    if(terminado)return;terminado=true;_syncEnCurso=false;
-    setSyncBadge('error','❌ Timeout');
-    document.getElementById('sync-loading-sub').textContent='⚠️ Tiempo agotado – usando datos locales';
-    finalizarInit();
-  },12000);
-  try{
-    const info=await ghGetFile(GH.dataFile);
-    if(terminado)return;clearTimeout(timeoutId);terminado=true;
-    if(info.error==='token-invalido'){
-      setSyncBadge('error','❌ Token inválido');
-      document.getElementById('sync-loading-sub').textContent='❌ Token inválido.';
-      await new Promise(r=>setTimeout(r,2000));
-    } else if(info.error){
-      setSyncBadge('error','❌ '+info.error);
-      document.getElementById('sync-loading-sub').textContent='⚠️ Error de conexión – usando datos locales';
-      await new Promise(r=>setTimeout(r,1500));
-    } else if(info.content){
-      const remoto=JSON.parse(base64ToUtf8(info.content.replace(/\n/g,'')));
-      const tsRemoto=remoto.updatedAt?new Date(remoto.updatedAt).getTime():0;
-      const tsLocal=cargarItem(KEYS.lastRemoteTs)?new Date(cargarItem(KEYS.lastRemoteTs)).getTime():0;
-      if(tsRemoto>tsLocal+500){
-        aplicarDatos(remoto);_ultimoSyncTs=new Date(remoto.updatedAt);
-        guardarItem(KEYS.lastSync,remoto.updatedAt);guardarItem(KEYS.lastRemoteTs,remoto.updatedAt);
-        document.getElementById('sync-loading-sub').textContent='✅ Datos sincronizados correctamente';
-      } else {
-        document.getElementById('sync-loading-sub').textContent='✅ Datos ya actualizados';
-      }
-      setSyncBadge('ok','✅ Sincronizado');
-    } else {
-      document.getElementById('sync-loading-sub').textContent='📤 Creando base de datos...';
-      _syncEnCurso=false;await guardarEnGitHub(true);
-    }
-  }catch(e){
-    if(terminado)return;clearTimeout(timeoutId);terminado=true;_syncEnCurso=false;
-    setSyncBadge('error','❌ Sin conexión');
-    document.getElementById('sync-loading-sub').textContent='⚠️ Sin conexión – usando datos locales';
-    await new Promise(r=>setTimeout(r,1500));
-  }
-  finalizarInit();
-}
-
-(async function init(){
-  document.getElementById('sync-loading').classList.add('show');
-  document.getElementById('sync-loading-txt').textContent='🕐 Sincronizando hora...';
-  await Promise.race([sincronizarHora(),new Promise(r=>setTimeout(r,5000))]);
-  tickReloj();setInterval(tickReloj,1000);setInterval(sincronizarHora,5*60*1000);
-  if(!getToken()){
-    document.getElementById('sync-loading').classList.remove('show');
-    document.getElementById('token-modal').classList.add('show');
-  } else {
-    await iniciarSyncConGitHub();
-  }
-})();
-</script>
-</body>
+<!DOCTYPE html> 
+<html lang="es"> 
+<head> 
+<meta charset="utf-8"/> 
+<meta name="viewport" content="width=device-width, initial-scale=1"/> 
+<title>Pejerrey Club Quilmes — Sistema</title> 
+<style> 
+ :root{ --verde:#1e5c1e; --dorado:#c8a84b; --bg:#0d1f0d; --panel:#0f1f0f; --txt:#f4fff4; --sub:#cfe9cf; --warn:#d4841a; --err:#c62828; --ok:#2a7a2a; } 
+ *{box-sizing:border-box} 
+ body{margin:0;background:linear-gradient(160deg,#0b1c0b,#143414);color:var(--txt);font-family:system-ui,Segoe UI,Roboto,Arial} 
+ header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,#0a1a0a,#143414);border-bottom:3px solid var(--dorado);padding:10px 14px} 
+ h1{margin:0;font-size:1.1rem;color:var(--dorado)} 
+ .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap} 
+ .chip{border:1px solid #2a4a2a;background:#0b1b0b;border-radius:999px;padding:4px 10px} 
+ .sub{color:var(--sub);font-size:.85rem} 
+ .btn{cursor:pointer;border-radius:8px;border:1px solid #2f5f2f;background:#184718;color:#fff;padding:7px 10px} 
+ .btn-warn{background:#5a3a0c;border-color:#b06f18} 
+ .btn-ghost{background:#0e2210;border:1px dashed #3b5a3b} 
+ .btn-danger{background:#701818;border-color:#b03b3b} 
+ nav{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;border-bottom:2px solid var(--dorado);background:#0b1b0b} 
+ nav button{background:#0e2210;border:1px solid #2a4a2a;color:#e6ffe6;padding:6px 10px;border-radius:6px;cursor:pointer} 
+ nav button.act{outline:2px solid var(--dorado)} 
+ main{padding:14px} 
+ .card{background:var(--panel);border:1px solid #2d4e2d;border-radius:10px;padding:12px;margin-bottom:14px} 
+ .form-row{display:flex;gap:12px;flex-wrap:wrap} 
+ label{display:flex;flex-direction:column;gap:6px;min-width:220px;flex:1} 
+ input,select,textarea{padding:8px;border-radius:8px;border:1px solid #365e36;background:#0a1a0a;color:var(--txt)} 
+ table{width:100%;border-collapse:collapse;margin-top:8px} 
+ th,td{padding:6px 8px;border-bottom:1px solid #244} 
+ th{text-align:left;color:#d8c06f} 
+ .thumb{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid #d0b15c;cursor:zoom-in;background:#000} 
+ .alerta{margin-top:8px;padding:8px 10px;border-radius:8px;border:1px solid #3a3a3a;background:#101010;color:#eee} 
+ .alerta.ok{border-color:#2d7a2d;background:#0f2a0f} 
+ .alerta.warn{border-color:#b06f18;background:#2a1a0a} 
+ .alerta.error{border-color:#b03b3b;background:#2a0f0f} 
+ .state-ok{border-color:#2a8a2a;background:#0f2410;color:#e8ffe8} 
+ .state-warn{border-color:#b06f18;background:#2a1a0a;color:#ffe5b8} 
+ .state-block{border-color:#b03b3b;background:#2a0f0f;color:#ffd6d6} 
+ .modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:1200} 
+ .modal-box{background:#0c1c0c;border:1px solid var(--dorado);border-radius:12px;padding:16px;max-width:560px;width:calc(100% - 32px)} 
+ #img-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:1000} 
+ #img-modal-box{text-align:center} 
+ #img-modal-img{max-width:90vw;max-height:80vh;border:3px solid var(--dorado);border-radius:10px} 
+ #sync-debug{font-size:.8rem;color:#cfe9cf;margin-left:8px} 
+</style> 
+</head> 
+<body> 
+<header> 
+ <h1>Pejerrey Club Quilmes — Sistema</h1> 
+ <div class="row" style="margin-top:6px"> 
+ <div id="reloj" class="chip">--:--:-- — --/--/----</div> 
+ <div id="sync-badge" class="chip">—</div> 
+ <div id="sync-debug" class="sub"></div> 
+ <div style="flex:1"></div> 
+  
+ <button id="btn-activar-sistema" class="btn btn-warn" onclick="abrirActivar()">⚡ Conectar</button> 
+ </div> 
+</header> 
+<nav> 
+ <button id="btn-nav-ingreso" class="act" onclick="navClick('ingreso',this)">Ingreso</button> 
+ <button id="btn-nav-consulta" onclick="navClick('consulta',this)">Consulta</button> 
+ <button id="btn-nav-estad" onclick="navClick('estad',this)">Estadísticas</button> 
+ <button id="btn-nav-sanc" onclick="navClick('sanc',this)">Sanciones</button> 
+ <button id="btn-nav-utils" onclick="navClick('utils',this)">Utils</button> 
+</nav> 
+<main> 
+ <!-- Ingreso --> 
+ <section id="sec-ingreso" class="card"> 
+ <h2>Ingreso</h2> 
+ <div class="form-row"> 
+ <label>Tipo de ingreso 
+ <div class="row"> 
+ <label style="display:inline-flex;align-items:center;gap:6px"><input type="radio" name="tipo-ing" value="invitado" checked onchange="toggleIngresoFields()"> Invitado</label> 
+ <label style="display:inline-flex;align-items:center;gap:6px"><input type="radio" name="tipo-ing" value="socio" onchange="toggleIngresoFields()"> Socio</label> 
+ </div> 
+ </label> 
+ </div> 
+ <div class="form-row"> 
+ <label id="wrap-dni">DNI 
+ <input id="dni" type="text" placeholder="30123456" maxlength="12" oninput="this.value=this.value.replace(/\\D/g,'');onIdentificadorChange()"/> 
+ </label> 
+ <label id="wrap-socio" style="display:none">N° de socio 
+ <input id="nroSocio" type="text" placeholder="S-12345" maxlength="20" oninput="onIdentificadorChange()"/> 
+ </label> 
+ </div> 
+ <div class="row"><div id="estado-chip" class="chip" style="display:none"></div></div> 
+ <div class="form-row"> 
+ <label>Nombre 
+ <input id="nombre" type="text" placeholder="Apellido, Nombre"/> 
+ <span id="hint" class="sub"></span> 
+ </label> 
+ </div> 
+ <div class="card"> 
+ <h3>Foto (obligatoria)</h3> 
+ <div class="row" style="gap:8px"> 
+ <button class="btn" onclick="iniciarCamara()" id="btn-cam-start">🎥 Iniciar cámara</button> 
+ <button class="btn" onclick="tomarFoto()" id="btn-cam-shot" style="display:none">📸 Tomar foto</button> 
+ <button class="btn btn-danger" onclick="detenerCamara()" id="btn-cam-stop" style="display:none">✖ Detener cámara</button> 
+ <button class="btn btn-danger" onclick="borrarFoto()" id="btn-del-foto" style="display:none">🗑️ Borrar foto</button> 
+ </div> 
+ <div id="cam-wrap" style="display:none;margin-top:8px"> 
+ <video id="cam-video" autoplay playsinline style="width:260px;height:260px;border-radius:10px;border:3px solid #d0b15c;object-fit:cover;background:#000"></video> 
+ <canvas id="cam-canvas" width="320" height="320" style="display:none"></canvas> 
+ </div> 
+ <div id="foto-preview-wrap" style="display:none;margin-top:8px"> 
+ <img id="foto-preview" alt="Foto" style="width:260px;height:260px;border-radius:10px;border:3px solid #d0b15c;object-fit:cover;background:#000"/> 
+ <div id="foto-preview-id" class="sub">ID: --</div> 
+ </div> 
+ </div> 
+ <div class="row" style="gap:8px"> 
+ <button class="btn" onclick="buscarInvitado()">Buscar / Estado</button> 
+ <button class="btn" onclick="registrarIngreso()">Registrar ingreso</button> 
+ </div> 
+ <div id="alerta-ing" class="alerta" role="alert" style="display:none"></div> 
+ </section> 
+ <!-- Consulta --> 
+ <section id="sec-consulta" class="card" style="display:none"> 
+ <h2>Consulta</h2> 
+ <div class="form-row"> 
+ <label>Identificador (opcional) 
+ <input id="c-id" type="text"/> 
+ </label> 
+ <label>Tipo 
+ <select id="c-tipo"> 
+ <option value="ambos" selected>Ambos</option> 
+ <option value="invitado">Invitado</option> 
+ <option value="socio">Socio</option> 
+ </select> 
+ </label> 
+ </div> 
+ <div class="form-row"> 
+ <label>Desde <input id="c-desde" type="date"/></label> 
+ <label>Hasta <input id="c-hasta" type="date"/></label> 
+ </div> 
+ <div class="row" style="gap:8px"> 
+ <button class="btn" onclick="consulta()">Buscar</button> 
+ <button class="btn btn-warn" onclick="limpiarConsulta()">Limpiar</button> 
+ <button class="btn btn-ghost" onclick="syncManual()">🔁 Sincronizar</button> 
+ </div> 
+ <div id="c-res" class="alerta" role="alert" style="display:none"></div> 
+ <div id="c-tabla-wrap" style="display:none;margin-top:8px"> 
+ <table id="c-tabla"><thead><tr><th>Foto</th><th>Inv/Soc</th><th>ID</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody></tbody></table> 
+ </div> 
+ </section> 
+ <!-- Sanciones --> 
+ <section id="sec-sanc" class="card" style="display:none"> 
+ <h2>Sanciones</h2> 
+ <div class="card"> 
+ <h3>Apercibimientos</h3> 
+ <div class="form-row"> 
+ <label>Desde <input id="ap-desde" type="date"/></label> 
+ <label>Hasta <input id="ap-hasta" type="date"/></label> 
+ </div> 
+ <div class="row" style="gap:8px"> 
+ <button class="btn" onclick="listarAperc()">Buscar</button> 
+ <button class="btn btn-warn" onclick="limpiarAperc()">Limpiar</button> 
+ </div> 
+ <div id="ap-res" class="alerta" style="display:none"></div> 
+ <div id="ap-wrap" style="display:none;margin-top:8px"><table><thead><tr><th>Foto</th><th>Nombre</th><th>Fecha</th></tr></thead><tbody id="ap-tbody"></tbody></table></div> 
+ </div> 
+ <div class="card"> 
+ <h3>Suspensiones activas</h3> 
+ <div id="su-res" class="alerta" style="display:none"></div> 
+ <div id="su-wrap" style="display:none;margin-top:8px"><table><thead><tr><th>Foto</th><th>Nombre</th><th>Desde</th><th>Hasta</th></tr></thead><tbody id="su-tbody"></tbody></table></div> 
+ </div> 
+ </section> 
+ <!-- Estadísticas --> 
+ <section id="sec-estad" class="card" style="display:none"> 
+ <h2>Estadísticas</h2> 
+ <div class="row" style="gap:8px"><button class="btn" onclick="aplicarStats()">Aplicar</button></div> 
+ <div class="sub" id="s-resumen" style="margin:8px 0"></div> 
+ <div class="card"><h3>Totales por día</h3><canvas id="ch-trend-day" width="650" height="240" style="background:#0a140a;border:1px solid #234;border-radius:6px"></canvas></div> 
+ <div class="card"><h3>Totales por semana</h3><canvas id="ch-trend-week" width="650" height="240" style="background:#0a140a;border:1px solid #234;border-radius:6px"></canvas></div> 
+ <div class="card"><h3>Totales por mes</h3><canvas id="ch-trend-month" width="650" height="240" style="background:#0a140a;border:1px solid #234;border-radius:6px"></canvas></div> 
+ <div class="card"><h3>Distribución diaria por tipo</h3><canvas id="ch-trend-day-type" width="650" height="240" style="background:#0a140a;border:1px solid #234;border-radius:6px"></canvas></div> 
+ </section> 
+ <!-- Utils --> 
+ <section id="sec-utils" class="card" style="display:none"> 
+ <h2>Utils</h2> 
+ <div class="row" style="gap:8px;margin-bottom:8px"> 
+ <button class="btn btn-ghost" onclick="generarRandomDesdeEnero2026()">🎲 Generar datos aleatorios</button> 
+ <button class="btn btn-danger" onclick="borrarRandom()">🧹 Borrar aleatorios</button> 
+ <button class="btn" onclick="testGuardar()">🧪 Test guardar</button> 
+ </div> 
+ <div id="utils-alert" class="alerta" style="display:none"></div> 
+ </section> 
+</main> 
+<!-- Modal Activar sistema --> 
+<div id="activar-modal" class="modal" role="dialog" aria-modal="true"> 
+ <div class="modal-box"> 
+ <h3>Activar sistema</h3> 
+ <div class="sub">Pegá tu token de GitHub. Si no hay red se activa en modo local.</div> 
+ <div class="form-row" style="margin-top:8px"> 
+ <label>Token 
+ <input type="password" id="activar-token" placeholder="github_pat_… o ghp_…" autocomplete="off"/> 
+ </label> 
+ </div> 
+ <div class="row" style="gap:8px;margin-top:10px"> 
+ <button class="btn" onclick="guardarYActivar()">Guardar y activar</button> 
+ <button class="btn btn-warn" onclick="cerrarActivar()">Cancelar</button> 
+ </div> 
+ <div class="sub" id="activar-msg" style="margin-top:6px"></div> 
+ </div> 
+</div> 
+<!-- Modal para imagen --> 
+<div id="img-modal" onclick="cerrarImgModal()"> 
+ <div id="img-modal-box"> 
+ <img id="img-modal-img" alt="Foto"/> 
+ <div id="img-modal-cap" class="sub"></div> 
+ <div id="img-modal-status" class="sub" style="margin-top:6px"></div> 
+ </div> 
+</div> 
+<script> 
+/* ══ CONFIG ══ */ 
+const GH = { owner:'lamannafernando-commits', repo:'pejedb', branch:'main', dataFile:'data/pcq_data.json' }; 
+const KEYS={ ingresos:'app_ingresos', fotos:'app_fotos', sanciones:'app_sanciones', rndIds:'app_rnd_ids', token:'pcq_gh_token' }; 
+/* ==== Helpers base ==== */ 
+const load=(k,def)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):def;}catch{return def}}; 
+const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v)); 
+const now=()=>new Date(); const dos=n=>n<10?('0'+n):(''+n); 
+const fDate=d=>[dos(d.getDate()),dos(d.getMonth()+1),d.getFullYear()].join('/'); 
+const fTime=d=>[dos(d.getHours()),dos(d.getMinutes()),dos(d.getSeconds())].join(':'); 
+const iso=d=>d.toISOString().slice(0,10); const hoyISO=()=>iso(now()); 
+function setSyncBadge(state,text){ const el=document.getElementById('sync-badge'); if(el){ el.textContent=text; el.className='chip '+(state||''); } } 
+function setSyncDebug(msg){ const el=document.getElementById('sync-debug'); if(el){ el.textContent=msg||''; } } 
+function esc(s){ return String(s||'').replace(/[&<>\"']/g,c=>({"&":"&","<":"<",">":">","\"":"\"","'":"'"}[c])); } 
+/* ==== Token helpers ==== */ 
+function setCookie(name, value, days){ 
+ try { 
+ const d = new Date(); d.setTime(d.getTime() + days*24*60*60*1000); 
+ const expires = '; expires='+d.toUTCString(); 
+ document.cookie = name + '=' + encodeURIComponent(String(value||'')) + expires + '; path=/; SameSite=Lax'; 
+ } catch(_){} 
+} 
+function getCookie(name){ 
+ try { 
+ const m = document.cookie.split(';').map(s=>s.trim()).find(s=>s.startsWith(name+'=')); 
+ return m ? decodeURIComponent(m.split('=')[1]) : ''; 
+ } catch(_) { return ''; } 
+} 
+function getToken(){ 
+ const c = getCookie(KEYS.token); if(c) return c; 
+ try { return localStorage.getItem(KEYS.token) || ''; } catch(_) { return ''; } 
+} 
+function setToken(t){ 
+ const v = String(t||'').trim(); 
+ setCookie(KEYS.token, v, 180); 
+ try{ localStorage.setItem(KEYS.token, v); }catch(_){} 
+} 
+function tokenInfo(t) { 
+ if(!t) return {ok:false, reason:'vacío'}; 
+ if(/^ghp_[A-Za-z0-9]{36,}$/.test(t)) return {ok:true, type:'classic'}; 
+ if(/^github_pat_[A-Za-z0-9_]{10,}/.test(t)) return {ok:true, type:'fine'}; 
+ return {ok:true, type:'desconocido'}; 
+} 
+/* ==== GitHub helpers ==== */ 
+function fetchConTimeout(url,opts,ms=12000){ const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),ms); return fetch(url,{...opts,signal:ctrl.signal}).finally(()=>clearTimeout(t)); } 
+function utf8ToBase64(s){const b=new TextEncoder().encode(s);let r='';b.forEach(x=>{r+=String.fromCharCode(x);});return btoa(r);} 
+function base64ToUtf8(b64){const bin=atob(b64);const b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);return new TextDecoder().decode(b);} 
+async function ghCheckRepo(){ 
+ if(!navigator.onLine) return {ok:false,error:'offline'}; 
+ const t = getToken(); 
+ if(!t) return {ok:false,error:'sin-token'}; 
+ try{ 
+ const r = await fetchConTimeout(`https://api.github.com/repos/${GH.owner}/${GH.repo}`,{ 
+ headers:{ 
+ 'Authorization':`Bearer ${t}`, 
+ 'Accept':'application/vnd.github+json', 
+ 'X-GitHub-Api-Version':'2022-11-28' 
+ } 
+ }); 
+ if(r.status===404) return {ok:false,error:'repo-no-existe'}; 
+ if(r.status===401 || r.status===403) return {ok:false,error:'permiso-token'}; 
+ if(!r.ok) return {ok:false,error:`repo ${r.status}`}; 
+ const info=await r.json(); 
+ const br=GH.branch || info.default_branch || 'main'; 
+ const r2=await fetchConTimeout( 
+ `https://api.github.com/repos/${GH.owner}/${GH.repo}/branches/${encodeURIComponent(br)}`, 
+ { headers:{'Authorization':`Bearer ${t}`,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'} } 
+ ); 
+ if(!r2.ok){ 
+ const r3=await fetchConTimeout( 
+ `https://api.github.com/repos/${GH.owner}/${GH.repo}/branches/${encodeURIComponent(info.default_branch)}`, 
+ { headers:{'Authorization':`Bearer ${t}`,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'} } 
+ ); 
+ if(r3.ok) { GH.branch = info.default_branch; return {ok:true, default_branch:info.default_branch}; } 
+ return {ok:false,error:'branch-no-existe'}; 
+ } 
+ GH.branch = br; 
+ return {ok:true, default_branch:info.default_branch}; 
+ }catch(e){ 
+ return {ok:false,error:(e.name==='AbortError'?'timeout':e.message)}; 
+ } 
+} 
+async function ghGetFile(path){ 
+ if(!getToken()) return {sha:null,content:null,error:'sin-token'}; 
+ try{ 
+ const r=await fetchConTimeout(`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${path}?ref=${GH.branch}&t=${Date.now()}`,{ 
+ headers:{'Authorization':`Bearer ${getToken()}`,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'} 
+ }); 
+ if(r.status===404) return {sha:null,content:null}; 
+ if(!r.ok) return {sha:null,content:null,error:`GET ${r.status}`}; 
+ const d=await r.json(); 
+ return {sha:d.sha||null, content:d.content||null}; 
+ }catch(e){ return {sha:null,content:null,error:e.name==='AbortError'?'timeout':e.message}; } 
+} 
+async function ghPutFile(path, contenido, mensaje, sha){ 
+ if(!getToken()) return {ok:false,error:'sin-token'}; 
+ const body={ message:mensaje, content:utf8ToBase64(contenido), branch:GH.branch }; 
+ if(sha) body.sha=sha; 
+ try{ 
+ const r=await fetchConTimeout(`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${path}`,{ 
+ method:'PUT', 
+ headers:{ 
+ 'Authorization':`Bearer ${getToken()}`, 
+ 'Accept':'application/vnd.github+json', 
+ 'Content-Type':'application/json', 
+ 'X-GitHub-Api-Version':'2022-11-28' 
+ }, 
+ body:JSON.stringify(body) 
+ }); 
+ if(r.ok) return {ok:true}; 
+ const d=await r.json().catch(()=>({message:''})); 
+ if(r.status===409||r.status===422) return {ok:false,error:'sha-conflict'}; 
+ if(r.status===401||r.status===403) return {ok:false,error:'permiso-token'}; 
+ if(r.status===404) return {ok:false,error:'repo/path-not-found'}; 
+ return {ok:false,error:`PUT ${r.status} ${d.message||''}`}; 
+ }catch(e){ return {ok:false,error:e.name==='AbortError'?'timeout':e.message}; } 
+} 
+/* ==== Datos locales y snapshot ==== */ 
+function getIngresos(){ return load(KEYS.ingresos,[]); } 
+function setIngresos(a){ save(KEYS.ingresos,a||[]); } 
+function getFotosMap(){ return load(KEYS.fotos,{}); } 
+function setFotosMap(m){ save(KEYS.fotos,m||{}); } 
+function getFoto(id){ return getFotosMap()[id]; } 
+function getSanciones(){ return load(KEYS.sanciones,[]); } 
+function setSanciones(a){ save(KEYS.sanciones,a||[]); } 
+const LAST_SYNC_KEY='pcq_last_sync', LAST_REMOTE_TS_KEY='pcq_last_remote_ts'; 
+function construirDatos(){ return { version:2, updatedAt:new Date().toISOString(), ingresos:getIngresos(), sanciones:getSanciones(), fotos:getFotosMap() }; } 
+function aplicarDatos(d){ 
+ if(!d||typeof d!=='object') return false; 
+ if(Array.isArray(d.ingresos)) setIngresos(d.ingresos); 
+ if(Array.isArray(d.sanciones)) setSanciones(d.sanciones); 
+ if(d.fotos && typeof d.fotos==='object') setFotosMap(d.fotos); 
+ try{ prepararConsultaFull?.(); refrescarSanciones?.(); }catch(_){} 
+ return true; 
+} 
+async function ensureDataFile(){ 
+ const info = await ghGetFile(GH.dataFile); 
+ if(info.error && info.error.startsWith('GET')){ setSyncDebug(info.error); } 
+ if(info.content==null){ 
+ const base = JSON.stringify({version:2, updatedAt:new Date().toISOString(), ingresos:[], sanciones:[], fotos:{}}, null, 2); 
+ const res = await ghPutFile(GH.dataFile, base, `PCQ init ${new Date().toISOString()}`); 
+ return res; 
+ } 
+ return {ok:true}; 
+} 
+let _syncEnCurso=false; 
+async function guardarEnGitHub(tag){ 
+ if(!getToken()) { setSyncBadge('', '☁️ Sin token'); setSyncDebug('No token'); return {ok:false,error:'sin-token'}; } 
+ let i=0; while(_syncEnCurso && i<15){ await new Promise(r=>setTimeout(r,200)); i++; } 
+ _syncEnCurso=true; setSyncBadge('syncing',`⏳ Guardando${tag?': '+tag:''}`); 
+ try{ 
+ const repoOk = await ghCheckRepo(); 
+ if(!repoOk.ok){ setSyncBadge('', '☁️ Error repo/branch'); setSyncDebug(repoOk.error||'repo'); return {ok:false,error:repoOk.error||'repo'}; } 
+ const payload = JSON.stringify(construirDatos(), null, 2); 
+ for(let t=0;t<3;t++){ 
+ const info=await ghGetFile(GH.dataFile); 
+ if(info.error && info.error!=='sin-token') setSyncDebug(info.error); 
+ const res = await ghPutFile(GH.dataFile, payload, `PCQ ${new Date().toISOString()}`, info.sha||null); 
+ if(res.ok){ 
+ const ts=new Date().toISOString(); 
+ localStorage.setItem(LAST_SYNC_KEY,ts); 
+ localStorage.setItem(LAST_REMOTE_TS_KEY,ts); 
+ setSyncBadge('ok','✅ Sincronizado'); setSyncDebug(''); 
+ return {ok:true}; 
+ } 
+ if(res.error==='sha-conflict'){ await new Promise(r=>setTimeout(r, 500*(t+1))); continue; } 
+ setSyncBadge('', '☁️ Error al guardar'); setSyncDebug(res.error||'desconocido'); return {ok:false,error:res.error}; 
+ } 
+ setSyncBadge('', '☁️ Conflicto sha'); setSyncDebug('reintentos agotados'); return {ok:false,error:'sha-conflict'}; 
+ }catch(e){ setSyncBadge('', '☁️ Error'); setSyncDebug(e.message); return {ok:false,error:e.message}; } 
+ finally{ _syncEnCurso=false; } 
+} 
+async function sincronizarDesdeGitHub(){ 
+ if(_syncEnCurso) return; _syncEnCurso=true; setSyncBadge('syncing','🔄 Sincronizando...'); 
+ try{ 
+ const repoOk = await ghCheckRepo(); if(!repoOk.ok){ setSyncBadge('', '☁️ Error repo/branch'); setSyncDebug(repoOk.error||'repo'); return; } 
+ const info=await ghGetFile(GH.dataFile); 
+ if(!info.content){ await ensureDataFile(); setSyncBadge('ok','✅ Inicializado'); setSyncDebug(''); return; } 
+ const remoto=JSON.parse(base64ToUtf8(info.content.replace(/\n/g,''))); 
+ const tsRemoto=remoto.updatedAt?new Date(remoto.updatedAt).getTime():0; 
+ const tsLocal=localStorage.getItem(LAST_REMOTE_TS_KEY)?new Date(localStorage.getItem(LAST_REMOTE_TS_KEY)).getTime():0; 
+ if(tsRemoto>tsLocal+500){ aplicarDatos(remoto); localStorage.setItem(LAST_SYNC_KEY,remoto.updatedAt); localStorage.setItem(LAST_REMOTE_TS_KEY,remoto.updatedAt); } 
+ setSyncBadge('ok','✅ Al día'); setSyncDebug(''); 
+ }catch(e){ setSyncBadge('', '☁️ Error sync'); setSyncDebug(e.message); } 
+ finally{ _syncEnCurso=false; } 
+} 
+/* ==== Ingreso & sanciones ==== */ 
+function getTipo(){ return (document.querySelector('input[name="tipo-ing"]:checked')?.value) || 'invitado'; } 
+function getId(){ return getTipo()==='socio' ? (document.getElementById('nroSocio').value || '').trim() : (document.getElementById('dni').value || '').trim(); } 
+function setEstadoChip(tipo, texto){ 
+ const ch=document.getElementById('estado-chip'); 
+ ch.style.display= texto? 'inline-flex':'none'; 
+ ch.className='chip '; 
+ if(tipo==='block') ch.classList.add('state-block'); 
+ else if(tipo==='warn') ch.classList.add('state-warn'); 
+ else if(tipo==='ok') ch.classList.add('state-ok'); 
+ ch.textContent= texto||''; 
+} 
+function mostrarAlerta(id,tipo,msg){ 
+ const el=document.getElementById(id); 
+ el.style.display='block'; 
+ el.className='alerta'; 
+ if(tipo==='ok') el.classList.add('ok'); 
+ else if(tipo==='warn') el.classList.add('warn'); 
+ else el.classList.add('error'); 
+ el.innerHTML=msg||''; 
+} 
+function limpiarAlerta(id){ const el=document.getElementById(id); if(el){ el.style.display='none'; el.textContent=''; el.className='alerta'; } } 
+function ultimoApercPara(id){ 
+ const lista=getSanciones().filter(s=> s.tipo==='apercibimiento' && s.personaId===id); 
+ if(!lista.length) return null; 
+ lista.sort((a,b)=> (b.fechaISO||'').localeCompare(a.fechaISO||'')); 
+ return lista[0]; 
+} 
+function suspActivaPara(id){ 
+ if(!id) return null; 
+ const hoy=hoyISO(); 
+ return getSanciones().find(s=> s.tipo==='suspension' && s.personaId===id && s.activo!==false && (s.desdeISO||'0001-01-01')<=hoy && hoy<= (s.hastaISO||'9999-12-31')); 
+} 
+async function onIdentificadorChange(){ 
+ const id=getId(); const hint=document.getElementById('hint'); const nombre=document.getElementById('nombre'); 
+ if(!id){ 
+ hint.textContent=''; setEstadoChip('', ''); limpiarAlerta('alerta-ing'); 
+ document.getElementById('foto-preview-wrap').style.display='none'; 
+ document.getElementById('btn-del-foto').style.display='none'; 
+ return; 
+ } 
+ const lista=getIngresos(); const u=lista.filter(x=>x.dni===id).slice(-1)[0]; 
+ if(u&&u.nombre){ nombre.value=u.nombre; hint.textContent='Autocompletado por historial'; } else hint.textContent=''; 
+ const foto=getFoto(id); const prev=document.getElementById('foto-preview'); const wrap=document.getElementById('foto-preview-wrap'); 
+ if(foto){ prev.src=foto; wrap.style.display='block'; document.getElementById('btn-del-foto').style.display='inline-flex'; document.getElementById('foto-preview-id').textContent='ID: '+id+' ✅'; } 
+ else { wrap.style.display='none'; document.getElementById('btn-del-foto').style.display='none'; document.getElementById('foto-preview-id').textContent='ID: '+id; } 
+ const susp=suspActivaPara(id); if(susp){ 
+ setEstadoChip('block', `🚫 Suspendido hasta ${susp.hastaISO}. Motivo: ${susp.motivo||'—'}`); 
+ mostrarAlerta('alerta-ing','error',`🚫 Suspensión vigente hasta <strong>${esc(susp.hastaISO)}</strong> · Motivo: <em>${esc(susp.motivo||'—')}</em>`); 
+ return; 
+ } 
+ const a=ultimoApercPara(id); if(a){ 
+ setEstadoChip('warn', `⚠️ Apercibido (último: ${a.fechaISO||'—'}). Motivo: ${a.motivo||'—'}`); 
+ mostrarAlerta('alerta-ing','warn',`⚠️ Apercibido (último: <strong>${esc(a.fechaISO||'—')}</strong>). Motivo: <em>${esc(a.motivo||'—')}</em>`); 
+ return; 
+ } 
+ setEstadoChip('ok', '✅ Sin sanciones'); limpiarAlerta('alerta-ing'); 
+} 
+async function _guardarFoto(b64){ 
+ const id=getId(); const prev=document.getElementById('foto-preview'); const wrap=document.getElementById('foto-preview-wrap'); 
+ prev.src=b64; wrap.style.display='block'; document.getElementById('btn-del-foto').style.display='inline-flex'; 
+ if(id){ const m=getFotosMap(); m[id]=b64; setFotosMap(m); document.getElementById('foto-preview-id').textContent='ID: '+id+' ✅'; await guardarEnGitHub('foto'); } 
+} 
+async function borrarFoto(){ 
+ const id=getId(); 
+ if(id){ const m=getFotosMap(); delete m[id]; setFotosMap(m); await guardarEnGitHub('borrar foto'); } 
+ document.getElementById('foto-preview').src=''; 
+ document.getElementById('foto-preview-wrap').style.display='none'; 
+ document.getElementById('btn-del-foto').style.display='none'; 
+ document.getElementById('foto-preview-id').textContent='ID: --'; 
+} 
+function iniciarCamara(){ 
+ navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false}) 
+ .then(s=>{ 
+ const v=document.getElementById('cam-video'); 
+ v.srcObject=s; v.play(); window._cam=s; 
+ document.getElementById('cam-wrap').style.display='block'; 
+ document.getElementById('btn-cam-start').style.display='none'; 
+ document.getElementById('btn-cam-shot').style.display='inline-flex'; 
+ document.getElementById('btn-cam-stop').style.display='inline-flex'; 
+ }) 
+ .catch(()=>alert('No se pudo acceder a la cámara')); 
+} 
+function detenerCamara(){ 
+ try{ if(window._cam){ window._cam.getTracks().forEach(t=>t.stop()); window._cam=null; } }catch(_){} 
+ const v=document.getElementById('cam-video'); if(v) v.srcObject=null; 
+ document.getElementById('cam-wrap').style.display='none'; 
+ document.getElementById('btn-cam-start').style.display='inline-flex'; 
+ document.getElementById('btn-cam-shot').style.display='none'; 
+ document.getElementById('btn-cam-stop').style.display='none'; 
+} 
+function tomarFoto(){ 
+ const v=document.getElementById('cam-video'); 
+ const c=document.getElementById('cam-canvas'), ctx=c.getContext('2d'); 
+ const vw=v.videoWidth, vh=v.videoHeight; if(!vw||!vh) return; 
+ const size=Math.min(vw,vh), sx=Math.floor((vw-size)/2), sy=Math.floor((vh-size)/2); 
+ c.width=320; c.height=320; 
+ ctx.drawImage(v,sx,sy,size,size,0,0,320,320); 
+ const data=c.toDataURL('image/jpeg',0.9); 
+ _guardarFoto(data); detenerCamara(); 
+} 
+async function registrarIngreso(){ 
+ const tipo=getTipo(); const id=getId(); const nombre=(document.getElementById('nombre').value||'').trim(); const susp=suspActivaPara(id); 
+ if(susp){ mostrarAlerta('alerta-ing','error',`🚫 Ingreso denegado. Suspensión vigente hasta <strong>${esc(susp.hastaISO)}</strong> · Motivo: <em>${esc(susp.motivo||'—')}</em>`); return; } 
+ if(tipo==='invitado'){ 
+ if(!id) return mostrarAlerta('alerta-ing','error','Ingresá el DNI.'); 
+ if(!/^\d{6,10}$/.test(id)) return mostrarAlerta('alerta-ing','error','DNI inválido.'); 
+ if(!nombre) return mostrarAlerta('alerta-ing','error','El nombre es obligatorio.'); 
+ } else { 
+ if(!id) return mostrarAlerta('alerta-ing','error','Ingresá el N° de socio.'); 
+ if(!/^[A-Za-z0-9\-]{3,20}$/.test(id)) return mostrarAlerta('alerta-ing','error','N° socio inválido.'); 
+ } 
+ const existeFoto=!!getFoto(id); 
+ const prevSrc=document.getElementById('foto-preview')?.src||''; 
+ const hayNueva=prevSrc && prevSrc.startsWith('data:image/'); 
+ if(!existeFoto && !hayNueva) return mostrarAlerta('alerta-ing','error','📸 La foto es obligatoria.'); 
+ if(!existeFoto && hayNueva){ const m=getFotosMap(); m[id]=prevSrc; setFotosMap(m); } 
+ const lista=getIngresos(); const t=now(); 
+ lista.push({dni:id,tipo,nombre,fecha:fDate(t),hora:fTime(t),isoFecha:iso(t)}); 
+ setIngresos(lista); 
+ const ok = await guardarEnGitHub('ingreso'); 
+ if(!ok.ok){ mostrarAlerta('alerta-ing','error','❌ No se pudo subir a GitHub. Dato guardado local.'); } 
+ else { mostrarAlerta('alerta-ing','ok',`✅ Ingreso registrado — ${tipo==='socio'?'Socio':'Invitado'} <strong>${esc(id)}</strong> ${esc(fDate(t))} ${esc(fTime(t))}`); } 
+ resetIngresoForm(); 
+} 
+function resetIngresoForm(){ 
+ const rbInv=document.querySelector('input[name="tipo-ing"][value="invitado"]'); if(rbInv) rbInv.checked=true; 
+ toggleIngresoFields(); 
+ ['dni','nroSocio','nombre'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; }); 
+ document.getElementById('hint').textContent=''; 
+ document.getElementById('foto-preview').src=''; 
+ document.getElementById('foto-preview-wrap').style.display='none'; 
+ document.getElementById('btn-del-foto').style.display='none'; 
+ limpiarAlerta('alerta-ing'); detenerCamara(); 
+ const ch=document.getElementById('estado-chip'); if(ch){ ch.style.display='none'; ch.textContent=''; ch.className='chip'; } 
+ setTimeout(()=>{ const el=document.getElementById('dni'); el?.focus(); el?.select?.(); }, 100); 
+} 
+/* Miniatura segura */ 
+function renderFotoCell(personaId, nombre){ 
+ const foto=getFoto(personaId); 
+ if(!foto) return '—'; 
+ const safeSrc=String(foto).replace(/"/g,'\\"'); 
+ const safeNom=String(nombre||'').replace(/"/g,'\\"'); 
+ const safeId=String(personaId||'').replace(/"/g,'\\"'); 
+ return `<img class="thumb" src="${safeSrc}" alt="Foto" data-id="${safeId}" data-nombre="${safeNom}" onclick="abrirImg(this)"/>`; 
+} 
+/* Acciones sanciones */ 
+function openAperc(btn){ 
+ const id=btn.dataset.id||''; const nombre=btn.dataset.nombre||''; 
+ const motivo=prompt(`Apercibir a ${nombre||id}. Motivo:`, ''); if(!motivo) return; 
+ const arr=getSanciones(); 
+ arr.push({ id:'ap-'+Date.now(), tipo:'apercibimiento', personaId:id, nombre, motivo, fechaISO:hoyISO(), rnd:false }); 
+ setSanciones(arr); guardarEnGitHub('aperc'); alert('Apercibimiento registrado.'); updateEstadoChip(id); 
+} 
+function openSusp(btn){ 
+ const id=btn.dataset.id||''; const nombre=btn.dataset.nombre||''; 
+ const desde=hoyISO(); const hasta=prompt(`Suspender a ${nombre||id}. Hasta (YYYY-MM-DD):`, desde); if(!hasta) return; 
+ const motivo=prompt('Motivo de la suspensión:',''); if(!motivo) return; 
+ const arr=getSanciones(); 
+ arr.push({ id:'su-'+Date.now(), tipo:'suspension', personaId:id, nombre, motivo, desdeISO:desde, hastaISO:hasta, fechaISO:hoyISO(), activo:true, rnd:false }); 
+ setSanciones(arr); guardarEnGitHub('susp'); alert('Suspensión registrada.'); updateEstadoChip(id); refrescarSanciones(); 
+} 
+function updateEstadoChip(id){ 
+ id=id||getId(); if(!id){ setEstadoChip('', ''); return; } 
+ const s=suspActivaPara(id); if(s){ setEstadoChip('block', `🚫 Suspendido hasta ${s.hastaISO}. Motivo: ${s.motivo||'—'}`); return; } 
+ const a=ultimoApercPara(id); if(a){ setEstadoChip('warn', `⚠️ Apercibido (último: ${a.fechaISO||'—'}). Motivo: ${a.motivo||'—'}`); return; } 
+ setEstadoChip('ok', '✅ Sin sanciones'); 
+} 
+/* ==== Sanciones UI lists ==== */ 
+function limpiarAperc(){ 
+ document.getElementById('ap-desde').value=hoyISO(); 
+ document.getElementById('ap-hasta').value=hoyISO(); 
+ document.getElementById('ap-res').style.display='none'; 
+ document.getElementById('ap-wrap').style.display='none'; 
+ document.getElementById('ap-tbody').innerHTML=''; 
+} 
+function listarAperc(){ 
+ const d=(document.getElementById('ap-desde').value||'').trim(); 
+ const h=(document.getElementById('ap-hasta').value||'').trim(); 
+ const arr=getSanciones().filter(s=>s.tipo==='apercibimiento'); 
+ const enRango=arr.filter(s=>{ const f=s.fechaISO||'0001-01-01'; return (!d || f>=d)&&(!h || f<=h); }); 
+ const wrap=document.getElementById('ap-wrap'); const tb=document.getElementById('ap-tbody'); 
+ tb.innerHTML=''; wrap.style.display='none'; 
+ if(!enRango.length){ return; } 
+ enRango.sort((a,b)=> (b.fechaISO||'').localeCompare(a.fechaISO||'')); 
+ enRango.forEach(s=>{ 
+ const tr=document.createElement('tr'); 
+ const fotoCell=renderFotoCell(s.personaId,s.nombre); 
+ tr.innerHTML=`<td>${fotoCell}</td><td>${esc(s.nombre||'—')}</td><td>${esc(s.fechaISO||'—')}</td>`; 
+ tb.appendChild(tr); 
+ }); 
+ wrap.style.display='block'; 
+} 
+function suspActivasHoy(){
+ const hoy=hoyISO();
+ return getSanciones().filter(s=> s.tipo==='suspension' && s.activo!==false && s.desdeISO<=hoy && hoy<=s.hastaISO );
+} 
+function refrescarSanciones(){ 
+ const wrap=document.getElementById('su-wrap'); const tb=document.getElementById('su-tbody'); 
+ tb.innerHTML=''; wrap.style.display='none'; 
+ const act=suspActivasHoy(); 
+ if(!act.length){ return; } 
+ act.sort((a,b)=> (a.hastaISO||'').localeCompare(b.hastaISO||'')); 
+ act.forEach(s=>{ 
+ const tr=document.createElement('tr'); 
+ const fotoCell=renderFotoCell(s.personaId,s.nombre); 
+ tr.innerHTML=`<td>${fotoCell}</td><td>${esc(s.nombre||'—')}</td><td>${esc(s.desdeISO||'—')}</td><td>${esc(s.hastaISO||'—')}</td>`; 
+ tb.appendChild(tr); 
+ }); 
+ wrap.style.display='block'; 
+} 
+/* ==== Estadísticas (helpers mínimos) ==== */ 
+function toISO(fecha){ 
+ if(!fecha) return '0001-01-01'; 
+ if(/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return fecha; 
+ const p=fecha.split('/'); if(p.length!==3) return '0001-01-01'; 
+ const d=new Date(+p[2],+p[1]-1,+p[0]); return d.toISOString().slice(0,10); 
+} 
+function filtrarIngresos({id,desdeISO,hastaISO,tipo}){ 
+ const ing=getIngresos(); 
+ let d=desdeISO||null, h=hastaISO||null; 
+ if(d && !h) h='9999-12-31'; if(!d && h) d='0001-01-01'; 
+ const filas=ing.filter(x=>{ 
+ const okId=id?x.dni===id:true; 
+ const f=x.isoFecha||toISO(x.fecha); 
+ const okF=(d?f>=d:true)&&(h?f<=h:true); 
+ const okT=(tipo==='ambos')?true:(x.tipo===tipo); 
+ return okId&&okF&&okT; 
+ }).sort((a,b)=>{ 
+ const ka=(a.isoFecha||toISO(a.fecha||''))+' '+(a.hora||'00:00:00'); 
+ const kb=(b.isoFecha||toISO(b.fecha||''))+' '+(b.hora||'00:00:00'); 
+ return kb.localeCompare(ka); 
+ }); 
+ return {filas}; 
+} 
+function rangoTotalIngresos(){ 
+ const ing=getIngresos(); if(!ing.length) return null; 
+ let min='9999-12-31', max='0001-01-01'; 
+ ing.forEach(x=>{ const i = x.isoFecha || toISO(x.fecha); if(i<min) min=i; if(i>max) max=i; }); 
+ return {min,max}; 
+} 
+function prepararConsultaFull(){ 
+ const r=rangoTotalIngresos(); if(!r) return; 
+ const d=document.getElementById('c-desde'); const h=document.getElementById('c-hasta'); 
+ if(d) d.value=r.min; if(h) h.value=r.max; 
+ const id=document.getElementById('c-id'); const t=document.getElementById('c-tipo'); 
+ if(id) id.value=''; if(t) t.value='ambos'; 
+ consulta(); 
+} 
+function consulta(){ 
+ const id=(document.getElementById('c-id').value||'').trim(); 
+ const d=(document.getElementById('c-desde').value||'').trim(); 
+ const h=(document.getElementById('c-hasta').value||'').trim(); 
+ const t=document.getElementById('c-tipo').value; 
+ const wrap=document.getElementById('c-tabla-wrap'); 
+ const tbody=document.querySelector('#c-tabla tbody'); 
+ const res=document.getElementById('c-res'); 
+ res.className='alerta'; res.style.display='none'; wrap.style.display='none'; tbody.innerHTML=''; 
+ const {filas}=filtrarIngresos({id,desdeISO:d,hastaISO:h,tipo:t||'ambos'}); 
+ if(!filas.length){ 
+ res.style.display='block'; res.classList.add('warn'); 
+ res.textContent='Sin resultados para los filtros aplicados.'; return; 
+ } 
+ wrap.style.display='block'; 
+ for(const x of filas){ 
+ const tipoTxt=(x.tipo||'').toLowerCase()==='socio'?'Socio':'Invitado'; 
+ const nombre=x.nombre||''; 
+ const fotoCell=renderFotoCell(x.dni,nombre); 
+ const acciones=`<div class="row" style="gap:6px"> 
+ <button class="btn btn-ghost" data-id="${esc(x.dni)}" data-nombre="${esc(nombre)}" onclick="openAperc(this)">Aperc.</button> 
+ <button class="btn btn-danger" data-id="${esc(x.dni)}" data-nombre="${esc(nombre)}" onclick="openSusp(this)">Susp.</button> 
+ </div>`; 
+ const tr=document.createElement('tr'); 
+ tr.innerHTML=`<td>${fotoCell}</td><td>${tipoTxt}</td><td>${x.dni}</td><td>${x.fecha||'—'}</td><td>${acciones}</td>`; 
+ tbody.appendChild(tr); 
+ } 
+} 
+/* ==== Modal imagen ==== */ 
+function abrirImg(el){ 
+ const src=el?.src||''; const id=el?.dataset?.id||''; const nombre=el?.dataset?.nombre||''; 
+ const cap=(nombre?(nombre+' — '):'')+(id||''); 
+ const m=document.getElementById('img-modal'); 
+ const img=document.getElementById('img-modal-img'); 
+ const c=document.getElementById('img-modal-cap'); 
+ const sEl=document.getElementById('img-modal-status'); 
+ if(img) img.src=src; if(c) c.textContent=cap; 
+ let estadoTxt='Estado: —', tipo=null; 
+ try{ 
+ const susp=suspActivaPara(id); 
+ if(susp){ estadoTxt=`Estado: Suspendido hasta ${susp.hastaISO}. Motivo: ${susp.motivo||'—'}`; tipo='block'; } 
+ else { 
+ const a=ultimoApercPara(id); 
+ if(a){ estadoTxt=`Estado: Apercibido (último: ${a.fechaISO||'—'}). Motivo: ${a.motivo||'—'}`; tipo='warn'; } 
+ else { estadoTxt='Estado: Sin sanciones'; tipo='ok'; } 
+ } 
+ }catch(_){} 
+ if(sEl){ sEl.textContent=estadoTxt; sEl.className='sub '+(tipo==='block'?'state-block':(tipo==='warn'?'state-warn':'state-ok')); } 
+ if(m) m.style.display='flex'; 
+} 
+function cerrarImgModal(){ const m=document.getElementById('img-modal'); if(m) m.style.display='none'; } 
+/* ==== Utils visibles ==== */ 
+function tick(){ const el=document.getElementById('reloj'); if(el) el.textContent=fTime(now())+' — '+fDate(now()); } 
+async function testGuardar(){ 
+ const base=JSON.stringify({version:2,updatedAt:new Date().toISOString(),ingresos:[{dni:'000',tipo:'invitado',nombre:'Test',fecha:hoyISO(),hora:'00:00:01',isoFecha:hoyISO()}],sanciones:[],fotos:{}},null,2); 
+ const info=await ghGetFile(GH.dataFile); 
+ const res=await ghPutFile(GH.dataFile, base, `PCQ test ${new Date().toISOString()}`, info.sha||null); 
+ alert(res.ok? '✅ Test guardado OK' : '❌ Test error: '+(res.error||'—')); 
+} 
+/* ==== Generador / Borrador de datos de prueba ==== */ 
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; } 
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; } 
+function isoAddDays(isoStr, days) { const d = new Date(isoStr + 'T00:00:00'); d.setDate(d.getDate() + days); return d.toISOString().slice(0,10); } 
+function nombreFalso() { 
+ const ap = ['Gómez','Pérez','Rodríguez','López','Fernández','Martínez','García','Sánchez','Romero','Castro','Luna','Suárez','Molina']; 
+ const no = ['Juan','María','Pedro','Lucía','Sofía','Martín','Valentina','Agustín','Camila','Nicolás','Julián','Carla','Tomás','Bruno']; 
+ return `${pick(ap)}, ${pick(no)}`; 
+} 
+function dniFalso() { const len = pick([7,8,9]); let s = ''; for (let i = 0; i < len; i++) s += String(randInt(0,9)); return s; } 
+/** Genera ingresos aleatorios desde 2026-01-01 hasta hoy (marca cada fila con rnd:true). */ 
+async function generarRandomDesdeEnero2026() { 
+ const utilsRes = document.getElementById('utils-alert'); 
+ const desdeISO = '2026-01-01'; 
+ const hoy = hoyISO(); 
+ const fechas = []; 
+ let cur = desdeISO; 
+ while (cur <= hoy) { fechas.push(cur); cur = isoAddDays(cur, 1); } 
+ const tipos = ['invitado', 'socio']; 
+ const ingresos = getIngresos(); 
+ let creados = 0; 
+ for (const f of fechas) { 
+ const n = randInt(0, 8); // 0..8 por día 
+ for (let i = 0; i < n; i++) { 
+ const tipo = pick(tipos); 
+ const dni = dniFalso(); 
+ const nombre = (tipo === 'invitado') ? nombreFalso() : `Socio ${dni}`; 
+ const hora = `${dos(randInt(8, 22))}:${dos(randInt(0,59))}:${dos(randInt(0,59))}`; 
+ const dObj = new Date(`${f}T${hora}`); 
+ ingresos.push({ 
+ dni, 
+ tipo, 
+ nombre, 
+ fecha: fDate(dObj), 
+ hora, 
+ isoFecha: f, 
+ rnd: true 
+ }); 
+ creados++; 
+ } 
+ } 
+ setIngresos(ingresos); 
+ try { prepararConsultaFull?.(); } catch (_) {} 
+ const ok = await guardarEnGitHub('rnd-gen'); 
+ if (utilsRes) { 
+ utilsRes.style.display = 'block'; 
+ utilsRes.className = 'alerta ' + (ok.ok ? 'ok' : 'warn'); 
+ utilsRes.textContent = ok.ok 
+ ? `✅ Generados ${creados} ingresos de prueba y sincronizados.` 
+ : `⚠️ Generados ${creados} ingresos de prueba. No se pudo sincronizar (quedan locales).`; 
+ } 
+} 
+/** Borra todos los ingresos/sanciones con rnd:true (no toca datos reales). */ 
+async function borrarRandom() { 
+ const utilsRes = document.getElementById('utils-alert'); 
+ const origIng = getIngresos(); 
+ const quedanIng = origIng.filter(x => !x.rnd); 
+ const borradosIng = origIng.length - quedanIng.length; 
+ setIngresos(quedanIng); 
+ const origSan = getSanciones(); 
+ const quedanSan = origSan.filter(x => !x.rnd); 
+ const borradosSan = origSan.length - quedanSan.length; 
+ setSanciones(quedanSan); 
+ try { prepararConsultaFull?.(); refrescarSanciones?.(); } catch (_) {} 
+ const ok = await guardarEnGitHub('rnd-del'); 
+ if (utilsRes) { 
+ utilsRes.style.display = 'block'; 
+ utilsRes.className = 'alerta ' + (ok.ok ? 'ok' : 'warn'); 
+ utilsRes.textContent = ok.ok 
+ ? `🧹 Borrados ${borradosIng} ingresos y ${borradosSan} sanciones de prueba. Sincronizado.` 
+ : `🧹 Borrados ${borradosIng} ingresos y ${borradosSan} sanciones de prueba. No se pudo sincronizar (cambios locales).`; 
+ } 
+} 
+/* ==== Estado online/offline ==== */ 
+function updateOnlineStatus(){ 
+ if(!navigator.onLine){ 
+ setSyncBadge('state-block','🔴 Offline'); 
+ setSyncDebug('Sin conexión'); 
+ } else { 
+ const hasTk = !!getToken(); 
+ setSyncBadge('', hasTk ? '☁️ Listo para conectar' : '☁️ Sin token'); 
+ setSyncDebug(''); 
+ } 
+} 
+/* ==== INIT ==== */ 
+(function(){ 
+ tick(); setInterval(tick,1000); 
+ ['c-desde','c-hasta','ap-desde','ap-hasta'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=hoyISO(); }); 
+ navClick('ingreso', document.getElementById('btn-nav-ingreso')); 
+ const _dni=document.getElementById('dni'); _dni?.focus(); _dni?.select?.(); 
+})(); 
+/* ==== Activar (modal) ==== */ 
+function abrirActivar(){ document.getElementById('activar-modal').style.display='flex'; document.getElementById('activar-token').focus(); } 
+function cerrarActivar(){ document.getElementById('activar-modal').style.display='none'; } 
+async function guardarYActivar(){ 
+ const t=(document.getElementById('activar-token').value||'').trim(); 
+ const msgEl=document.getElementById('activar-msg'); 
+ const tk = tokenInfo(t); 
+ if(!tk.ok){ msgEl.textContent='Ingresá un token válido.'; return; } 
+ setToken(t); 
+ setSyncBadge('syncing','☁️ Validando…'); 
+ msgEl.textContent='Validando acceso al repo…'; 
+ const repoOk = await ghCheckRepo(); 
+ if(!repoOk.ok){ 
+ setSyncBadge('', '☁️ Modo local (sin GitHub)'); 
+ setSyncDebug(repoOk.error||'repo'); 
+ msgEl.innerHTML = ( 
+ repoOk.error==='permiso-token' ? '❌ El token no tiene permisos para leer/escribir en el repo.' : 
+ repoOk.error==='repo-no-existe' ? '❌ El repo no existe (owner/repo incorrecto).' : 
+ repoOk.error==='branch-no-existe' ? '❌ La rama configurada no existe.' : 
+ repoOk.error==='timeout' ? '❌ Timeout consultando la API.' : 
+ `❌ Error: ${repoOk.error||'desconocido'}` 
+ ) + ' — La app seguirá en modo local.'; 
+ return; 
+ } 
+ const initOk = await ensureDataFile(); 
+ if(!initOk.ok){ 
+ setSyncBadge('', '☁️ Error creando data'); 
+ msgEl.textContent = 'No se pudo inicializar el archivo de datos en GitHub (permiso contents:write).'; 
+ return; 
+ } 
+ await sincronizarDesdeGitHub(); 
+ setInterval(async()=>{ if(!_syncEnCurso && getToken()) await sincronizarDesdeGitHub(); }, 20000); 
+ setSyncBadge('ok','✅ Conectado a GitHub'); 
+ setSyncDebug(''); 
+ msgEl.textContent='Listo. Conectado y sincronizado.'; 
+ setTimeout(()=>cerrarActivar(), 600); 
+} 
+/* ==== Navegación ==== */ 
+function navClick(id,btn){ 
+ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('act')); 
+ btn.classList.add('act'); 
+ document.querySelectorAll('main > section').forEach(s=>s.style.display='none'); 
+ document.getElementById('sec-'+id).style.display='block'; 
+ if(id==='ingreso') toggleIngresoFields(); 
+ if(id==='sanc') refrescarSanciones(); 
+} 
+function toggleIngresoFields(){ 
+ const t=(document.querySelector('input[name="tipo-ing"]:checked')?.value)||'invitado'; 
+ document.getElementById('wrap-dni').style.display=(t==='invitado')?'':'none'; 
+ document.getElementById('wrap-socio').style.display=(t==='socio')?'':'none'; 
+ onIdentificadorChange(); 
+} 
+/* ==== Extras que faltaban en el original ==== */ 
+function buscarInvitado(){ 
+ const id=getId(); if(!id){ mostrarAlerta('alerta-ing','warn','Ingresá un identificador.'); return; } 
+ onIdentificadorChange(); 
+ const susp=suspActivaPara(id); const a=ultimoApercPara(id); 
+ if(susp) mostrarAlerta('alerta-ing','error',`🚫 Suspensión vigente hasta <strong>${esc(susp.hastaISO)}</strong>. Motivo: <em>${esc(susp.motivo||'—')}</em>`); 
+ else if(a) mostrarAlerta('alerta-ing','warn',`⚠️ Apercibido (último: <strong>${esc(a.fechaISO||'—')}</strong>). Motivo: <em>${esc(a.motivo||'—')}</em>`); 
+ else mostrarAlerta('alerta-ing','ok','✅ Sin sanciones registradas.'); 
+} 
+async function syncManual() { 
+ const el = document.getElementById('c-res'); 
+ try { 
+ if(el){ el.style.display='block'; el.className='alerta'; el.textContent='Sincronizando…'; } 
+ await sincronizarDesdeGitHub(); 
+ if(el){ el.classList.add('ok'); el.textContent='✅ Sincronizado con GitHub.'; } 
+ } catch (e) { 
+ if(el){ el.classList.add('error'); el.textContent='❌ Error al sincronizar: '+(e?.message||'desconocido'); } 
+ } 
+} 
+function aplicarStats(){ 
+ const el=document.getElementById('s-resumen'); 
+ if(el) el.textContent='(Demo) Aplicado. Cargá datos para ver tendencias.'; 
+} 
+function limpiarConsulta(){ 
+ const id=document.getElementById('c-id'); 
+ const t=document.getElementById('c-tipo'); 
+ const d=document.getElementById('c-desde'); 
+ const h=document.getElementById('c-hasta'); 
+ if(id) id.value=''; 
+ if(t) t.value='ambos'; 
+ const rango=rangoTotalIngresos(); 
+ if(rango){ if(d)d.value=rango.min; if(h)h.value=rango.max; } 
+ const res=document.getElementById('c-res'); const wrap=document.getElementById('c-tabla-wrap'); 
+ if(res){ res.style.display='none'; res.textContent=''; res.className='alerta'; } 
+ if(wrap){ wrap.style.display='none'; const tb=document.querySelector('#c-tabla tbody'); if(tb) tb.innerHTML=''; } 
+} 
+/** ==== Diagnóstico visual de errores globales ==== */ 
+window.addEventListener('error', (ev) => { 
+ try { 
+ const chip = document.getElementById('sync-badge'); 
+ const dbg = document.getElementById('sync-debug'); 
+ if (chip) chip.textContent = '⚠️ Error en script'; 
+ if (dbg) dbg.textContent = (ev?.error?.message || ev?.message || 'Error desconocido'); 
+ } catch(_) {} 
+}); 
+</script> 
+<script> 
+(function(){ 
+ function detect(){ 
+ try{ 
+ if(typeof onIdentificadorChange==='function') onIdentificadorChange(); 
+ }catch(e){} 
+ } 
+ setTimeout(detect,300); 
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(detect,200);}); 
+})(); 
+</script> 
+<script> 
+(function(){ 
+ function readCookieToken(){ 
+ const m=document.cookie.match(/pcq_gh_token=([^;]+)/); 
+ return m?decodeURIComponent(m[1]):''; 
+ } 
+ const _getToken=window.getToken; 
+ window.getToken=function(){ return (_getToken&&_getToken())||readCookieToken(); }; 
+ async function boot(){ 
+ try{ 
+ const tk=getToken(); 
+ if(!tk){ setSyncBadge('', '☁️ Sin token'); return; } 
+ if(!navigator.onLine){ setSyncBadge('state-warn','🟠 Token presente, sin conexión'); return; } 
+ const r=await ghCheckRepo(); 
+ if(!r.ok){ setSyncBadge('', '☁️ Modo local'); setSyncDebug(r.error||'Error GitHub'); return; } 
+ await ensureDataFile(); 
+ await sincronizarDesdeGitHub(); 
+ setSyncBadge('ok','✅ Conectado a GitHub'); 
+ }catch(e){ setSyncBadge('', '☁️ Error'); } 
+ } 
+ setTimeout(boot,0); 
+})(); 
+</script> 
+</body> 
 </html>
