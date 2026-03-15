@@ -51,9 +51,9 @@
     <div id="reloj" class="chip">--:--:-- — --/--/----</div>
     <div id="sync-badge" class="chip state-block">🔴 Offline (local)</div>
     <div id="sync-debug" class="sub"></div>
-    <button id="btn-conectar" class="btn btn-warn" onclick="abrirActivar()" style="display:none">🔗 Conectar</button>
+    <button id="btn-conectar" class="btn btn-warn" onclick="abrirActivarReal()" style="display:none">🔗 Conectar</button>
     <div style="flex:1"></div>
-    <button id="btn-activar-sistema" class="btn btn-warn" onclick="abrirActivar()">⚡ Activar sistema</button>
+    <button id="btn-activar-sistema" class="btn btn-warn" onclick="abrirActivarReal()">⚡ Activar sistema</button>
   </div>
 </header>
 
@@ -220,7 +220,526 @@
 </div>
 
 <script>
-/* … JS refactorizado y simplificado (ver archivo adjunto en tu sesión) … */
+/* ========== CONFIG & KEYS ========== */
+const GH = { owner:'lamannafernando-commits', repo:'pejedb', branch:'main', dataFile:'data/pcq_data.json' };
+const KEYS = { ingresos:'app_ingresos', fotos:'app_fotos', sanciones:'app_sanciones', token:'pcq_gh_token', dirty:'pcq_dirty' };
+
+/* ========== HELPERS ========== */
+const $ = (id)=>document.getElementById(id);
+const now = ()=>new Date();
+const dos=n=>n<10?('0'+n):(''+n);
+const fDate=d=>[dos(d.getDate()),dos(d.getMonth()+1),d.getFullYear()].join('/');
+const fTime=d=>[dos(d.getHours()),dos(d.getMinutes()),dos(d.getSeconds())].join(':');
+const iso=d=>d.toISOString().slice(0,10);
+const hoyISO=()=>iso(now());
+const esc = (s)=>String(s??'').replace(/[&<>\"']/g,c=>({"&":"&","<":"<",">":">","\"":"\"","'":"'"}[c]));
+
+/* ========== UI ESTADO ========== */
+function setBadge(mode,text){
+  const el=$('sync-badge'); if(!el) return;
+  el.className='chip';
+  if(mode==='ok') el.classList.add('state-ok');
+  if(mode==='warn') el.classList.add('state-warn');
+  if(mode==='block') el.classList.add('state-block');
+  el.textContent=text;
+}
+function setDebug(msg){ const el=$('sync-debug'); if(el) el.textContent=msg||''; }
+function showOffline(){ setBadge('block','🔴 Offline (local)'); }
+
+/* ========== TOKEN (simple) ========== */
+function getToken(){ return (localStorage.getItem(KEYS.token)||'').trim(); }
+function setToken(t){ localStorage.setItem(KEYS.token,(t||'').trim()); }
+function tokenInfo(t){
+  if(!t) return {ok:false};
+  if(/^ghp_[A-Za-z0-9]{36,}$/i.test(t)) return {ok:true};
+  if(/^github_pat_[A-Za-z0-9_]{10,}/i.test(t)) return {ok:true};
+  return {ok:true}; // aceptamos otros formatos también
+}
+
+/* ========== STORAGE LOCAL ========== */
+const Store = {
+  getIngresos(){ try{ return JSON.parse(localStorage.getItem(KEYS.ingresos)||'[]'); }catch{ return []; } },
+  setIngresos(a){ localStorage.setItem(KEYS.ingresos, JSON.stringify(a||[])); markDirty(); },
+  getFotos(){ try{ return JSON.parse(localStorage.getItem(KEYS.fotos)||'{}'); }catch{ return {}; } },
+  setFotos(m){ localStorage.setItem(KEYS.fotos, JSON.stringify(m||{})); markDirty(); },
+  getSanciones(){ try{ return JSON.parse(localStorage.getItem(KEYS.sanciones)||'[]'); }catch{ return []; } },
+  setSanciones(a){ localStorage.setItem(KEYS.sanciones, JSON.stringify(a||[])); markDirty(); }
+};
+function markDirty(){ try{ localStorage.setItem(KEYS.dirty,'1'); }catch{} }
+function clearDirty(){ try{ localStorage.removeItem(KEYS.dirty); }catch{} }
+function isDirty(){ try{ return localStorage.getItem(KEYS.dirty)==='1'; }catch{ return false; } }
+
+/* ========== NET (GitHub súper simple) ========== */
+function fetchWithTimeout(url,opts,ms=12000){
+  const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),ms);
+  return fetch(url,{...opts,signal:ctrl.signal}).finally(()=>clearTimeout(t));
+}
+function utf8ToB64(s){const b=new TextEncoder().encode(s);let r='';b.forEach(x=>{r+=String.fromCharCode(x);});return btoa(r);}
+function b64ToUtf8(b64){const bin=atob(b64);const b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);return new TextDecoder().decode(b);}
+
+/* ========== SYNC SIMPLE ========== */
+async function ghCheckRepo(){
+  const t=getToken(); if(!t) return {ok:false,error:'sin-token'};
+  try{
+    const r=await fetchWithTimeout(`https://api.github.com/repos/${GH.owner}/${GH.repo}`,{
+      headers:{'Authorization':`Bearer ${t}`,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}
+    });
+    if(r.status===404) return {ok:false,error:'repo-no-existe'};
+    if(r.status===401||r.status===403) return {ok:false,error:'permiso-token'};
+    if(!r.ok) return {ok:false,error:`repo ${r.status}`};
+    const info=await r.json();
+    GH.branch = GH.branch || info.default_branch || 'main';
+    return {ok:true};
+  }catch(e){ return {ok:false,error:(e.name==='AbortError'?'timeout':e.message)} }
+}
+async function ghGetFile(path){
+  const t=getToken(); if(!t) return {sha:null,content:null,error:'sin-token'};
+  try{
+    const r=await fetchWithTimeout(`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${path}?ref=${GH.branch}&t=${Date.now()}`,{
+      headers:{'Authorization':`Bearer ${t}`,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}
+    });
+    if(r.status===404) return {sha:null,content:null};
+    if(!r.ok) return {sha:null,content:null,error:`GET ${r.status}`};
+    const d=await r.json(); return {sha:d.sha||null,content:d.content||null};
+  }catch(e){ return {sha:null,content:null,error:(e.name==='AbortError'?'timeout':e.message)} }
+}
+async function ghPutFile(path, contenido, mensaje, sha){
+  const t=getToken(); if(!t) return {ok:false,error:'sin-token'};
+  const body={ message:mensaje, content:utf8ToB64(contenido), branch:GH.branch }; if(sha) body.sha=sha;
+  try{
+    const r=await fetchWithTimeout(`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${path}`,{
+      method:'PUT',
+      headers:{'Authorization':`Bearer ${t}`,'Accept':'application/vnd.github+json','Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'},
+      body:JSON.stringify(body)
+    });
+    if(r.ok) return {ok:true};
+    if(r.status===409||r.status===422) return {ok:false,error:'sha-conflict'};
+    if(r.status===401||r.status===403) return {ok:false,error:'permiso-token'};
+    if(r.status===404) return {ok:false,error:'repo/path-not-found'};
+    const d=await r.json().catch(()=>({message:''}));
+    return {ok:false,error:`PUT ${r.status} ${d.message||''}`};
+  }catch(e){ return {ok:false,error:(e.name==='AbortError'?'timeout':e.message)} }
+}
+async function ensureDataFile(){
+  const info=await ghGetFile(GH.dataFile);
+  if(info.content==null){
+    const base = JSON.stringify({version:2, updatedAt:new Date().toISOString(), ingresos:[], sanciones:[], fotos:{}}, null, 2);
+    return await ghPutFile(GH.dataFile, base, `PCQ init ${new Date().toISOString()}`);
+  }
+  return {ok:true};
+}
+async function pullSimple(){
+  setBadge('warn','🔄 Sincronizando…');
+  const repoOk=await ghCheckRepo();
+  if(!repoOk.ok){ showOffline(); setDebug(repoOk.error); return; }
+  const info=await ghGetFile(GH.dataFile);
+  if(!info.content){
+    const initOk=await ensureDataFile();
+    if(!initOk.ok){ setBadge('warn','☁️ Error creando data'); setDebug(initOk.error||''); return; }
+    setBadge('ok','✅ Inicializado'); setDebug(''); return;
+  }
+  const remoto=JSON.parse(b64ToUtf8(info.content.replace(/\n/g,'')));
+  if(remoto && typeof remoto==='object'){
+    localStorage.setItem(KEYS.ingresos, JSON.stringify(remoto.ingresos||[]));
+    localStorage.setItem(KEYS.sanciones, JSON.stringify(remoto.sanciones||[]));
+    localStorage.setItem(KEYS.fotos, JSON.stringify(remoto.fotos||{}));
+    try{ prepararConsultaFull(); refrescarSanciones(); }catch{}
+    clearDirty();
+  }
+  setBadge('ok','✅ Al día'); setDebug('');
+}
+async function pushSimple(tag){
+  setBadge('warn','⏳ Subiendo…');
+  const repoOk=await ghCheckRepo();
+  if(!repoOk.ok){ showOffline(); setDebug(repoOk.error); return {ok:false}; }
+  const payload=JSON.stringify({
+    version:2,updatedAt:new Date().toISOString(),
+    ingresos:Store.getIngresos(), sanciones:Store.getSanciones(), fotos:Store.getFotos()
+  }, null, 2);
+  for(let i=0;i<3;i++){
+    const info=await ghGetFile(GH.dataFile);
+    const res=await ghPutFile(GH.dataFile,payload,`PCQ ${new Date().toISOString()} ${tag||''}`.trim(),info.sha||null);
+    if(res.ok){ clearDirty(); setBadge('ok','✅ Sincronizado'); setDebug(''); return {ok:true}; }
+    if(res.error==='sha-conflict'){ await new Promise(r=>setTimeout(r,400*(i+1))); continue; }
+    setBadge('warn','☁️ Error al guardar'); setDebug(res.error||''); return {ok:false};
+  }
+  setBadge('warn','☁️ Conflicto'); setDebug('Reintentos agotados'); return {ok:false};
+}
+
+/* ========== UI Conectividad (simple) ========== */
+function updateConnUI(){
+  const hasToken = !!getToken();
+  const online = navigator.onLine;
+  const btn = $('btn-conectar');
+  if(btn){ btn.style.display = online ? 'inline-flex' : 'none'; btn.textContent = hasToken? 'Cambiar token':'🔗 Conectar'; }
+  if(!online){ showOffline(); return; }
+  if(!hasToken){ showOffline(); return; }
+}
+
+/* ========== BOTONES (simple) ========== */
+function abrirActivarReal(){
+  const m=$('activar-modal'), t=$('activar-token');
+  if(!m||!t){ alert('Error: modal no encontrado.'); return; }
+  m.style.display='flex'; t.value=''; t.focus();
+}
+function cerrarActivar(){ const m=$('activar-modal'); if(m) m.style.display='none'; }
+
+async function guardarYActivar(){
+  const t=($('activar-token').value||'').trim();
+  const msg=$('activar-msg');
+  const tk=tokenInfo(t);
+  if(!tk.ok){ msg.textContent='El token no parece válido (ghp_… o github_pat_…).'; return; }
+  setToken(t);
+  setBadge('warn','☁️ Validando…'); msg.textContent='Validando acceso…';
+  const ok=await ghCheckRepo();
+  if(!ok.ok){ showOffline(); setDebug(ok.error||''); msg.textContent='No se pudo activar: '+(ok.error||''); return; }
+  const initOk=await ensureDataFile();
+  if(!initOk.ok){ setBadge('warn','☁️ Error creando data'); msg.textContent='No se pudo crear/leer el archivo de datos.'; return; }
+  await pullSimple();
+  setBadge('ok','✅ Conectado a GitHub'); setDebug(''); msg.textContent='Listo. Conectado y sincronizado.';
+  setTimeout(()=>cerrarActivar(),600); updateConnUI();
+}
+
+/* ========== INGRESOS & SANCIONES (sin cambios lógicos) ========== */
+function getTipo(){ return (document.querySelector('input[name="tipo-ing"]:checked')?.value)||'invitado'; }
+function getId(){ return getTipo()==='socio' ? ($('nroSocio').value||'').trim() : ($('dni').value||'').trim(); }
+function setEstadoChip(tipo, texto){
+  const ch=$('estado-chip'); ch.style.display= texto? 'inline-flex':'none'; ch.className='chip';
+  if(tipo==='block') ch.classList.add('state-block'); else if(tipo==='warn') ch.classList.add('state-warn'); else if(tipo==='ok') ch.classList.add('state-ok');
+  ch.textContent= texto||'';
+}
+function mostrarAlerta(id,tipo,msg){ const el=$(id); el.style.display='block'; el.className='alerta '+(tipo==='ok'?'ok':(tipo==='warn'?'warn':'error')); el.innerHTML=msg||''; }
+function limpiarAlerta(id){ const el=$(id); if(el){ el.style.display='none'; el.textContent=''; el.className='alerta'; } }
+function ultimoApercPara(id){ const lista=Store.getSanciones().filter(s=> s.tipo==='apercibimiento' && s.personaId===id); if(!lista.length) return null; lista.sort((a,b)=>(b.fechaISO||'').localeCompare(a.fechaISO||'')); return lista[0]; }
+function suspActivaPara(id){ if(!id) return null; const hoy=hoyISO(); return Store.getSanciones().find(s=> s.tipo==='suspension' && s.personaId===id && s.activo!==false && (s.desdeISO||'0001-01-01')<=hoy && hoy<= (s.hastaISO||'9999-12-31')); }
+
+async function onIdentificadorChange(){
+  const id=getId(); const hint=$('hint'); const nombre=$('nombre');
+  if(!id){ hint.textContent=''; setEstadoChip('',''); limpiarAlerta('alerta-ing'); $('foto-preview-wrap').style.display='none'; $('btn-del-foto').style.display='none'; return; }
+  const lista=Store.getIngresos(); const u=lista.filter(x=>x.dni===id).slice(-1)[0];
+  if(u&&u.nombre){ nombre.value=u.nombre; hint.textContent='Autocompletado por historial'; } else hint.textContent='';
+  const foto=Store.getFotos()[id]; const prev=$('foto-preview'); const wrap=$('foto-preview-wrap');
+  if(foto){ prev.src=foto; wrap.style.display='block'; $('btn-del-foto').style.display='inline-flex'; $('foto-preview-id').textContent='ID: '+id+' ✅'; }
+  else { wrap.style.display='none'; $('btn-del-foto').style.display='none'; $('foto-preview-id').textContent='ID: '+id; }
+  const susp=suspActivaPara(id); if(susp){ setEstadoChip('block', `🚫 Suspendido hasta ${susp.hastaISO}. Motivo: ${susp.motivo||'—'}`); mostrarAlerta('alerta-ing','error',`🚫 Suspensión vigente hasta <strong>${esc(susp.hastaISO)}</strong> · Motivo: <em>${esc(susp.motivo||'—')}</em>`); return; }
+  const a=ultimoApercPara(id); if(a){ setEstadoChip('warn', `⚠️ Apercibido (último: ${a.fechaISO||'—'}). Motivo: ${a.motivo||'—'}`); mostrarAlerta('alerta-ing','warn',`⚠️ Apercibido (último: <strong>${esc(a.fechaISO||'—')}</strong>). Motivo: <em>${esc(a.motivo||'—')}</em>`); return; }
+  setEstadoChip('ok', '✅ Sin sanciones'); limpiarAlerta('alerta-ing');
+}
+async function _guardarFoto(b64){
+  const id=getId(); const prev=$('foto-preview'); const wrap=$('foto-preview-wrap');
+  prev.src=b64; wrap.style.display='block'; $('btn-del-foto').style.display='inline-flex';
+  if(id){ const m=Store.getFotos(); m[id]=b64; Store.setFotos(m); $('foto-preview-id').textContent='ID: '+id+' ✅'; await pushSimple('foto'); }
+}
+async function borrarFoto(){
+  const id=getId();
+  if(id){ const m=Store.getFotos(); delete m[id]; Store.setFotos(m); await pushSimple('borrar-foto'); }
+  $('foto-preview').src=''; $('foto-preview-wrap').style.display='none'; $('btn-del-foto').style.display='none'; $('foto-preview-id').textContent='ID: --';
+}
+function iniciarCamara(){
+  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false})
+    .then(s=>{ const v=$('cam-video'); v.srcObject=s; v.play(); window._cam=s; $('cam-wrap').style.display='block'; $('btn-cam-start').style.display='none'; $('btn-cam-shot').style.display='inline-flex'; $('btn-cam-stop').style.display='inline-flex'; })
+    .catch(()=>alert('No se pudo acceder a la cámara'));
+}
+function detenerCamara(){
+  try{ if(window._cam){ window._cam.getTracks().forEach(t=>t.stop()); window._cam=null; } }catch{}
+  const v=$('cam-video'); if(v) v.srcObject=null;
+  $('cam-wrap').style.display='none';
+  $('btn-cam-start').style.display='inline-flex';
+  $('btn-cam-shot').style.display='none';
+  $('btn-cam-stop').style.display='none';
+}
+function tomarFoto(){
+  const v=$('cam-video'); const c=$('cam-canvas'), ctx=c.getContext('2d');
+  const vw=v.videoWidth, vh=v.videoHeight; if(!vw||!vh) return;
+  const size=Math.min(vw,vh), sx=Math.floor((vw-size)/2), sy=Math.floor((vh-size)/2);
+  c.width=320; c.height=320;
+  ctx.drawImage(v,sx,sy,size,size,0,0,320,320);
+  const data=c.toDataURL('image/jpeg',0.9);
+  _guardarFoto(data); detenerCamara();
+}
+async function registrarIngreso(){
+  const tipo=getTipo(); const id=getId(); const nombre=($('nombre').value||'').trim(); const susp=suspActivaPara(id);
+  if(susp){ mostrarAlerta('alerta-ing','error',`🚫 Ingreso denegado. Suspensión vigente hasta <strong>${esc(susp.hastaISO)}</strong> · Motivo: <em>${esc(susp.motivo||'—')}</em>`); return; }
+  if(tipo==='invitado'){
+    if(!id) return mostrarAlerta('alerta-ing','error','Ingresá el DNI.');
+    if(!/^\d{6,10}$/.test(id)) return mostrarAlerta('alerta-ing','error','DNI inválido.');
+    if(!nombre) return mostrarAlerta('alerta-ing','error','El nombre es obligatorio.');
+  } else {
+    if(!id) return mostrarAlerta('alerta-ing','error','Ingresá el N° de socio.');
+    if(!/^[A-Za-z0-9\-]{3,20}$/.test(id)) return mostrarAlerta('alerta-ing','error','N° socio inválido.');
+  }
+  const existeFoto=!!Store.getFotos()[id];
+  const prevSrc=$('foto-preview')?.src||'';
+  const hayNueva=prevSrc && prevSrc.startsWith('data:image/');
+  if(!existeFoto && !hayNueva) return mostrarAlerta('alerta-ing','error','📸 La foto es obligatoria.');
+  if(!existeFoto && hayNueva){ const m=Store.getFotos(); m[id]=prevSrc; Store.setFotos(m); }
+  const lista=Store.getIngresos(); const t=now();
+  lista.push({dni:id,tipo,nombre,fecha:fDate(t),hora:fTime(t),isoFecha:iso(t)});
+  Store.setIngresos(lista);
+  const ok=await pushSimple('ingreso');
+  if(!ok.ok) mostrarAlerta('alerta-ing','error','❌ No se pudo subir a GitHub. Dato guardado local.');
+  else mostrarAlerta('alerta-ing','ok',`✅ Ingreso registrado — ${tipo==='socio'?'Socio':'Invitado'} <strong>${esc(id)}</strong> ${esc(fDate(t))} ${esc(fTime(t))}`);
+  resetIngresoForm();
+}
+function resetIngresoForm(){
+  const rbInv=document.querySelector('input[name="tipo-ing"][value="invitado"]'); if(rbInv) rbInv.checked=true;
+  toggleIngresoFields();
+  ['dni','nroSocio','nombre'].forEach(id=>{ const el=$(id); if(el) el.value=''; });
+  $('hint').textContent='';
+  $('foto-preview').src='';
+  $('foto-preview-wrap').style.display='none';
+  $('btn-del-foto').style.display='none';
+  limpiarAlerta('alerta-ing'); detenerCamara();
+  const ch=$('estado-chip'); if(ch){ ch.style.display='none'; ch.textContent=''; ch.className='chip'; }
+  setTimeout(()=>{ const el=$('dni'); el?.focus(); el?.select?.(); },100);
+}
+
+/* ========== Miniatura segura y sanciones UI ========== */
+function renderFotoCell(personaId, nombre){
+  const foto=Store.getFotos()[personaId];
+  if(!foto) return '—';
+  const safeSrc=String(foto).replace(/"/g,'\\"');
+  const safeNom=String(nombre||'').replace(/"/g,'\\"');
+  const safeId=String(personaId||'').replace(/"/g,'\\"');
+  return `<img class="thumb" src="${safeSrc}" alt="Foto" data-id="${safeId}" data-nombre="${safeNom}" onclick="abrirImg(this)"/>`;
+}
+function openAperc(btn){
+  const id=btn.dataset.id||''; const nombre=btn.dataset.nombre||'';
+  const motivo=prompt(`Apercibir a ${nombre||id}. Motivo:`, ''); if(!motivo) return;
+  const arr=Store.getSanciones();
+  arr.push({ id:'ap-'+Date.now(), tipo:'apercibimiento', personaId:id, nombre, motivo, fechaISO:hoyISO(), rnd:false });
+  Store.setSanciones(arr); pushSimple('aperc'); alert('Apercibimiento registrado.'); updateEstadoChip(id);
+}
+function openSusp(btn){
+  const id=btn.dataset.id||''; const nombre=btn.dataset.nombre||'';
+  const desde=hoyISO(); const hasta=prompt(`Suspender a ${nombre||id}. Hasta (YYYY-MM-DD):`, desde); if(!hasta) return;
+  const motivo=prompt('Motivo de la suspensión:',''); if(!motivo) return;
+  const arr=Store.getSanciones();
+  arr.push({ id:'su-'+Date.now(), tipo:'suspension', personaId:id, nombre, motivo, desdeISO:desde, hastaISO:hasta, fechaISO:hoyISO(), activo:true, rnd:false });
+  Store.setSanciones(arr); pushSimple('susp'); alert('Suspensión registrada.'); updateEstadoChip(id); refrescarSanciones();
+}
+function updateEstadoChip(id){
+  id=id||getId(); if(!id){ setEstadoChip('', ''); return; }
+  const s=suspActivaPara(id); if(s){ setEstadoChip('block', `🚫 Suspendido hasta ${s.hastaISO}. Motivo: ${s.motivo||'—'}`); return; }
+  const a=ultimoApercPara(id); if(a){ setEstadoChip('warn', `⚠️ Apercibido (último: ${a.fechaISO||'—'}). Motivo: ${a.motivo||'—'}`); return; }
+  setEstadoChip('ok', '✅ Sin sanciones');
+}
+function limpiarAperc(){ $('ap-desde').value=hoyISO(); $('ap-hasta').value=hoyISO(); $('ap-res').style.display='none'; $('ap-wrap').style.display='none'; $('ap-tbody').innerHTML=''; }
+function listarAperc(){
+  const d=($('ap-desde').value||'').trim(); const h=($('ap-hasta').value||'').trim();
+  const arr=Store.getSanciones().filter(s=>s.tipo==='apercibimiento');
+  const enRango=arr.filter(s=>{ const f=s.fechaISO||'0001-01-01'; return (!d||f>=d)&&(!h||f<=h); });
+  const wrap=$('ap-wrap'); const tb=$('ap-tbody'); tb.innerHTML=''; wrap.style.display='none';
+  if(!enRango.length){ return; }
+  enRango.sort((a,b)=>(b.fechaISO||'').localeCompare(a.fechaISO||'')); 
+  enRango.forEach(s=>{
+    const tr=document.createElement('tr');
+    const fotoCell=renderFotoCell(s.personaId,s.nombre);
+    tr.innerHTML=`<td>${fotoCell}</td><td>${esc(s.nombre||'—')}</td><td>${esc(s.fechaISO||'—')}</td>`;
+    tb.appendChild(tr);
+  });
+  wrap.style.display='block';
+}
+function suspActivasHoy(){
+  const hoy=hoyISO();
+  return Store.getSanciones().filter(s=> s.tipo==='suspension' && s.activo!==false && s.desdeISO<=hoy && hoy<=s.hastaISO );
+}
+function refrescarSanciones(){
+  const wrap=$('su-wrap'); const tb=$('su-tbody');
+  tb.innerHTML=''; wrap.style.display='none';
+  const act=suspActivasHoy();
+  if(!act.length){ return; }
+  act.sort((a,b)=>(a.hastaISO||'').localeCompare(b.hastaISO||''));
+  act.forEach(s=>{
+    const tr=document.createElement('tr');
+    const fotoCell=renderFotoCell(s.personaId,s.nombre);
+    tr.innerHTML=`<td>${fotoCell}</td><td>${esc(s.nombre||'—')}</td><td>${esc(s.desdeISO||'—')}</td><td>${esc(s.hastaISO||'—')}</td>`;
+    tb.appendChild(tr);
+  });
+  wrap.style.display='block';
+}
+
+/* ========== Consulta ========== */
+function toISO(fecha){
+  if(!fecha) return '0001-01-01';
+  if(/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return fecha;
+  const p=fecha.split('/'); if(p.length!==3) return '0001-01-01';
+  const d=new Date(+p[2],+p[1]-1,+p[0]); return d.toISOString().slice(0,10);
+}
+function filtrarIngresos({id,desdeISO,hastaISO,tipo}){
+  const ing=Store.getIngresos();
+  let d=desdeISO||null, h=hastaISO||null;
+  if(d && !h) h='9999-12-31'; if(!d && h) d='0001-01-01';
+  const filas=ing.filter(x=>{
+    const okId=id?x.dni===id:true;
+    const f=x.isoFecha||toISO(x.fecha);
+    const okF=(d?f>=d:true)&&(h?f<=h:true);
+    const okT=(tipo==='ambos')?true:(x.tipo===tipo);
+    return okId&&okF&&okT;
+  }).sort((a,b)=>{
+    const ka=(a.isoFecha||toISO(a.fecha||''))+' '+(a.hora||'00:00:00');
+    const kb=(b.isoFecha||toISO(b.fecha||''))+' '+(b.hora||'00:00:00');
+    return kb.localeCompare(ka);
+  });
+  return {filas};
+}
+function rangoTotalIngresos(){
+  const ing=Store.getIngresos(); if(!ing.length) return null;
+  let min='9999-12-31', max='0001-01-01';
+  ing.forEach(x=>{ const i = x.isoFecha || toISO(x.fecha); if(i<min) min=i; if(i>max) max=i; });
+  return {min,max};
+}
+function prepararConsultaFull(){
+  const r=rangoTotalIngresos(); if(!r) return;
+  const d=$('c-desde'); const h=$('c-hasta');
+  if(d) d.value=r.min; if(h) h.value=r.max;
+  const id=$('c-id'); const t=$('c-tipo');
+  if(id) id.value=''; if(t) t.value='ambos';
+  consulta();
+}
+function consulta(){
+  const id=($('c-id').value||'').trim();
+  const d=($('c-desde').value||'').trim();
+  const h=($('c-hasta').value||'').trim();
+  const t=$('c-tipo').value;
+  const wrap=$('c-tabla-wrap');
+  const tbody=document.querySelector('#c-tabla tbody');
+  const res=$('c-res');
+  res.className='alerta'; res.style.display='none'; wrap.style.display='none'; tbody.innerHTML='';
+  const {filas}=filtrarIngresos({id,desdeISO:d,hastaISO:h,tipo:t||'ambos'});
+  if(!filas.length){
+    res.style.display='block'; res.classList.add('warn');
+    res.textContent='Sin resultados para los filtros aplicados.'; return;
+  }
+  wrap.style.display='block';
+  for(const x of filas){
+    const tipoTxt=(x.tipo||'').toLowerCase()==='socio'?'Socio':'Invitado';
+    const nombre=x.nombre||'';
+    const fotoCell=renderFotoCell(x.dni,nombre);
+    const acciones=`<div class="row" style="gap:6px">
+      <button class="btn btn-ghost btn-xs" data-id="${esc(x.dni)}" data-nombre="${esc(nombre)}" onclick="openAperc(this)">Aperc.</button>
+      <button class="btn btn-danger btn-xs" data-id="${esc(x.dni)}" data-nombre="${esc(nombre)}" onclick="openSusp(this)">Susp.</button>
+    </div>`;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${fotoCell}</td><td>${tipoTxt}</td><td>${x.dni}</td><td>${x.fecha||'—'}</td><td>${acciones}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+function limpiarConsulta(){
+  const id=$('c-id'); const t=$('c-tipo'); const d=$('c-desde'); const h=$('c-hasta');
+  if(id) id.value=''; if(t) t.value='ambos';
+  const rango=rangoTotalIngresos();
+  if(rango){ if(d)d.value=rango.min; if(h)h.value=rango.max; }
+  const res=$('c-res'); const wrap=$('c-tabla-wrap');
+  if(res){ res.style.display='none'; res.textContent=''; res.className='alerta'; }
+  if(wrap){ wrap.style.display='none'; const tb=document.querySelector('#c-tabla tbody'); if(tb) tb.innerHTML=''; }
+}
+
+/* ========== Modal imagen ========== */
+function abrirImg(el){
+  const src=el?.src||''; const id=el?.dataset?.id||''; const nombre=el?.dataset?.nombre||'';
+  const cap=(nombre?(nombre+' — '):'')+(id||'');
+  const m=$('img-modal'); const img=$('img-modal-img'); const c=$('img-modal-cap'); const sEl=$('img-modal-status');
+  if(img) img.src=src; if(c) c.textContent=cap;
+  let estadoTxt='Estado: —', tipo=null;
+  try{
+    const susp=suspActivaPara(id);
+    if(susp){ estadoTxt=`Estado: Suspendido hasta ${susp.hastaISO}. Motivo: ${susp.motivo||'—'}`; tipo='block'; }
+    else {
+      const a=ultimoApercPara(id);
+      if(a){ estadoTxt=`Estado: Apercibido (último: ${a.fechaISO||'—'}). Motivo: ${a.motivo||'—'}`; tipo='warn'; }
+      else { estadoTxt='Estado: Sin sanciones'; tipo='ok'; }
+    }
+  }catch{}
+  if(sEl){ sEl.textContent=estadoTxt; sEl.className='sub '+(tipo==='block'?'state-block':(tipo==='warn'?'state-warn':'state-ok')); }
+  if(m) m.style.display='flex';
+}
+function cerrarImgModal(){ const m=$('img-modal'); if(m) m.style.display='none'; }
+
+/* ========== Utils visibles ========== */
+function tick(){ const el=$('reloj'); if(el) el.textContent=fTime(now())+' — '+fDate(now()); }
+async function testGuardar(){
+  const base=JSON.stringify({version:2,updatedAt:new Date().toISOString(),ingresos:[{dni:'000',tipo:'invitado',nombre:'Test',fecha:hoyISO(),hora:'00:00:01',isoFecha:hoyISO()}],sanciones:[],fotos:{}},null,2);
+  const info=await ghGetFile(GH.dataFile);
+  const res=await ghPutFile(GH.dataFile, base, `PCQ test ${new Date().toISOString()}`, info.sha||null);
+  alert(res.ok? '✅ Test guardado OK' : '❌ Test error: '+(res.error||'—'));
+}
+function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+function isoAddDays(isoStr,days){ const d=new Date(isoStr+'T00:00:00'); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10);}
+function nombreFalso(){ const ap=['Gómez','Pérez','Rodríguez','López','Fernández','Martínez','García','Sánchez','Romero','Castro','Luna','Suárez','Molina']; const no=['Juan','María','Pedro','Lucía','Sofía','Martín','Valentina','Agustín','Camila','Nicolás','Julián','Carla','Tomás','Bruno']; return `${pick(ap)}, ${pick(no)}`; }
+function dniFalso(){ const len=pick([7,8,9]); let s=''; for(let i=0;i<len;i++) s+=String(randInt(0,9)); return s; }
+async function generarRandomDesdeEnero2026(){
+  const utilsRes=$('utils-alert');
+  const desdeISO='2026-01-01'; const hoy=hoyISO();
+  const fechas=[]; let cur=desdeISO; while(cur<=hoy){ fechas.push(cur); cur=isoAddDays(cur,1); }
+  const tipos=['invitado','socio']; const ingresos=Store.getIngresos(); let creados=0;
+  for(const f of fechas){
+    const n=randInt(0,8);
+    for(let i=0;i<n;i++){
+      const tipo=pick(tipos); const dni=dniFalso();
+      const nombre=(tipo==='invitado')?nombreFalso():`Socio ${dni}`;
+      const hora=`${dos(randInt(8,22))}:${dos(randInt(0,59))}:${dos(randInt(0,59))}`;
+      const dObj=new Date(`${f}T${hora}`);
+      ingresos.push({dni, tipo, nombre, fecha:fDate(dObj), hora, isoFecha:f, rnd:true});
+      creados++;
+    }
+  }
+  Store.setIngresos(ingresos);
+  try{ prepararConsultaFull(); }catch{}
+  const ok=await pushSimple('rnd-gen');
+  if(utilsRes){
+    utilsRes.style.display='block';
+    utilsRes.className='alerta '+(ok.ok?'ok':'warn');
+    utilsRes.textContent = ok.ok? `✅ Generados ${creados} ingresos de prueba y sincronizados.` : `⚠️ Generados ${creados} ingresos de prueba. No se pudo sincronizar (quedan locales).`;
+  }
+}
+async function borrarRandom(){
+  const utilsRes=$('utils-alert');
+  const origIng=Store.getIngresos(); const quedanIng=origIng.filter(x=>!x.rnd); const borradosIng=origIng.length-quedanIng.length; Store.setIngresos(quedanIng);
+  const origSan=Store.getSanciones(); const quedanSan=origSan.filter(x=>!x.rnd); const borradosSan=origSan.length-quedanSan.length; Store.setSanciones(quedanSan);
+  try{ prepararConsultaFull(); refrescarSanciones(); }catch{}
+  const ok=await pushSimple('rnd-del');
+  if(utilsRes){
+    utilsRes.style.display='block';
+    utilsRes.className='alerta '+(ok.ok?'ok':'warn');
+    utilsRes.textContent = ok.ok? `🧹 Borrados ${borradosIng} ingresos y ${borradosSan} sanciones de prueba. Sincronizado.` : `🧹 Borrados ${borradosIng} ingresos y ${borradosSan} sanciones de prueba. No se pudo sincronizar (cambios locales).`;
+  }
+}
+
+/* ========== INIT ========== */
+(function(){
+  tick(); setInterval(tick,1000);
+  ['c-desde','c-hasta','ap-desde','ap-hasta'].forEach(id=>{ const el=$(id); if(el) el.value=hoyISO(); });
+  navClick('ingreso', $('btn-nav-ingreso'));
+  const _dni=$('dni'); _dni?.focus(); _dni?.select?.();
+  updateConnUI();
+  // si hay token y red, intentá sincronizar una vez al inicio
+  if(navigator.onLine && getToken()){
+    pullSimple();
+    setInterval(()=>{ if(navigator.onLine && getToken() && !isDirty()) pullSimple(); }, 20000);
+  } else {
+    showOffline();
+  }
+  window.addEventListener('online', ()=>{ updateConnUI(); if(getToken()) pullSimple(); });
+  window.addEventListener('offline', ()=>{ updateConnUI(); });
+})();
+
+/* ========== Navegación / toggle ========== */
+function navClick(id,btn){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');
+  document.querySelectorAll('main > section').forEach(s=>s.style.display='none');
+  $('sec-'+id).style.display='block';
+  if(id==='ingreso') toggleIngresoFields();
+  if(id==='sanc') refrescarSanciones();
+}
+function toggleIngresoFields(){
+  const t=(document.querySelector('input[name="tipo-ing"]:checked')?.value)||'invitado';
+  $('wrap-dni').style.display=(t==='invitado')?'':'none';
+  $('wrap-socio').style.display=(t==='socio')?'':'none';
+  onIdentificadorChange();
+}
 </script>
 </body>
 </html>
