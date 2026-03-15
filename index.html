@@ -1642,21 +1642,20 @@ async function iniciarSyncConGitHub(){
       document.cookie = name + '=' + encodeURIComponent(String(value||'')) + '; expires=' + d.toUTCString() + '; path=/; SameSite=Lax';
     }catch(_){ }
   }
-  // Override setToken to always persist (cookie + localStorage)
+  // Re-define setToken/getToken to unified behavior (cookie first, then localStorage)
   try {
     window.setToken = function(t){
       const v = String(t||'').trim();
-      writeCookie('pcq_gh_token', v, 365);
-      try{ localStorage.setItem('pcq_gh_token', v); }catch(_){}
+      writeCookie(KEYS.token, v, 365);
+      try{ localStorage.setItem(KEYS.token, v); }catch(_){}
     };
   } catch(_){}
-  // Normalize getToken to read cookie first, then localStorage
   try {
     const __prevGetToken = window.getToken;
     window.getToken = function(){
-      const c = readCookie('pcq_gh_token');
+      const c = readCookie(KEYS.token);
       if(c) return c;
-      try { return localStorage.getItem('pcq_gh_token') || ''; } catch(_) { return (__prevGetToken?__prevGetToken():'' ) || ''; }
+      try { return localStorage.getItem(KEYS.token) || ''; } catch(_) { return (__prevGetToken?__prevGetToken():'' ) || ''; }
     };
   } catch(_){ }
 
@@ -1678,14 +1677,12 @@ async function iniciarSyncConGitHub(){
     }catch(e){ if(typeof setSyncBadge==='function') setSyncBadge('', '☁️ Error'); if(typeof setSyncDebug==='function') setSyncDebug(e?.message||''); }
   }
 
-  // Public: used by the "Conectar" button
   window.conectar = async function(){
     const tk = (typeof getToken==='function') ? getToken() : '';
     if(tk){ await tryConnect(); return; }
     if(typeof abrirActivar==='function'){ abrirActivar(); }
   };
 
-  // Auto-connect on load / when back to tab / when network is back
   window.addEventListener('load', tryConnect);
   window.addEventListener('online', tryConnect);
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) tryConnect(); });
