@@ -344,11 +344,15 @@ const KEYS={
   gistId:'app_gist_id',
   lastSync:'app_lastsync',
   dirty:'app_dirty',
-  sanciones:'app_sanciones'
+  sanciones:'app_sanciones',
+  rndIds:'app_rnd_ids'           // NUEVO: lista de IDs aleatorios
 };
 const BACKUP={ modeKey:'app_backup_mode', repoOwnerKey:'app_repo_owner', repoNameKey:'app_repo_name' };
 const GIST_DESC='Pejerrey Club — Backup (auto)';
-const ACTIVATED_KEY = 'app_activated'; // NUEVO: activación persistente
+const ACTIVATED_KEY = 'app_activated'; // activación persistente
+
+// Imagen local adjunta para aleatorios (colocá el archivo junto al HTML)
+const RANDOM_PHOTO_URL = 'user-icon-icon_1076610-59410.jpg';
 
 let nubeActiva=false, _camStream=null, _syncTimer=null;
 let _apercPersonaId='', _apercNombre='';
@@ -373,7 +377,6 @@ const hoyISO=()=>iso(now());
 const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const isActivated = () => localStorage.getItem(ACTIVATED_KEY) === '1';
 const setActivated = (v) => localStorage.setItem(ACTIVATED_KEY, v ? '1' : '0');
-
 function setSyncBadge(state,text){ const el=document.getElementById('sync-badge'); if(!el) return; el.textContent=text; el.className='chip '+(state||''); }
 
 /* ======= RELOJ / NAV ======= */
@@ -542,10 +545,7 @@ function registrarIngreso(){
 function renderFotoCell(personaId, nombre){
   const foto=getFoto(personaId); if(!foto) return '—';
   const safeSrc=String(foto).replace(/"/g,'&quot;');
-  const safeAlt=`Foto de ${nombre||''} (${personaId||''})`.replace(/"/g,'&quot;');
-  const safeNom=String(nombre||'').replace(/"/g,'&quot;');
-  const safeId=String(personaId||'').replace(/"/g,'&quot;');
-  return `<img class="thumb" src="${safeSrc}" alt="${safeAlt}" data-id="${safeId}" data-nombre="${safeNom}" onclick="abrirImg(this)" />`;
+  return `${safeSrc}`;
 }
 function limpiarConsulta(){
   ['consulta-id','consulta-desde','consulta-hasta'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
@@ -624,7 +624,7 @@ function guardarAperc(){
   if(!motivo){ document.getElementById('aperc-msg').textContent='Ingresá un motivo.'; return; }
   const arr=getSanciones();
   arr.push({ id:'ap-'+Date.now(), tipo:'apercibimiento', personaId:_apercPersonaId, nombre:_apercNombre, motivo, fechaISO: hoyISO() });
-  setSanciones(arr);
+  setSanciones(arr); markDirty();
   closeAperc();
   alert('Apercibimiento registrado.');
   updateEstadoChip();
@@ -648,7 +648,7 @@ function guardarSusp(){
   if(hastaISO<desdeISO){ document.getElementById('susp-msg').textContent='La fecha fin no puede ser anterior al inicio.'; return; }
   const arr=getSanciones();
   arr.push({ id:'su-'+Date.now(), tipo:'suspension', personaId:_suspPersonaId, nombre:_suspNombre, motivo, desdeISO, hastaISO, fechaISO:hoyISO(), activo:true });
-  setSanciones(arr);
+  setSanciones(arr); markDirty();
   closeSusp();
   alert('Suspensión registrada.');
   updateEstadoChip();
@@ -843,7 +843,7 @@ async function guardarYActivar(){
   }
 }
 async function validarToken(){
-  if(!online()) return {ok:true,modo:'local'}; // offline: considerar OK para uso local
+  if(!online()) return {ok:true,modo:'local'}; // offline: permitir uso local activado
   const token=getToken(); if(!token) return {ok:false,error:'Falta token'};
   try{
     setSyncBadge('syncing','☁️ Sincronizando…');
@@ -871,6 +871,8 @@ async function validarToken(){
 function ghHeaders(){ return {'Accept':'application/vnd.github+json','Authorization':'Bearer '+getToken(),'X-GitHub-Api-Version':'2022-11-28'}; }
 function b64(s){ return btoa(unescape(encodeURIComponent(s))); }
 async function ghUser(){ const r=await fetch('https://api.github.com/user',{headers:ghHeaders(),mode:'cors',cache:'no-store'}); if(!r.ok) throw new Error('user:'+r.status); return await r.json(); }
+
+/* Pull/Push Gist */
 async function discoverGistId(){
   for(let page=1; page<=5; page++){
     const r=await fetch(`https://api.github.com/gists?per_page=50&page=${page}`,{headers:ghHeaders(),mode:'cors',cache:'no-store'});
@@ -892,13 +894,18 @@ async function pullFromGist(gid){
     if(f.content) return JSON.parse(f.content);
     const rr=await fetch(f.raw_url,{mode:'cors',cache:'no-store'}); return await rr.json();
   }
-  return {ingresos:await readFile('ingresos.json')||[],fotos:await readFile('fotos.json')||{}};
+  return {
+    ingresos: await readFile('ingresos.json')||[],
+    fotos:     await readFile('fotos.json')||{},
+    sanciones: await readFile('sanciones.json')||[]   // <-- NUEVO
+  };
 }
 async function createGistFromLocal(){
   const body={ description:GIST_DESC, public:false, files:{
     'ingresos.json':{content:JSON.stringify(getIngresos(),null,2)},
-    'fotos.json':{content:JSON.stringify(getFotosMap(),null,2)},
-    'meta.json':{content:JSON.stringify({createdAt:new Date().toISOString(),app:'PejerreyClub'},null,2)}
+    'fotos.json':   {content:JSON.stringify(getFotosMap(),null,2)},
+    'sanciones.json':{content:JSON.stringify(getSanciones(),null,2)},  // <-- NUEVO
+    'meta.json':    {content:JSON.stringify({createdAt:new Date().toISOString(),app:'PejerreyClub'},null,2)}
   }};
   const r=await fetch('https://api.github.com/gists',{method:'POST',headers:ghHeaders(),mode:'cors',cache:'no-store',body:JSON.stringify(body)});
   if(!r.ok){
@@ -913,14 +920,17 @@ async function createGistFromLocal(){
 async function patchGist(gid){
   const body={ files:{
     'ingresos.json':{content:JSON.stringify(getIngresos(),null,2)},
-    'fotos.json':{content:JSON.stringify(getFotosMap(),null,2)},
-    'meta.json':{content:JSON.stringify({updatedAt:new Date().toISOString(),app:'PejerreyClub'},null,2)}
+    'fotos.json':   {content:JSON.stringify(getFotosMap(),null,2)},
+    'sanciones.json':{content:JSON.stringify(getSanciones(),null,2)},    // <-- NUEVO
+    'meta.json':    {content:JSON.stringify({updatedAt:new Date().toISOString(),app:'PejerreyClub'},null,2)}
   }};
   const r=await fetch('https://api.github.com/gists/'+gid,{method:'PATCH',headers:ghHeaders(),mode:'cors',cache:'no-store',body:JSON.stringify(body)});
   if(!r.ok) throw new Error('GIST_PATCH:'+r.status);
   localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now()));
   clearDirty();
 }
+
+/* Repo (fallback) */
 async function ensureRepo(owner,name){
   let r=await fetch(`https://api.github.com/repos/${owner}/${name}`,{headers:ghHeaders(),mode:'cors',cache:'no-store'});
   if(r.status===404){
@@ -951,13 +961,28 @@ async function getFileJson(owner, repo, path){
   if(!r.ok) throw new Error('GET_FILE:'+r.status);
   const j=await r.json(); const raw=atob(j.content||''); return JSON.parse(decodeURIComponent(escape(raw)));
 }
+
+/* ======= MERGE ======= */
+function toISO2(fecha){ if(!fecha) return '0001-01-01'; if(/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return fecha; return toISO(fecha); }
 function mergeIngresos(localArr, remoteArr){
-  const key=x=>[x.dni||'',x.isoFecha||toISO(x.fecha||''),x.hora||'',x.tipo||'',x.nombre||''].join('|');
+  const key=x=>[x.dni||'',(x.isoFecha||toISO2(x.fecha||'')),x.hora||'',x.tipo||'',x.nombre||''].join('|');
   const map=new Map(); [...localArr,...remoteArr].forEach(x=>map.set(key(x),x));
-  return Array.from(map.values()).sort((a,b)=> ((b.isoFecha||toISO(b.fecha||''))+' '+(b.hora||'00:00:00')).localeCompare((a.isoFecha||toISO(a.fecha||''))+' '+(a.hora||'00:00:00')) );
+  return Array.from(map.values()).sort((a,b)=> ((b.isoFecha||toISO2(b.fecha||''))+' '+(b.hora||'00:00:00')).localeCompare((a.isoFecha||toISO2(a.fecha||''))+' '+(a.hora||'00:00:00')) );
 }
 function mergeFotos(localMap, remoteMap){ return {...remoteMap, ...localMap}; }
+function mergeSanciones(localArr, remoteArr){
+  // Preferimos por id; si no, por (personaId|tipo|fechaISO|desdeISO|hastaISO|motivo)
+  const k = s => (s.id && String(s.id)) || [
+    s.personaId||'', s.tipo||'',
+    s.fechaISO||'', s.desdeISO||'', s.hastaISO||'',
+    (s.motivo||'').slice(0,80) // acorta para clave
+  ].join('|');
+  const map=new Map();
+  [...remoteArr, ...localArr].forEach(s=>map.set(k(s), s)); // local pisa remoto
+  return Array.from(map.values()).sort((a,b)=> (b.fechaISO||b.desdeISO||'').localeCompare(a.fechaISO||a.desdeISO||''));
+}
 
+/* ======= BOOTSTRAP / SYNC ======= */
 async function bootstrapFromGitHub(){
   if(!nubeActiva || !online()) return;
   setSyncBadge('ok','☁️ Datos online');
@@ -970,10 +995,11 @@ async function bootstrapFromGitHub(){
         const remote=await pullFromGist(gid);
         const ing=mergeIngresos(getIngresos(),remote.ingresos||[]);
         const fot=mergeFotos(getFotosMap(),remote.fotos||{});
-        save(KEYS.ingresos,ing); save(KEYS.fotos,fot);
+        const san=mergeSanciones(getSanciones(),remote.sanciones||[]);
+        save(KEYS.ingresos,ing); save(KEYS.fotos,fot); save(KEYS.sanciones,san);
         await patchGist(gid); return;
       }
-      const hasLocal=getIngresos().length || Object.keys(getFotosMap()).length;
+      const hasLocal=getIngresos().length || Object.keys(getFotosMap()).length || getSanciones().length;
       if(hasLocal){ await createGistFromLocal(); return; }
       return;
     }catch(e){
@@ -986,11 +1012,14 @@ async function bootstrapFromGitHub(){
     await ensureRepo(owner,repo);
     const rIng=await getFileJson(owner,repo,'ingresos.json')||[];
     const rFot=await getFileJson(owner,repo,'fotos.json')||{};
+    const rSan=await getFileJson(owner,repo,'sanciones.json')||[];
     const ing=mergeIngresos(getIngresos(), rIng);
     const fot=mergeFotos(getFotosMap(), rFot);
-    save(KEYS.ingresos,ing); save(KEYS.fotos,fot);
+    const san=mergeSanciones(getSanciones(), rSan);
+    save(KEYS.ingresos,ing); save(KEYS.fotos,fot); save(KEYS.sanciones,san);
     await putFileJson(owner,repo,'ingresos.json',ing,'sync: ingresos');
     await putFileJson(owner,repo,'fotos.json',fot,'sync: fotos');
+    await putFileJson(owner,repo,'sanciones.json',san,'sync: sanciones'); // NUEVO
     await putFileJson(owner,repo,'meta.json',{updatedAt:new Date().toISOString(),app:'PejerreyClub'},'sync: meta');
     localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now()));
   }catch(e){ setSyncBadge('err','☁️ Datos local'); }
@@ -1016,6 +1045,7 @@ async function persistir(){
     await ensureRepo(owner,repo);
     await putFileJson(owner,repo,'ingresos.json',getIngresos(),'sync: ingresos');
     await putFileJson(owner,repo,'fotos.json',getFotosMap(),'sync: fotos');
+    await putFileJson(owner,repo,'sanciones.json',getSanciones(),'sync: sanciones'); // NUEVO
     await putFileJson(owner,repo,'meta.json',{updatedAt:new Date().toISOString(),app:'PejerreyClub'},'sync: meta');
     localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now()));
     clearDirty(); setSyncBadge('ok','☁️ Datos online');
@@ -1070,7 +1100,7 @@ function generarRandomDesdeEnero2026(){
 
   const lista = getIngresos();
   const fotos = getFotosMap();
-  const URL_NO_FOTO = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/450px-No_image_available.svg.png?20221208232400';
+  const rndIds = new Set(getRndIds());
 
   let creados = 0;
   for(let i=0;i<100;i++){
@@ -1080,11 +1110,13 @@ function generarRandomDesdeEnero2026(){
     const ts = new Date(start.getTime() + Math.random()*(end.getTime()-start.getTime()));
     ts.setHours(rnd(8,20), rnd(0,59), rnd(0,59), 0);
     lista.push({dni:id, tipo, nombre, fecha:fDate(ts), hora:fTime(ts), isoFecha:toISOo(ts), rnd:true});
-    if(!fotos[id]) fotos[id] = URL_NO_FOTO;
+    if(!fotos[id]) fotos[id] = RANDOM_PHOTO_URL; // <-- usa imagen adjunta
+    rndIds.add(id);
     creados++;
   }
   save(KEYS.ingresos, lista);
   setFotosMap(fotos);
+  setRndIds(Array.from(rndIds));
   markDirty();
 
   const el = document.getElementById('backup-alert');
@@ -1106,6 +1138,43 @@ function generarRandomDesdeEnero2026(){
   }
 }
 
+function borrarRandom(){
+  const rndIds = new Set(getRndIds());
+  if(!rndIds.size){
+    const el = document.getElementById('backup-alert'); if(el) el.textContent = 'No hay datos aleatorios para borrar.';
+    return;
+  }
+  const ing0 = getIngresos();
+  const ing = ing0.filter(x=> !x.rnd && !rndIds.has(x.dni));
+  save(KEYS.ingresos, ing);
+
+  // Fotos asociadas a IDs aleatorios
+  const fot = getFotosMap();
+  rndIds.forEach(id=>{ if(fot[id]) delete fot[id]; });
+  setFotosMap(fot);
+
+  // Sanciones asociadas a IDs aleatorios (por si se cargaron mientras probabas)
+  const san0 = getSanciones();
+  const san = san0.filter(s=> !s.rnd && !rndIds.has(s.personaId));
+  setSanciones(san);
+
+  // Limpiar registro de IDs aleatorios
+  setRndIds([]);
+  markDirty();
+
+  const el = document.getElementById('backup-alert');
+  if(el) el.textContent = '🧹 Datos aleatorios eliminados.';
+
+  // Refrescar Consulta para ver el efecto
+  try{
+    navClick('consulta', document.getElementById('btn-nav-consulta'));
+    const d = document.getElementById('consulta-desde'); const h = document.getElementById('consulta-hasta');
+    if(d) d.value = '2026-01-01'; if(h) h.value = hoyISO();
+    const id = document.getElementById('consulta-id'); if(id) id.value = '';
+    consulta();
+  }catch(e){}
+}
+
 /* ======= STORAGE HELPERS ======= */
 function getIngresos(){ return load(KEYS.ingresos,[]); }
 function getFotosMap(){ return load(KEYS.fotos,{}); }
@@ -1113,6 +1182,8 @@ function setFotosMap(m){ save(KEYS.fotos,m||{}); }
 function getFoto(id){ const m=getFotosMap(); return m[id]; }
 function getSanciones(){ return load(KEYS.sanciones,[]); }
 function setSanciones(a){ save(KEYS.sanciones,a||[]); }
+function getRndIds(){ return load(KEYS.rndIds,[]); }
+function setRndIds(a){ save(KEYS.rndIds,a||[]); }
 function markDirty(){ localStorage.setItem(KEYS.dirty,'1'); }
 function clearDirty(){ localStorage.removeItem(KEYS.dirty); }
 function hayPendientes(){ return !!localStorage.getItem(KEYS.dirty); }
