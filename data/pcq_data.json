@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-03-15T06:11:20.091Z",
+  "updatedAt": "2026-03-15T06:11:41.956Z",
   "ingresos": [
     {
       "dni": "000",
@@ -25,6 +25,2535 @@
       "fecha": "15/03/2026",
       "hora": "03:11:20",
       "isoFecha": "2026-03-15"
+    },
+    {
+      "dni": "09585524",
+      "tipo": "socio",
+      "nombre": "Socio 09585524",
+      "fecha": "01/01/2026",
+      "hora": "08:58:26",
+      "isoFecha": "2026-01-01",
+      "rnd": true
+    },
+    {
+      "dni": "8238556",
+      "tipo": "socio",
+      "nombre": "Socio 8238556",
+      "fecha": "01/01/2026",
+      "hora": "21:30:33",
+      "isoFecha": "2026-01-01",
+      "rnd": true
+    },
+    {
+      "dni": "445331054",
+      "tipo": "invitado",
+      "nombre": "García, Valentina",
+      "fecha": "01/01/2026",
+      "hora": "16:07:58",
+      "isoFecha": "2026-01-01",
+      "rnd": true
+    },
+    {
+      "dni": "26138625",
+      "tipo": "invitado",
+      "nombre": "Sánchez, Pedro",
+      "fecha": "01/01/2026",
+      "hora": "21:09:33",
+      "isoFecha": "2026-01-01",
+      "rnd": true
+    },
+    {
+      "dni": "7573465",
+      "tipo": "socio",
+      "nombre": "Socio 7573465",
+      "fecha": "01/01/2026",
+      "hora": "22:28:00",
+      "isoFecha": "2026-01-01",
+      "rnd": true
+    },
+    {
+      "dni": "62651059",
+      "tipo": "invitado",
+      "nombre": "Martínez, Juan",
+      "fecha": "01/01/2026",
+      "hora": "18:53:12",
+      "isoFecha": "2026-01-01",
+      "rnd": true
+    },
+    {
+      "dni": "229702328",
+      "tipo": "invitado",
+      "nombre": "Romero, Tomás",
+      "fecha": "01/01/2026",
+      "hora": "15:25:06",
+      "isoFecha": "2026-01-01",
+      "rnd": true
+    },
+    {
+      "dni": "876883249",
+      "tipo": "invitado",
+      "nombre": "Suárez, Camila",
+      "fecha": "01/01/2026",
+      "hora": "09:12:23",
+      "isoFecha": "2026-01-01",
+      "rnd": true
+    },
+    {
+      "dni": "1385547",
+      "tipo": "invitado",
+      "nombre": "García, Lucía",
+      "fecha": "02/01/2026",
+      "hora": "09:04:31",
+      "isoFecha": "2026-01-02",
+      "rnd": true
+    },
+    {
+      "dni": "51418766",
+      "tipo": "socio",
+      "nombre": "Socio 51418766",
+      "fecha": "02/01/2026",
+      "hora": "16:39:21",
+      "isoFecha": "2026-01-02",
+      "rnd": true
+    },
+    {
+      "dni": "612104266",
+      "tipo": "socio",
+      "nombre": "Socio 612104266",
+      "fecha": "02/01/2026",
+      "hora": "16:27:37",
+      "isoFecha": "2026-01-02",
+      "rnd": true
+    },
+    {
+      "dni": "0652754",
+      "tipo": "invitado",
+      "nombre": "Rodríguez, Carla",
+      "fecha": "02/01/2026",
+      "hora": "11:29:03",
+      "isoFecha": "2026-01-02",
+      "rnd": true
+    },
+    {
+      "dni": "8208653",
+      "tipo": "invitado",
+      "nombre": "Romero, Juan",
+      "fecha": "02/01/2026",
+      "hora": "10:05:00",
+      "isoFecha": "2026-01-02",
+      "rnd": true
+    },
+    {
+      "dni": "930967490",
+      "tipo": "invitado",
+      "nombre": "Suárez, Bruno",
+      "fecha": "04/01/2026",
+      "hora": "11:06:32",
+      "isoFecha": "2026-01-04",
+      "rnd": true
+    },
+    {
+      "dni": "0589813",
+      "tipo": "socio",
+      "nombre": "Socio 0589813",
+      "fecha": "04/01/2026",
+      "hora": "10:05:49",
+      "isoFecha": "2026-01-04",
+      "rnd": true
+    },
+    {
+      "dni": "091646345",
+      "tipo": "invitado",
+      "nombre": "Gómez, Agustín",
+      "fecha": "04/01/2026",
+      "hora": "13:48:37",
+      "isoFecha": "2026-01-04",
+      "rnd": true
+    },
+    {
+      "dni": "17278736",
+      "tipo": "invitado",
+      "nombre": "García, Sofía",
+      "fecha": "04/01/2026",
+      "hora": "11:36:08",
+      "isoFecha": "2026-01-04",
+      "rnd": true
+    },
+    {
+      "dni": "597195826",
+      "tipo": "invitado",
+      "nombre": "López, Pedro",
+      "fecha": "04/01/2026",
+      "hora": "18:23:27",
+      "isoFecha": "2026-01-04",
+      "rnd": true
+    },
+    {
+      "dni": "19360938",
+      "tipo": "socio",
+      "nombre": "Socio 19360938",
+      "fecha": "04/01/2026",
+      "hora": "09:07:36",
+      "isoFecha": "2026-01-04",
+      "rnd": true
+    },
+    {
+      "dni": "24720697",
+      "tipo": "socio",
+      "nombre": "Socio 24720697",
+      "fecha": "04/01/2026",
+      "hora": "20:49:40",
+      "isoFecha": "2026-01-04",
+      "rnd": true
+    },
+    {
+      "dni": "00269183",
+      "tipo": "socio",
+      "nombre": "Socio 00269183",
+      "fecha": "05/01/2026",
+      "hora": "13:22:18",
+      "isoFecha": "2026-01-05",
+      "rnd": true
+    },
+    {
+      "dni": "3361480",
+      "tipo": "invitado",
+      "nombre": "Pérez, Valentina",
+      "fecha": "05/01/2026",
+      "hora": "10:38:45",
+      "isoFecha": "2026-01-05",
+      "rnd": true
+    },
+    {
+      "dni": "055398364",
+      "tipo": "socio",
+      "nombre": "Socio 055398364",
+      "fecha": "05/01/2026",
+      "hora": "12:15:00",
+      "isoFecha": "2026-01-05",
+      "rnd": true
+    },
+    {
+      "dni": "5119152",
+      "tipo": "socio",
+      "nombre": "Socio 5119152",
+      "fecha": "05/01/2026",
+      "hora": "15:34:17",
+      "isoFecha": "2026-01-05",
+      "rnd": true
+    },
+    {
+      "dni": "46517847",
+      "tipo": "invitado",
+      "nombre": "Luna, Julián",
+      "fecha": "05/01/2026",
+      "hora": "11:32:23",
+      "isoFecha": "2026-01-05",
+      "rnd": true
+    },
+    {
+      "dni": "46923581",
+      "tipo": "socio",
+      "nombre": "Socio 46923581",
+      "fecha": "05/01/2026",
+      "hora": "17:59:02",
+      "isoFecha": "2026-01-05",
+      "rnd": true
+    },
+    {
+      "dni": "16743230",
+      "tipo": "invitado",
+      "nombre": "López, Bruno",
+      "fecha": "06/01/2026",
+      "hora": "21:37:15",
+      "isoFecha": "2026-01-06",
+      "rnd": true
+    },
+    {
+      "dni": "63564871",
+      "tipo": "socio",
+      "nombre": "Socio 63564871",
+      "fecha": "08/01/2026",
+      "hora": "11:47:55",
+      "isoFecha": "2026-01-08",
+      "rnd": true
+    },
+    {
+      "dni": "7527944",
+      "tipo": "socio",
+      "nombre": "Socio 7527944",
+      "fecha": "08/01/2026",
+      "hora": "22:24:38",
+      "isoFecha": "2026-01-08",
+      "rnd": true
+    },
+    {
+      "dni": "990370712",
+      "tipo": "invitado",
+      "nombre": "Molina, Camila",
+      "fecha": "08/01/2026",
+      "hora": "20:29:06",
+      "isoFecha": "2026-01-08",
+      "rnd": true
+    },
+    {
+      "dni": "8211095",
+      "tipo": "invitado",
+      "nombre": "Pérez, Pedro",
+      "fecha": "08/01/2026",
+      "hora": "11:42:40",
+      "isoFecha": "2026-01-08",
+      "rnd": true
+    },
+    {
+      "dni": "531453603",
+      "tipo": "socio",
+      "nombre": "Socio 531453603",
+      "fecha": "08/01/2026",
+      "hora": "11:33:53",
+      "isoFecha": "2026-01-08",
+      "rnd": true
+    },
+    {
+      "dni": "725260140",
+      "tipo": "socio",
+      "nombre": "Socio 725260140",
+      "fecha": "08/01/2026",
+      "hora": "09:53:28",
+      "isoFecha": "2026-01-08",
+      "rnd": true
+    },
+    {
+      "dni": "308929880",
+      "tipo": "socio",
+      "nombre": "Socio 308929880",
+      "fecha": "08/01/2026",
+      "hora": "16:36:59",
+      "isoFecha": "2026-01-08",
+      "rnd": true
+    },
+    {
+      "dni": "48393389",
+      "tipo": "invitado",
+      "nombre": "Pérez, Nicolás",
+      "fecha": "08/01/2026",
+      "hora": "14:05:43",
+      "isoFecha": "2026-01-08",
+      "rnd": true
+    },
+    {
+      "dni": "705789007",
+      "tipo": "invitado",
+      "nombre": "Rodríguez, Juan",
+      "fecha": "09/01/2026",
+      "hora": "20:08:35",
+      "isoFecha": "2026-01-09",
+      "rnd": true
+    },
+    {
+      "dni": "149171061",
+      "tipo": "socio",
+      "nombre": "Socio 149171061",
+      "fecha": "09/01/2026",
+      "hora": "16:51:27",
+      "isoFecha": "2026-01-09",
+      "rnd": true
+    },
+    {
+      "dni": "9773850",
+      "tipo": "invitado",
+      "nombre": "Fernández, Agustín",
+      "fecha": "09/01/2026",
+      "hora": "11:39:08",
+      "isoFecha": "2026-01-09",
+      "rnd": true
+    },
+    {
+      "dni": "84846011",
+      "tipo": "socio",
+      "nombre": "Socio 84846011",
+      "fecha": "10/01/2026",
+      "hora": "13:28:17",
+      "isoFecha": "2026-01-10",
+      "rnd": true
+    },
+    {
+      "dni": "41134645",
+      "tipo": "socio",
+      "nombre": "Socio 41134645",
+      "fecha": "10/01/2026",
+      "hora": "21:50:08",
+      "isoFecha": "2026-01-10",
+      "rnd": true
+    },
+    {
+      "dni": "673012857",
+      "tipo": "socio",
+      "nombre": "Socio 673012857",
+      "fecha": "10/01/2026",
+      "hora": "08:24:44",
+      "isoFecha": "2026-01-10",
+      "rnd": true
+    },
+    {
+      "dni": "244765540",
+      "tipo": "socio",
+      "nombre": "Socio 244765540",
+      "fecha": "10/01/2026",
+      "hora": "19:22:51",
+      "isoFecha": "2026-01-10",
+      "rnd": true
+    },
+    {
+      "dni": "420200508",
+      "tipo": "socio",
+      "nombre": "Socio 420200508",
+      "fecha": "11/01/2026",
+      "hora": "14:35:28",
+      "isoFecha": "2026-01-11",
+      "rnd": true
+    },
+    {
+      "dni": "7882099",
+      "tipo": "socio",
+      "nombre": "Socio 7882099",
+      "fecha": "11/01/2026",
+      "hora": "17:22:57",
+      "isoFecha": "2026-01-11",
+      "rnd": true
+    },
+    {
+      "dni": "184659928",
+      "tipo": "socio",
+      "nombre": "Socio 184659928",
+      "fecha": "11/01/2026",
+      "hora": "17:34:35",
+      "isoFecha": "2026-01-11",
+      "rnd": true
+    },
+    {
+      "dni": "8092706",
+      "tipo": "invitado",
+      "nombre": "Fernández, Agustín",
+      "fecha": "12/01/2026",
+      "hora": "18:25:21",
+      "isoFecha": "2026-01-12",
+      "rnd": true
+    },
+    {
+      "dni": "8663214",
+      "tipo": "socio",
+      "nombre": "Socio 8663214",
+      "fecha": "12/01/2026",
+      "hora": "14:47:03",
+      "isoFecha": "2026-01-12",
+      "rnd": true
+    },
+    {
+      "dni": "140195372",
+      "tipo": "socio",
+      "nombre": "Socio 140195372",
+      "fecha": "12/01/2026",
+      "hora": "17:14:24",
+      "isoFecha": "2026-01-12",
+      "rnd": true
+    },
+    {
+      "dni": "0447695",
+      "tipo": "invitado",
+      "nombre": "Pérez, Nicolás",
+      "fecha": "12/01/2026",
+      "hora": "21:44:19",
+      "isoFecha": "2026-01-12",
+      "rnd": true
+    },
+    {
+      "dni": "596331510",
+      "tipo": "invitado",
+      "nombre": "Romero, Sofía",
+      "fecha": "12/01/2026",
+      "hora": "18:29:32",
+      "isoFecha": "2026-01-12",
+      "rnd": true
+    },
+    {
+      "dni": "076915556",
+      "tipo": "invitado",
+      "nombre": "Castro, Bruno",
+      "fecha": "12/01/2026",
+      "hora": "21:00:26",
+      "isoFecha": "2026-01-12",
+      "rnd": true
+    },
+    {
+      "dni": "0607604",
+      "tipo": "socio",
+      "nombre": "Socio 0607604",
+      "fecha": "12/01/2026",
+      "hora": "19:56:51",
+      "isoFecha": "2026-01-12",
+      "rnd": true
+    },
+    {
+      "dni": "10004368",
+      "tipo": "socio",
+      "nombre": "Socio 10004368",
+      "fecha": "12/01/2026",
+      "hora": "20:56:11",
+      "isoFecha": "2026-01-12",
+      "rnd": true
+    },
+    {
+      "dni": "719548326",
+      "tipo": "invitado",
+      "nombre": "Sánchez, Valentina",
+      "fecha": "13/01/2026",
+      "hora": "18:48:51",
+      "isoFecha": "2026-01-13",
+      "rnd": true
+    },
+    {
+      "dni": "99593873",
+      "tipo": "invitado",
+      "nombre": "Rodríguez, Bruno",
+      "fecha": "13/01/2026",
+      "hora": "17:15:21",
+      "isoFecha": "2026-01-13",
+      "rnd": true
+    },
+    {
+      "dni": "1692165",
+      "tipo": "socio",
+      "nombre": "Socio 1692165",
+      "fecha": "13/01/2026",
+      "hora": "20:18:00",
+      "isoFecha": "2026-01-13",
+      "rnd": true
+    },
+    {
+      "dni": "327608945",
+      "tipo": "invitado",
+      "nombre": "Pérez, Bruno",
+      "fecha": "13/01/2026",
+      "hora": "17:59:19",
+      "isoFecha": "2026-01-13",
+      "rnd": true
+    },
+    {
+      "dni": "6228583",
+      "tipo": "socio",
+      "nombre": "Socio 6228583",
+      "fecha": "13/01/2026",
+      "hora": "12:08:25",
+      "isoFecha": "2026-01-13",
+      "rnd": true
+    },
+    {
+      "dni": "96940121",
+      "tipo": "socio",
+      "nombre": "Socio 96940121",
+      "fecha": "13/01/2026",
+      "hora": "09:24:24",
+      "isoFecha": "2026-01-13",
+      "rnd": true
+    },
+    {
+      "dni": "07801463",
+      "tipo": "socio",
+      "nombre": "Socio 07801463",
+      "fecha": "13/01/2026",
+      "hora": "09:14:23",
+      "isoFecha": "2026-01-13",
+      "rnd": true
+    },
+    {
+      "dni": "2224962",
+      "tipo": "socio",
+      "nombre": "Socio 2224962",
+      "fecha": "13/01/2026",
+      "hora": "12:03:26",
+      "isoFecha": "2026-01-13",
+      "rnd": true
+    },
+    {
+      "dni": "3578442",
+      "tipo": "invitado",
+      "nombre": "Pérez, Camila",
+      "fecha": "15/01/2026",
+      "hora": "14:15:42",
+      "isoFecha": "2026-01-15",
+      "rnd": true
+    },
+    {
+      "dni": "996501058",
+      "tipo": "socio",
+      "nombre": "Socio 996501058",
+      "fecha": "15/01/2026",
+      "hora": "11:27:29",
+      "isoFecha": "2026-01-15",
+      "rnd": true
+    },
+    {
+      "dni": "60404368",
+      "tipo": "socio",
+      "nombre": "Socio 60404368",
+      "fecha": "15/01/2026",
+      "hora": "12:15:57",
+      "isoFecha": "2026-01-15",
+      "rnd": true
+    },
+    {
+      "dni": "200972220",
+      "tipo": "invitado",
+      "nombre": "Molina, Camila",
+      "fecha": "15/01/2026",
+      "hora": "20:06:28",
+      "isoFecha": "2026-01-15",
+      "rnd": true
+    },
+    {
+      "dni": "2042604",
+      "tipo": "socio",
+      "nombre": "Socio 2042604",
+      "fecha": "15/01/2026",
+      "hora": "15:22:06",
+      "isoFecha": "2026-01-15",
+      "rnd": true
+    },
+    {
+      "dni": "08520030",
+      "tipo": "socio",
+      "nombre": "Socio 08520030",
+      "fecha": "15/01/2026",
+      "hora": "22:58:54",
+      "isoFecha": "2026-01-15",
+      "rnd": true
+    },
+    {
+      "dni": "30620815",
+      "tipo": "invitado",
+      "nombre": "Fernández, Valentina",
+      "fecha": "16/01/2026",
+      "hora": "16:27:02",
+      "isoFecha": "2026-01-16",
+      "rnd": true
+    },
+    {
+      "dni": "212848821",
+      "tipo": "invitado",
+      "nombre": "Suárez, Bruno",
+      "fecha": "16/01/2026",
+      "hora": "22:09:42",
+      "isoFecha": "2026-01-16",
+      "rnd": true
+    },
+    {
+      "dni": "747353469",
+      "tipo": "socio",
+      "nombre": "Socio 747353469",
+      "fecha": "16/01/2026",
+      "hora": "12:48:38",
+      "isoFecha": "2026-01-16",
+      "rnd": true
+    },
+    {
+      "dni": "25320118",
+      "tipo": "socio",
+      "nombre": "Socio 25320118",
+      "fecha": "16/01/2026",
+      "hora": "09:51:10",
+      "isoFecha": "2026-01-16",
+      "rnd": true
+    },
+    {
+      "dni": "83977202",
+      "tipo": "invitado",
+      "nombre": "Molina, Valentina",
+      "fecha": "16/01/2026",
+      "hora": "16:21:48",
+      "isoFecha": "2026-01-16",
+      "rnd": true
+    },
+    {
+      "dni": "29187375",
+      "tipo": "invitado",
+      "nombre": "Molina, Valentina",
+      "fecha": "16/01/2026",
+      "hora": "16:21:06",
+      "isoFecha": "2026-01-16",
+      "rnd": true
+    },
+    {
+      "dni": "0786926",
+      "tipo": "invitado",
+      "nombre": "Castro, Juan",
+      "fecha": "17/01/2026",
+      "hora": "09:55:25",
+      "isoFecha": "2026-01-17",
+      "rnd": true
+    },
+    {
+      "dni": "54471028",
+      "tipo": "invitado",
+      "nombre": "Pérez, Julián",
+      "fecha": "18/01/2026",
+      "hora": "14:23:34",
+      "isoFecha": "2026-01-18",
+      "rnd": true
+    },
+    {
+      "dni": "2441374",
+      "tipo": "socio",
+      "nombre": "Socio 2441374",
+      "fecha": "19/01/2026",
+      "hora": "17:25:26",
+      "isoFecha": "2026-01-19",
+      "rnd": true
+    },
+    {
+      "dni": "292347734",
+      "tipo": "socio",
+      "nombre": "Socio 292347734",
+      "fecha": "19/01/2026",
+      "hora": "16:22:59",
+      "isoFecha": "2026-01-19",
+      "rnd": true
+    },
+    {
+      "dni": "4866433",
+      "tipo": "socio",
+      "nombre": "Socio 4866433",
+      "fecha": "19/01/2026",
+      "hora": "15:17:09",
+      "isoFecha": "2026-01-19",
+      "rnd": true
+    },
+    {
+      "dni": "209039168",
+      "tipo": "invitado",
+      "nombre": "López, Carla",
+      "fecha": "19/01/2026",
+      "hora": "17:37:58",
+      "isoFecha": "2026-01-19",
+      "rnd": true
+    },
+    {
+      "dni": "2876210",
+      "tipo": "invitado",
+      "nombre": "Luna, Tomás",
+      "fecha": "20/01/2026",
+      "hora": "20:57:02",
+      "isoFecha": "2026-01-20",
+      "rnd": true
+    },
+    {
+      "dni": "85513075",
+      "tipo": "invitado",
+      "nombre": "Molina, Camila",
+      "fecha": "21/01/2026",
+      "hora": "20:16:31",
+      "isoFecha": "2026-01-21",
+      "rnd": true
+    },
+    {
+      "dni": "32965023",
+      "tipo": "invitado",
+      "nombre": "García, Sofía",
+      "fecha": "21/01/2026",
+      "hora": "08:53:03",
+      "isoFecha": "2026-01-21",
+      "rnd": true
+    },
+    {
+      "dni": "6825770",
+      "tipo": "invitado",
+      "nombre": "Suárez, Bruno",
+      "fecha": "21/01/2026",
+      "hora": "15:46:58",
+      "isoFecha": "2026-01-21",
+      "rnd": true
+    },
+    {
+      "dni": "58883462",
+      "tipo": "invitado",
+      "nombre": "Molina, Pedro",
+      "fecha": "22/01/2026",
+      "hora": "19:33:21",
+      "isoFecha": "2026-01-22",
+      "rnd": true
+    },
+    {
+      "dni": "3466200",
+      "tipo": "socio",
+      "nombre": "Socio 3466200",
+      "fecha": "22/01/2026",
+      "hora": "10:24:58",
+      "isoFecha": "2026-01-22",
+      "rnd": true
+    },
+    {
+      "dni": "378635196",
+      "tipo": "invitado",
+      "nombre": "Sánchez, Julián",
+      "fecha": "22/01/2026",
+      "hora": "14:39:02",
+      "isoFecha": "2026-01-22",
+      "rnd": true
+    },
+    {
+      "dni": "294616974",
+      "tipo": "socio",
+      "nombre": "Socio 294616974",
+      "fecha": "22/01/2026",
+      "hora": "14:13:51",
+      "isoFecha": "2026-01-22",
+      "rnd": true
+    },
+    {
+      "dni": "1504054",
+      "tipo": "socio",
+      "nombre": "Socio 1504054",
+      "fecha": "25/01/2026",
+      "hora": "09:10:41",
+      "isoFecha": "2026-01-25",
+      "rnd": true
+    },
+    {
+      "dni": "9275289",
+      "tipo": "socio",
+      "nombre": "Socio 9275289",
+      "fecha": "25/01/2026",
+      "hora": "12:17:10",
+      "isoFecha": "2026-01-25",
+      "rnd": true
+    },
+    {
+      "dni": "76852912",
+      "tipo": "socio",
+      "nombre": "Socio 76852912",
+      "fecha": "25/01/2026",
+      "hora": "08:13:53",
+      "isoFecha": "2026-01-25",
+      "rnd": true
+    },
+    {
+      "dni": "0766776",
+      "tipo": "invitado",
+      "nombre": "García, Julián",
+      "fecha": "25/01/2026",
+      "hora": "22:04:12",
+      "isoFecha": "2026-01-25",
+      "rnd": true
+    },
+    {
+      "dni": "5986524",
+      "tipo": "socio",
+      "nombre": "Socio 5986524",
+      "fecha": "26/01/2026",
+      "hora": "16:27:22",
+      "isoFecha": "2026-01-26",
+      "rnd": true
+    },
+    {
+      "dni": "81323425",
+      "tipo": "socio",
+      "nombre": "Socio 81323425",
+      "fecha": "26/01/2026",
+      "hora": "16:12:23",
+      "isoFecha": "2026-01-26",
+      "rnd": true
+    },
+    {
+      "dni": "70451415",
+      "tipo": "socio",
+      "nombre": "Socio 70451415",
+      "fecha": "26/01/2026",
+      "hora": "22:40:11",
+      "isoFecha": "2026-01-26",
+      "rnd": true
+    },
+    {
+      "dni": "7084283",
+      "tipo": "invitado",
+      "nombre": "Romero, Martín",
+      "fecha": "27/01/2026",
+      "hora": "14:49:07",
+      "isoFecha": "2026-01-27",
+      "rnd": true
+    },
+    {
+      "dni": "19800937",
+      "tipo": "socio",
+      "nombre": "Socio 19800937",
+      "fecha": "28/01/2026",
+      "hora": "19:24:36",
+      "isoFecha": "2026-01-28",
+      "rnd": true
+    },
+    {
+      "dni": "562988871",
+      "tipo": "invitado",
+      "nombre": "Molina, Pedro",
+      "fecha": "29/01/2026",
+      "hora": "20:16:22",
+      "isoFecha": "2026-01-29",
+      "rnd": true
+    },
+    {
+      "dni": "22829337",
+      "tipo": "socio",
+      "nombre": "Socio 22829337",
+      "fecha": "29/01/2026",
+      "hora": "17:14:42",
+      "isoFecha": "2026-01-29",
+      "rnd": true
+    },
+    {
+      "dni": "12030421",
+      "tipo": "invitado",
+      "nombre": "Rodríguez, Carla",
+      "fecha": "29/01/2026",
+      "hora": "08:01:49",
+      "isoFecha": "2026-01-29",
+      "rnd": true
+    },
+    {
+      "dni": "52996707",
+      "tipo": "socio",
+      "nombre": "Socio 52996707",
+      "fecha": "29/01/2026",
+      "hora": "16:01:39",
+      "isoFecha": "2026-01-29",
+      "rnd": true
+    },
+    {
+      "dni": "1834768",
+      "tipo": "invitado",
+      "nombre": "Gómez, Carla",
+      "fecha": "29/01/2026",
+      "hora": "13:16:59",
+      "isoFecha": "2026-01-29",
+      "rnd": true
+    },
+    {
+      "dni": "297778229",
+      "tipo": "socio",
+      "nombre": "Socio 297778229",
+      "fecha": "29/01/2026",
+      "hora": "13:00:34",
+      "isoFecha": "2026-01-29",
+      "rnd": true
+    },
+    {
+      "dni": "8448859",
+      "tipo": "socio",
+      "nombre": "Socio 8448859",
+      "fecha": "29/01/2026",
+      "hora": "22:26:53",
+      "isoFecha": "2026-01-29",
+      "rnd": true
+    },
+    {
+      "dni": "91745202",
+      "tipo": "invitado",
+      "nombre": "Rodríguez, Valentina",
+      "fecha": "29/01/2026",
+      "hora": "08:53:22",
+      "isoFecha": "2026-01-29",
+      "rnd": true
+    },
+    {
+      "dni": "0911275",
+      "tipo": "socio",
+      "nombre": "Socio 0911275",
+      "fecha": "30/01/2026",
+      "hora": "15:06:20",
+      "isoFecha": "2026-01-30",
+      "rnd": true
+    },
+    {
+      "dni": "6944343",
+      "tipo": "socio",
+      "nombre": "Socio 6944343",
+      "fecha": "30/01/2026",
+      "hora": "13:57:19",
+      "isoFecha": "2026-01-30",
+      "rnd": true
+    },
+    {
+      "dni": "9188213",
+      "tipo": "invitado",
+      "nombre": "Romero, Lucía",
+      "fecha": "30/01/2026",
+      "hora": "11:23:28",
+      "isoFecha": "2026-01-30",
+      "rnd": true
+    },
+    {
+      "dni": "36910948",
+      "tipo": "invitado",
+      "nombre": "Pérez, Nicolás",
+      "fecha": "30/01/2026",
+      "hora": "18:12:30",
+      "isoFecha": "2026-01-30",
+      "rnd": true
+    },
+    {
+      "dni": "7820690",
+      "tipo": "socio",
+      "nombre": "Socio 7820690",
+      "fecha": "30/01/2026",
+      "hora": "09:38:38",
+      "isoFecha": "2026-01-30",
+      "rnd": true
+    },
+    {
+      "dni": "92823918",
+      "tipo": "invitado",
+      "nombre": "López, Sofía",
+      "fecha": "30/01/2026",
+      "hora": "22:27:32",
+      "isoFecha": "2026-01-30",
+      "rnd": true
+    },
+    {
+      "dni": "122158452",
+      "tipo": "socio",
+      "nombre": "Socio 122158452",
+      "fecha": "30/01/2026",
+      "hora": "09:49:50",
+      "isoFecha": "2026-01-30",
+      "rnd": true
+    },
+    {
+      "dni": "70766201",
+      "tipo": "invitado",
+      "nombre": "Rodríguez, Carla",
+      "fecha": "30/01/2026",
+      "hora": "13:06:33",
+      "isoFecha": "2026-01-30",
+      "rnd": true
+    },
+    {
+      "dni": "8200545",
+      "tipo": "socio",
+      "nombre": "Socio 8200545",
+      "fecha": "31/01/2026",
+      "hora": "15:58:00",
+      "isoFecha": "2026-01-31",
+      "rnd": true
+    },
+    {
+      "dni": "01789282",
+      "tipo": "invitado",
+      "nombre": "Castro, Bruno",
+      "fecha": "31/01/2026",
+      "hora": "14:45:47",
+      "isoFecha": "2026-01-31",
+      "rnd": true
+    },
+    {
+      "dni": "570759050",
+      "tipo": "invitado",
+      "nombre": "Pérez, Carla",
+      "fecha": "01/02/2026",
+      "hora": "14:33:30",
+      "isoFecha": "2026-02-01",
+      "rnd": true
+    },
+    {
+      "dni": "51290185",
+      "tipo": "invitado",
+      "nombre": "Pérez, Carla",
+      "fecha": "01/02/2026",
+      "hora": "09:33:03",
+      "isoFecha": "2026-02-01",
+      "rnd": true
+    },
+    {
+      "dni": "57183750",
+      "tipo": "socio",
+      "nombre": "Socio 57183750",
+      "fecha": "02/02/2026",
+      "hora": "08:56:15",
+      "isoFecha": "2026-02-02",
+      "rnd": true
+    },
+    {
+      "dni": "287112470",
+      "tipo": "invitado",
+      "nombre": "García, Julián",
+      "fecha": "02/02/2026",
+      "hora": "11:21:04",
+      "isoFecha": "2026-02-02",
+      "rnd": true
+    },
+    {
+      "dni": "7243098",
+      "tipo": "invitado",
+      "nombre": "López, Tomás",
+      "fecha": "02/02/2026",
+      "hora": "15:09:10",
+      "isoFecha": "2026-02-02",
+      "rnd": true
+    },
+    {
+      "dni": "822100175",
+      "tipo": "socio",
+      "nombre": "Socio 822100175",
+      "fecha": "03/02/2026",
+      "hora": "13:14:43",
+      "isoFecha": "2026-02-03",
+      "rnd": true
+    },
+    {
+      "dni": "181299250",
+      "tipo": "invitado",
+      "nombre": "Fernández, Sofía",
+      "fecha": "03/02/2026",
+      "hora": "17:47:45",
+      "isoFecha": "2026-02-03",
+      "rnd": true
+    },
+    {
+      "dni": "837390237",
+      "tipo": "invitado",
+      "nombre": "Fernández, María",
+      "fecha": "03/02/2026",
+      "hora": "22:13:26",
+      "isoFecha": "2026-02-03",
+      "rnd": true
+    },
+    {
+      "dni": "2774703",
+      "tipo": "socio",
+      "nombre": "Socio 2774703",
+      "fecha": "03/02/2026",
+      "hora": "18:21:21",
+      "isoFecha": "2026-02-03",
+      "rnd": true
+    },
+    {
+      "dni": "5892897",
+      "tipo": "invitado",
+      "nombre": "Pérez, Carla",
+      "fecha": "04/02/2026",
+      "hora": "09:43:24",
+      "isoFecha": "2026-02-04",
+      "rnd": true
+    },
+    {
+      "dni": "32682451",
+      "tipo": "socio",
+      "nombre": "Socio 32682451",
+      "fecha": "04/02/2026",
+      "hora": "22:37:02",
+      "isoFecha": "2026-02-04",
+      "rnd": true
+    },
+    {
+      "dni": "8710140",
+      "tipo": "socio",
+      "nombre": "Socio 8710140",
+      "fecha": "04/02/2026",
+      "hora": "21:23:18",
+      "isoFecha": "2026-02-04",
+      "rnd": true
+    },
+    {
+      "dni": "564645401",
+      "tipo": "socio",
+      "nombre": "Socio 564645401",
+      "fecha": "04/02/2026",
+      "hora": "18:25:31",
+      "isoFecha": "2026-02-04",
+      "rnd": true
+    },
+    {
+      "dni": "9938549",
+      "tipo": "invitado",
+      "nombre": "Luna, Valentina",
+      "fecha": "04/02/2026",
+      "hora": "18:31:37",
+      "isoFecha": "2026-02-04",
+      "rnd": true
+    },
+    {
+      "dni": "6926257",
+      "tipo": "invitado",
+      "nombre": "Rodríguez, María",
+      "fecha": "04/02/2026",
+      "hora": "21:56:32",
+      "isoFecha": "2026-02-04",
+      "rnd": true
+    },
+    {
+      "dni": "1385892",
+      "tipo": "socio",
+      "nombre": "Socio 1385892",
+      "fecha": "04/02/2026",
+      "hora": "15:55:54",
+      "isoFecha": "2026-02-04",
+      "rnd": true
+    },
+    {
+      "dni": "88446482",
+      "tipo": "invitado",
+      "nombre": "Rodríguez, Lucía",
+      "fecha": "04/02/2026",
+      "hora": "08:18:41",
+      "isoFecha": "2026-02-04",
+      "rnd": true
+    },
+    {
+      "dni": "16543220",
+      "tipo": "invitado",
+      "nombre": "Rodríguez, Tomás",
+      "fecha": "05/02/2026",
+      "hora": "10:01:24",
+      "isoFecha": "2026-02-05",
+      "rnd": true
+    },
+    {
+      "dni": "753039257",
+      "tipo": "socio",
+      "nombre": "Socio 753039257",
+      "fecha": "05/02/2026",
+      "hora": "12:38:54",
+      "isoFecha": "2026-02-05",
+      "rnd": true
+    },
+    {
+      "dni": "6641063",
+      "tipo": "socio",
+      "nombre": "Socio 6641063",
+      "fecha": "05/02/2026",
+      "hora": "08:00:39",
+      "isoFecha": "2026-02-05",
+      "rnd": true
+    },
+    {
+      "dni": "2346456",
+      "tipo": "socio",
+      "nombre": "Socio 2346456",
+      "fecha": "05/02/2026",
+      "hora": "10:48:38",
+      "isoFecha": "2026-02-05",
+      "rnd": true
+    },
+    {
+      "dni": "421155814",
+      "tipo": "invitado",
+      "nombre": "Fernández, Tomás",
+      "fecha": "06/02/2026",
+      "hora": "09:37:24",
+      "isoFecha": "2026-02-06",
+      "rnd": true
+    },
+    {
+      "dni": "6698870",
+      "tipo": "socio",
+      "nombre": "Socio 6698870",
+      "fecha": "06/02/2026",
+      "hora": "14:29:29",
+      "isoFecha": "2026-02-06",
+      "rnd": true
+    },
+    {
+      "dni": "94602733",
+      "tipo": "invitado",
+      "nombre": "Luna, Sofía",
+      "fecha": "06/02/2026",
+      "hora": "17:40:49",
+      "isoFecha": "2026-02-06",
+      "rnd": true
+    },
+    {
+      "dni": "9180415",
+      "tipo": "invitado",
+      "nombre": "Pérez, Carla",
+      "fecha": "08/02/2026",
+      "hora": "16:16:08",
+      "isoFecha": "2026-02-08",
+      "rnd": true
+    },
+    {
+      "dni": "13133132",
+      "tipo": "socio",
+      "nombre": "Socio 13133132",
+      "fecha": "08/02/2026",
+      "hora": "18:57:26",
+      "isoFecha": "2026-02-08",
+      "rnd": true
+    },
+    {
+      "dni": "691925003",
+      "tipo": "invitado",
+      "nombre": "Rodríguez, Julián",
+      "fecha": "08/02/2026",
+      "hora": "09:18:26",
+      "isoFecha": "2026-02-08",
+      "rnd": true
+    },
+    {
+      "dni": "9413073",
+      "tipo": "invitado",
+      "nombre": "Suárez, Carla",
+      "fecha": "08/02/2026",
+      "hora": "14:52:22",
+      "isoFecha": "2026-02-08",
+      "rnd": true
+    },
+    {
+      "dni": "6021072",
+      "tipo": "invitado",
+      "nombre": "Molina, Bruno",
+      "fecha": "09/02/2026",
+      "hora": "19:21:51",
+      "isoFecha": "2026-02-09",
+      "rnd": true
+    },
+    {
+      "dni": "3593156",
+      "tipo": "invitado",
+      "nombre": "Molina, Carla",
+      "fecha": "09/02/2026",
+      "hora": "17:26:09",
+      "isoFecha": "2026-02-09",
+      "rnd": true
+    },
+    {
+      "dni": "2235433",
+      "tipo": "socio",
+      "nombre": "Socio 2235433",
+      "fecha": "09/02/2026",
+      "hora": "14:16:54",
+      "isoFecha": "2026-02-09",
+      "rnd": true
+    },
+    {
+      "dni": "1245216",
+      "tipo": "invitado",
+      "nombre": "Gómez, Lucía",
+      "fecha": "09/02/2026",
+      "hora": "21:46:37",
+      "isoFecha": "2026-02-09",
+      "rnd": true
+    },
+    {
+      "dni": "21307032",
+      "tipo": "invitado",
+      "nombre": "Fernández, Bruno",
+      "fecha": "09/02/2026",
+      "hora": "08:12:15",
+      "isoFecha": "2026-02-09",
+      "rnd": true
+    },
+    {
+      "dni": "006196720",
+      "tipo": "invitado",
+      "nombre": "García, Martín",
+      "fecha": "09/02/2026",
+      "hora": "15:22:39",
+      "isoFecha": "2026-02-09",
+      "rnd": true
+    },
+    {
+      "dni": "2674742",
+      "tipo": "invitado",
+      "nombre": "Luna, Camila",
+      "fecha": "09/02/2026",
+      "hora": "16:57:49",
+      "isoFecha": "2026-02-09",
+      "rnd": true
+    },
+    {
+      "dni": "75210313",
+      "tipo": "socio",
+      "nombre": "Socio 75210313",
+      "fecha": "10/02/2026",
+      "hora": "11:52:28",
+      "isoFecha": "2026-02-10",
+      "rnd": true
+    },
+    {
+      "dni": "964173853",
+      "tipo": "invitado",
+      "nombre": "López, Juan",
+      "fecha": "10/02/2026",
+      "hora": "10:40:06",
+      "isoFecha": "2026-02-10",
+      "rnd": true
+    },
+    {
+      "dni": "6821553",
+      "tipo": "socio",
+      "nombre": "Socio 6821553",
+      "fecha": "12/02/2026",
+      "hora": "08:12:18",
+      "isoFecha": "2026-02-12",
+      "rnd": true
+    },
+    {
+      "dni": "93860629",
+      "tipo": "invitado",
+      "nombre": "López, Lucía",
+      "fecha": "12/02/2026",
+      "hora": "15:38:07",
+      "isoFecha": "2026-02-12",
+      "rnd": true
+    },
+    {
+      "dni": "2953805",
+      "tipo": "invitado",
+      "nombre": "Rodríguez, Carla",
+      "fecha": "12/02/2026",
+      "hora": "19:47:32",
+      "isoFecha": "2026-02-12",
+      "rnd": true
+    },
+    {
+      "dni": "378546015",
+      "tipo": "socio",
+      "nombre": "Socio 378546015",
+      "fecha": "12/02/2026",
+      "hora": "17:46:54",
+      "isoFecha": "2026-02-12",
+      "rnd": true
+    },
+    {
+      "dni": "9566461",
+      "tipo": "invitado",
+      "nombre": "Rodríguez, María",
+      "fecha": "12/02/2026",
+      "hora": "18:59:07",
+      "isoFecha": "2026-02-12",
+      "rnd": true
+    },
+    {
+      "dni": "3564797",
+      "tipo": "invitado",
+      "nombre": "Castro, Martín",
+      "fecha": "13/02/2026",
+      "hora": "19:24:23",
+      "isoFecha": "2026-02-13",
+      "rnd": true
+    },
+    {
+      "dni": "0484043",
+      "tipo": "invitado",
+      "nombre": "Luna, Nicolás",
+      "fecha": "13/02/2026",
+      "hora": "12:23:28",
+      "isoFecha": "2026-02-13",
+      "rnd": true
+    },
+    {
+      "dni": "38414417",
+      "tipo": "invitado",
+      "nombre": "Romero, María",
+      "fecha": "13/02/2026",
+      "hora": "11:10:37",
+      "isoFecha": "2026-02-13",
+      "rnd": true
+    },
+    {
+      "dni": "9248166",
+      "tipo": "socio",
+      "nombre": "Socio 9248166",
+      "fecha": "13/02/2026",
+      "hora": "20:16:30",
+      "isoFecha": "2026-02-13",
+      "rnd": true
+    },
+    {
+      "dni": "9200405",
+      "tipo": "socio",
+      "nombre": "Socio 9200405",
+      "fecha": "15/02/2026",
+      "hora": "18:47:41",
+      "isoFecha": "2026-02-15",
+      "rnd": true
+    },
+    {
+      "dni": "157037785",
+      "tipo": "invitado",
+      "nombre": "López, Valentina",
+      "fecha": "15/02/2026",
+      "hora": "22:02:20",
+      "isoFecha": "2026-02-15",
+      "rnd": true
+    },
+    {
+      "dni": "077355426",
+      "tipo": "socio",
+      "nombre": "Socio 077355426",
+      "fecha": "15/02/2026",
+      "hora": "12:31:39",
+      "isoFecha": "2026-02-15",
+      "rnd": true
+    },
+    {
+      "dni": "335351384",
+      "tipo": "socio",
+      "nombre": "Socio 335351384",
+      "fecha": "15/02/2026",
+      "hora": "19:37:23",
+      "isoFecha": "2026-02-15",
+      "rnd": true
+    },
+    {
+      "dni": "0365552",
+      "tipo": "invitado",
+      "nombre": "Sánchez, Pedro",
+      "fecha": "15/02/2026",
+      "hora": "16:10:50",
+      "isoFecha": "2026-02-15",
+      "rnd": true
+    },
+    {
+      "dni": "95279644",
+      "tipo": "invitado",
+      "nombre": "García, Valentina",
+      "fecha": "15/02/2026",
+      "hora": "21:33:41",
+      "isoFecha": "2026-02-15",
+      "rnd": true
+    },
+    {
+      "dni": "61256767",
+      "tipo": "invitado",
+      "nombre": "López, Camila",
+      "fecha": "17/02/2026",
+      "hora": "09:19:42",
+      "isoFecha": "2026-02-17",
+      "rnd": true
+    },
+    {
+      "dni": "0036469",
+      "tipo": "socio",
+      "nombre": "Socio 0036469",
+      "fecha": "17/02/2026",
+      "hora": "14:08:31",
+      "isoFecha": "2026-02-17",
+      "rnd": true
+    },
+    {
+      "dni": "23694352",
+      "tipo": "invitado",
+      "nombre": "Martínez, Sofía",
+      "fecha": "17/02/2026",
+      "hora": "14:35:48",
+      "isoFecha": "2026-02-17",
+      "rnd": true
+    },
+    {
+      "dni": "715420188",
+      "tipo": "invitado",
+      "nombre": "Pérez, Martín",
+      "fecha": "17/02/2026",
+      "hora": "09:37:51",
+      "isoFecha": "2026-02-17",
+      "rnd": true
+    },
+    {
+      "dni": "9277709",
+      "tipo": "socio",
+      "nombre": "Socio 9277709",
+      "fecha": "17/02/2026",
+      "hora": "19:13:29",
+      "isoFecha": "2026-02-17",
+      "rnd": true
+    },
+    {
+      "dni": "3261026",
+      "tipo": "invitado",
+      "nombre": "Sánchez, Martín",
+      "fecha": "18/02/2026",
+      "hora": "19:46:08",
+      "isoFecha": "2026-02-18",
+      "rnd": true
+    },
+    {
+      "dni": "745647802",
+      "tipo": "invitado",
+      "nombre": "Suárez, Carla",
+      "fecha": "18/02/2026",
+      "hora": "15:30:28",
+      "isoFecha": "2026-02-18",
+      "rnd": true
+    },
+    {
+      "dni": "997680125",
+      "tipo": "invitado",
+      "nombre": "Pérez, Carla",
+      "fecha": "18/02/2026",
+      "hora": "20:26:16",
+      "isoFecha": "2026-02-18",
+      "rnd": true
+    },
+    {
+      "dni": "15621429",
+      "tipo": "invitado",
+      "nombre": "Fernández, Agustín",
+      "fecha": "19/02/2026",
+      "hora": "14:41:33",
+      "isoFecha": "2026-02-19",
+      "rnd": true
+    },
+    {
+      "dni": "600751376",
+      "tipo": "invitado",
+      "nombre": "López, Carla",
+      "fecha": "19/02/2026",
+      "hora": "10:38:40",
+      "isoFecha": "2026-02-19",
+      "rnd": true
+    },
+    {
+      "dni": "19751719",
+      "tipo": "socio",
+      "nombre": "Socio 19751719",
+      "fecha": "19/02/2026",
+      "hora": "15:15:59",
+      "isoFecha": "2026-02-19",
+      "rnd": true
+    },
+    {
+      "dni": "68110302",
+      "tipo": "invitado",
+      "nombre": "Luna, Camila",
+      "fecha": "19/02/2026",
+      "hora": "18:09:09",
+      "isoFecha": "2026-02-19",
+      "rnd": true
+    },
+    {
+      "dni": "12192201",
+      "tipo": "socio",
+      "nombre": "Socio 12192201",
+      "fecha": "19/02/2026",
+      "hora": "12:47:34",
+      "isoFecha": "2026-02-19",
+      "rnd": true
+    },
+    {
+      "dni": "19814710",
+      "tipo": "socio",
+      "nombre": "Socio 19814710",
+      "fecha": "19/02/2026",
+      "hora": "14:07:53",
+      "isoFecha": "2026-02-19",
+      "rnd": true
+    },
+    {
+      "dni": "1708100",
+      "tipo": "invitado",
+      "nombre": "García, María",
+      "fecha": "20/02/2026",
+      "hora": "22:39:35",
+      "isoFecha": "2026-02-20",
+      "rnd": true
+    },
+    {
+      "dni": "4362219",
+      "tipo": "invitado",
+      "nombre": "Castro, Agustín",
+      "fecha": "21/02/2026",
+      "hora": "19:52:37",
+      "isoFecha": "2026-02-21",
+      "rnd": true
+    },
+    {
+      "dni": "9568085",
+      "tipo": "invitado",
+      "nombre": "Suárez, Pedro",
+      "fecha": "21/02/2026",
+      "hora": "09:28:47",
+      "isoFecha": "2026-02-21",
+      "rnd": true
+    },
+    {
+      "dni": "658745546",
+      "tipo": "invitado",
+      "nombre": "Castro, Valentina",
+      "fecha": "22/02/2026",
+      "hora": "13:27:30",
+      "isoFecha": "2026-02-22",
+      "rnd": true
+    },
+    {
+      "dni": "93668327",
+      "tipo": "socio",
+      "nombre": "Socio 93668327",
+      "fecha": "22/02/2026",
+      "hora": "19:57:05",
+      "isoFecha": "2026-02-22",
+      "rnd": true
+    },
+    {
+      "dni": "1897772",
+      "tipo": "invitado",
+      "nombre": "Sánchez, Agustín",
+      "fecha": "22/02/2026",
+      "hora": "18:51:23",
+      "isoFecha": "2026-02-22",
+      "rnd": true
+    },
+    {
+      "dni": "848451582",
+      "tipo": "socio",
+      "nombre": "Socio 848451582",
+      "fecha": "22/02/2026",
+      "hora": "10:26:10",
+      "isoFecha": "2026-02-22",
+      "rnd": true
+    },
+    {
+      "dni": "0516690",
+      "tipo": "socio",
+      "nombre": "Socio 0516690",
+      "fecha": "22/02/2026",
+      "hora": "18:34:21",
+      "isoFecha": "2026-02-22",
+      "rnd": true
+    },
+    {
+      "dni": "168845362",
+      "tipo": "invitado",
+      "nombre": "Fernández, Tomás",
+      "fecha": "23/02/2026",
+      "hora": "09:37:47",
+      "isoFecha": "2026-02-23",
+      "rnd": true
+    },
+    {
+      "dni": "47279692",
+      "tipo": "socio",
+      "nombre": "Socio 47279692",
+      "fecha": "23/02/2026",
+      "hora": "16:01:33",
+      "isoFecha": "2026-02-23",
+      "rnd": true
+    },
+    {
+      "dni": "4953759",
+      "tipo": "socio",
+      "nombre": "Socio 4953759",
+      "fecha": "23/02/2026",
+      "hora": "09:30:25",
+      "isoFecha": "2026-02-23",
+      "rnd": true
+    },
+    {
+      "dni": "229288353",
+      "tipo": "invitado",
+      "nombre": "Suárez, Carla",
+      "fecha": "23/02/2026",
+      "hora": "14:23:23",
+      "isoFecha": "2026-02-23",
+      "rnd": true
+    },
+    {
+      "dni": "9075703",
+      "tipo": "invitado",
+      "nombre": "García, Bruno",
+      "fecha": "24/02/2026",
+      "hora": "21:34:05",
+      "isoFecha": "2026-02-24",
+      "rnd": true
+    },
+    {
+      "dni": "536759903",
+      "tipo": "invitado",
+      "nombre": "Molina, Camila",
+      "fecha": "24/02/2026",
+      "hora": "17:01:17",
+      "isoFecha": "2026-02-24",
+      "rnd": true
+    },
+    {
+      "dni": "232804924",
+      "tipo": "invitado",
+      "nombre": "Martínez, Juan",
+      "fecha": "24/02/2026",
+      "hora": "10:52:02",
+      "isoFecha": "2026-02-24",
+      "rnd": true
+    },
+    {
+      "dni": "5492885",
+      "tipo": "socio",
+      "nombre": "Socio 5492885",
+      "fecha": "24/02/2026",
+      "hora": "13:13:00",
+      "isoFecha": "2026-02-24",
+      "rnd": true
+    },
+    {
+      "dni": "319823911",
+      "tipo": "socio",
+      "nombre": "Socio 319823911",
+      "fecha": "24/02/2026",
+      "hora": "17:42:34",
+      "isoFecha": "2026-02-24",
+      "rnd": true
+    },
+    {
+      "dni": "15591817",
+      "tipo": "invitado",
+      "nombre": "Castro, Juan",
+      "fecha": "24/02/2026",
+      "hora": "22:12:44",
+      "isoFecha": "2026-02-24",
+      "rnd": true
+    },
+    {
+      "dni": "74850990",
+      "tipo": "socio",
+      "nombre": "Socio 74850990",
+      "fecha": "25/02/2026",
+      "hora": "08:19:39",
+      "isoFecha": "2026-02-25",
+      "rnd": true
+    },
+    {
+      "dni": "6048631",
+      "tipo": "socio",
+      "nombre": "Socio 6048631",
+      "fecha": "25/02/2026",
+      "hora": "18:11:01",
+      "isoFecha": "2026-02-25",
+      "rnd": true
+    },
+    {
+      "dni": "765530039",
+      "tipo": "invitado",
+      "nombre": "Gómez, Bruno",
+      "fecha": "25/02/2026",
+      "hora": "11:02:32",
+      "isoFecha": "2026-02-25",
+      "rnd": true
+    },
+    {
+      "dni": "126356830",
+      "tipo": "invitado",
+      "nombre": "Castro, Lucía",
+      "fecha": "25/02/2026",
+      "hora": "17:37:54",
+      "isoFecha": "2026-02-25",
+      "rnd": true
+    },
+    {
+      "dni": "217124861",
+      "tipo": "invitado",
+      "nombre": "Pérez, Martín",
+      "fecha": "25/02/2026",
+      "hora": "11:26:40",
+      "isoFecha": "2026-02-25",
+      "rnd": true
+    },
+    {
+      "dni": "456864799",
+      "tipo": "socio",
+      "nombre": "Socio 456864799",
+      "fecha": "25/02/2026",
+      "hora": "18:43:03",
+      "isoFecha": "2026-02-25",
+      "rnd": true
+    },
+    {
+      "dni": "213856404",
+      "tipo": "socio",
+      "nombre": "Socio 213856404",
+      "fecha": "25/02/2026",
+      "hora": "08:05:35",
+      "isoFecha": "2026-02-25",
+      "rnd": true
+    },
+    {
+      "dni": "16260159",
+      "tipo": "invitado",
+      "nombre": "Molina, Bruno",
+      "fecha": "26/02/2026",
+      "hora": "13:32:23",
+      "isoFecha": "2026-02-26",
+      "rnd": true
+    },
+    {
+      "dni": "386313147",
+      "tipo": "invitado",
+      "nombre": "Romero, Camila",
+      "fecha": "26/02/2026",
+      "hora": "19:40:17",
+      "isoFecha": "2026-02-26",
+      "rnd": true
+    },
+    {
+      "dni": "46208299",
+      "tipo": "invitado",
+      "nombre": "Fernández, Pedro",
+      "fecha": "26/02/2026",
+      "hora": "18:12:38",
+      "isoFecha": "2026-02-26",
+      "rnd": true
+    },
+    {
+      "dni": "689356912",
+      "tipo": "invitado",
+      "nombre": "Castro, María",
+      "fecha": "26/02/2026",
+      "hora": "17:02:58",
+      "isoFecha": "2026-02-26",
+      "rnd": true
+    },
+    {
+      "dni": "065757044",
+      "tipo": "socio",
+      "nombre": "Socio 065757044",
+      "fecha": "26/02/2026",
+      "hora": "12:20:24",
+      "isoFecha": "2026-02-26",
+      "rnd": true
+    },
+    {
+      "dni": "63823538",
+      "tipo": "socio",
+      "nombre": "Socio 63823538",
+      "fecha": "26/02/2026",
+      "hora": "15:43:43",
+      "isoFecha": "2026-02-26",
+      "rnd": true
+    },
+    {
+      "dni": "9366717",
+      "tipo": "invitado",
+      "nombre": "Martínez, Julián",
+      "fecha": "26/02/2026",
+      "hora": "08:03:43",
+      "isoFecha": "2026-02-26",
+      "rnd": true
+    },
+    {
+      "dni": "9152417",
+      "tipo": "invitado",
+      "nombre": "Gómez, Martín",
+      "fecha": "26/02/2026",
+      "hora": "15:02:40",
+      "isoFecha": "2026-02-26",
+      "rnd": true
+    },
+    {
+      "dni": "28863150",
+      "tipo": "socio",
+      "nombre": "Socio 28863150",
+      "fecha": "27/02/2026",
+      "hora": "12:00:54",
+      "isoFecha": "2026-02-27",
+      "rnd": true
+    },
+    {
+      "dni": "81454949",
+      "tipo": "socio",
+      "nombre": "Socio 81454949",
+      "fecha": "27/02/2026",
+      "hora": "15:39:57",
+      "isoFecha": "2026-02-27",
+      "rnd": true
+    },
+    {
+      "dni": "82604452",
+      "tipo": "socio",
+      "nombre": "Socio 82604452",
+      "fecha": "28/02/2026",
+      "hora": "08:08:32",
+      "isoFecha": "2026-02-28",
+      "rnd": true
+    },
+    {
+      "dni": "726367541",
+      "tipo": "socio",
+      "nombre": "Socio 726367541",
+      "fecha": "28/02/2026",
+      "hora": "12:19:42",
+      "isoFecha": "2026-02-28",
+      "rnd": true
+    },
+    {
+      "dni": "1716939",
+      "tipo": "invitado",
+      "nombre": "Luna, Carla",
+      "fecha": "28/02/2026",
+      "hora": "22:43:53",
+      "isoFecha": "2026-02-28",
+      "rnd": true
+    },
+    {
+      "dni": "37147704",
+      "tipo": "socio",
+      "nombre": "Socio 37147704",
+      "fecha": "01/03/2026",
+      "hora": "19:42:16",
+      "isoFecha": "2026-03-01",
+      "rnd": true
+    },
+    {
+      "dni": "9500104",
+      "tipo": "invitado",
+      "nombre": "López, Pedro",
+      "fecha": "01/03/2026",
+      "hora": "22:12:38",
+      "isoFecha": "2026-03-01",
+      "rnd": true
+    },
+    {
+      "dni": "95671007",
+      "tipo": "socio",
+      "nombre": "Socio 95671007",
+      "fecha": "01/03/2026",
+      "hora": "10:42:03",
+      "isoFecha": "2026-03-01",
+      "rnd": true
+    },
+    {
+      "dni": "0498651",
+      "tipo": "socio",
+      "nombre": "Socio 0498651",
+      "fecha": "01/03/2026",
+      "hora": "15:22:12",
+      "isoFecha": "2026-03-01",
+      "rnd": true
+    },
+    {
+      "dni": "779910148",
+      "tipo": "socio",
+      "nombre": "Socio 779910148",
+      "fecha": "02/03/2026",
+      "hora": "12:47:09",
+      "isoFecha": "2026-03-02",
+      "rnd": true
+    },
+    {
+      "dni": "51175269",
+      "tipo": "invitado",
+      "nombre": "Molina, Julián",
+      "fecha": "02/03/2026",
+      "hora": "13:28:05",
+      "isoFecha": "2026-03-02",
+      "rnd": true
+    },
+    {
+      "dni": "032857027",
+      "tipo": "invitado",
+      "nombre": "Luna, Sofía",
+      "fecha": "02/03/2026",
+      "hora": "15:27:24",
+      "isoFecha": "2026-03-02",
+      "rnd": true
+    },
+    {
+      "dni": "31671809",
+      "tipo": "socio",
+      "nombre": "Socio 31671809",
+      "fecha": "02/03/2026",
+      "hora": "10:36:20",
+      "isoFecha": "2026-03-02",
+      "rnd": true
+    },
+    {
+      "dni": "9135241",
+      "tipo": "socio",
+      "nombre": "Socio 9135241",
+      "fecha": "02/03/2026",
+      "hora": "17:41:55",
+      "isoFecha": "2026-03-02",
+      "rnd": true
+    },
+    {
+      "dni": "9760333",
+      "tipo": "invitado",
+      "nombre": "Castro, Sofía",
+      "fecha": "03/03/2026",
+      "hora": "21:14:37",
+      "isoFecha": "2026-03-03",
+      "rnd": true
+    },
+    {
+      "dni": "406672118",
+      "tipo": "invitado",
+      "nombre": "Rodríguez, Camila",
+      "fecha": "03/03/2026",
+      "hora": "14:24:09",
+      "isoFecha": "2026-03-03",
+      "rnd": true
+    },
+    {
+      "dni": "93170681",
+      "tipo": "socio",
+      "nombre": "Socio 93170681",
+      "fecha": "03/03/2026",
+      "hora": "18:40:05",
+      "isoFecha": "2026-03-03",
+      "rnd": true
+    },
+    {
+      "dni": "5023810",
+      "tipo": "socio",
+      "nombre": "Socio 5023810",
+      "fecha": "03/03/2026",
+      "hora": "17:16:52",
+      "isoFecha": "2026-03-03",
+      "rnd": true
+    },
+    {
+      "dni": "72562132",
+      "tipo": "invitado",
+      "nombre": "Luna, Lucía",
+      "fecha": "03/03/2026",
+      "hora": "18:16:04",
+      "isoFecha": "2026-03-03",
+      "rnd": true
+    },
+    {
+      "dni": "28118100",
+      "tipo": "socio",
+      "nombre": "Socio 28118100",
+      "fecha": "04/03/2026",
+      "hora": "14:52:53",
+      "isoFecha": "2026-03-04",
+      "rnd": true
+    },
+    {
+      "dni": "3497102",
+      "tipo": "invitado",
+      "nombre": "Suárez, María",
+      "fecha": "06/03/2026",
+      "hora": "22:28:48",
+      "isoFecha": "2026-03-06",
+      "rnd": true
+    },
+    {
+      "dni": "56888279",
+      "tipo": "invitado",
+      "nombre": "García, Carla",
+      "fecha": "06/03/2026",
+      "hora": "20:23:05",
+      "isoFecha": "2026-03-06",
+      "rnd": true
+    },
+    {
+      "dni": "255410701",
+      "tipo": "socio",
+      "nombre": "Socio 255410701",
+      "fecha": "06/03/2026",
+      "hora": "15:22:17",
+      "isoFecha": "2026-03-06",
+      "rnd": true
+    },
+    {
+      "dni": "94382300",
+      "tipo": "socio",
+      "nombre": "Socio 94382300",
+      "fecha": "06/03/2026",
+      "hora": "21:03:57",
+      "isoFecha": "2026-03-06",
+      "rnd": true
+    },
+    {
+      "dni": "9248281",
+      "tipo": "invitado",
+      "nombre": "Sánchez, Sofía",
+      "fecha": "06/03/2026",
+      "hora": "11:01:30",
+      "isoFecha": "2026-03-06",
+      "rnd": true
+    },
+    {
+      "dni": "76768212",
+      "tipo": "socio",
+      "nombre": "Socio 76768212",
+      "fecha": "07/03/2026",
+      "hora": "12:15:25",
+      "isoFecha": "2026-03-07",
+      "rnd": true
+    },
+    {
+      "dni": "8463162",
+      "tipo": "socio",
+      "nombre": "Socio 8463162",
+      "fecha": "07/03/2026",
+      "hora": "17:12:05",
+      "isoFecha": "2026-03-07",
+      "rnd": true
+    },
+    {
+      "dni": "516712664",
+      "tipo": "socio",
+      "nombre": "Socio 516712664",
+      "fecha": "07/03/2026",
+      "hora": "19:30:01",
+      "isoFecha": "2026-03-07",
+      "rnd": true
+    },
+    {
+      "dni": "8674121",
+      "tipo": "socio",
+      "nombre": "Socio 8674121",
+      "fecha": "07/03/2026",
+      "hora": "14:11:50",
+      "isoFecha": "2026-03-07",
+      "rnd": true
+    },
+    {
+      "dni": "7018499",
+      "tipo": "socio",
+      "nombre": "Socio 7018499",
+      "fecha": "07/03/2026",
+      "hora": "15:09:31",
+      "isoFecha": "2026-03-07",
+      "rnd": true
+    },
+    {
+      "dni": "01714125",
+      "tipo": "invitado",
+      "nombre": "Suárez, Nicolás",
+      "fecha": "08/03/2026",
+      "hora": "12:15:31",
+      "isoFecha": "2026-03-08",
+      "rnd": true
+    },
+    {
+      "dni": "3278872",
+      "tipo": "socio",
+      "nombre": "Socio 3278872",
+      "fecha": "08/03/2026",
+      "hora": "19:51:16",
+      "isoFecha": "2026-03-08",
+      "rnd": true
+    },
+    {
+      "dni": "9703396",
+      "tipo": "invitado",
+      "nombre": "Castro, Camila",
+      "fecha": "08/03/2026",
+      "hora": "09:06:44",
+      "isoFecha": "2026-03-08",
+      "rnd": true
+    },
+    {
+      "dni": "4519096",
+      "tipo": "invitado",
+      "nombre": "García, Agustín",
+      "fecha": "08/03/2026",
+      "hora": "14:35:56",
+      "isoFecha": "2026-03-08",
+      "rnd": true
+    },
+    {
+      "dni": "72655608",
+      "tipo": "invitado",
+      "nombre": "García, Carla",
+      "fecha": "08/03/2026",
+      "hora": "18:52:01",
+      "isoFecha": "2026-03-08",
+      "rnd": true
+    },
+    {
+      "dni": "750642523",
+      "tipo": "invitado",
+      "nombre": "Sánchez, Julián",
+      "fecha": "08/03/2026",
+      "hora": "18:01:10",
+      "isoFecha": "2026-03-08",
+      "rnd": true
+    },
+    {
+      "dni": "68159926",
+      "tipo": "socio",
+      "nombre": "Socio 68159926",
+      "fecha": "09/03/2026",
+      "hora": "13:52:25",
+      "isoFecha": "2026-03-09",
+      "rnd": true
+    },
+    {
+      "dni": "36700094",
+      "tipo": "socio",
+      "nombre": "Socio 36700094",
+      "fecha": "09/03/2026",
+      "hora": "15:44:36",
+      "isoFecha": "2026-03-09",
+      "rnd": true
+    },
+    {
+      "dni": "0214544",
+      "tipo": "socio",
+      "nombre": "Socio 0214544",
+      "fecha": "09/03/2026",
+      "hora": "14:19:55",
+      "isoFecha": "2026-03-09",
+      "rnd": true
+    },
+    {
+      "dni": "6953535",
+      "tipo": "socio",
+      "nombre": "Socio 6953535",
+      "fecha": "09/03/2026",
+      "hora": "19:31:58",
+      "isoFecha": "2026-03-09",
+      "rnd": true
+    },
+    {
+      "dni": "6211755",
+      "tipo": "socio",
+      "nombre": "Socio 6211755",
+      "fecha": "09/03/2026",
+      "hora": "22:14:30",
+      "isoFecha": "2026-03-09",
+      "rnd": true
+    },
+    {
+      "dni": "2580224",
+      "tipo": "invitado",
+      "nombre": "García, Pedro",
+      "fecha": "09/03/2026",
+      "hora": "21:40:40",
+      "isoFecha": "2026-03-09",
+      "rnd": true
+    },
+    {
+      "dni": "73792730",
+      "tipo": "invitado",
+      "nombre": "Fernández, Sofía",
+      "fecha": "09/03/2026",
+      "hora": "18:58:44",
+      "isoFecha": "2026-03-09",
+      "rnd": true
+    },
+    {
+      "dni": "0822264",
+      "tipo": "socio",
+      "nombre": "Socio 0822264",
+      "fecha": "10/03/2026",
+      "hora": "16:06:08",
+      "isoFecha": "2026-03-10",
+      "rnd": true
+    },
+    {
+      "dni": "20007695",
+      "tipo": "socio",
+      "nombre": "Socio 20007695",
+      "fecha": "10/03/2026",
+      "hora": "16:52:26",
+      "isoFecha": "2026-03-10",
+      "rnd": true
+    },
+    {
+      "dni": "3796369",
+      "tipo": "invitado",
+      "nombre": "Fernández, Tomás",
+      "fecha": "10/03/2026",
+      "hora": "09:57:50",
+      "isoFecha": "2026-03-10",
+      "rnd": true
+    },
+    {
+      "dni": "55929582",
+      "tipo": "invitado",
+      "nombre": "Castro, Bruno",
+      "fecha": "10/03/2026",
+      "hora": "08:45:54",
+      "isoFecha": "2026-03-10",
+      "rnd": true
+    },
+    {
+      "dni": "05967119",
+      "tipo": "socio",
+      "nombre": "Socio 05967119",
+      "fecha": "10/03/2026",
+      "hora": "15:29:03",
+      "isoFecha": "2026-03-10",
+      "rnd": true
+    },
+    {
+      "dni": "084569840",
+      "tipo": "socio",
+      "nombre": "Socio 084569840",
+      "fecha": "10/03/2026",
+      "hora": "08:36:26",
+      "isoFecha": "2026-03-10",
+      "rnd": true
+    },
+    {
+      "dni": "5155395",
+      "tipo": "invitado",
+      "nombre": "Rodríguez, Valentina",
+      "fecha": "11/03/2026",
+      "hora": "13:36:07",
+      "isoFecha": "2026-03-11",
+      "rnd": true
+    },
+    {
+      "dni": "1470567",
+      "tipo": "invitado",
+      "nombre": "Luna, Martín",
+      "fecha": "11/03/2026",
+      "hora": "21:06:08",
+      "isoFecha": "2026-03-11",
+      "rnd": true
+    },
+    {
+      "dni": "436784646",
+      "tipo": "invitado",
+      "nombre": "Gómez, María",
+      "fecha": "11/03/2026",
+      "hora": "21:06:31",
+      "isoFecha": "2026-03-11",
+      "rnd": true
+    },
+    {
+      "dni": "885543721",
+      "tipo": "socio",
+      "nombre": "Socio 885543721",
+      "fecha": "11/03/2026",
+      "hora": "11:33:10",
+      "isoFecha": "2026-03-11",
+      "rnd": true
+    },
+    {
+      "dni": "5919147",
+      "tipo": "socio",
+      "nombre": "Socio 5919147",
+      "fecha": "11/03/2026",
+      "hora": "15:30:38",
+      "isoFecha": "2026-03-11",
+      "rnd": true
+    },
+    {
+      "dni": "249986818",
+      "tipo": "socio",
+      "nombre": "Socio 249986818",
+      "fecha": "11/03/2026",
+      "hora": "11:19:50",
+      "isoFecha": "2026-03-11",
+      "rnd": true
+    },
+    {
+      "dni": "629857207",
+      "tipo": "invitado",
+      "nombre": "Pérez, Valentina",
+      "fecha": "13/03/2026",
+      "hora": "13:19:45",
+      "isoFecha": "2026-03-13",
+      "rnd": true
+    },
+    {
+      "dni": "20814747",
+      "tipo": "invitado",
+      "nombre": "Gómez, Carla",
+      "fecha": "13/03/2026",
+      "hora": "16:27:24",
+      "isoFecha": "2026-03-13",
+      "rnd": true
+    },
+    {
+      "dni": "47341113",
+      "tipo": "socio",
+      "nombre": "Socio 47341113",
+      "fecha": "13/03/2026",
+      "hora": "10:51:55",
+      "isoFecha": "2026-03-13",
+      "rnd": true
+    },
+    {
+      "dni": "9945217",
+      "tipo": "invitado",
+      "nombre": "Romero, Lucía",
+      "fecha": "13/03/2026",
+      "hora": "18:33:47",
+      "isoFecha": "2026-03-13",
+      "rnd": true
+    },
+    {
+      "dni": "7603549",
+      "tipo": "invitado",
+      "nombre": "López, Lucía",
+      "fecha": "13/03/2026",
+      "hora": "09:30:07",
+      "isoFecha": "2026-03-13",
+      "rnd": true
+    },
+    {
+      "dni": "250414323",
+      "tipo": "invitado",
+      "nombre": "García, Martín",
+      "fecha": "13/03/2026",
+      "hora": "13:50:04",
+      "isoFecha": "2026-03-13",
+      "rnd": true
+    },
+    {
+      "dni": "29972646",
+      "tipo": "socio",
+      "nombre": "Socio 29972646",
+      "fecha": "13/03/2026",
+      "hora": "09:27:38",
+      "isoFecha": "2026-03-13",
+      "rnd": true
+    },
+    {
+      "dni": "047461199",
+      "tipo": "socio",
+      "nombre": "Socio 047461199",
+      "fecha": "13/03/2026",
+      "hora": "18:53:33",
+      "isoFecha": "2026-03-13",
+      "rnd": true
+    },
+    {
+      "dni": "658101885",
+      "tipo": "invitado",
+      "nombre": "Suárez, Martín",
+      "fecha": "15/03/2026",
+      "hora": "12:53:42",
+      "isoFecha": "2026-03-15",
+      "rnd": true
+    },
+    {
+      "dni": "273002146",
+      "tipo": "socio",
+      "nombre": "Socio 273002146",
+      "fecha": "15/03/2026",
+      "hora": "22:45:02",
+      "isoFecha": "2026-03-15",
+      "rnd": true
+    },
+    {
+      "dni": "372528346",
+      "tipo": "socio",
+      "nombre": "Socio 372528346",
+      "fecha": "15/03/2026",
+      "hora": "20:56:27",
+      "isoFecha": "2026-03-15",
+      "rnd": true
+    },
+    {
+      "dni": "4118522",
+      "tipo": "socio",
+      "nombre": "Socio 4118522",
+      "fecha": "15/03/2026",
+      "hora": "19:19:07",
+      "isoFecha": "2026-03-15",
+      "rnd": true
+    },
+    {
+      "dni": "393102916",
+      "tipo": "socio",
+      "nombre": "Socio 393102916",
+      "fecha": "15/03/2026",
+      "hora": "11:39:47",
+      "isoFecha": "2026-03-15",
+      "rnd": true
     }
   ],
   "sanciones": [
