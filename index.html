@@ -70,7 +70,6 @@ th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
     <button id="btn-activar-sistema" class="btn btn-warn" onclick="abrirActivar()">⚡ Activar sistema</button>
   </div>
 </header>
-
 <nav>
   <button id="btn-nav-ingreso" class="act" onclick="navClick('ingreso',this)">Ingreso</button>
   <button id="btn-nav-consulta" onclick="navClick('consulta',this)">Consulta</button>
@@ -78,45 +77,40 @@ th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
   <button id="btn-nav-sanciones" onclick="navClick('sanciones',this)">Sanciones</button>
   <button id="btn-nav-backup" onclick="navClick('backup',this)">Backup</button>
 </nav>
-
 <main>
   <!-- INGRESO -->
   <section id="sec-ingreso" class="card">
     <h2>Ingreso</h2>
     <div class="form-row">
-      <label>Tipo de ingreso
+      <label>Tipo de ingreso 
         <div class="row" style="padding:6px 2px">
           <label style="display:inline-flex;align-items:center;gap:6px"><input type="radio" name="tipo-ingreso" value="invitado" onchange="toggleIngresoFields()" checked> Invitado</label>
           <label style="display:inline-flex;align-items:center;gap:6px"><input type="radio" name="tipo-ingreso" value="socio" onchange="toggleIngresoFields()"> Socio</label>
         </div>
       </label>
     </div>
-
     <div class="form-row">
-      <label id="wrap-dni-ingreso">Nº Documento (DNI)
+      <label id="wrap-dni-ingreso">Nº Documento (DNI) 
         <input type="text" id="dni-ingreso" placeholder="Ej: 30123456" maxlength="12"
-          oninput="this.value=this.value.replace(/\\D/g,'');onIdentificadorChange()"
-          onkeydown="if(event.key==='Enter')buscarInvitado()">
+               oninput="this.value=this.value.replace(/\D/g,'');onIdentificadorChange()"
+               onkeydown="if(event.key==='Enter')buscarInvitado()">
       </label>
-      <label id="wrap-socio-ingreso" style="display:none">N° de socio
+      <label id="wrap-socio-ingreso" style="display:none">N° de socio 
         <input type="text" id="nroSocio-ingreso" placeholder="Ej: S-12345" maxlength="20"
-          oninput="onIdentificadorChange()"
-          onkeydown="if(event.key==='Enter')buscarInvitado()">
+               oninput="onIdentificadorChange()"
+               onkeydown="if(event.key==='Enter')buscarInvitado()">
       </label>
     </div>
-
     <!-- Chip de estado -->
     <div class="row">
       <div id="estado-chip" class="chip state-ok">—</div>
     </div>
-
     <div class="form-row">
-      <label>Nombre
+      <label>Nombre 
         <input type="text" id="nombre-ingreso" placeholder="Apellido, Nombre" onkeydown="if(event.key==='Enter')registrarIngreso()">
         <span class="sub" id="nombre-autocomplete-hint"></span>
       </label>
     </div>
-
     <!-- Cámara y foto (OBLIGATORIA) -->
     <div class="card" style="margin-top:12px">
       <h3>Foto (obligatoria)</h3>
@@ -136,7 +130,6 @@ th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
         <div class="sub" id="foto-aviso" style="color:#f3d28a">La foto es obligatoria para registrar.</div>
       </div>
     </div>
-
     <div class="row" style="gap:8px;margin-top:8px">
       <button class="btn" onclick="buscarInvitado()">Buscar / Estado</button>
       <button class="btn" onclick="registrarIngreso()">Registrar ingreso</button>
@@ -239,7 +232,6 @@ th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
         </table>
       </div>
     </div>
-
     <div class="card">
       <h3>Suspensiones activas</h3>
       <div id="susp-res" class="alerta"></div>
@@ -340,7 +332,7 @@ th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
 </div>
 
 <script>
-// ======= CONFIG / KEYS =======
+/* ======= CONFIG / KEYS ======= */
 const KEYS={
   ingresos:'app_ingresos',
   fotos:'app_fotos',
@@ -356,15 +348,15 @@ let nubeActiva=false, _camStream=null, _syncTimer=null;
 let _apercPersonaId='', _apercNombre='';
 let _suspPersonaId='', _suspNombre='';
 
-// ======= UTIL =======
+/* ======= UTIL ======= */
 const load=(k,def)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):def;}catch{return def}};
 const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
-const getToken=()=> localStorage.getItem(KEYS.token) || '';
-const setToken=t=> { localStorage.setItem(KEYS.token, t || ''); };
-const getGistId=()=> localStorage.getItem(KEYS.gistId) || '';
-const setGistId=id=> { localStorage.setItem(KEYS.gistId, id || ''); };
-const getBackupMode=()=> localStorage.getItem(BACKUP.modeKey) || 'gist';
-const setBackupMode=m=> { localStorage.setItem(BACKUP.modeKey, m || 'gist'); };
+const getToken=()=> (localStorage.getItem(KEYS.token) || '');
+const setToken=t=> { localStorage.setItem(KEYS.token, (t || '')); };
+const getGistId=()=> (localStorage.getItem(KEYS.gistId) || '');
+const setGistId=id=> { localStorage.setItem(KEYS.gistId, (id || '')); };
+const getBackupMode=()=> (localStorage.getItem(BACKUP.modeKey) || 'gist');
+const setBackupMode=m=> { localStorage.setItem(BACKUP.modeKey, (m || 'gist')); };
 const online=()=> (typeof navigator!=='undefined' && 'onLine' in navigator) ? navigator.onLine : true;
 const now=()=>new Date();
 const dos=n=>n<10?('0'+n):(''+n);
@@ -372,26 +364,65 @@ const fDate=d=>[dos(d.getDate()),dos(d.getMonth()+1),d.getFullYear()].join('/');
 const fTime=d=>[dos(d.getHours()),dos(d.getMinutes()),dos(d.getSeconds())].join(':');
 const iso=d=>d.toISOString().slice(0,10);
 const hoyISO=()=>iso(now());
-const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&','<':'<','>':'>','"':'"'}[c]));
+const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function setSyncBadge(state,text){ const el=document.getElementById('sync-badge'); if(!el) return; el.textContent=text; el.className='chip '+(state||''); }
 
-// ======= RELOJ / NAV =======
+/* ======= RELOJ / NAV ======= */
 function tick(){ const el=document.getElementById('reloj'); if(el) el.textContent=fTime(now())+' — '+fDate(now()); }
 function navClick(id,btn){ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('act')); btn.classList.add('act'); document.querySelectorAll('main > section').forEach(s=>s.style.display='none'); document.getElementById('sec-'+id).style.display='block'; if(id==='ingreso') toggleIngresoFields(); if(id==='sanciones') refrescarSanciones(); }
 
-// ======= CÁMARA =======
-async function iniciarCamara(){ try{ if(!_camStream){ _camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false}); } const v=document.getElementById('cam-video'); v.srcObject=_camStream; v.play(); document.getElementById('cam-wrap').style.display='block'; document.getElementById('btn-cam-start').style.display='none'; document.getElementById('btn-cam-shot').style.display='inline-flex'; document.getElementById('btn-cam-stop').style.display='inline-flex'; }catch(e){ alert('No se pudo acceder a la cámara'); } }
-function tomarFoto(){ const v=document.getElementById('cam-video'); const c=document.getElementById('cam-canvas'), ctx=c.getContext('2d'); const vw=v.videoWidth, vh=v.videoHeight; if(!vw||!vh) return; const size=Math.min(vw,vh), sx=Math.floor((vw-size)/2), sy=Math.floor((vh-size)/2); c.width=320; c.height=320; ctx.drawImage(v,sx,sy,size,size,0,0,320,320); const data=c.toDataURL('image/jpeg',0.9); _guardarFoto(data); detenerCamara(); focusIdInput(); }
-function _guardarFoto(b64){ const id=getIdIngreso(); const prev=document.getElementById('foto-preview'); const wrap=document.getElementById('foto-preview-wrap'); prev.src=b64; wrap.style.display='block'; document.getElementById('btn-borrar-foto').style.display='inline-flex'; if(id){ const m=getFotosMap(); m[id]=b64; setFotosMap(m); document.getElementById('foto-preview-dni').textContent='ID: '+id+' ✅'; } }
-function borrarFoto(){ const id=getIdIngreso(); if(id){ const m=getFotosMap(); delete m[id]; setFotosMap(m); } document.getElementById('foto-preview').src=''; document.getElementById('foto-preview-wrap').style.display='none'; document.getElementById('btn-borrar-foto').style.display='none'; document.getElementById('foto-preview-dni').textContent='ID: --'; focusIdInput(); }
-function detenerCamara(){ try{ if(_camStream){ _camStream.getTracks().forEach(t=>t.stop()); _camStream=null; } }catch(e){} const v=document.getElementById('cam-video'); if(v) v.srcObject=null; document.getElementById('cam-wrap').style.display='none'; document.getElementById('btn-cam-start').style.display='inline-flex'; document.getElementById('btn-cam-shot').style.display='none'; document.getElementById('btn-cam-stop').style.display='none'; }
+/* ======= CÁMARA ======= */
+async function iniciarCamara(){
+  try{
+    if(!_camStream){ _camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false}); }
+    const v=document.getElementById('cam-video'); v.srcObject=_camStream; v.play();
+    document.getElementById('cam-wrap').style.display='block';
+    document.getElementById('btn-cam-start').style.display='none';
+    document.getElementById('btn-cam-shot').style.display='inline-flex';
+    document.getElementById('btn-cam-stop').style.display='inline-flex';
+  }catch(e){ alert('No se pudo acceder a la cámara'); }
+}
+function tomarFoto(){
+  const v=document.getElementById('cam-video');
+  const c=document.getElementById('cam-canvas'), ctx=c.getContext('2d');
+  const vw=v.videoWidth, vh=v.videoHeight; if(!vw || !vh) return;
+  const size=Math.min(vw,vh), sx=Math.floor((vw-size)/2), sy=Math.floor((vh-size)/2);
+  c.width=320; c.height=320; ctx.drawImage(v,sx,sy,size,size,0,0,320,320);
+  const data=c.toDataURL('image/jpeg',0.9);
+  _guardarFoto(data); detenerCamara(); focusIdInput();
+}
+function _guardarFoto(b64){
+  const id=getIdIngreso();
+  const prev=document.getElementById('foto-preview');
+  const wrap=document.getElementById('foto-preview-wrap');
+  prev.src=b64; wrap.style.display='block';
+  document.getElementById('btn-borrar-foto').style.display='inline-flex';
+  if(id){ const m=getFotosMap(); m[id]=b64; setFotosMap(m); document.getElementById('foto-preview-dni').textContent='ID: '+id+' ✅'; }
+}
+function borrarFoto(){
+  const id=getIdIngreso();
+  if(id){ const m=getFotosMap(); delete m[id]; setFotosMap(m); }
+  document.getElementById('foto-preview').src='';
+  document.getElementById('foto-preview-wrap').style.display='none';
+  document.getElementById('btn-borrar-foto').style.display='none';
+  document.getElementById('foto-preview-dni').textContent='ID: --';
+  focusIdInput();
+}
+function detenerCamara(){
+  try{ if(_camStream){ _camStream.getTracks().forEach(t=>t.stop()); _camStream=null; } }catch(e){}
+  const v=document.getElementById('cam-video'); if(v) v.srcObject=null;
+  document.getElementById('cam-wrap').style.display='none';
+  document.getElementById('btn-cam-start').style.display='inline-flex';
+  document.getElementById('btn-cam-shot').style.display='none';
+  document.getElementById('btn-cam-stop').style.display='none';
+}
 
-// ======= ESTADO / SANCIONES =======
+/* ======= ESTADO / SANCIONES ======= */
 function suspActivaPara(id){
   if(!id) return null;
   const hoy=hoyISO();
   return getSanciones().find(s=> s.tipo==='suspension' && s.personaId===id && s.activo!==false &&
-   (s.desdeISO||'0001-01-01')<=hoy && hoy<= (s.hastaISO||'9999-12-31'));
+    (s.desdeISO||'0001-01-01')<=hoy && hoy<= (s.hastaISO||'9999-12-31'));
 }
 function ultimoApercPara(id){
   if(!id) return null;
@@ -416,7 +447,7 @@ function updateEstadoChip(){
   setEstadoChip('ok','Sin sanciones');
 }
 
-// ======= INGRESO =======
+/* ======= INGRESO ======= */
 function toggleIngresoFields(){ const t=getTipo(); document.getElementById('wrap-dni-ingreso').style.display=(t==='invitado')?'':'none'; document.getElementById('wrap-socio-ingreso').style.display=(t==='socio')?'':'none'; onIdentificadorChange(); }
 const getTipo=()=> (document.querySelector('input[name="tipo-ingreso"]:checked')?.value)||'invitado';
 const getIdIngreso=()=> getTipo()==='socio' ? (document.getElementById('nroSocio-ingreso')?.value||'').trim() : (document.getElementById('dni-ingreso')?.value||'').trim();
@@ -433,7 +464,6 @@ function onIdentificadorChange(){
 }
 function mostrarAlerta(id,tipo,msg){ const el=document.getElementById(id); el.className='alerta'; if(tipo==='ok') el.classList.add('ok'); else if(tipo==='warn') el.classList.add('warn'); else el.classList.add('error'); el.innerHTML=msg||''; }
 function buscarInvitado(){ const id=getIdIngreso(); if(!id){ mostrarAlerta('alerta-ingreso','error','Ingresá un identificador.'); return; } updateEstadoChip(); const lista=getIngresos(); const u=lista.filter(x=>x.dni===id).slice(-1)[0]; if(u&&u.nombre) document.getElementById('nombre-ingreso').value=u.nombre; const foto=getFoto(id); if(foto){ const prev=document.getElementById('foto-preview'); prev.src=foto; document.getElementById('foto-preview-wrap').style.display='block'; document.getElementById('btn-borrar-foto').style.display='inline-flex'; document.getElementById('foto-preview-dni').textContent='ID: '+id+' ✅'; } mostrarAlerta('alerta-ingreso','ok',`✅ Estado de <strong>${esc(id)}</strong> consultado.`); }
-// Foto modal con caption
 function abrirImg(el){
   const src = el?.src || '';
   const id = el?.dataset?.id || '';
@@ -449,8 +479,14 @@ function registrarIngreso(){
   const tipo=getTipo(); const id=getIdIngreso(); const nombre=(document.getElementById('nombre-ingreso').value||'').trim();
   const susp=suspActivaPara(id);
   if(susp){ mostrarAlerta('alerta-ingreso','error',`🚫 Ingreso denegado. Suspensión vigente hasta <strong>${esc(susp.hastaISO)}</strong> · Motivo: <em>${esc(susp.motivo||'—')}</em>`); return; }
-  if(tipo==='invitado'){ if(!id) return mostrarAlerta('alerta-ingreso','error','Ingresá el DNI.'); if(!/^\\d{6,10}$/.test(id)) return mostrarAlerta('alerta-ingreso','error','DNI inválido.'); if(!nombre) return mostrarAlerta('alerta-ingreso','error','El nombre es obligatorio.'); }
-  else { if(!id) return mostrarAlerta('alerta-ingreso','error','Ingresá el N° de socio.'); if(!/^[A-Za-z0-9\\-]{3,20}$/.test(id)) return mostrarAlerta('alerta-ingreso','error','N° socio inválido.'); }
+  if(tipo==='invitado'){
+    if(!id) return mostrarAlerta('alerta-ingreso','error','Ingresá el DNI.');
+    if(!/^\d{6,10}$/.test(id)) return mostrarAlerta('alerta-ingreso','error','DNI inválido.');
+    if(!nombre) return mostrarAlerta('alerta-ingreso','error','El nombre es obligatorio.');
+  } else {
+    if(!id) return mostrarAlerta('alerta-ingreso','error','Ingresá el N° de socio.');
+    if(!/^[A-Za-z0-9\-]{3,20}$/.test(id)) return mostrarAlerta('alerta-ingreso','error','N° socio inválido.');
+  }
   const existeFoto=!!getFoto(id); const prevSrc=document.getElementById('foto-preview')?.src||''; const hayNueva=prevSrc && prevSrc.startsWith('data:image/');
   if(!existeFoto && !hayNueva) return mostrarAlerta('alerta-ingreso','error','📸 La foto es obligatoria.');
   if(!existeFoto && hayNueva){ const m=getFotosMap(); m[id]=prevSrc; setFotosMap(m); }
@@ -464,24 +500,46 @@ function registrarIngreso(){
   setEstadoChip(null,'');
 }
 
-// ======= CONSULTA =======
+/* ======= CONSULTA ======= */
 function renderFotoCell(personaId, nombre){
   const foto=getFoto(personaId); if(!foto) return '—';
   if(typeof foto==='string' && foto.startsWith('data:image/')){
     const safeSrc=foto.replace(/"/g,'&quot;'); const safeAlt=`Foto de ${nombre||''} (${personaId||''})`.replace(/"/g,'&quot;');
     const safeNom=String(nombre||'').replace(/"/g,'&quot;'); const safeId=String(personaId||'').replace(/"/g,'&quot;');
-    return `${safeSrc}`;
+    return `<img class="thumb" src="${safeSrc}" alt="${safeAlt}" data-id="${safeId}" data-nombre="${safeNom}" onclick="abrirImg(this)">`;
   }
-  if(typeof foto==='string' && (/^https?:\\/\\//i).test(foto)){
+  if(typeof foto==='string' && (/^https?:\/\//i).test(foto)){
     const safeSrc=foto.replace(/"/g,'&quot;'); const safeAlt=`Foto de ${nombre||''} (${personaId||''})`.replace(/"/g,'&quot;');
     const safeNom=String(nombre||'').replace(/"/g,'&quot;'); const safeId=String(personaId||'').replace(/"/g,'&quot;');
-    return `${safeSrc}`;
+    return `<img class="thumb" src="${safeSrc}" alt="${safeAlt}" data-id="${safeId}" data-nombre="${safeNom}" onclick="abrirImg(this)">`;
   }
   return foto;
 }
 function limpiarConsulta(){ ['consulta-id','consulta-desde','consulta-hasta'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';}); document.getElementById('consulta-tipo').value='ambos'; const res=document.getElementById('consulta-res'); res.className='alerta'; res.innerHTML=''; document.getElementById('consulta-tabla-wrap').style.display='none'; document.querySelector('#consulta-tabla tbody').innerHTML=''; document.getElementById('consulta-desde').value=hoyISO(); document.getElementById('consulta-hasta').value=hoyISO(); }
-function toISO(fecha){ if(!fecha) return '0001-01-01'; if(/^\\d{4}-\\d{2}-\\d{2}$/.test(fecha)) return fecha; const p=fecha.split('/'); if(p.length!==3) return '0001-01-01'; const d=new Date(+p[2],+p[1]-1,+p[0]); return d.toISOString().slice(0,10); }
-function filtrarIngresos({id,desdeISO,hastaISO,tipo}){ const ing=getIngresos(); let d=desdeISO||null, h=hastaISO||null; if(d && !/^\\d{4}-\\d{2}-\\d{2}$/.test(d)) return {error:'Fecha "Desde" inválida.'}; if(h && !/^\\d{4}-\\d{2}-\\d{2}$/.test(h)) return {error:'Fecha "Hasta" inválida.'}; if(d && !h) h='9999-12-31'; if(!d && h) d='0001-01-01'; const filas=ing.filter(x=>{ const okId=id?x.dni===id:true; const f=x.isoFecha||toISO(x.fecha); const okF=(d?f>=d:true)&&(h?f<=h:true); const okT=(tipo==='ambos')?true:(x.tipo===tipo); return okId&&okF&&okT; }).sort((a,b)=>{const ka=(a.isoFecha||toISO(a.fecha))+' '+(a.hora||'00:00:00'); const kb=(b.isoFecha||toISO(b.fecha))+' '+(b.hora||'00:00:00'); return kb.localeCompare(ka);}); return {filas}; }
+function toISO(fecha){
+  if(!fecha) return '0001-01-01';
+  if(/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return fecha;
+  const p=fecha.split('/'); if(p.length!==3) return '0001-01-01';
+  const d=new Date(+p[2],+p[1]-1,+p[0]); return d.toISOString().slice(0,10);
+}
+function filtrarIngresos({id,desdeISO,hastaISO,tipo}){
+  const ing=getIngresos(); let d=desdeISO||null, h=hastaISO||null;
+  if(d && !/^\d{4}-\d{2}-\d{2}$/.test(d)) return {error:'Fecha "Desde" inválida.'};
+  if(h && !/^\d{4}-\d{2}-\d{2}$/.test(h)) return {error:'Fecha "Hasta" inválida.'};
+  if(d && !h) h='9999-12-31'; if(!d && h) d='0001-01-01';
+  const filas=ing.filter(x=>{
+    const okId=id?x.dni===id:true;
+    const f=x.isoFecha||toISO(x.fecha);
+    const okF=(d?f>=d:true)&&(h?f<=h:true);
+    const okT=(tipo==='ambos')?true:(x.tipo===tipo);
+    return okId&&okF&&okT;
+  }).sort((a,b)=>{
+    const ka=(a.isoFecha||toISO(a.fecha))+' '+(a.hora||'00:00:00');
+    const kb=(b.isoFecha||toISO(b.fecha))+' '+(b.hora||'00:00:00');
+    return kb.localeCompare(ka);
+  });
+  return {filas};
+}
 function btnApercClick(btn){ openAperc(btn.dataset.id, btn.dataset.nombre || ''); }
 function btnSuspClick(btn){ openSusp(btn.dataset.id, btn.dataset.nombre || ''); }
 function consulta(){
@@ -512,7 +570,7 @@ function consulta(){
   }
 }
 
-// ====== ACCIONES: APERCIBIR / SUSPENDER ======
+/* ====== ACCIONES: APERCIBIR / SUSPENDER ====== */
 function openAperc(personaId, nombre){
   _apercPersonaId=personaId||''; _apercNombre=nombre||'';
   document.getElementById('aperc-idtxt').textContent='ID: '+personaId+(nombre?(' · '+nombre):'');
@@ -546,7 +604,7 @@ function guardarSusp(){
   const desdeISO=(document.getElementById('susp-desde').value||'').trim();
   const hastaISO=(document.getElementById('susp-hasta').value||'').trim();
   const motivo=(document.getElementById('susp-motivo').value||'').trim();
-  if(!desdeISO||!hastaISO||!motivo){ document.getElementById('susp-msg').textContent='Completá motivo y rango de fechas.'; return; }
+  if(!desdeISO || !hastaISO || !motivo){ document.getElementById('susp-msg').textContent='Completá motivo y rango de fechas.'; return; }
   if(hastaISO<desdeISO){ document.getElementById('susp-msg').textContent='La fecha fin no puede ser anterior al inicio.'; return; }
   const arr=getSanciones();
   arr.push({ id:'su-'+Date.now(), tipo:'suspension', personaId:_suspPersonaId, nombre:_suspNombre, motivo, desdeISO, hastaISO, fechaISO:hoyISO(), activo:true });
@@ -557,7 +615,7 @@ function guardarSusp(){
   refrescarSanciones();
 }
 
-// ====== MODAL OBSERVACIÓN ======
+/* ====== MODAL OBSERVACIÓN ====== */
 function verObserv(titulo, texto){
   const head = document.getElementById('observ-head');
   const body = document.getElementById('observ-text');
@@ -567,7 +625,7 @@ function verObserv(titulo, texto){
 }
 function cerrarObserv(){ document.getElementById('mdl-observ').style.display='none'; }
 
-// ====== SANCIONES (listados) ======
+/* ====== SANCIONES (listados) ====== */
 function limpiarAperc(){
   document.getElementById('aperc-desde').value=hoyISO();
   document.getElementById('aperc-hasta').value=hoyISO();
@@ -593,7 +651,7 @@ function listarApercibimientos(){
   const arr=getSanciones().filter(s=>s.tipo==='apercibimiento');
   const enRango = arr.filter(s=>{
     const f=s.fechaISO||'0001-01-01';
-    return (!d||f>=d)&&(!h||f<=h);
+    return (!d || f>=d)&&(!h || f<=h);
   });
   const wrap=document.getElementById('aperc-tabla-wrap');
   const tbody=document.getElementById('aperc-tbody');
@@ -645,7 +703,7 @@ function refrescarSanciones(){
   wrap.style.display='block';
 }
 
-// ======= ESTADISTICAS =======
+/* ======= ESTADISTICAS ======= */
 function aplicarStats(){ const id=(document.getElementById('stats-id').value||'').trim(); const d=(document.getElementById('stats-desde').value||'').trim(); const h=(document.getElementById('stats-hasta').value||'').trim(); const t=document.getElementById('stats-tipo').value; const {filas,error}=filtrarIngresos({id,desdeISO:d,hastaISO:h,tipo:t}); const lbl=(id?`ID ${esc(id)} · `:'')+(t==='ambos'?'Ambos':(t==='socio'?'Socios':'Invitados'))+(d||h?` · Rango ${esc(d||'inicio')} → ${esc(h||'fin')}`:' · (todos)'); const box=document.getElementById('stats-resumen'); if(error){ box.textContent=error; limpiarCharts(); return; } box.textContent=`Registros: ${filas.length} · ${lbl}`; trends(filas); }
 function limpiarCharts(){ ['ch-trend-day','ch-trend-week','ch-trend-month','ch-trend-day-type'].forEach(id=>{ const ctx=document.getElementById(id).getContext('2d'); ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height); }); }
 function trends(f){ const days=serieDiaria(f); const weeks=serieSemanal(f); const months=serieMensual(f); const dayByType=serieDiariaPorTipo(f); drawLine(document.getElementById('ch-trend-day').getContext('2d'), days.labels,[{name:'Total',data:days.values,color:'#2a7a2a'}],'Ingresos diarios'); drawLine(document.getElementById('ch-trend-week').getContext('2d'), weeks.labels,[{name:'Total',data:weeks.values,color:'#c8a84b'}],'Ingresos semanales'); drawLine(document.getElementById('ch-trend-month').getContext('2d'), months.labels,[{name:'Total',data:months.values,color:'#9dd49d'}],'Ingresos mensuales'); drawLine(document.getElementById('ch-trend-day-type').getContext('2d'), dayByType.labels,[{name:'Invitados',data:dayByType.inv,color:'#d4841a'},{name:'Socios',data:dayByType.soc,color:'#2a7a2a'}],'Tendencia diaria por tipo'); }
@@ -657,7 +715,7 @@ function serieMensual(f){ const labels=[], values=[], agg={}; f.forEach(x=>{ con
 function serieDiariaPorTipo(f){ const [d0,d1]=rangoDias(f); const labels=[], inv=[], soc=[], ai={}, as={}; f.forEach(x=>{ const k=x.isoFecha||toISO(x.fecha); if((x.tipo||'').toLowerCase()==='socio') as[k]=(as[k]||0)+1; else ai[k]=(ai[k]||0)+1; }); for(let d=new Date(d0); d<=d1; d.setDate(d.getDate()+1)){ const k=iso(d); labels.push(k); inv.push(ai[k]||0); soc.push(as[k]||0); } return {labels,inv,soc}; }
 function drawLine(ctx, labels, series, titulo){ const c=ctx.canvas,W=c.width,H=c.height,L=50,R=15,T=24,B=28; ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a140a'; ctx.fillRect(0,0,W,H); ctx.fillStyle='#cfe9cf'; ctx.font='12px system-ui'; ctx.fillText(titulo||'',L,16); const n=labels.length||1; const max=Math.max(1,...series.flatMap(s=>s.data)); const yScale=(H-T-B)/max, xStep=(W-L-R)/Math.max(1,n-1); ctx.strokeStyle='#264'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,H-B); ctx.lineTo(W-R,H-B); ctx.stroke(); ctx.fillStyle='#9abf9a'; ctx.textAlign='right'; const stepY=Math.max(1,Math.ceil(max/5)); for(let t=0;t<=max;t+=stepY){ const y=H-B - t*yScale; ctx.fillText(String(t), L-6, y+4); ctx.strokeStyle='#123'; ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(W-R,y); ctx.stroke(); } ctx.textAlign='center'; const stepX=Math.ceil(n/8)||1; for(let i=0;i<n;i+=stepX){ const x=L+i*xStep; ctx.fillText(labels[i]||'', x, H-8); } series.forEach((s,i)=>{ const col=s.color||['#2a7a2a','#c8a84b','#9dd49d','#d4841a'][i%4]; ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); for(let k=0;k<n;k++){ const v=s.data[k]||0; const x=L+k*xStep; const y=H-B - v*yScale; if(k===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke(); ctx.fillStyle=col; for(let k=0;k<n;k+=Math.max(1,Math.floor(n/30))){ const v=s.data[k]||0; const x=L+k*xStep; const y=H-B - v*yScale; ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2); ctx.fill(); } }); }
 
-// ======= ACTIVAR / VALIDAR =======
+/* ======= ACTIVAR / VALIDAR ======= */
 function abrirActivar(){
   try{
     const m=document.getElementById('activar-modal'), i=document.getElementById('activar-token');
@@ -669,23 +727,20 @@ function abrirActivar(){
 }
 function cerrarActivar(){ document.getElementById('activar-modal').style.display='none'; }
 function hideActivateBtn(){ const b=document.getElementById('btn-activar-sistema'); if(b) b.style.display='none'; }
-
 async function guardarYActivar(){
   try{
     const t=(document.getElementById('activar-token').value||'').trim();
     const msgEl=document.getElementById('activar-msg');
     if(!t){ msgEl.textContent='Ingresá el token.'; return; }
-    const formatoOK = /^gh[pous]_/.test(t) || /^github_pat_/.test(t);
+    const formatoOK = /^(ghp_|github_pat_)/.test(t);
     if(!formatoOK){ msgEl.textContent='⚠️ El token no parece de GitHub (ghp_/github_pat_), probá igualmente.'; }
     setToken(t);
-
     if(!online()){
       nubeActiva=false; setSyncBadge('err','☁️ Datos local');
       msgEl.textContent='Token guardado (sin conexión).';
       setTimeout(()=>cerrarActivar(),700);
       return;
     }
-
     msgEl.textContent='Validando token…';
     const r=await validarToken();
     if(r && r.ok){
@@ -695,7 +750,7 @@ async function guardarYActivar(){
     }else{
       nubeActiva=false; setSyncBadge('err','☁️ Datos local');
       let detalle = (r && r.error) ? String(r.error) : 'Token inválido';
-      if(/401/.test(detalle))      detalle = 'Token inválido (401).';
+      if(/401/.test(detalle)) detalle = 'Token inválido (401).';
       else if(/403/.test(detalle)) detalle = 'Acceso denegado (403).';
       else if(/permisos|scope|gist|repo/i.test(detalle)) detalle = 'Token sin permisos requeridos (agregá scope: gist o repo).';
       msgEl.textContent = '❌ '+detalle;
@@ -704,10 +759,9 @@ async function guardarYActivar(){
   }catch(e){
     console.error('guardarYActivar()', e);
     const msgEl=document.getElementById('activar-msg');
-    if(msgEl) msgEl.textContent='❌ Error inesperado al activar: '+(e?.message||e);
+    if(msgEl) msgEl.textContent='❌ Error inesperado al activar: '+(e?.message || e);
   }
 }
-
 async function validarToken(){
   if(!online()) return {ok:true,modo:'local'};
   const token=getToken(); if(!token) return {ok:false,error:'Falta token'};
@@ -729,12 +783,11 @@ async function validarToken(){
     }
     return {ok:true,scopes};
   }catch(e){
-    return {ok:false,error:'Red/CORS: '+(e?.message||e)};
+    return {ok:false,error:'Red/CORS: '+(e?.message || e)};
   }
 }
 
-// ======= GITHUB (Gist + Repo fallback) =======
-// (igual que antes)
+/* ======= GITHUB (Gist + Repo fallback) ======= */
 function ghHeaders(){ return {'Accept':'application/vnd.github+json','Authorization':'Bearer '+getToken(),'X-GitHub-Api-Version':'2022-11-28'}; }
 function b64(s){ return btoa(unescape(encodeURIComponent(s))); }
 async function ghUser(){ const r=await fetch('https://api.github.com/user',{headers:ghHeaders(),mode:'cors',cache:'no-store'}); if(!r.ok) throw new Error('user:'+r.status); return await r.json(); }
@@ -748,31 +801,28 @@ async function putFileJson(owner, repo, path, obj, message){ const sha=await get
 async function getFileJson(owner, repo, path){ const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`,{headers:ghHeaders(),mode:'cors',cache:'no-store'}); if(r.status===404) return null; if(!r.ok) throw new Error('GET_FILE:'+r.status); const j=await r.json(); const raw=atob(j.content||''); return JSON.parse(decodeURIComponent(escape(raw))); }
 function mergeIngresos(localArr, remoteArr){ const key=x=>[x.dni||'',x.isoFecha||toISO(x.fecha||''),x.hora||'',x.tipo||'',x.nombre||''].join('|'); const map=new Map(); [...localArr,...remoteArr].forEach(x=>map.set(key(x),x)); return Array.from(map.values()).sort((a,b)=> ((b.isoFecha||toISO(b.fecha||''))+' '+(b.hora||'00:00:00')).localeCompare((a.isoFecha||toISO(a.fecha||''))+' '+(a.hora||'00:00:00')) ); }
 function mergeFotos(localMap, remoteMap){ return {...remoteMap, ...localMap}; }
-async function bootstrapFromGitHub(){ if(!nubeActiva || !online()) return; setSyncBadge('ok','☁️ Datos online'); let mode=getBackupMode(); let gid=getGistId(); if(mode==='gist'){ try{ if(!gid) gid=await discoverGistId(); if(gid){ const remote=await pullFromGist(gid); const ing=mergeIngresos(getIngresos(),remote.ingresos||[]); const fot=mergeFotos(getFotosMap(),remote.fotos||{}); save(KEYS.ingresos,ing); save(KEYS.fotos,fot); await patchGist(gid); return; } const hasLocal=getIngresos().length||Object.keys(getFotosMap()).length; if(hasLocal){ await createGistFromLocal(); return; } return; }catch(e){ if(String(e.message||'').startsWith('GIST_UNAVAILABLE')){ setBackupMode('repo'); } else { setSyncBadge('err','☁️ Datos local'); return; } } } try{ const user=await ghUser(); const owner=user.login; const repo='pejerrey-backup'; await ensureRepo(owner,repo); const rIng=await getFileJson(owner,repo,'ingresos.json')||[]; const rFot=await getFileJson(owner,repo,'fotos.json')||{}; const ing=mergeIngresos(getIngresos(), rIng); const fot=mergeFotos(getFotosMap(), rFot); save(KEYS.ingresos,ing); save(KEYS.fotos,fot); await putFileJson(owner,repo,'ingresos.json',ing,'sync: ingresos'); await putFileJson(owner,repo,'fotos.json',fot,'sync: fotos'); await putFileJson(owner,repo,'meta.json',{updatedAt:new Date().toISOString(),app:'PejerreyClub'},'sync: meta'); localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now())); }catch(e){ setSyncBadge('err','☁️ Datos local'); } }
+async function bootstrapFromGitHub(){ if(!nubeActiva || !online()) return; setSyncBadge('ok','☁️ Datos online'); let mode=getBackupMode(); let gid=getGistId(); if(mode==='gist'){ try{ if(!gid) gid=await discoverGistId(); if(gid){ const remote=await pullFromGist(gid); const ing=mergeIngresos(getIngresos(),remote.ingresos||[]); const fot=mergeFotos(getFotosMap(),remote.fotos||{}); save(KEYS.ingresos,ing); save(KEYS.fotos,fot); await patchGist(gid); return; } const hasLocal=getIngresos().length || Object.keys(getFotosMap()).length; if(hasLocal){ await createGistFromLocal(); return; } return; }catch(e){ if(String(e.message||'').startsWith('GIST_UNAVAILABLE')){ setBackupMode('repo'); } else { setSyncBadge('err','☁️ Datos local'); return; } } } try{ const user=await ghUser(); const owner=user.login; const repo='pejerrey-backup'; await ensureRepo(owner,repo); const rIng=await getFileJson(owner,repo,'ingresos.json')||[]; const rFot=await getFileJson(owner,repo,'fotos.json')||{}; const ing=mergeIngresos(getIngresos(), rIng); const fot=mergeFotos(getFotosMap(), rFot); save(KEYS.ingresos,ing); save(KEYS.fotos,fot); await putFileJson(owner,repo,'ingresos.json',ing,'sync: ingresos'); await putFileJson(owner,repo,'fotos.json',fot,'sync: fotos'); await putFileJson(owner,repo,'meta.json',{updatedAt:new Date().toISOString(),app:'PejerreyClub'},'sync: meta'); localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now())); }catch(e){ setSyncBadge('err','☁️ Datos local'); } }
 async function persistir(){ if(!nubeActiva || !online()) return; setSyncBadge('syncing','☁️ Datos online'); let mode=getBackupMode(); if(mode==='gist'){ try{ let gid=getGistId(); if(!gid) gid=await discoverGistId(); if(!gid){ await createGistFromLocal(); clearDirty(); setSyncBadge('ok','☁️ Datos online'); return; } await patchGist(gid); clearDirty(); setSyncBadge('ok','☁️ Datos online'); return; }catch(e){ if(String(e.message||'').startsWith('GIST_')){ setBackupMode('repo'); } else { setSyncBadge('err','☁️ Datos local'); return; } } } try{ const user=await ghUser(); const owner=user.login; const repo='pejerrey-backup'; await ensureRepo(owner,repo); await putFileJson(owner,repo,'ingresos.json',getIngresos(),'sync: ingresos'); await putFileJson(owner,repo,'fotos.json',getFotosMap(),'sync: fotos'); await putFileJson(owner,repo,'meta.json',{updatedAt:new Date().toISOString(),app:'PejerreyClub'},'sync: meta'); localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now())); clearDirty(); setSyncBadge('ok','☁️ Datos online'); }catch(e){ setSyncBadge('err','☁️ Datos local'); } }
 function scheduleSync(){ if(_syncTimer) clearInterval(_syncTimer); _syncTimer=setInterval(async()=>{ if(hayPendientes()) await persistir(); }, 60*1000); }
 
-// ======= SYNC MANUAL =======
+/* ======= SYNC MANUAL ======= */
 async function syncManual(){ if(!getToken()){ alert('Ingresá tu token y activá el sistema.'); return; } const v=await validarToken(); if(!(v&&v.ok)){ alert('Token inválido o sin permisos.'); return; } nubeActiva=true; hideActivateBtn(); await bootstrapFromGitHub(); }
 
-// ======= MOSTRAR HOY =======
+/* ======= MOSTRAR HOY ======= */
 function mostrarIngresosDeHoy(){ const hoy = hoyISO(); document.getElementById('consulta-desde').value=hoy; document.getElementById('consulta-hasta').value=hoy; navClick('consulta', document.getElementById('btn-nav-consulta')); consulta(); }
 
-// ======= BACKUP manual =======
+/* ======= BACKUP manual ======= */
 function exportarJSON(){ const txt=JSON.stringify({ingresos:getIngresos(),fotos:getFotosMap(),sanciones:getSanciones()},null,2); document.getElementById('backup-json').value=txt; document.getElementById('backup-alert').textContent='Exportado.'; }
 function importarJSON(){ try{ const txt=document.getElementById('backup-json').value||'{}'; const data=JSON.parse(txt); if(data.ingresos) save(KEYS.ingresos,data.ingresos); if(data.fotos) save(KEYS.fotos,data.fotos); if(data.sanciones) save(KEYS.sanciones,data.sanciones); document.getElementById('backup-alert').textContent='Importación OK.'; markDirty(); }catch(e){ document.getElementById('backup-alert').textContent='Error al importar JSON.'; } }
 
-// ======= RANDOM DATA (desde 01/2026 · 100) =======
+/* ======= RANDOM DATA (desde 01/2026 · 100) ======= */
 function generarRandomDesdeEnero2026(){
   const start = new Date(2026,0,1);
   const end = new Date();
   const nombres = ['Pérez, Juan','Gómez, Ana','Rodríguez, Luis','Fernández, Marta','López, Diego','Sosa, Carla','Martínez, Pablo','Romero, Julia','Torres, Sofia','Ruiz, Martín'];
   const tipos = ['invitado','socio'];
   const rnd = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
-  const toISO = d=> d.toISOString().slice(0,10);
-  const dos=n=>n<10?('0'+n):(''+n);
-  const fDate=d=>[dos(d.getDate()),dos(d.getMonth()+1),d.getFullYear()].join('/');
-  const fTime=d=>[dos(d.getHours()),dos(d.getMinutes()),dos(d.getSeconds())].join(':');
+  const toISOo = d=> d.toISOString().slice(0,10);
   const lista = getIngresos();
   const fotos = getFotosMap();
   const URL_NO_FOTO = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/450px-No_image_available.svg.png?20221208232400';
@@ -783,7 +833,7 @@ function generarRandomDesdeEnero2026(){
     const nombre = nombres[rnd(0,nombres.length-1)];
     const ts = new Date(start.getTime() + Math.random()*(end.getTime()-start.getTime()));
     ts.setHours(rnd(8,20), rnd(0,59), rnd(0,59), 0);
-    lista.push({dni:id, tipo, nombre, fecha:fDate(ts), hora:fTime(ts), isoFecha:toISO(ts), rnd:true});
+    lista.push({dni:id, tipo, nombre, fecha:fDate(ts), hora:fTime(ts), isoFecha:toISOo(ts), rnd:true});
     if(!fotos[id]) fotos[id] = URL_NO_FOTO;
     creados++;
   }
@@ -801,7 +851,18 @@ function borrarRandom(){
   const el = document.getElementById('backup-alert'); if(el) el.textContent = '🧹 Datos aleatorios eliminados.';
 }
 
-// ======= INIT =======
+/* ======= STORAGE HELPERS ======= */
+function getIngresos(){ return load(KEYS.ingresos,[]); }
+function getFotosMap(){ return load(KEYS.fotos,{}); }
+function setFotosMap(m){ save(KEYS.fotos,m||{}); }
+function getFoto(id){ const m=getFotosMap(); return m[id]; }
+function getSanciones(){ return load(KEYS.sanciones,[]); }
+function setSanciones(a){ save(KEYS.sanciones,a||[]); }
+function markDirty(){ localStorage.setItem(KEYS.dirty,'1'); }
+function clearDirty(){ localStorage.removeItem(KEYS.dirty); }
+function hayPendientes(){ return !!localStorage.getItem(KEYS.dirty); }
+
+/* ======= INIT ======= */
 (function(){
   tick(); setInterval(tick,1000);
   ['consulta-desde','consulta-hasta','stats-desde','stats-hasta','aperc-desde','aperc-hasta'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=hoyISO(); });
@@ -817,15 +878,14 @@ function borrarRandom(){
   }
   scheduleSync();
   navClick('ingreso', document.getElementById('btn-nav-ingreso'));
-
-  // ===== Fallback por si el handler inline estuviera bloqueado:
+  // Fallback por si el handler inline estuviera bloqueado:
   try{
     const btnAct = document.getElementById('btn-activar-sistema');
     if(btnAct) btnAct.addEventListener('click', abrirActivar);
   }catch(_){}
 })();
 
-// **Exponer funciones al scope global** (para onclick="" del HTML)
+/* Exponer funciones para inline onclick="" */
 window.abrirActivar = abrirActivar;
 window.cerrarActivar = cerrarActivar;
 window.guardarYActivar = guardarYActivar;
