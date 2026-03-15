@@ -43,6 +43,10 @@
  #img-modal-img{max-width:90vw;max-height:80vh;border:3px solid var(--dorado);border-radius:10px} 
  #sync-debug{font-size:.8rem;color:#cfe9cf;margin-left:8px} 
 </style> 
+
+  <!-- Charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 </head> 
 <body> 
 <header> 
@@ -167,7 +171,18 @@
  <!-- Estadísticas --> 
  <section id="sec-estad" class="card" style="display:none"> 
  <h2>Estadísticas</h2> 
- <div class="row" style="gap:8px"><button class="btn" onclick="aplicarStats()">Aplicar</button></div> 
+ <div class="form-row">
+  <label>Desde <input id="s-desde" type="date"/></label>
+  <label>Hasta <input id="s-hasta" type="date"/></label>
+  <label>Tipo
+    <select id="s-tipo">
+      <option value="ambos" selected>Ambos</option>
+      <option value="invitado">Invitado</option>
+      <option value="socio">Socio</option>
+    </select>
+  </label>
+  <div class="row" style="gap:8px;align-items:end"><button class="btn" onclick="aplicarStats()">Aplicar</button></div>
+</div> 
  <div class="sub" id="s-resumen" style="margin:8px 0"></div> 
  <div class="card"><h3>Totales por día</h3><canvas id="ch-trend-day" width="650" height="240" style="background:#0a140a;border:1px solid #234;border-radius:6px"></canvas></div> 
  <div class="card"><h3>Totales por semana</h3><canvas id="ch-trend-week" width="650" height="240" style="background:#0a140a;border:1px solid #234;border-radius:6px"></canvas></div> 
@@ -791,7 +806,10 @@ function updateOnlineStatus(){
 /* ==== INIT ==== */ 
 (function(){ 
  tick(); setInterval(tick,1000); 
- ['c-desde','c-hasta','ap-desde','ap-hasta'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=hoyISO(); }); 
+ ['c-desde','c-hasta','ap-desde','ap-hasta'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=hoyISO(); });
+ const sd=document.getElementById('s-desde'); const sh=document.getElementById('s-hasta');
+ if(sd) sd.value = isoAddDays(hoyISO(), -90);
+ if(sh) sh.value = hoyISO(); 
  navClick('ingreso', document.getElementById('btn-nav-ingreso')); 
  const _dni=document.getElementById('dni'); _dni?.focus(); _dni?.select?.(); 
 })(); 
@@ -839,7 +857,8 @@ function navClick(id,btn){
  document.querySelectorAll('main > section').forEach(s=>s.style.display='none'); 
  document.getElementById('sec-'+id).style.display='block'; 
  if(id==='ingreso') toggleIngresoFields(); 
- if(id==='sanc') refrescarSanciones(); 
+ if(id==='sanc') refrescarSanciones();
+ if(id==='estad') aplicarStats(); 
 } 
 function toggleIngresoFields(){ 
  const t=(document.querySelector('input[name="tipo-ing"]:checked')?.value)||'invitado'; 
@@ -866,10 +885,105 @@ async function syncManual() {
  if(el){ el.classList.add('error'); el.textContent='❌ Error al sincronizar: '+(e?.message||'desconocido'); } 
  } 
 } 
-function aplicarStats(){ 
- const el=document.getElementById('s-resumen'); 
- if(el) el.textContent='(Demo) Aplicado. Cargá datos para ver tendencias.'; 
-} 
+
+function aplicarStats(){
+  // Lee rango (defaults: hoy-90 -> hoy)
+  const desdeEl=document.getElementById('s-desde');
+  const hastaEl=document.getElementById('s-hasta');
+  let d=(desdeEl?.value||'').trim();
+  let h=(hastaEl?.value||'').trim();
+  if(!d) d = isoAddDays(hoyISO(), -90);
+  if(!h) h = hoyISO();
+  if(d>h){ const tmp=d; d=h; h=tmp; if(desdeEl) desdeEl.value=d; if(hastaEl) hastaEl.value=h; }
+  if(desdeEl) desdeEl.value=d; if(hastaEl) hastaEl.value=h;
+
+  const elResumen=document.getElementById('s-resumen');
+
+  // Obtiene filas filtradas
+  const tSel=(document.getElementById('s-tipo')?.value||'ambos');
+  const {filas} = filtrarIngresos({desdeISO:d, hastaISO:h, tipo:tSel});
+
+  // Manejo sin librería de gráficos
+  if(!window.Chart){
+    if(elResumen) elResumen.textContent='No se pudieron cargar los gráficos (Chart.js no disponible).';
+    return;
+  }
+  // Registra plugin de datalabels una sola vez
+  if(!window.__chartsInited){ try{ if(window.ChartDataLabels) Chart.register(ChartDataLabels); }catch(_){} window.__chartsInited=true; }
+
+  // Helpers locales
+  function listDays(d1,d2){ const out=[]; let cur=d1; while(cur<=d2){ out.push(cur); cur=isoAddDays(cur,1);} return out; }
+  function ym(iso){ return String(iso).slice(0,7); }
+  function listMonths(d1,d2){ const res=[]; let y=+d1.slice(0,4), m=+d1.slice(5,7); const y2=+d2.slice(0,4), m2=+d2.slice(5,7); while(y<y2 || (y===y2 && m<=m2)){ res.push(`${y}-${('0'+m).slice(-2)}`); m++; if(m>12){m=1;y++;} } return res; }
+  function mondayOf(iso){ const dt=new Date(iso+'T00:00:00'); const dow=(dt.getDay()||7); dt.setDate(dt.getDate()-dow+1); return dt.toISOString().slice(0,10); }
+  function listMondays(d1,d2){ let cur=new Date(d1+'T00:00:00'); const dow=(cur.getDay()||7); cur.setDate(cur.getDate()-dow+1); const end=new Date(d2+'T00:00:00'); const out=[]; while(cur<=end){ out.push(cur.toISOString().slice(0,10)); cur.setDate(cur.getDate()+7);} return out; }
+
+  // Construye base por día (continuo)
+  const days=listDays(d,h);
+  const dayCount=Object.fromEntries(days.map(x=>[x,0]));
+  const dayInv=Object.fromEntries(days.map(x=>[x,0]));
+  const daySoc=Object.fromEntries(days.map(x=>[x,0]));
+  for(const r of filas){ const f=r.isoFecha || toISO(r.fecha); if(f>=d && f<=h){ dayCount[f]=(dayCount[f]||0)+1; const t=(r.tipo||'').toLowerCase()==='socio'?'soc':'inv'; if(t==='soc') daySoc[f]++; else dayInv[f]++; } }
+  const labelsDay=days;
+  const valsDay=labelsDay.map(x=>dayCount[x]||0);
+
+  // Resumen
+  const total=filas.length; const dias=days.length; const prom=dias? (total/dias):0; let maxDia='—', maxVal=0; for(const x of labelsDay){ const v=dayCount[x]||0; if(v>maxVal){ maxVal=v; maxDia=x; } }
+  if(elResumen){ elResumen.textContent=`Rango: ${d} → ${h} · Tipo: ${tSel} · Total: ${total} · Promedio diario: ${prom.toFixed(1)} · Pico: ${maxDia} (${maxVal})`; }
+
+  // Semanas (por lunes)
+  const weeks=listMondays(d,h);
+  const weekCount=Object.fromEntries(weeks.map(w=>[w,0]));
+  for(const r of filas){ const wk=mondayOf(r.isoFecha||toISO(r.fecha)); if(wk>=weeks[0] && wk<=weeks[weeks.length-1]) weekCount[wk]=(weekCount[wk]||0)+1; }
+  const labelsWeek=weeks.map(w=>'Sem '+w);
+  const valsWeek=weeks.map(w=>weekCount[w]||0);
+
+  // Meses
+  const months=listMonths(d,h);
+  const monthCount=Object.fromEntries(months.map(k=>[k,0]));
+  for(const r of filas){ const k=ym(r.isoFecha||toISO(r.fecha)); monthCount[k]=(monthCount[k]||0)+1; }
+  const labelsMonth=months; const valsMonth=months.map(k=>monthCount[k]||0);
+
+  // Renderiza charts (destruye previos)
+  const charts = (window.__pcqCharts = window.__pcqCharts || {});
+  function destroy(key){ try{ charts[key]?.destroy?.(); }catch(_){} }
+  const gold='#c8a84b', green='#2a7a2a', invColor='rgba(200,168,75,0.75)', socColor='rgba(46,139,87,0.75)';
+
+  // Día (línea)
+  destroy('day');
+  charts.day = new Chart(document.getElementById('ch-trend-day'), {
+    type:'line',
+    data:{ labels: labelsDay, datasets:[{ label:'Ingresos por día', data: valsDay, borderColor: gold, backgroundColor:'rgba(200,168,75,0.18)', tension:0.25, fill:true, pointRadius:3 }] },
+    options:{ responsive:false, plugins:{ title:{display:true, text:`Totales por día ${tSel!=='ambos'?('['+tSel+']'):''} (${d}→${h})`}, legend:{display:false}, datalabels:{ anchor:'end', align:'top', color:'#e6e6e6', formatter:(v)=> v>0? v:'' } }, scales:{ x:{ ticks:{ color:'#cfe9cf' }}, y:{ beginAtZero:true, ticks:{ color:'#cfe9cf'} } } }
+  });
+
+  // Semana (barras)
+  destroy('week');
+  charts.week = new Chart(document.getElementById('ch-trend-week'), {
+    type:'bar',
+    data:{ labels: labelsWeek, datasets:[{ label:'Ingresos por semana', data: valsWeek, backgroundColor: gold }] },
+    options:{ responsive:false, plugins:{ title:{display:true, text:`Totales por semana ${tSel!=='ambos'?('['+tSel+']'):''} (${d}→${h})`}, legend:{display:false}, datalabels:{ anchor:'end', align:'top', color:'#e6e6e6', formatter:(v)=> v>0? v:'' } }, scales:{ x:{ ticks:{ color:'#cfe9cf'}}, y:{ beginAtZero:true, ticks:{ color:'#cfe9cf'}} } }
+  });
+
+  // Mes (barras)
+  destroy('month');
+  charts.month = new Chart(document.getElementById('ch-trend-month'), {
+    type:'bar',
+    data:{ labels: labelsMonth, datasets:[{ label:'Ingresos por mes', data: valsMonth, backgroundColor: green }] },
+    options:{ responsive:false, plugins:{ title:{display:true, text:`Totales por mes ${tSel!=='ambos'?('['+tSel+']'):''} (${d}→${h})`}, legend:{display:false}, datalabels:{ anchor:'end', align:'top', color:'#e6e6e6', formatter:(v)=> v>0? v:'' } }, scales:{ x:{ ticks:{ color:'#cfe9cf'}}, y:{ beginAtZero:true, ticks:{ color:'#cfe9cf'}} } }
+  });
+
+  // Distribución diaria por tipo (barras apiladas)
+  const invData = labelsDay.map(x=>dayInv[x]||0);
+  const socData = labelsDay.map(x=>daySoc[x]||0);
+  destroy('dayType');
+  charts.dayType = new Chart(document.getElementById('ch-trend-day-type'), {
+    type:'bar',
+    data:{ labels: labelsDay, datasets:[{ label:'Invitados', data: invData, backgroundColor: invColor }, { label:'Socios', data: socData, backgroundColor: socColor }] },
+    options:{ responsive:false, plugins:{ title:{display:true, text:`Distribución diaria por tipo (${d}→${h})`}, legend:{labels:{color:'#cfe9cf'}}, datalabels:{ anchor:'center', align:'center', color:'#000', formatter:(v)=> v>0? v:'' } }, scales:{ x:{ stacked:true, ticks:{ color:'#cfe9cf'}}, y:{ stacked:true, beginAtZero:true, ticks:{ color:'#cfe9cf'}} } }
+  });
+}
+ 
 function limpiarConsulta(){ 
  const id=document.getElementById('c-id'); 
  const t=document.getElementById('c-tipo'); 
