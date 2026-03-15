@@ -188,7 +188,7 @@
  <div class="card"><h3>Totales por semana</h3><canvas id="ch-trend-week" width="650" height="240" style="background:#0a140a;border:1px solid #234;border-radius:6px"></canvas></div> 
  <div class="card"><h3>Totales por mes</h3><canvas id="ch-trend-month" width="650" height="240" style="background:#0a140a;border:1px solid #234;border-radius:6px"></canvas></div> 
  <div class="card"><h3>Distribución diaria por tipo</h3><canvas id="ch-trend-day-type" width="650" height="240" style="background:#0a140a;border:1px solid #234;border-radius:6px"></canvas></div>
- <div class="card"><h3>Distribución por hora (Invitados vs. Socios)</h3><canvas id="ch-hourly" width="650" height="240" style="background:#0a140a;border:1px solid #234;border-radius:6px"></canvas></div> 
+  
  </section> 
  <!-- Utils --> 
  <section id="sec-utils" class="card" style="display:none"> 
@@ -1042,68 +1042,6 @@ window.addEventListener('error', (ev) => {
  setTimeout(boot,0); 
 })(); 
 </script> 
-<script>
-function renderHourly(filas, d, h, tSel){
-  try{
-    if(typeof Chart==='undefined') return; // Chart.js no disponible
-    const canvas = document.getElementById('ch-hourly');
-    if(!canvas) return; // canvas no presente (no rompe)
 
-    // Registrar plugin si está disponible (no obligatorio)
-    if(!window.__chartsInited){ try{ if(window.ChartDataLabels) Chart.register(ChartDataLabels); }catch(_){} window.__chartsInited=true; }
-
-    const charts = (window.__pcqCharts = window.__pcqCharts || {});
-    function destroy(key){ try{ charts[key]?.destroy?.(); }catch(_){} }
-
-    // Config colores coherentes con el tema existente
-    const invColor='rgba(200,168,75,0.75)'; // dorado translúcido
-    const socColor='rgba(46,139,87,0.75)'; // verde translúcido
-
-    // Bins 24 horas
-    const hours = Array.from({length:24}, (_,i)=> ('0'+i).slice(-2)+':00');
-    const hourInv = Object.fromEntries(hours.map(hh=>[hh,0]));
-    const hourSoc = Object.fromEntries(hours.map(hh=>[hh,0]));
-
-    for(const r of filas){
-      const hora = (r && r.hora) ? String(r.hora) : '00:00:00';
-      const hh = hora.slice(0,2)+':00';
-      const tipo = (String(r && r.tipo || '').toLowerCase()==='socio') ? 'socio' : 'invitado';
-      if(tipo==='socio'){ if(hh in hourSoc) hourSoc[hh] = (hourSoc[hh]||0)+1; }
-      else{ if(hh in hourInv) hourInv[hh] = (hourInv[hh]||0)+1; }
-    }
-
-    const labelsHour = hours;
-    const invData = labelsHour.map(hh=>hourInv[hh]||0);
-    const socData = labelsHour.map(hh=>hourSoc[hh]||0);
-
-    destroy('hourly');
-    charts.hourly = new Chart(canvas, {
-      type:'bar',
-      data:{
-        labels: labelsHour,
-        datasets:[
-          { label:'Invitados', data: invData, backgroundColor: invColor },
-          { label:'Socios', data: socData, backgroundColor: socColor }
-        ]
-      },
-      options:{
-        responsive:false,
-        plugins:{
-          title:{display:true, text:`Distribución por hora (Invitados vs. Socios) ${tSel!=='ambos'?('['+tSel+']'):''} (${d}→${h})`},
-          legend:{ labels:{ color:'#cfe9cf' }},
-          datalabels:{ anchor:'center', align:'center', color:'#000', formatter:(v)=> v>0? v:'' }
-        },
-        scales:{
-          x:{ stacked:true, ticks:{ color:'#cfe9cf'} },
-          y:{ stacked:true, beginAtZero:true, ticks:{ color:'#cfe9cf'} }
-        }
-      }
-    });
-  }catch(e){
-    try{ const sd=document.getElementById('sync-debug'); if(sd) sd.textContent='Hourly err: '+(e && e.message ? e.message : e); }catch(_){}
-    if(typeof console!=='undefined' && console.error) console.error('renderHourly error', e);
-  }
-}
-</script>
 </body> 
 </html>
