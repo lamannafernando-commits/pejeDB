@@ -46,7 +46,7 @@ textarea{resize:vertical}
 table{width:100%;border-collapse:collapse;margin-top:8px}
 th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
 .thumb{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--dorado);cursor:zoom-in;background:#000}
-/* Modal imagen con caption (Nombre — ID) */
+/* Modal imagen con caption */
 #img-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:1000}
 #img-modal-box{text-align:center}
 #img-modal-img{max-width:90vw;max-height:80vh;border:3px solid var(--dorado);border-radius:10px}
@@ -348,7 +348,7 @@ const KEYS={
   gistId:'app_gist_id',
   lastSync:'app_lastsync',
   dirty:'app_dirty',
-  sanciones:'app_sanciones' // {id,tipo:'apercibimiento'|'suspension',personaId,nombre?,motivo,desdeISO?,hastaISO?,fechaISO,activo?}
+  sanciones:'app_sanciones'
 };
 const BACKUP={ modeKey:'app_backup_mode', repoOwnerKey:'app_repo_owner', repoNameKey:'app_repo_name' };
 const GIST_DESC='Pejerrey Club — Backup (auto)';
@@ -374,18 +374,6 @@ const iso=d=>d.toISOString().slice(0,10);
 const hoyISO=()=>iso(now());
 const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&','<':'<','>':'>','"':'"'}[c]));
 function setSyncBadge(state,text){ const el=document.getElementById('sync-badge'); if(!el) return; el.textContent=text; el.className='chip '+(state||''); }
-
-// ======= DATOS LOCALES =======
-const getIngresos=()=>load(KEYS.ingresos,[]);
-const setIngresos=v=>{ save(KEYS.ingresos,v); markDirty(); };
-const getFotosMap=()=>load(KEYS.fotos,{});
-const setFotosMap=m=>{ save(KEYS.fotos,m); markDirty(); };
-const getFoto=id=>getFotosMap()[id]||'';
-const getSanciones=()=>load(KEYS.sanciones,[]);
-const setSanciones=arr=>{ save(KEYS.sanciones,arr); markDirty(); };
-function markDirty(){ localStorage.setItem(KEYS.dirty,String(Date.now())); }
-function clearDirty(){ localStorage.removeItem(KEYS.dirty); }
-function hayPendientes(){ return !!localStorage.getItem(KEYS.dirty); }
 
 // ======= RELOJ / NAV =======
 function tick(){ const el=document.getElementById('reloj'); if(el) el.textContent=fTime(now())+' — '+fDate(now()); }
@@ -459,58 +447,36 @@ function abrirImg(el){
 function cerrarImgModal(){ const m=document.getElementById('img-modal'); if(m) m.style.display='none'; }
 function registrarIngreso(){
   const tipo=getTipo(); const id=getIdIngreso(); const nombre=(document.getElementById('nombre-ingreso').value||'').trim();
-  // Bloqueo por suspensión
   const susp=suspActivaPara(id);
   if(susp){ mostrarAlerta('alerta-ingreso','error',`🚫 Ingreso denegado. Suspensión vigente hasta <strong>${esc(susp.hastaISO)}</strong> · Motivo: <em>${esc(susp.motivo||'—')}</em>`); return; }
-  // Validaciones
   if(tipo==='invitado'){ if(!id) return mostrarAlerta('alerta-ingreso','error','Ingresá el DNI.'); if(!/^\\d{6,10}$/.test(id)) return mostrarAlerta('alerta-ingreso','error','DNI inválido.'); if(!nombre) return mostrarAlerta('alerta-ingreso','error','El nombre es obligatorio.'); }
   else { if(!id) return mostrarAlerta('alerta-ingreso','error','Ingresá el N° de socio.'); if(!/^[A-Za-z0-9\\-]{3,20}$/.test(id)) return mostrarAlerta('alerta-ingreso','error','N° socio inválido.'); }
-  // Foto obligatoria
   const existeFoto=!!getFoto(id); const prevSrc=document.getElementById('foto-preview')?.src||''; const hayNueva=prevSrc && prevSrc.startsWith('data:image/');
   if(!existeFoto && !hayNueva) return mostrarAlerta('alerta-ingreso','error','📸 La foto es obligatoria.');
   if(!existeFoto && hayNueva){ const m=getFotosMap(); m[id]=prevSrc; setFotosMap(m); }
-  // Persistir
   const t=now(); const lista=getIngresos();
   lista.push({dni:id,tipo,nombre,fecha:fDate(t),hora:fTime(t),isoFecha:iso(t)});
   save(KEYS.ingresos,lista); markDirty();
-  // OK
   mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado — ${tipo==='socio'?'Socio':'Invitado'} <strong>${esc(id)}</strong> ${esc(fDate(t))} ${esc(fTime(t))}`);
-  // Advertir apercibimiento (no bloqueante)
   const ultA=ultimoApercPara(id);
   if(ultA){ mostrarAlerta('alerta-ingreso','warn',`⚠️ Apercibimiento registrado el <strong>${esc(ultA.fechaISO||'—')}</strong>. Motivo: <em>${esc(ultA.motivo||'—')}</em>`); }
-  // Reset y foco DNI
   resetIngresoForm();
-  setEstadoChip(null,''); // limpia chip hasta que escribas nuevo ID
-}
-function resetIngresoForm(){
-  const radioInv=document.querySelector('input[name="tipo-ingreso"][value="invitado"]'); if(radioInv) radioInv.checked=true;
-  toggleIngresoFields();
-  const dni=document.getElementById('dni-ingreso'), socio=document.getElementById('nroSocio-ingreso'), nombre=document.getElementById('nombre-ingreso');
-  if(dni) dni.value=''; if(socio) socio.value=''; if(nombre) nombre.value='';
-  const hint=document.getElementById('nombre-autocomplete-hint'); if(hint) hint.textContent='';
-  const prevWrap=document.getElementById('foto-preview-wrap'); const prev=document.getElementById('foto-preview');
-  const btnBorrar=document.getElementById('btn-borrar-foto'); const idTxt=document.getElementById('foto-preview-dni');
-  if(prev) prev.src=''; if(prevWrap) prevWrap.style.display='none'; if(btnBorrar) btnBorrar.style.display='none'; if(idTxt) idTxt.textContent='ID: --';
-  try{detenerCamara();}catch(e){}
-  const dniFocus=document.getElementById('dni-ingreso'); if(dniFocus){dniFocus.focus(); dniFocus.select?.();}
+  setEstadoChip(null,'');
 }
 
 // ======= CONSULTA =======
 function renderFotoCell(personaId, nombre){
   const foto=getFoto(personaId); if(!foto) return '—';
-  // Si es una dataURL base64
   if(typeof foto==='string' && foto.startsWith('data:image/')){
     const safeSrc=foto.replace(/"/g,'&quot;'); const safeAlt=`Foto de ${nombre||''} (${personaId||''})`.replace(/"/g,'&quot;');
     const safeNom=String(nombre||'').replace(/"/g,'&quot;'); const safeId=String(personaId||'').replace(/"/g,'&quot;');
-    return `<img class="thumb" src="${safeSrc}" alt="${safeAlt}" data-id="${safeId}" data-nombre="${safeNom}" onclick="abrirImg(this)">`;
+    return `${safeSrc}`;
   }
-  // Si es una URL http(s), la envolvemos en <img>
   if(typeof foto==='string' && (/^https?:\\/\\//i).test(foto)){
     const safeSrc=foto.replace(/"/g,'&quot;'); const safeAlt=`Foto de ${nombre||''} (${personaId||''})`.replace(/"/g,'&quot;');
     const safeNom=String(nombre||'').replace(/"/g,'&quot;'); const safeId=String(personaId||'').replace(/"/g,'&quot;');
-    return `<img class="thumb" src="${safeSrc}" alt="${safeAlt}" data-id="${safeId}" data-nombre="${safeNom}" onclick="abrirImg(this)">`;
+    return `${safeSrc}`;
   }
-  // Compat: si ya viene HTML, lo devolvemos tal cual
   return foto;
 }
 function limpiarConsulta(){ ['consulta-id','consulta-desde','consulta-hasta'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';}); document.getElementById('consulta-tipo').value='ambos'; const res=document.getElementById('consulta-res'); res.className='alerta'; res.innerHTML=''; document.getElementById('consulta-tabla-wrap').style.display='none'; document.querySelector('#consulta-tabla tbody').innerHTML=''; document.getElementById('consulta-desde').value=hoyISO(); document.getElementById('consulta-hasta').value=hoyISO(); }
@@ -679,7 +645,7 @@ function refrescarSanciones(){
   wrap.style.display='block';
 }
 
-// ======= ESTADISTICAS (tendencia) =======
+// ======= ESTADISTICAS =======
 function aplicarStats(){ const id=(document.getElementById('stats-id').value||'').trim(); const d=(document.getElementById('stats-desde').value||'').trim(); const h=(document.getElementById('stats-hasta').value||'').trim(); const t=document.getElementById('stats-tipo').value; const {filas,error}=filtrarIngresos({id,desdeISO:d,hastaISO:h,tipo:t}); const lbl=(id?`ID ${esc(id)} · `:'')+(t==='ambos'?'Ambos':(t==='socio'?'Socios':'Invitados'))+(d||h?` · Rango ${esc(d||'inicio')} → ${esc(h||'fin')}`:' · (todos)'); const box=document.getElementById('stats-resumen'); if(error){ box.textContent=error; limpiarCharts(); return; } box.textContent=`Registros: ${filas.length} · ${lbl}`; trends(filas); }
 function limpiarCharts(){ ['ch-trend-day','ch-trend-week','ch-trend-month','ch-trend-day-type'].forEach(id=>{ const ctx=document.getElementById(id).getContext('2d'); ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height); }); }
 function trends(f){ const days=serieDiaria(f); const weeks=serieSemanal(f); const months=serieMensual(f); const dayByType=serieDiariaPorTipo(f); drawLine(document.getElementById('ch-trend-day').getContext('2d'), days.labels,[{name:'Total',data:days.values,color:'#2a7a2a'}],'Ingresos diarios'); drawLine(document.getElementById('ch-trend-week').getContext('2d'), weeks.labels,[{name:'Total',data:weeks.values,color:'#c8a84b'}],'Ingresos semanales'); drawLine(document.getElementById('ch-trend-month').getContext('2d'), months.labels,[{name:'Total',data:months.values,color:'#9dd49d'}],'Ingresos mensuales'); drawLine(document.getElementById('ch-trend-day-type').getContext('2d'), dayByType.labels,[{name:'Invitados',data:dayByType.inv,color:'#d4841a'},{name:'Socios',data:dayByType.soc,color:'#2a7a2a'}],'Tendencia diaria por tipo'); }
@@ -709,11 +675,8 @@ async function guardarYActivar(){
     const t=(document.getElementById('activar-token').value||'').trim();
     const msgEl=document.getElementById('activar-msg');
     if(!t){ msgEl.textContent='Ingresá el token.'; return; }
-
-    // (Opcional) aviso de formato no estándar (no bloquea)
     const formatoOK = /^gh[pous]_/.test(t) || /^github_pat_/.test(t);
     if(!formatoOK){ msgEl.textContent='⚠️ El token no parece de GitHub (ghp_/github_pat_), probá igualmente.'; }
-
     setToken(t);
 
     if(!online()){
@@ -731,7 +694,6 @@ async function guardarYActivar(){
       setTimeout(()=>{ cerrarActivar(); bootstrapFromGitHub().then(()=>mostrarIngresosDeHoy()); }, 400);
     }else{
       nubeActiva=false; setSyncBadge('err','☁️ Datos local');
-      // Mensajes claros según el error detectado
       let detalle = (r && r.error) ? String(r.error) : 'Token inválido';
       if(/401/.test(detalle))      detalle = 'Token inválido (401).';
       else if(/403/.test(detalle)) detalle = 'Acceso denegado (403).';
@@ -751,19 +713,15 @@ async function validarToken(){
   const token=getToken(); if(!token) return {ok:false,error:'Falta token'};
   try{
     setSyncBadge('syncing','☁️ Sincronizando…');
-    // Ping simple
     const ping=await fetch('https://api.github.com/zen',{method:'GET',mode:'cors',cache:'no-store'});
     if(!ping.ok) return {ok:false,error:'No se puede contactar a GitHub'};
-
-    // /user para validar y leer scopes (cabecera x-oauth-scopes)
     const r=await fetch('https://api.github.com/user',{
       method:'GET',mode:'cors',cache:'no-store',
       headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+token,'X-GitHub-Api-Version':'2022-11-28'}
     });
-    if(r.status===401) return {ok:false,error:'Token inválido (401)'}; // invalid token
-    if(r.status===403) return {ok:false,error:'Acceso denegado (403)'}; // token sin alcance/limit
+    if(r.status===401) return {ok:false,error:'Token inválido (401)'};
+    if(r.status===403) return {ok:false,error:'Acceso denegado (403)'};
     if(!r.ok) return {ok:false,error:'Error: '+r.status};
-
     const scopes=(r.headers.get('x-oauth-scopes')||'').toLowerCase();
     localStorage.setItem('app_scopes', scopes);
     if(!scopes.includes('gist') && !scopes.includes('repo')){
@@ -776,6 +734,7 @@ async function validarToken(){
 }
 
 // ======= GITHUB (Gist + Repo fallback) =======
+// (igual que antes)
 function ghHeaders(){ return {'Accept':'application/vnd.github+json','Authorization':'Bearer '+getToken(),'X-GitHub-Api-Version':'2022-11-28'}; }
 function b64(s){ return btoa(unescape(encodeURIComponent(s))); }
 async function ghUser(){ const r=await fetch('https://api.github.com/user',{headers:ghHeaders(),mode:'cors',cache:'no-store'}); if(!r.ok) throw new Error('user:'+r.status); return await r.json(); }
@@ -816,10 +775,7 @@ function generarRandomDesdeEnero2026(){
   const fTime=d=>[dos(d.getHours()),dos(d.getMinutes()),dos(d.getSeconds())].join(':');
   const lista = getIngresos();
   const fotos = getFotosMap();
-
-  // Placeholder (Wikimedia Commons, dominio público: “No image available”)
-  const URL_NO_FOTO = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/450px-No_image_available.svg.png?20221208232400'; // [1](https://www.dreamstime.com/illustration/profile-picture-place-holder.html)
-
+  const URL_NO_FOTO = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/450px-No_image_available.svg.png?20221208232400';
   let creados = 0;
   for(let i=0;i<100;i++){
     const tipo = tipos[rnd(0,1)];
@@ -827,12 +783,10 @@ function generarRandomDesdeEnero2026(){
     const nombre = nombres[rnd(0,nombres.length-1)];
     const ts = new Date(start.getTime() + Math.random()*(end.getTime()-start.getTime()));
     ts.setHours(rnd(8,20), rnd(0,59), rnd(0,59), 0);
-
     lista.push({dni:id, tipo, nombre, fecha:fDate(ts), hora:fTime(ts), isoFecha:toISO(ts), rnd:true});
-    if(!fotos[id]) fotos[id] = URL_NO_FOTO; // asigna placeholder remoto
+    if(!fotos[id]) fotos[id] = URL_NO_FOTO;
     creados++;
   }
-
   save(KEYS.ingresos, lista);
   setFotosMap(fotos);
   markDirty();
@@ -863,7 +817,38 @@ function borrarRandom(){
   }
   scheduleSync();
   navClick('ingreso', document.getElementById('btn-nav-ingreso'));
+
+  // ===== Fallback por si el handler inline estuviera bloqueado:
+  try{
+    const btnAct = document.getElementById('btn-activar-sistema');
+    if(btnAct) btnAct.addEventListener('click', abrirActivar);
+  }catch(_){}
 })();
+
+// **Exponer funciones al scope global** (para onclick="" del HTML)
+window.abrirActivar = abrirActivar;
+window.cerrarActivar = cerrarActivar;
+window.guardarYActivar = guardarYActivar;
+window.syncManual = syncManual;
+window.generarRandomDesdeEnero2026 = generarRandomDesdeEnero2026;
+window.borrarRandom = borrarRandom;
+window.navClick = navClick;
+window.buscarInvitado = buscarInvitado;
+window.registrarIngreso = registrarIngreso;
+window.iniciarCamara = iniciarCamara;
+window.tomarFoto = tomarFoto;
+window.detenerCamara = detenerCamara;
+window.borrarFoto = borrarFoto;
+window.btnApercClick = btnApercClick;
+window.btnSuspClick = btnSuspClick;
+window.listarApercibimientos = listarApercibimientos;
+window.closeAperc = closeAperc;
+window.guardarAperc = guardarAperc;
+window.closeSusp = closeSusp;
+window.guardarSusp = guardarSusp;
+window.cerrarObserv = cerrarObserv;
+window.cerrarImgModal = cerrarImgModal;
+window.aplicarStats = aplicarStats;
 </script>
 </body>
 </html>
