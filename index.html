@@ -58,7 +58,7 @@
     <div class="row">
       <div class="chip" id="reloj">--:--:-- — --/--/----</div>
       <div class="chip" id="sync-badge">☁️ Local</div>
-      <button id="btn-activar-sistema" class="btn btn-warn" style="display:none" onclick="abrirActivar()">⚡ Activar sistema</button>
+      <button id="btn-activar-sistema" class="btn btn-warn" onclick="abrirActivar()">⚡ Activar sistema</button>
     </div>
   </header>
 
@@ -279,7 +279,7 @@
   function estaOnline(){ return (typeof navigator!=='undefined' && 'onLine' in navigator) ? navigator.onLine : true; }
   function abrirActivar(){ const online=estaOnline(); const hayToken=!!getToken(); if(!online){ alert('Estás en modo local. Conectate a Internet para activar.'); return; } const modal=document.getElementById('activar-modal'); const input=document.getElementById('activar-token'); document.getElementById('activar-msg').textContent=''; input.value=hayToken?getToken():''; modal.style.display='flex'; input.focus(); }
   function cerrarActivar(){ const modal=document.getElementById('activar-modal'); modal.style.display='none'; }
-  async function guardarYActivar(){ const t=(document.getElementById('activar-token').value||'').trim(); if(!t){ document.getElementById('activar-msg').textContent='Ingresá el token.'; return; } localStorage.setItem(KEYS.token,t); document.getElementById('activar-msg').textContent='Validando token…'; try{document.getElementById('dbg-msg').textContent='Validando /user';}catch(_){} const r=await validarToken(); if(r && r.ok){ nubeActiva=true; setSyncBadge('ok','☁️ ✔️ Listo'); document.getElementById('activar-msg').textContent='Activado.'; try{document.getElementById('dbg-msg').textContent='OK';}catch(_){} setTimeout(cerrarActivar, 500); actualizarBotonActivar(); } else { nubeActiva=false; setSyncBadge('err','☁️ ❌ '+(r && r.error?r.error:'Token inválido')); document.getElementById('activar-msg').textContent='No se pudo activar: '+(r && r.error?r.error:'Token inválido'); try{document.getElementById('dbg-msg').textContent=(r&&r.error?r.error:'Token inválido');}catch(_){} } }
+  async function guardarYActivar(){ const t=(document.getElementById('activar-token').value||'').trim(); if(!t){ document.getElementById('activar-msg').textContent='Ingresá el token.'; return; } localStorage.setItem(KEYS.token,t); document.getElementById('activar-msg').textContent='Validando token…';  const r=await validarToken(); if(r && r.ok){ nubeActiva=true; setSyncBadge('ok','☁️ ✔️ Listo'); document.getElementById('activar-msg').textContent='Activado.';  setTimeout(cerrarActivar, 500); actualizarBotonActivar(); } else { nubeActiva=false; setSyncBadge('err','☁️ ❌ '+(r && r.error?r.error:'Token inválido')); document.getElementById('activar-msg').textContent='No se pudo activar: '+(r && r.error?r.error:'Token inválido');  } }
   
 
 async function validarToken(){
@@ -348,16 +348,39 @@ async function validarToken(){
   }
 }
 ; const token=getToken(); if(!token) return {ok:false,error:'Falta token'}; try{ setSyncBadge('syncing','☁️ 🔄 Validando token...'); const rUser=await fetch('https://api.github.com/user',{headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+token,'X-GitHub-Api-Version':'2022-11-28'}}); if(rUser.status===401) return {ok:false,error:'Token inválido (401)'}; if(rUser.status===403) return {ok:false,error:'Acceso denegado (403)'}; if(rUser.status<200||rUser.status>299) return {ok:false,error:'Error usuario: '+rUser.status}; return {ok:true}; }catch(e){ return {ok:false,error:'Error de red/validación'}; } }
-  function actualizarBotonActivar(){ try{ const btn=document.getElementById('btn-activar-sistema'); if(!btn) return; const online=estaOnline(); const hayToken=!!getToken(); if(!online){ btn.style.display='inline-flex'; btn.disabled=false; btn.title='Conectate a Internet para activar'; } else if(!hayToken){ btn.style.display='inline-flex'; btn.disabled=false; btn.title='Ingresá el token para activar'; } else { btn.style.display = nubeActiva ? 'none' : 'inline-flex'; btn.disabled=false; btn.title = nubeActiva ? '' : 'Validar token y activar'; } }catch(e){} }
+  
+function actualizarBotonActivar(){
+  try{
+    const btn = document.getElementById('btn-activar-sistema');
+    if(!btn) return;
+    const online = estaOnline();
+    const hayToken = !!getToken();
+    // Mostrar SIEMPRE cuando no hay token o no hay internet
+    if(!online || !hayToken){
+      btn.style.display='inline-flex'; btn.disabled=false;
+      btn.title = !online ? 'Conectate a Internet para activar' : 'Ingresá el token para activar';
+      return;
+    }
+    // Si hay token y conexión: mostrar sólo si aún no quedó activado
+    btn.style.display = nubeActiva ? 'none' : 'inline-flex';
+    btn.disabled = false;
+    btn.title = nubeActiva ? '' : 'Validar token y activar';
+  }catch(e){}
+}
+ else if(!hayToken){ btn.style.display='inline-flex'; btn.disabled=false; btn.title='Ingresá el token para activar'; } else { btn.style.display = nubeActiva ? 'none' : 'inline-flex'; btn.disabled=false; btn.title = nubeActiva ? '' : 'Validar token y activar'; } }catch(e){} }
 
   // ======= BACKUP =======
   function exportarJSON(){ const data={ ingresos:cargarDatos(KEYS.ingresos), fotos:getFotosMap() }; const txt=JSON.stringify(data,null,2); document.getElementById('backup-json').value=txt; document.getElementById('backup-alert').textContent='Exportado a la caja de texto.'; }
   function importarJSON(){ try{ const txt=document.getElementById('backup-json').value||'{}'; const data=JSON.parse(txt); if(data.ingresos) guardarDatos(KEYS.ingresos,data.ingresos); if(data.fotos) setFotosMap(data.fotos); document.getElementById('backup-alert').textContent='Importación OK.'; }catch(e){ document.getElementById('backup-alert').textContent='Error al importar JSON.'; } }
 
   // ======= INIT =======
-  (function(){
-    tickReloj(); setInterval(tickReloj,1000);
-    const online = estaOnline();
+  
+(function(){
+  tickReloj(); setInterval(tickReloj,1000);
+  // Forzar botón visible cuanto antes
+  try{ actualizarBotonActivar(); }catch(e){}
+  const online = estaOnline();
+
     const hayToken = !!getToken();
     if(!online){ setSyncBadge('err','☁️ ⚡ Local (sin internet)'); }
     else if(!hayToken){ setSyncBadge('err','☁️ ❌ Sin token'); }
@@ -369,6 +392,5 @@ async function validarToken(){
   })();
   </script>
 
-<div style="position:fixed;left:8px;bottom:8px;background:#0b1b0b;border:1px solid #2d6e2d;border-radius:8px;padding:6px 8px;color:#cfe9cf;font:12px system-ui;max-width:70vw">Debug: <span id="dbg-msg">—</span></div>
 </body>
 </html>
