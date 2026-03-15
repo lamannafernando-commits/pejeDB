@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -68,6 +67,7 @@
   </nav>
 
   <main>
+    <!-- INGRESO -->
     <section id="sec-ingreso" class="card">
       <h2>Ingreso</h2>
       <div class="form-row" id="row-tipo-ingreso">
@@ -97,6 +97,7 @@
         </label>
       </div>
 
+      <!-- Cámara y foto (OBLIGATORIA) -->
       <div class="card" style="margin-top:12px">
         <h3>Foto (obligatoria)</h3>
         <div class="row">
@@ -123,6 +124,7 @@
       <div id="alerta-ingreso" class="alerta" role="alert"></div>
     </section>
 
+    <!-- CONSULTA -->
     <section id="sec-consulta" class="card" style="display:none">
       <h2>Consulta</h2>
       <div class="form-row">
@@ -158,6 +160,7 @@
       </div>
     </section>
 
+    <!-- ESTADÍSTICAS -->
     <section id="sec-estadisticas" class="card" style="display:none">
       <h2>Estadísticas</h2>
       <div class="form-row">
@@ -192,6 +195,7 @@
       </div>
     </section>
 
+    <!-- BACKUP -->
     <section id="sec-backup" class="card" style="display:none">
       <h2>Backup</h2>
       <div class="row" style="gap:8px">
@@ -203,6 +207,7 @@
     </section>
   </main>
 
+  <!-- Modal Activar -->
   <div id="activar-modal" role="dialog" aria-modal="true">
     <div id="activar-box">
       <h3>Activar sistema</h3>
@@ -253,9 +258,9 @@
 
   // ======= DATOS LOCALES =======
   const getIngresos=()=>load(KEYS.ingresos,[]);
-  const setIngresos=v=>{ save(KEYS.ingresos,v); markDirty('ingresos'); };
+  const setIngresos=v=>{ save(KEYS.ingresos,v); markDirty(); };
   const getFotosMap=()=>load(KEYS.fotos,{});
-  const setFotosMap=m=>{ save(KEYS.fotos,m); markDirty('fotos'); };
+  const setFotosMap=m=>{ save(KEYS.fotos,m); markDirty(); };
   const getFoto=id=>getFotosMap()[id]||'';
   function markDirty(){ localStorage.setItem(KEYS.dirty,String(Date.now())); }
   function clearDirty(){ localStorage.removeItem(KEYS.dirty); }
@@ -304,8 +309,62 @@
   // ======= ACTIVAR =======
   function abrirActivar(){ const m=document.getElementById('activar-modal'), i=document.getElementById('activar-token'); document.getElementById('activar-msg').textContent=''; i.value=getToken(); m.style.display='flex'; try{i.focus();}catch{} }
   function cerrarActivar(){ document.getElementById('activar-modal').style.display='none'; }
-  async function guardarYActivar(){ const t=(document.getElementById('activar-token').value||'').trim(); if(!t){ document.getElementById('activar-msg').textContent='Ingresá el token.'; return; } setToken(t); if(!online()){ document.getElementById('activar-msg').textContent='Token guardado. Conectate y volvé a presionar.'; return; } document.getElementById('activar-msg').textContent='Validando token…'; const r=await validarToken(); if(r&&r.ok){ nubeActiva=true; setSyncBadge('ok','☁️ ✔️ Listo'); document.getElementById('activar-msg').textContent='Activado.'; setTimeout(()=>{ cerrarActivar(); bootstrapFromGitHub().then(()=>mostrarIngresosDeHoy()); }, 400); } else { nubeActiva=false; setSyncBadge('err','☁️ ❌ '+(r.error||'Token inválido')); document.getElementById('activar-msg').textContent='No se pudo activar: '+(r.error||'Token inválido'); } }
-  async function validarToken(){ if(!online()) return {ok:true,modo:'local'}; const token=getToken(); if(!token) return {ok:false,error:'Falta token'}; try{ setSyncBadge('syncing','☁️ 🔄 Validando token...'); const ping=await fetch('https://api.github.com/zen',{method:'GET',mode:'cors',cache:'no-store'}); if(!ping.ok) return {ok:false,error:'No se puede contactar a GitHub'}; const r=await fetch('https://api.github.com/user',{method:'GET',mode:'cors',cache:'no-store',headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+token,'X-GitHub-Api-Version':'2022-11-28'}}); if(r.status===401) return {ok:false,error:'Token inválido (401)'}; if(r.status===403) return {ok:false,error:'Acceso denegado (403)'}; if(!r.ok) return {ok:false,error:'Error: '+r.status}; return {ok:true}; }catch(e){ return {ok:false,error:'Red/CORS: '+(e?.message||e)}; } }
+  async function guardarYActivar(){
+    const t=(document.getElementById('activar-token').value||'').trim();
+    if(!t){ document.getElementById('activar-msg').textContent='Ingresá el token.'; return; }
+    setToken(t);
+    if(!online()){
+      document.getElementById('activar-msg').textContent='Token guardado. Conectate y volvé a presionar.';
+      return;
+    }
+    document.getElementById('activar-msg').textContent='Validando token…';
+    const r=await validarToken();
+    if(r && r.ok){
+      nubeActiva=true; setSyncBadge('ok','☁️ ✔️ Listo');
+      document.getElementById('activar-msg').textContent='Activado.';
+      setTimeout(()=>{
+        cerrarActivar();
+        // Pull + merge y luego mostrar hoy (con fallback a 30 días)
+        bootstrapFromGitHub().then(()=>mostrarIngresosDeHoy());
+      }, 400);
+    } else {
+      nubeActiva=false;
+      setSyncBadge('err','☁️ ❌ '+(r && r.error?r.error:'Token inválido'));
+      document.getElementById('activar-msg').textContent='No se pudo activar: '+(r && r.error?r.error:'Token inválido');
+    }
+  }
+  async function validarToken(){
+    if(!online()) return {ok:true,modo:'local'};
+    const token=getToken(); if(!token) return {ok:false,error:'Falta token'};
+    try{
+      setSyncBadge('syncing','☁️ 🔄 Validando token...');
+      const ping=await fetch('https://api.github.com/zen',{method:'GET',mode:'cors',cache:'no-store'});
+      if(!ping.ok) return {ok:false,error:'No se puede contactar a GitHub'};
+
+      const r=await fetch('https://api.github.com/user',{
+        method:'GET',mode:'cors',cache:'no-store',
+        headers:{
+          'Accept':'application/vnd.github+json',
+          'Authorization':'Bearer '+token,
+          'X-GitHub-Api-Version':'2022-11-28'
+        }
+      });
+
+      if(r.status===401) return {ok:false,error:'Token inválido (401)'};
+      if(r.status===403) return {ok:false,error:'Acceso denegado (403)'}; 
+      if(!r.ok)         return {ok:false,error:'Error: '+r.status};
+
+      // Detectar scopes del token para informar permisos
+      const scopes=(r.headers.get('x-oauth-scopes')||'').toLowerCase();
+      localStorage.setItem('app_scopes', scopes);
+      if(!scopes.includes('gist') && !scopes.includes('repo')){
+        return {ok:false,error:'El token no tiene permisos de Gist ni de Repo. Agregá scope gist o repo.'};
+      }
+      return {ok:true,scopes};
+    }catch(e){
+      return {ok:false,error:'Red/CORS: '+(e?.message||e)};
+    }
+  }
 
   // ======= GITHUB (Gist + fallback Repo) =======
   function ghHeaders(){ return {'Accept':'application/vnd.github+json','Authorization':'Bearer '+getToken(),'X-GitHub-Api-Version':'2022-11-28'}; }
@@ -324,21 +383,96 @@
   function mergeIngresos(localArr, remoteArr){ const key=x=>[x.dni||'',x.isoFecha||toISO(x.fecha||''),x.hora||'',x.tipo||'',x.nombre||''].join('|'); const map=new Map(); [...localArr,...remoteArr].forEach(x=>map.set(key(x),x)); return Array.from(map.values()).sort((a,b)=> ((b.isoFecha||toISO(b.fecha||''))+' '+(b.hora||'00:00:00')).localeCompare((a.isoFecha||toISO(a.fecha||''))+' '+(a.hora||'00:00:00')) ); }
   function mergeFotos(localMap, remoteMap){ return {...remoteMap, ...localMap}; }
 
-  async function bootstrapFromGitHub(){ if(!nubeActiva || !online()) return; setSyncBadge('syncing','☁️ 🔄 Buscando datos…'); let mode=getBackupMode(); let gid=getGistId(); if(mode==='gist'){ try{ if(!gid) gid=await discoverGistId(); if(gid){ const remote=await pullFromGist(gid); const ing=mergeIngresos(getIngresos(),remote.ingresos||[]); const fot=mergeFotos(getFotosMap(),remote.fotos||{}); save(KEYS.ingresos,ing); save(KEYS.fotos,fot); await patchGist(gid); setSyncBadge('ok','☁️ ✔️ Datos de GitHub (Gist)'); return; } const hasLocal=getIngresos().length||Object.keys(getFotosMap()).length; if(hasLocal){ await createGistFromLocal(); setSyncBadge('ok','☁️ ✔️ Subido (Gist nuevo)'); return; } setSyncBadge('ok','☁️ ✔️ Listo (sin datos)'); return; }catch(e){ if(String(e.message||'').startsWith('GIST_UNAVAILABLE')){ setBackupMode('repo'); } else { setSyncBadge('err','☁️ ❌ '+(e.message||e)); return; } } }
-    try{ const user=await ghUser(); const owner=user.login; const repo='pejerrey-backup'; await ensureRepo(owner,repo); const rIng=await getFileJson(owner,repo,'ingresos.json')||[]; const rFot=await getFileJson(owner,repo,'fotos.json')||{}; const ing=mergeIngresos(getIngresos(), rIng); const fot=mergeFotos(getFotosMap(), rFot); save(KEYS.ingresos,ing); save(KEYS.fotos,fot); await putFileJson(owner,repo,'ingresos.json',ing,'sync: ingresos'); await putFileJson(owner,repo,'fotos.json',fot,'sync: fotos'); await putFileJson(owner,repo,'meta.json',{updatedAt:new Date().toISOString(),app:'PejerreyClub'},'sync: meta'); localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now())); setSyncBadge('ok','☁️ ✔️ Datos de GitHub (Repo)'); }catch(e){ setSyncBadge('err','☁️ ❌ Repo: '+(e.message||e)); }
+  async function bootstrapFromGitHub(){
+    if(!nubeActiva || !online()) return;
+    setSyncBadge('syncing','☁️ 🔄 Buscando datos…');
+    let mode=getBackupMode(); let gid=getGistId();
+    if(mode==='gist'){
+      try{
+        if(!gid) gid=await discoverGistId();
+        if(gid){
+          const remote=await pullFromGist(gid);
+          const ing=mergeIngresos(getIngresos(),remote.ingresos||[]);
+          const fot=mergeFotos(getFotosMap(),remote.fotos||{});
+          save(KEYS.ingresos,ing); save(KEYS.fotos,fot);
+          await patchGist(gid);
+          setSyncBadge('ok','☁️ ✔️ Datos de GitHub (Gist)');
+          return;
+        }
+        const hasLocal=getIngresos().length||Object.keys(getFotosMap()).length;
+        if(hasLocal){ await createGistFromLocal(); setSyncBadge('ok','☁️ ✔️ Subido (Gist nuevo)'); return; }
+        setSyncBadge('ok','☁️ ✔️ Listo (sin datos)');
+        return;
+      }catch(e){
+        if(String(e.message||'').startsWith('GIST_UNAVAILABLE')){ setBackupMode('repo'); }
+        else { setSyncBadge('err','☁️ ❌ '+(e.message||e)); return; }
+      }
+    }
+    // Fallback Repo
+    try{
+      const user=await ghUser(); const owner=user.login; const repo='pejerrey-backup';
+      await ensureRepo(owner,repo);
+      const rIng=await getFileJson(owner,repo,'ingresos.json')||[];
+      const rFot=await getFileJson(owner,repo,'fotos.json')||{};
+      const ing=mergeIngresos(getIngresos(), rIng);
+      const fot=mergeFotos(getFotosMap(), rFot);
+      save(KEYS.ingresos,ing); save(KEYS.fotos,fot);
+      await putFileJson(owner,repo,'ingresos.json',ing,'sync: ingresos');
+      await putFileJson(owner,repo,'fotos.json',fot,'sync: fotos');
+      await putFileJson(owner,repo,'meta.json',{updatedAt:new Date().toISOString(),app:'PejerreyClub'},'sync: meta');
+      localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now()));
+      setSyncBadge('ok','☁️ ✔️ Datos de GitHub (Repo)');
+    }catch(e){
+      setSyncBadge('err','☁️ ❌ Repo: '+(e.message||e));
+    }
   }
 
   function hayPendientes(){ return !!localStorage.getItem(KEYS.dirty); }
-  async function persistir(){ if(!nubeActiva || !online()) return; setSyncBadge('syncing','☁️ 🔄 Sincronizando…'); let mode=getBackupMode(); if(mode==='gist'){ try{ let gid=getGistId(); if(!gid) gid=await discoverGistId(); if(!gid){ await createGistFromLocal(); setSyncBadge('ok','☁️ ✔️ Subido (Gist)'); clearDirty(); return; } await patchGist(gid); setSyncBadge('ok','☁️ ✔️ Sincronizado'); clearDirty(); return; }catch(e){ if(String(e.message||'').startsWith('GIST_')){ setBackupMode('repo'); } else { setSyncBadge('err','☁️ ❌ '+(e.message||e)); return; } } }
-    try{ const user=await ghUser(); const owner=user.login; const repo='pejerrey-backup'; await ensureRepo(owner,repo); await putFileJson(owner,repo,'ingresos.json',getIngresos(),'sync: ingresos'); await putFileJson(owner,repo,'fotos.json',getFotosMap(),'sync: fotos'); await putFileJson(owner,repo,'meta.json',{updatedAt:new Date().toISOString(),app:'PejerreyClub'},'sync: meta'); localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now())); setSyncBadge('ok','☁️ ✔️ Sincronizado'); clearDirty(); }catch(e){ setSyncBadge('err','☁️ ❌ Repo: '+(e.message||e)); }
+  async function persistir(){
+    if(!nubeActiva || !online()) return;
+    setSyncBadge('syncing','☁️ 🔄 Sincronizando…');
+    let mode=getBackupMode();
+    if(mode==='gist'){
+      try{
+        let gid=getGistId(); if(!gid) gid=await discoverGistId();
+        if(!gid){ await createGistFromLocal(); setSyncBadge('ok','☁️ ✔️ Subido (Gist)'); clearDirty(); return; }
+        await patchGist(gid); setSyncBadge('ok','☁️ ✔️ Sincronizado'); clearDirty(); return;
+      }catch(e){
+        if(String(e.message||'').startsWith('GIST_')){ setBackupMode('repo'); }
+        else { setSyncBadge('err','☁️ ❌ '+(e.message||e)); return; }
+      }
+    }
+    try{
+      const user=await ghUser(); const owner=user.login; const repo='pejerrey-backup';
+      await ensureRepo(owner,repo);
+      await putFileJson(owner,repo,'ingresos.json',getIngresos(),'sync: ingresos');
+      await putFileJson(owner,repo,'fotos.json',getFotosMap(),'sync: fotos');
+      await putFileJson(owner,repo,'meta.json',{updatedAt:new Date().toISOString(),app:'PejerreyClub'},'sync: meta');
+      localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now()));
+      setSyncBadge('ok','☁️ ✔️ Sincronizado'); clearDirty();
+    }catch(e){
+      setSyncBadge('err','☁️ ❌ Repo: '+(e.message||e));
+    }
   }
 
   function scheduleSync(){ if(_syncTimer) clearInterval(_syncTimer); _syncTimer=setInterval(async()=>{ if(hayPendientes()) await persistir(); }, 60*1000); }
 
-  function mostrarIngresosDeHoy(){ // Navega a Consulta y muestra hoy
-    document.getElementById('consulta-desde').value=hoyISO();
-    document.getElementById('consulta-hasta').value=hoyISO();
+  // Mostrar HOY, con fallback a últimos 30 días si hoy está vacío
+  function mostrarIngresosDeHoy(){
+    const hoy = hoyISO();
+    document.getElementById('consulta-desde').value=hoy;
+    document.getElementById('consulta-hasta').value=hoy;
     navClick('consulta', document.getElementById('btn-nav-consulta'));
+
+    const {filas}=filtrarIngresos({
+      id:(document.getElementById('consulta-id').value||'').trim(),
+      desdeISO:hoy, hastaISO:hoy, tipo:document.getElementById('consulta-tipo').value
+    });
+    if(!filas || filas.length===0){
+      const d = new Date(); d.setDate(d.getDate()-30);
+      document.getElementById('consulta-desde').value=d.toISOString().slice(0,10);
+      document.getElementById('consulta-hasta').value=hoy;
+    }
     consulta();
   }
 
@@ -357,7 +491,12 @@
 
     if(!online()){ setSyncBadge('err','☁️ ⚡ Local (sin internet)'); }
     else if(!getToken()){ setSyncBadge('err','☁️ ❌ Sin token'); }
-    else { validarToken().then(r=>{ if(r&&r.ok){ nubeActiva=true; setSyncBadge('ok','☁️ ✔️ Listo'); bootstrapFromGitHub().then(()=>mostrarIngresosDeHoy()); } else { nubeActiva=false; setSyncBadge('err','☁️ ❌ '+(r.error||'Token inválido')); } }); }
+    else {
+      validarToken().then(r=>{
+        if(r&&r.ok){ nubeActiva=true; setSyncBadge('ok','☁️ ✔️ Listo'); bootstrapFromGitHub().then(()=>mostrarIngresosDeHoy()); }
+        else { nubeActiva=false; setSyncBadge('err','☁️ ❌ '+(r.error||'Token inválido')); }
+      });
+    }
 
     scheduleSync();
     navClick('ingreso', document.getElementById('btn-nav-ingreso'));
