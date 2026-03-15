@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Gestion de Ingresos Pejerrey Club Quilmes</title>
   <style>
-    :root{
-      --verde:#1e5c1e;--dorado:#c8a84b;--rojo:#c62828;--naranja:#d4841a;
-      --bg:#0d1f0d;--panel:#112411;--borde:#2d6e2d;--txt:#f8fff8;--sub:#cfe9cf;
-    }
+    :root{ --verde:#1e5c1e;--dorado:#c8a84b;--rojo:#c62828;--naranja:#d4841a;--bg:#0d1f0d;--panel:#112411;--borde:#2d6e2d;--txt:#f8fff8;--sub:#cfe9cf; }
     *{box-sizing:border-box}
     body{margin:0;background:linear-gradient(160deg,#0b1c0b,#143414);color:var(--txt);font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif}
     header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,#0a1a0a,#143414);border-bottom:3px solid var(--dorado);padding:10px 14px}
@@ -45,7 +42,7 @@
     /* Charts */
     .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
     .chart-card{background:#0b1b0b;border:1px solid #2d6e2d;border-radius:10px;padding:10px}
-    canvas{width:100%;height:220px;background:#0a140a;border:1px solid #2d6e2d;border-radius:8px}
+    canvas{width:100%;height:240px;background:#0a140a;border:1px solid #2d6e2d;border-radius:8px}
     /* Overlay off */
     #bloqueo-overlay{display:none !important;pointer-events:none !important}
     /* Modal activar */
@@ -101,25 +98,33 @@
           <span class="sub" id="nombre-autocomplete-hint"></span>
         </label>
       </div>
+
+      <!-- Cámara y foto (OBLIGATORIA) -->
+      <div class="card" style="margin-top:12px">
+        <h3>Foto (obligatoria)</h3>
+        <div class="grupo-botones">
+          <button class="btn" id="btn-cam-start" type="button" onclick="iniciarCamara()">🎥 Iniciar cámara</button>
+          <button class="btn" id="btn-cam-shot" type="button" onclick="tomarFoto()" style="display:none">📸 Tomar foto</button>
+          <button class="btn btn-danger" id="btn-cam-stop" type="button" onclick="detenerCamara()" style="display:none">✖ Detener cámara</button>
+          <button class="btn btn-danger" id="btn-borrar-foto" onclick="borrarFoto()" style="display:none">🗑️ Borrar foto</button>
+        </div>
+        <div id="cam-wrap" style="display:none; margin-top:8px">
+          <video id="cam-video" autoplay playsinline style="width:260px;height:260px;border-radius:10px;border:3px solid var(--dorado);background:#000;object-fit:cover"></video>
+          <canvas id="cam-canvas" width="320" height="320" style="display:none"></canvas>
+        </div>
+        <div id="foto-preview-wrap" style="display:none;margin-top:8px">
+          <img id="foto-preview" alt="Foto" style="width:260px;height:260px;border-radius:10px;border:3px solid var(--dorado);object-fit:cover;background:#000"/>
+          <div class="sub" id="foto-preview-dni">ID: --</div>
+          <div class="sub" id="foto-aviso" style="color:#f3d28a">La foto es obligatoria para registrar.</div>
+        </div>
+        <div id="alerta-foto" class="alerta"></div>
+      </div>
+
       <div class="grupo-botones" style="margin-top:8px">
         <button class="btn" onclick="buscarInvitado()">Buscar / Estado</button>
         <button class="btn" onclick="registrarIngreso()">Registrar ingreso</button>
       </div>
       <div id="alerta-ingreso" class="alerta" role="alert"></div>
-
-      <!-- Cámara y foto (opcional en esta versión de demo) -->
-      <div class="card" style="margin-top:12px">
-        <h3>Foto (opcional en esta versión)</h3>
-        <div class="grupo-botones">
-          <button class="btn" id="btn-cam-start" type="button" onclick="iniciarCamara()">🎥 Iniciar cámara</button>
-          <button class="btn" id="btn-cam-shot" type="button" onclick="tomarFoto()" style="display:none">📸 Tomar foto</button>
-          <button class="btn btn-danger" id="btn-cam-stop" type="button" onclick="detenerCamara()" style="display:none">✖ Detener cámara</button>
-        </div>
-        <div id="cam-wrap">
-          <video id="cam-video" autoplay playsinline></video>
-          <canvas id="cam-canvas" width="320" height="320" style="display:none"></canvas>
-        </div>
-      </div>
     </section>
 
     <!-- CONSULTA -->
@@ -158,7 +163,7 @@
       </div>
     </section>
 
-    <!-- ESTADÍSTICAS -->
+    <!-- ESTADÍSTICAS (tendencia) -->
     <section id="sec-estadisticas" class="card" style="display:none">
       <h2>Estadísticas</h2>
       <div class="form-row">
@@ -184,12 +189,12 @@
       <div class="grupo-botones" style="margin-top:8px">
         <button class="btn" onclick="aplicarStats()">Aplicar filtros</button>
       </div>
-      <div id="stats-resumen" class="sub" style="margin:8px 0"></div>
+      <div class="sub" id="stats-resumen" style="margin:8px 0"></div>
       <div class="charts">
-        <div class="chart-card"><h4>Por día de la semana</h4><canvas id="ch-dow" width="400" height="220"></canvas></div>
-        <div class="chart-card"><h4>Por mes</h4><canvas id="ch-month" width="400" height="220"></canvas></div>
-        <div class="chart-card"><h4>Socios vs Invitados (hoy)</h4><canvas id="ch-today" width="400" height="220"></canvas></div>
-        <div class="chart-card"><h4>Ingresos por semana</h4><canvas id="ch-week" width="400" height="220"></canvas></div>
+        <div class="chart-card"><h4>Tendencia diaria (totales)</h4><canvas id="ch-trend-day" width="500" height="240"></canvas></div>
+        <div class="chart-card"><h4>Tendencia semanal (totales)</h4><canvas id="ch-trend-week" width="500" height="240"></canvas></div>
+        <div class="chart-card"><h4>Tendencia mensual (totales)</h4><canvas id="ch-trend-month" width="500" height="240"></canvas></div>
+        <div class="chart-card"><h4>Tendencia diaria por tipo</h4><canvas id="ch-trend-day-type" width="500" height="240"></canvas></div>
       </div>
     </section>
 
@@ -228,7 +233,7 @@
   <script>
   // ======= BASE =======
   const KEYS={ingresos:'app_ingresos',fotos:'app_fotos',token:'app_token'};
-  let offsetMs=0; let nubeActiva=false;
+  let offsetMs=0; let nubeActiva=false; let _camStream=null;
 
   function cargarDatos(k){ try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return []} }
   function guardarDatos(k,v){ localStorage.setItem(k,JSON.stringify(v)); }
@@ -243,6 +248,7 @@
   function formatFecha(d){ return [dos(d.getDate()),dos(d.getMonth()+1),d.getFullYear()].join('/') }
   function formatHora(d){ return [dos(d.getHours()),dos(d.getMinutes()),dos(d.getSeconds())].join(':') }
   function isoFecha(d){ return d.toISOString().slice(0,10) }
+  function parseDia(dmy){ const p=(dmy||'').split('/'); if(p.length!==3) return null; return new Date(+p[2],+p[1]-1,+p[0]); }
   function tickReloj(){ const d=ahoraReal(); const el=document.getElementById('reloj'); if(el) el.textContent = formatHora(d)+' — '+formatFecha(d); }
 
   function navClick(id,btn){
@@ -253,61 +259,48 @@
     if(id==='ingreso') toggleIngresoFields();
   }
 
-  function setSyncBadge(state,text){
-    const el=document.getElementById('sync-badge');
-    if(!el) return;
-    el.textContent = text;
-    el.className = 'chip ' + (state||'');
-  }
+  function setSyncBadge(state,text){ const el=document.getElementById('sync-badge'); if(!el) return; el.textContent=text; el.className='chip '+(state||''); }
 
-  // ======= CÁMARA (demo) =======
-  let _camStream=null;
-  async function iniciarCamara(){
-    try{
-      if(!_camStream){
-        _camStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
-      }
-      const v=document.getElementById('cam-video');
-      v.srcObject=_camStream; v.play();
-      document.getElementById('cam-wrap').style.display='block';
-      document.getElementById('btn-cam-start').style.display='none';
-      document.getElementById('btn-cam-shot').style.display='inline-flex';
-      document.getElementById('btn-cam-stop').style.display='inline-flex';
-    }catch(e){ alert('No se pudo acceder a la cámara'); }
-  }
-  function tomarFoto(){
-    const v=document.getElementById('cam-video');
-    const c=document.getElementById('cam-canvas'); const ctx=c.getContext('2d');
-    const vw=v.videoWidth, vh=v.videoHeight; if(!vw||!vh) return;
-    const size=Math.min(vw,vh), sx=Math.floor((vw-size)/2), sy=Math.floor((vh-size)/2);
-    c.width=320; c.height=320; ctx.drawImage(v,sx,sy,size,size,0,0,320,320);
-  }
-  function detenerCamara(){
-    try{ if(_camStream){ _camStream.getTracks().forEach(t=>t.stop()); _camStream=null; } }catch(e){}
-    const v=document.getElementById('cam-video'); if(v) v.srcObject=null;
-    document.getElementById('cam-wrap').style.display='none';
-    document.getElementById('btn-cam-start').style.display='inline-flex';
-    document.getElementById('btn-cam-shot').style.display='none';
-    document.getElementById('btn-cam-stop').style.display='none';
-  }
+  // ======= CÁMARA =======
+  async function iniciarCamara(){ try{ if(!_camStream){ _camStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false}); } const v=document.getElementById('cam-video'); v.srcObject=_camStream; v.play(); document.getElementById('cam-wrap').style.display='block'; document.getElementById('btn-cam-start').style.display='none'; document.getElementById('btn-cam-shot').style.display='inline-flex'; document.getElementById('btn-cam-stop').style.display='inline-flex'; }catch(e){ alert('No se pudo acceder a la cámara'); } }
+  function tomarFoto(){ const v=document.getElementById('cam-video'); const c=document.getElementById('cam-canvas'); const ctx=c.getContext('2d'); const vw=v.videoWidth, vh=v.videoHeight; if(!vw||!vh) return; const size=Math.min(vw,vh), sx=Math.floor((vw-size)/2), sy=Math.floor((vh-size)/2); c.width=320; c.height=320; ctx.drawImage(v,sx,sy,size,size,0,0,320,320); const data=c.toDataURL('image/jpeg',0.9); _guardarFoto(data); }
+  function _guardarFoto(b64){ document.getElementById('foto-preview').src=b64; document.getElementById('foto-preview-wrap').style.display='block'; document.getElementById('btn-borrar-foto').style.display='inline-flex'; const id=getIdentificadorIngreso(); if(id){ const m=getFotosMap(); m[id]=b64; setFotosMap(m); document.getElementById('foto-preview-dni').textContent='ID: '+id+' ✅'; } }
+  function borrarFoto(){ const id=getIdentificadorIngreso(); if(id){ const m=getFotosMap(); delete m[id]; setFotosMap(m); } document.getElementById('foto-preview').src=''; document.getElementById('foto-preview-wrap').style.display='none'; document.getElementById('btn-borrar-foto').style.display='none'; document.getElementById('foto-preview-dni').textContent='ID: --'; }
+  function detenerCamara(){ try{ if(_camStream){ _camStream.getTracks().forEach(t=>t.stop()); _camStream=null; } }catch(e){} const v=document.getElementById('cam-video'); if(v) v.srcObject=null; document.getElementById('cam-wrap').style.display='none'; document.getElementById('btn-cam-start').style.display='inline-flex'; document.getElementById('btn-cam-shot').style.display='none'; document.getElementById('btn-cam-stop').style.display='none'; }
 
   // ======= INGRESO =======
-  function toggleIngresoFields(){
-    const t=getTipoIngreso();
-    document.getElementById('wrap-dni-ingreso').style.display=(t==='invitado')?'':'none';
-    document.getElementById('wrap-socio-ingreso').style.display=(t==='socio')?'':'none';
-  }
+  function toggleIngresoFields(){ const t=getTipoIngreso(); document.getElementById('wrap-dni-ingreso').style.display=(t==='invitado')?'':'none'; document.getElementById('wrap-socio-ingreso').style.display=(t==='socio')?'':'none'; onIdentificadorChange(); }
   function getTipoIngreso(){ const r=document.querySelector('input[name="tipo-ingreso"]:checked'); return r? r.value : 'invitado'; }
   function getIdentificadorIngreso(){ const t=getTipoIngreso(); return t==='socio' ? (document.getElementById('nroSocio-ingreso')?.value||'').trim() : (document.getElementById('dni-ingreso')?.value||'').trim(); }
-  function mostrarAlerta(id,tipo,html){
-    const el=document.getElementById(id); el.className='alerta';
-    if(tipo==='ok') el.classList.add('ok'); else if(tipo==='warn') el.classList.add('warn'); else if(tipo==='error') el.classList.add('error');
-    el.innerHTML=html||'';
+  function onIdentificadorChange(){
+    const id=getIdentificadorIngreso();
+    const hint=document.getElementById('nombre-autocomplete-hint');
+    const nombreInput=document.getElementById('nombre-ingreso');
+    if(!id){ hint.textContent=''; nombreInput.value=''; return; }
+    // Autocompleta por historial
+    const lista=cargarDatos(KEYS.ingresos);
+    const ultimo=lista.filter(x=>x.dni===id).slice(-1)[0];
+    if(ultimo && ultimo.nombre){ nombreInput.value=ultimo.nombre; hint.textContent='Autocompletado por historial'; } else { hint.textContent=''; }
+    // Foto por ID si existe
+    const foto=getFoto(id);
+    const prev=document.getElementById('foto-preview');
+    const wrap=document.getElementById('foto-preview-wrap');
+    if(foto){ prev.src=foto; wrap.style.display='block'; document.getElementById('btn-borrar-foto').style.display='inline-flex'; document.getElementById('foto-preview-dni').textContent='ID: '+id+' ✅'; }
+    else { if(document.getElementById('cam-wrap').style.display==='none'){ wrap.style.display='none'; document.getElementById('btn-borrar-foto').style.display='none'; } document.getElementById('foto-preview-dni').textContent='ID: '+id; }
   }
   function buscarInvitado(){
     const id=getIdentificadorIngreso();
     if(!id){ mostrarAlerta('alerta-ingreso','error','Ingresá un identificador.'); return; }
-    // Podés completar comportamiento si querés mostrar últimos ingresos del ID
+    const lista=cargarDatos(KEYS.ingresos);
+    const ultimo=lista.filter(x=>x.dni===id).slice(-1)[0];
+    if(ultimo && ultimo.nombre) document.getElementById('nombre-ingreso').value=ultimo.nombre;
+    const foto=getFoto(id);
+    if(foto){
+      const prev=document.getElementById('foto-preview'); prev.src=foto;
+      document.getElementById('foto-preview-wrap').style.display='block';
+      document.getElementById('btn-borrar-foto').style.display='inline-flex';
+      document.getElementById('foto-preview-dni').textContent='ID: '+id+' ✅';
+    }
     mostrarAlerta('alerta-ingreso','ok',`✅ Estado de <strong>${id}</strong> consultado.`);
   }
   async function registrarIngreso(){
@@ -321,7 +314,19 @@
       if(!id){ mostrarAlerta('alerta-ingreso','error','Ingresá el N° de socio.'); return; }
       if(!/^[A-Za-z0-9\-]{3,20}$/.test(id)){ mostrarAlerta('alerta-ingreso','error','N° socio inválido.'); return; }
     }
-    const now=ahoraReal(); const lista=cargarDatos(KEYS.ingresos);
+    // Foto OBLIGATORIA
+    const existeFoto=!!getFoto(id);
+    const prevSrc=document.getElementById('foto-preview').src;
+    const hayNueva=prevSrc && prevSrc.startsWith('data:image/');
+    if(!existeFoto && !hayNueva){
+      mostrarAlerta('alerta-ingreso','error','📸 La foto es obligatoria. Iniciá la cámara y tomá la foto.');
+      return;
+    }
+    if(!existeFoto && hayNueva){
+      const m=getFotosMap(); m[id]=prevSrc; setFotosMap(m);
+    }
+    const now=ahoraReal();
+    const lista=cargarDatos(KEYS.ingresos);
     lista.push({dni:id,tipo,nombre,fecha:formatFecha(now),hora:formatHora(now),isoFecha:isoFecha(now)});
     guardarDatos(KEYS.ingresos,lista);
     mostrarAlerta('alerta-ingreso','ok',`✅ Ingreso registrado — ${tipo==='socio'?'Socio':'Invitado'} <strong>${id}</strong> ${formatFecha(now)} ${formatHora(now)}`);
@@ -329,25 +334,21 @@
   }
 
   // ======= CONSULTA =======
-  function toISO(fecha){
-    if(!fecha) return '0001-01-01';
-    if(/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return fecha;
-    const p=fecha.split('/'); if(p.length!==3) return '0001-01-01';
-    const dd=+p[0],mm=+p[1],yyyy=+p[2]; const d=new Date(yyyy,mm-1,dd);
-    return d.toISOString().slice(0,10);
-  }
-  function abrirImgModal(src){
-    const m=document.getElementById('img-modal'); const i=document.getElementById('img-modal-img');
-    i.src=src; m.style.display='flex';
-  }
+  function abrirImgModal(src){ const m=document.getElementById('img-modal'); const i=document.getElementById('img-modal-img'); i.src=src; m.style.display='flex'; }
   function cerrarImgModal(){ const m=document.getElementById('img-modal'); if(m) m.style.display='none'; }
-
   function limpiarConsulta(){
     ['consulta-id','consulta-desde','consulta-hasta'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
     document.getElementById('consulta-tipo').value='ambos';
     const res=document.getElementById('consulta-res'); res.className='alerta'; res.innerHTML='';
     const wrap=document.getElementById('consulta-tabla-wrap'); if(wrap) wrap.style.display='none';
     const tbody=document.querySelector('#consulta-tabla tbody'); if(tbody) tbody.innerHTML='';
+  }
+  function toISO(fecha){
+    if(!fecha) return '0001-01-01';
+    if(/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return fecha;
+    const p=fecha.split('/'); if(p.length!==3) return '0001-01-01';
+    const dd=+p[0],mm=+p[1],yyyy=+p[2]; const d=new Date(yyyy,mm-1,dd);
+    return d.toISOString().slice(0,10);
   }
   function filtrarIngresos({id,desdeISO,hastaISO,tipo}){
     const ing=cargarDatos(KEYS.ingresos);
@@ -388,7 +389,7 @@
       const foto=getFoto(x.dni);
       const tipoTxt=(x.tipo||'').toLowerCase()==='socio'?'Socio':'Invitado';
       tr.innerHTML =
-        `<td>${foto?`<img class="thumb" src="${foto}" alt="Foto" onclick="abrirImgModal('${foto.replace(/'/g,'&#39;')}')">`:'—'}</td>`+
+        `<td>${foto?`${foto}`:'—'}</td>`+
         `<td>${tipoTxt}</td>`+
         `<td>${x.dni}</td>`+
         `<td>${x.fecha||'—'}</td>`;
@@ -398,7 +399,7 @@
     res.innerHTML=`✅ ${filas.length} registro(s) encontrado(s).` + (id? ` ID: <strong>${id}</strong>.`: '');
   }
 
-  // ======= ESTADÍSTICAS =======
+  // ======= ESTADÍSTICAS — TENDENCIAS =======
   function aplicarStats(){
     const id=(document.getElementById('stats-id').value||'').trim();
     const desdeISO=(document.getElementById('stats-desde').value||'').trim();
@@ -407,86 +408,84 @@
     const {filas,error}=filtrarIngresos({id,desdeISO,hastaISO,tipo});
     const lbl=(id?`ID ${id} · `:'')+ (tipo==='ambos'?'Ambos':(tipo==='socio'?'Socios':'Invitados')) + (desdeISO||hastaISO?` · Rango ${desdeISO||'inicio'} → ${hastaISO||'fin'}`:' · (todos)');
     const box=document.getElementById('stats-resumen');
-    if(error){ box.textContent=error; return; }
+    if(error){ box.textContent=error; limpiarCharts(); return; }
     box.textContent=`Registros: ${filas.length} · ${lbl}`;
-    dibujarCharts(filas);
+    trends(filas);
   }
-  function dibujarCharts(filas){
-    try{
-      const dctx=document.getElementById('ch-dow').getContext('2d');
-      const mctx=document.getElementById('ch-month').getContext('2d');
-      const tctx=document.getElementById('ch-today').getContext('2d');
-      const wctx=document.getElementById('ch-week').getContext('2d');
-      limpiarCanvas(dctx); limpiarCanvas(mctx); limpiarCanvas(tctx); limpiarCanvas(wctx);
-      const byDow=Array.from({length:7},()=>0);
-      const byMon=Array.from({length:12},()=>0);
-      const byWeek={};
-      const hoyIso = isoFecha(ahoraReal()); let cSocHoy=0, cInvHoy=0;
-      filas.forEach(x=>{
-        const iso = x.isoFecha || toISO(x.fecha);
-        const d=new Date(iso+'T00:00:00');
-        byDow[d.getDay()]++; byMon[d.getMonth()]++;
-        const wkey=isoWeekKey(d); byWeek[wkey]=(byWeek[wkey]||0)+1;
-        if(iso===hoyIso){ if((x.tipo||'').toLowerCase()==='socio') cSocHoy++; else cInvHoy++; }
-      });
-      barras(dctx, byDow, ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'], 'Ingresos');
-      barras(mctx, byMon, ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'], 'Ingresos');
-      donut(tctx, [cInvHoy,cSocHoy], ['Invitados','Socios']);
-      const wkeys = Object.keys(byWeek).sort(); const wvals = wkeys.map(k=>byWeek[k]);
-      barras(wctx, wvals, wkeys, 'Ingresos/sem');
-    }catch(e){ console.warn(e); }
+  function limpiarCharts(){ ['ch-trend-day','ch-trend-week','ch-trend-month','ch-trend-day-type'].forEach(id=>{ const ctx=document.getElementById(id).getContext('2d'); ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height); }); }
+  function trends(filas){
+    const days=serieDiaria(filas); const weeks=serieSemanal(filas); const months=serieMensual(filas); const dayByType=serieDiariaPorTipo(filas);
+    drawLine(document.getElementById('ch-trend-day').getContext('2d'), days.labels,[{name:'Total',data:days.values,color:'#2a7a2a'}],'Ingresos diarios');
+    drawLine(document.getElementById('ch-trend-week').getContext('2d'), weeks.labels,[{name:'Total',data:weeks.values,color:'#c8a84b'}],'Ingresos semanales');
+    drawLine(document.getElementById('ch-trend-month').getContext('2d'), months.labels,[{name:'Total',data:months.values,color:'#9dd49d'}],'Ingresos mensuales');
+    drawLine(document.getElementById('ch-trend-day-type').getContext('2d'), dayByType.labels,[{name:'Invitados',data:dayByType.inv,color:'#d4841a'},{name:'Socios',data:dayByType.soc,color:'#2a7a2a'}],'Tendencia diaria por tipo');
   }
-  function limpiarCanvas(ctx){ const c=ctx.canvas; ctx.clearRect(0,0,c.width,c.height); ctx.fillStyle='#0a140a'; ctx.fillRect(0,0,c.width,c.height); }
-  function barras(ctx, data, labels, titulo){
-    const c=ctx.canvas, W=c.width, H=c.height, pad=28; const max=Math.max(1, ...data);
-    const bw=(W - pad*2)/Math.max(1,data.length);
+  function rangoDias(filas){
+    if(!filas.length){ const hoy=ahoraReal(); return [new Date(hoy.getFullYear(),hoy.getMonth(),hoy.getDate()), new Date(hoy.getFullYear(),hoy.getMonth(),hoy.getDate())]; }
+    let min=Infinity, max=0;
+    filas.forEach(x=>{ const iso=x.isoFecha||toISO(x.fecha); const t=new Date(iso+'T00:00:00').getTime(); if(t<min)min=t; if(t>max)max=t; });
+    return [new Date(min), new Date(max)];
+  }
+  function serieDiaria(filas){
+    const [d0,d1]=rangoDias(filas); const labels=[], values=[]; const map={};
+    filas.forEach(x=>{ const iso=x.isoFecha||toISO(x.fecha); map[iso]=(map[iso]||0)+1; });
+    for(let d=new Date(d0); d<=d1; d.setDate(d.getDate()+1)){
+      const iso=isoFecha(d); labels.push(iso); values.push(map[iso]||0);
+    }
+    return {labels,values};
+  }
+  function isoWeekKey(d){ const dt=new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const dayNum = dt.getUTCDay() || 7; dt.setUTCDate(dt.getUTCDate() + 4 - dayNum); const yearStart = new Date(Date.UTC(dt.getUTCFullYear(),0,1)); const weekNo = Math.ceil((((dt - yearStart) / 86400000) + 1)/7); const y=dt.getUTCFullYear(); return `${y}-W${String(weekNo).padStart(2,'0')}`; }
+  function serieSemanal(filas){
+    const labels=[], values=[]; const agg={};
+    filas.forEach(x=>{ const d=new Date((x.isoFecha||toISO(x.fecha))+'T00:00:00'); const wk=isoWeekKey(d); agg[wk]=(agg[wk]||0)+1; });
+    const keys=Object.keys(agg).sort(); keys.forEach(k=>{ labels.push(k); values.push(agg[k]); });
+    return {labels,values};
+  }
+  function serieMensual(filas){
+    const labels=[], values=[]; const agg={};
+    filas.forEach(x=>{ const iso=x.isoFecha||toISO(x.fecha); const ym=iso.slice(0,7); agg[ym]=(agg[ym]||0)+1; });
+    const keys=Object.keys(agg).sort(); keys.forEach(k=>{ labels.push(k); values.push(agg[k]); });
+    return {labels,values};
+  }
+  function serieDiariaPorTipo(filas){
+    const [d0,d1]=rangoDias(filas); const labels=[], inv=[], soc=[]; const mapInv={}, mapSoc={};
+    filas.forEach(x=>{ const iso=x.isoFecha||toISO(x.fecha); if((x.tipo||'').toLowerCase()==='socio') mapSoc[iso]=(mapSoc[iso]||0)+1; else mapInv[iso]=(mapInv[iso]||0)+1; });
+    for(let d=new Date(d0); d<=d1; d.setDate(d.getDate()+1)){
+      const iso=isoFecha(d); labels.push(iso); inv.push(mapInv[iso]||0); soc.push(mapSoc[iso]||0);
+    }
+    return {labels,inv,soc};
+  }
+
+  // Dibujo de líneas simple
+  function drawLine(ctx, labels, series, titulo){
+    const c=ctx.canvas, W=c.width, H=c.height, padL=50, padR=15, padT=24, padB=28;
     ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a140a'; ctx.fillRect(0,0,W,H);
-    ctx.fillStyle='#cfe9cf'; ctx.font='12px system-ui'; ctx.fillText(titulo, pad, 16);
-    data.forEach((v,i)=>{
-      const h = Math.round((H-pad*2) * (v/max)); const x = pad + i*bw + 6; const y = H - pad - h;
-      ctx.fillStyle='#2a7a2a'; ctx.fillRect(x,y, Math.max(10,bw-12), h);
-      ctx.fillStyle='#9dd49d'; ctx.fillRect(x,y, Math.max(10,bw-12), 6);
-      ctx.fillStyle='#cfe9cf'; ctx.fillText(String(v), x, y-2);
-      ctx.save(); ctx.translate(x, H-pad+12); ctx.rotate(-Math.PI/4); ctx.fillText(labels[i]||'', 0, 0); ctx.restore();
+    ctx.fillStyle='#cfe9cf'; ctx.font='12px system-ui'; ctx.fillText(titulo||'', padL, 16);
+    const n=labels.length||1; const max=Math.max(1, ...series.flatMap(s=>s.data));
+    const yScale=(H-padT-padB)/max; const xStep=(W-padL-padR)/Math.max(1,n-1);
+    // ejes
+    ctx.strokeStyle='#264'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, H-padB); ctx.lineTo(W-padR, H-padB); ctx.stroke();
+    // y ticks
+    ctx.fillStyle='#9abf9a'; ctx.textAlign='right';
+    for(let t=0;t<=max;t+=Math.max(1,Math.ceil(max/5))){
+      const y=H-padB - t*yScale; ctx.fillText(String(t), padL-6, y+4);
+      ctx.strokeStyle='#123'; ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W-padR, y); ctx.stroke();
+    }
+    // x labels
+    ctx.textAlign='center'; const step=Math.ceil(n/8)||1;
+    for(let i=0;i<n;i+=step){ const x=padL + i*xStep; ctx.fillText(labels[i]||'', x, H-8); }
+    // series
+    series.forEach((s,idx)=>{
+      const col=s.color||['#2a7a2a','#c8a84b','#9dd49d','#d4841a'][idx%4];
+      ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath();
+      for(let i=0;i<n;i++){ const v=s.data[i]||0; const x=padL + i*xStep; const y=H-padB - v*yScale; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }
+      ctx.stroke(); ctx.fillStyle=col;
+      for(let i=0;i<n;i+=Math.max(1,Math.floor(n/30))){ const v=s.data[i]||0; const x=padL + i*xStep; const y=H-padB - v*yScale; ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2); ctx.fill(); }
     });
-  }
-  function donut(ctx, data, labels){
-    const c=ctx.canvas, W=c.width, H=c.height;
-    ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a140a'; ctx.fillRect(0,0,W,H);
-    const total = data.reduce((a,b)=>a+b,0)||1;
-    const cx=W/2, cy=H/2, r=Math.min(W,H)/3, ir=r*0.55;
-    const cols=['#9dd49d','#2a7a2a','#d4841a','#c8a84b'];
-    let ang0=-Math.PI/2;
-    data.forEach((v,i)=>{ const ang1 = ang0 + 2*Math.PI*(v/total);
-      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.fillStyle=cols[i%cols.length];
-      ctx.arc(cx,cy,r,ang0,ang1); ctx.closePath(); ctx.fill(); ang0=ang1; });
-    // agujero
-    ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(cx,cy,ir,0,2*Math.PI); ctx.fill();
-    ctx.globalCompositeOperation='source-over';
-    // leyenda
-    ctx.fillStyle='#cfe9cf'; ctx.font='12px system-ui';
-    let y=16; labels.forEach((t,i)=>{ const v=data[i]; const pct = Math.round((v*1000)/total)/10;
-      ctx.fillStyle=cols[i%cols.length]; ctx.fillRect(W-110,y-10,10,10);
-      ctx.fillStyle='#cfe9cf'; ctx.fillText(`${t}: ${v} (${pct}%)`, W-95, y); y+=16; });
-  }
-  function isoWeekKey(d){
-    const dt=new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    const dayNum = dt.getUTCDay() || 7; dt.setUTCDate(dt.getUTCDate() + 4 - dayNum);
-    const yearStart = new Date(Date.UTC(dt.getUTCFullYear(),0,1));
-    const weekNo = Math.ceil((((dt - yearStart) / 86400000) + 1)/7);
-    const y=dt.getUTCFullYear(); return `${y}-W${String(weekNo).padStart(2,'0')}`;
   }
 
   // ======= ACTIVACIÓN (botón + validación) =======
-  function abrirActivar(){
-    const modal=document.getElementById('activar-modal');
-    const input=document.getElementById('activar-token');
-    const hayToken=!!getToken();
-    document.getElementById('activar-msg').textContent='';
-    input.value=hayToken?getToken():'';
-    modal.style.display='flex';
-    try{ input.focus(); }catch(e){}
-  }
+  function abrirActivar(){ const modal=document.getElementById('activar-modal'); const input=document.getElementById('activar-token'); const hayToken=!!getToken(); document.getElementById('activar-msg').textContent=''; input.value=hayToken?getToken():''; modal.style.display='flex'; try{ input.focus(); }catch(e){} }
   function cerrarActivar(){ const modal=document.getElementById('activar-modal'); modal.style.display='none'; }
   async function guardarYActivar(){
     const t=(document.getElementById('activar-token').value||'').trim();
@@ -512,14 +511,12 @@
     const token=getToken(); if(!token) return {ok:false,error:'Falta token'};
     try{
       setSyncBadge('syncing','☁️ 🔄 Validando token...');
-      // Ping básico (CORS / red)
       try{
         const ping = await fetch('https://api.github.com/zen',{method:'GET',mode:'cors',cache:'no-store'});
         if(!ping.ok) throw new Error('Ping GitHub falló: '+ping.status);
       }catch(e){
         return {ok:false,error:'No se puede contactar a GitHub (CORS/red): '+(e&&e.message?e.message:e)};
       }
-      // Validar token contra /user (NO 'User-Agent' porque el navegador no deja setearlo)
       const rUser = await fetch('https://api.github.com/user',{
         method:'GET', mode:'cors', cache:'no-store',
         headers:{
@@ -535,21 +532,17 @@
         return {ok:false,error:`Error usuario: ${rUser.status} ${body?('· '+body.slice(0,140)) : ''}`};
       }
       return {ok:true};
-    }catch(e){
-      return {ok:false,error:'Error de red/CORS: '+(e&&e.message?e.message:e)};
-    }
+    }catch(e){ return {ok:false,error:'Error de red/CORS: '+(e&&e.message?e.message:e)}; }
   }
   function actualizarBotonActivar(){
     try{
       const btn = document.getElementById('btn-activar-sistema'); if(!btn) return;
       const online = estaOnline(); const hayToken = !!getToken();
-      // Mostrar SIEMPRE cuando no hay token o no hay internet
       if(!online || !hayToken){
         btn.style.display='inline-flex'; btn.disabled=false;
         btn.title = !online ? 'Conectate a Internet para activar' : 'Ingresá el token para activar';
         return;
       }
-      // Si hay token y conexión: mostrar sólo si aún no quedó activado
       btn.style.display = nubeActiva ? 'none' : 'inline-flex';
       btn.disabled = false;
       btn.title = nubeActiva ? '' : 'Validar token y activar';
@@ -570,13 +563,14 @@
       if(data.ingresos) guardarDatos(KEYS.ingresos,data.ingresos);
       if(data.fotos) setFotosMap(data.fotos);
       document.getElementById('backup-alert').textContent='Importación OK.';
-    }catch(e){ document.getElementById('backup-alert').textContent='Error al importar JSON.'; }
+    }catch(e){
+      document.getElementById('backup-alert').textContent='Error al importar JSON.';
+    }
   }
 
   // ======= INIT =======
   (function(){
     tickReloj(); setInterval(tickReloj,1000);
-    // Mostrar botón cuanto antes
     try{ actualizarBotonActivar(); }catch(e){}
     const online = estaOnline();
     const hayToken = !!getToken();
@@ -589,10 +583,8 @@
         actualizarBotonActivar();
       }).catch(()=> { nubeActiva=false; setSyncBadge('err','☁️ ❌ Error'); actualizarBotonActivar(); });
     }
-    // eventos de conectividad
     window.addEventListener('online',()=>{ if(getToken()) setSyncBadge('ok','☁️ ✔️ Conectado'); else setSyncBadge('err','☁️ ❌ Sin token'); actualizarBotonActivar(); });
     window.addEventListener('offline',()=>{ setSyncBadge('err','☁️ ⚡ Local (sin internet)'); actualizarBotonActivar(); });
-    // navegar a ingreso
     navClick('ingreso', document.getElementById('btn-nav-ingreso'));
     actualizarBotonActivar();
   })();
