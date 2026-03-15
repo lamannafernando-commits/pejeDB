@@ -1632,8 +1632,8 @@ function getWeekStartISO(isoStr){
   try{
     const d = new Date((isoStr||'0001-01-01')+'T00:00:00');
     if(isNaN(d)) return '0001-01-01';
-    const day = d.getDay(); // 0=Dom .. 6=Sab
-    const diff = (day===0 ? -6 : 1 - day); // lunes como inicio
+    const day = d.getDay();
+    const diff = (day===0 ? -6 : 1 - day); // lunes
     d.setDate(d.getDate() + diff);
     return d.toISOString().slice(0,10);
   }catch(_){ return '0001-01-01'; }
@@ -1647,57 +1647,32 @@ function aggWeekly(filas){
     map[wk].total++;
     if((x.tipo||'').toLowerCase()==='socio') map[wk].socio++; else map[wk].invitado++;
   }
-  const keys = Object.keys(map).sort();
-  return keys.map(k=>({week:k, ...map[k]}));
+  return Object.keys(map).sort().map(k=>({week:k, ...map[k]}));
 }
-function clearCanvas(cvs){ const ctx=cvs.getContext('2d'); ctx.clearRect(0,0,cvs.width,cvs.height); }
 function drawWeeklyTrend(canvasId, data){
   const cvs=document.getElementById(canvasId); if(!cvs) return;
   const ctx=cvs.getContext('2d');
-  clearCanvas(cvs);
-  if(!data || !data.length){
-    ctx.fillStyle='#cfe9cf'; ctx.font='12px system-ui';
-    ctx.fillText('Sin datos en el rango seleccionado', 12, 20); return;
-  }
-  const W=cvs.width, H=cvs.height, padL=42, padB=28, padR=10, padT=10;
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  if(!data || !data.length){ ctx.fillStyle='#cfe9cf'; ctx.font='12px system-ui'; ctx.fillText('Sin datos en el rango seleccionado', 12, 20); return; }
+  const W=cvs.width,H=cvs.height,padL=42,padB=28,padR=10,padT=10;
   const plotW=W-padL-padR, plotH=H-padT-padB, x0=padL, y0=H-padB;
-  // eje y max
-  let max=0; for(const d of data){ if(d.total>max) max=d.total; }
-  if(max<5) max=5; // evita escala muy chica
-  // funciones escala
+  let max=0; for(const d of data){ if(d.total>max) max=d.total; } if(max<5) max=5;
   const n=data.length; const dx = n>1 ? (plotW/(n-1)) : 0;
-  const xPos=i=> x0 + i*dx;
-  const yPos=v=> y0 - (v*plotH/max);
-  // ejes y grilla
-  ctx.strokeStyle='#234'; ctx.lineWidth=1; ctx.globalAlpha=1;
-  // eje Y
-  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y0-plotH); ctx.stroke();
-  // eje X
-  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0+plotW, y0); ctx.stroke();
-  // ticks Y
-  ctx.font='12px system-ui'; ctx.fillStyle='#cfe9cf';
-  const ticks=5; ctx.globalAlpha=.4;
-  for(let t=0;t<=ticks;t++){
-    const v = Math.round(max*t/ticks);
-    const y = yPos(v);
-    ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x0+plotW, y); ctx.stroke();
-    ctx.globalAlpha=1; ctx.fillText(String(v), 8, y+4); ctx.globalAlpha=.4;
-  }
+  const xPos=i=> x0 + i*dx; const yPos=v=> y0 - (v*plotH/max);
+  // ejes
+  ctx.strokeStyle='#234'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x0,y0-plotH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x0+plotW,y0); ctx.stroke();
+  // grilla y ticks Y
+  ctx.font='12px system-ui'; ctx.fillStyle='#cfe9cf'; ctx.globalAlpha=.4; const ticks=5;
+  for(let t=0;t<=ticks;t++){ const v=Math.round(max*t/ticks); const y=yPos(v); ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x0+plotW,y); ctx.stroke(); ctx.globalAlpha=1; ctx.fillText(String(v),8,y+4); ctx.globalAlpha=.4; }
   ctx.globalAlpha=1;
-  // línea de totales
+  // línea totales
   ctx.strokeStyle='#d0b15c'; ctx.lineWidth=2; ctx.beginPath();
-  data.forEach((d,i)=>{ const x=xPos(i), y=yPos(d.total); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
-  ctx.stroke();
-  // puntos
-  ctx.fillStyle='#d0b15c';
-  data.forEach((d,i)=>{ const x=xPos(i), y=yPos(d.total); ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill(); });
-  // etiquetas X (mostrar cada ~step)
-  const step = Math.max(1, Math.ceil(n/10));
-  ctx.fillStyle='#cfe9cf';
-  data.forEach((d,i)=>{
-    if(i%step===0 || i===n-1){ const lbl=d.week.slice(5); const x=xPos(i)-12; const y=y0+14; ctx.fillText(lbl, x, y); }
-  });
-  // leyenda
+  data.forEach((d,i)=>{ const x=xPos(i), y=yPos(d.total); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
+  ctx.fillStyle='#d0b15c'; data.forEach((d,i)=>{ const x=xPos(i), y=yPos(d.total); ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill(); });
+  // etiquetas X
+  const step=Math.max(1,Math.ceil(n/10)); ctx.fillStyle='#cfe9cf';
+  data.forEach((d,i)=>{ if(i%step===0 || i===n-1){ const lbl=d.week.slice(5); ctx.fillText(lbl, xPos(i)-12, y0+14); } });
   ctx.fillStyle='#cfe9cf'; ctx.fillText('Totales/semana (inicio lunes)', x0+6, padT+14);
 }
 </script>
