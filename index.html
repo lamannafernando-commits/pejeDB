@@ -76,7 +76,7 @@ th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
   <button id="btn-nav-consulta" onclick="navClick('consulta',this)">Consulta</button>
   <button id="btn-nav-estadisticas" onclick="navClick('estadisticas',this)">Estadísticas</button>
   <button id="btn-nav-sanciones" onclick="navClick('sanciones',this)">Sanciones</button>
-  <button id="btn-nav-backup" onclick="navClick('backup',this)">Backup</button>
+  <button id="btn-nav-utils" onclick="navClick('utils',this)">Utils</button>
 </nav>
 
 <main>
@@ -103,10 +103,7 @@ th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
                onkeydown="if(event.key==='Enter')buscarInvitado()">
       </label>
     </div>
-    <!-- Chip de estado -->
-    <div class="row">
-      <div id="estado-chip" class="chip state-ok">—</div>
-    </div>
+    <div class="row"><div id="estado-chip" class="chip state-ok">—</div></div>
     <div class="form-row">
       <label>Nombre
         <input type="text" id="nombre-ingreso" placeholder="Apellido, Nombre" onkeydown="if(event.key==='Enter')registrarIngreso()">
@@ -208,10 +205,10 @@ th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
     </div>
     <div class="sub" id="stats-resumen" style="margin:8px 0"></div>
     <div class="charts">
-      <div class="chart-card"><h4>Tendencia diaria (totales)</h4><canvas id="ch-trend-day" width="500" height="240"></canvas></div>
-      <div class="chart-card"><h4>Tendencia semanal (totales)</h4><canvas id="ch-trend-week" width="500" height="240"></canvas></div>
-      <div class="chart-card"><h4>Tendencia mensual (totales)</h4><canvas id="ch-trend-month" width="500" height="240"></canvas></div>
-      <div class="chart-card"><h4>Tendencia diaria por tipo</h4><canvas id="ch-trend-day-type" width="500" height="240"></canvas></div>
+      <div class="chart-card"><h4>Totales por día</h4><canvas id="ch-trend-day" width="500" height="240"></canvas></div>
+      <div class="chart-card"><h4>Totales por semana</h4><canvas id="ch-trend-week" width="500" height="240"></canvas></div>
+      <div class="chart-card"><h4>Totales por mes</h4><canvas id="ch-trend-month" width="500" height="240"></canvas></div>
+      <div class="chart-card"><h4>Distribución diaria por tipo</h4><canvas id="ch-trend-day-type" width="500" height="240"></canvas></div>
     </div>
   </section>
 
@@ -248,17 +245,15 @@ th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
     </div>
   </section>
 
-  <!-- BACKUP -->
-  <section id="sec-backup" class="card" style="display:none">
-    <h2>Backup</h2>
+  <!-- UTILS (antes “Backup”) -->
+  <section id="sec-utils" class="card" style="display:none">
+    <h2>Utils</h2>
     <div class="row" style="gap:8px;margin-bottom:8px">
-      <button class="btn" onclick="exportarJSON()">Exportar JSON</button>
-      <button class="btn" onclick="importarJSON()">Importar JSON</button>
-      <button class="btn btn-ghost" onclick="generarRandomDesdeEnero2026()">🎲 Generar datos aleatorios (desde 01/2026 · 100)</button>
+      <!-- Quitadas: Exportar/Importar JSON -->
+      <button class="btn btn-ghost" onclick="generarRandomDesdeEnero2026()">🎲 Generar datos aleatorios (01/2026 · 100)</button>
       <button class="btn btn-danger" onclick="borrarRandom()">🧹 Borrar datos aleatorios</button>
     </div>
-    <textarea id="backup-json" style="width:100%;height:160px;margin-top:8px;background:#081508;color:#e8ffe8;border:1px solid #335a33;border-radius:8px" placeholder="Pegá acá para importar / se completa al exportar"></textarea>
-    <div id="backup-alert" class="alerta"></div>
+    <div id="utils-alert" class="alerta"></div>
   </section>
 </main>
 
@@ -279,7 +274,7 @@ th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
   </div>
 </div>
 
-<!-- Modal Apercibir -->
+<!-- Modales (Apercibir/Suspender/Observación/Imagen) -->
 <div id="mdl-aperc" class="modal" role="dialog" aria-modal="true">
   <div class="modal-box">
     <h3>Apercibir</h3>
@@ -295,7 +290,6 @@ th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
   </div>
 </div>
 
-<!-- Modal Suspender -->
 <div id="mdl-susp" class="modal" role="dialog" aria-modal="true">
   <div class="modal-box">
     <h3>Suspender</h3>
@@ -315,7 +309,6 @@ th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
   </div>
 </div>
 
-<!-- Modal Observación -->
 <div id="mdl-observ" class="modal" role="dialog" aria-modal="true" style="display:none">
   <div class="modal-box">
     <h3>Observación</h3>
@@ -327,7 +320,6 @@ th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
   </div>
 </div>
 
-<!-- Modal ver imagen con caption -->
 <div id="img-modal" onclick="cerrarImgModal()">
   <div id="img-modal-box">
     <img id="img-modal-img" alt="Foto"/>
@@ -345,14 +337,13 @@ const KEYS={
   lastSync:'app_lastsync',
   dirty:'app_dirty',
   sanciones:'app_sanciones',
-  rndIds:'app_rnd_ids'           // NUEVO: lista de IDs aleatorios
+  rndIds:'app_rnd_ids'
 };
 const BACKUP={ modeKey:'app_backup_mode', repoOwnerKey:'app_repo_owner', repoNameKey:'app_repo_name' };
 const GIST_DESC='Pejerrey Club — Backup (auto)';
-const ACTIVATED_KEY = 'app_activated'; // activación persistente
+const ACTIVATED_KEY = 'app_activated';
 
-// Imagen local adjunta para aleatorios (colocá el archivo junto al HTML)
-const RANDOM_PHOTO_URL = 'user-icon-icon_1076610-59410.jpg';
+const RANDOM_PHOTO_URL = 'user-icon-icon_1076610-59410.jpg'; // imagen adjunta junto al HTML
 
 let nubeActiva=false, _camStream=null, _syncTimer=null;
 let _apercPersonaId='', _apercNombre='';
@@ -497,7 +488,6 @@ function buscarInvitado(){
   }
   mostrarAlerta('alerta-ingreso','ok',`✅ Estado de <strong>${esc(id)}</strong> consultado.`);
 }
-/* Foto modal con caption */
 function abrirImg(el){
   const src = el?.src || '';
   const id = el?.dataset?.id || '';
@@ -543,9 +533,12 @@ function registrarIngreso(){
 
 /* ======= CONSULTA ======= */
 function renderFotoCell(personaId, nombre){
-  const foto=getFoto(personaId); if(!foto) return '—';
+  const foto=getFoto(personaId);
+  if(!foto) return '—';
   const safeSrc=String(foto).replace(/"/g,'&quot;');
-  return `${safeSrc}`;
+  const safeNom=String(nombre||'').replace(/"/g,'&quot;');
+  const safeId=String(personaId||'').replace(/"/g,'&quot;');
+  return `<img class="thumb" src="${safeSrc}" alt="Foto de ${safeNom}" data-id="${safeId}" data-nombre="${safeNom}" onclick="abrirImg(this)">`;
 }
 function limpiarConsulta(){
   ['consulta-id','consulta-desde','consulta-hasta'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
@@ -623,7 +616,7 @@ function guardarAperc(){
   const motivo=(document.getElementById('aperc-motivo').value||'').trim();
   if(!motivo){ document.getElementById('aperc-msg').textContent='Ingresá un motivo.'; return; }
   const arr=getSanciones();
-  arr.push({ id:'ap-'+Date.now(), tipo:'apercibimiento', personaId:_apercPersonaId, nombre:_apercNombre, motivo, fechaISO: hoyISO() });
+  arr.push({ id:'ap-'+Date.now(), tipo:'apercibimiento', personaId:_apercPersonaId, nombre:_apercNombre, motivo, fechaISO: hoyISO(), rnd:false });
   setSanciones(arr); markDirty();
   closeAperc();
   alert('Apercibimiento registrado.');
@@ -647,7 +640,7 @@ function guardarSusp(){
   if(!desdeISO || !hastaISO || !motivo){ document.getElementById('susp-msg').textContent='Completá motivo y rango de fechas.'; return; }
   if(hastaISO<desdeISO){ document.getElementById('susp-msg').textContent='La fecha fin no puede ser anterior al inicio.'; return; }
   const arr=getSanciones();
-  arr.push({ id:'su-'+Date.now(), tipo:'suspension', personaId:_suspPersonaId, nombre:_suspNombre, motivo, desdeISO, hastaISO, fechaISO:hoyISO(), activo:true });
+  arr.push({ id:'su-'+Date.now(), tipo:'suspension', personaId:_suspPersonaId, nombre:_suspNombre, motivo, desdeISO, hastaISO, fechaISO:hoyISO(), activo:true, rnd:false });
   setSanciones(arr); markDirty();
   closeSusp();
   alert('Suspensión registrada.');
@@ -753,16 +746,20 @@ function aplicarStats(){
   const lbl=(id?`ID ${esc(id)} · `:'')+(t==='ambos'?'Ambos':(t==='socio'?'Socios':'Invitados'))+(d||h?` · Rango ${esc(d||'inicio')} → ${esc(h||'fin')}`:' · (todos)');
   const box=document.getElementById('stats-resumen');
   if(error){ box.textContent=error; limpiarCharts(); return; }
-  box.textContent=`Registros: ${filas.length} · ${lbl}`; trends(filas);
+  box.textContent=`Registros: ${filas.length} · ${lbl}`;
+  trends(filas);
 }
 function limpiarCharts(){ ['ch-trend-day','ch-trend-week','ch-trend-month','ch-trend-day-type'].forEach(id=>{ const ctx=document.getElementById(id).getContext('2d'); ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height); }); }
-function trends(f){ const days=serieDiaria(f); const weeks=serieSemanal(f); const months=serieMensual(f); const dayByType=serieDiariaPorTipo(f); drawLine(document.getElementById('ch-trend-day').getContext('2d'), days.labels,[{name:'Total',data:days.values,color:'#2a7a2a'}],'Ingresos diarios'); drawLine(document.getElementById('ch-trend-week').getContext('2d'), weeks.labels,[{name:'Total',data:weeks.values,color:'#c8a84b'}],'Ingresos semanales'); drawLine(document.getElementById('ch-trend-month').getContext('2d'), months.labels,[{name:'Total',data:months.values,color:'#9dd49d'}],'Ingresos mensuales'); drawLine(document.getElementById('ch-trend-day-type').getContext('2d'), dayByType.labels,[{name:'Invitados',data:dayByType.inv,color:'#d4841a'},{name:'Socios',data:dayByType.soc,color:'#2a7a2a'}],'Tendencia diaria por tipo'); }
+
+/* Series agregadas */
 function rangoDias(f){ if(!f.length){ const h=now(); return [new Date(h.getFullYear(),h.getMonth(),h.getDate()), new Date(h.getFullYear(),h.getMonth(),h.getDate())]; } let mi=Infinity, ma=0; f.forEach(x=>{ const t=new Date((x.isoFecha||toISO(x.fecha))+'T00:00:00').getTime(); if(t<mi)mi=t; if(t>ma)ma=t; }); return [new Date(mi), new Date(ma)]; }
 function serieDiaria(f){ const [d0,d1]=rangoDias(f); const labels=[], values=[], agg={}; f.forEach(x=>{ const k=x.isoFecha||toISO(x.fecha); agg[k]=(agg[k]||0)+1; }); for(let d=new Date(d0); d<=d1; d.setDate(d.getDate()+1)){ const k=iso(d); labels.push(k); values.push(agg[k]||0); } return {labels,values}; }
 function isoWeekKey(d){ const dt=new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const dayNum=dt.getUTCDay()||7; dt.setUTCDate(dt.getUTCDate()+4-dayNum); const yearStart=new Date(Date.UTC(dt.getUTCFullYear(),0,1)); const weekNo=Math.ceil((((dt-yearStart)/86400000)+1)/7); const y=dt.getUTCFullYear(); return `${y}-W${String(weekNo).padStart(2,'0')}`; }
 function serieSemanal(f){ const labels=[], values=[], agg={}; f.forEach(x=>{ const d=new Date((x.isoFecha||toISO(x.fecha))+'T00:00:00'); const k=isoWeekKey(d); agg[k]=(agg[k]||0)+1; }); Object.keys(agg).sort().forEach(k=>{ labels.push(k); values.push(agg[k]); }); return {labels,values}; }
 function serieMensual(f){ const labels=[], values=[], agg={}; f.forEach(x=>{ const ym=(x.isoFecha||toISO(x.fecha)).slice(0,7); agg[ym]=(agg[ym]||0)+1; }); Object.keys(agg).sort().forEach(k=>{ labels.push(k); values.push(agg[k]); }); return {labels,values}; }
 function serieDiariaPorTipo(f){ const [d0,d1]=rangoDias(f); const labels=[], inv=[], soc=[], ai={}, as={}; f.forEach(x=>{ const k=x.isoFecha||toISO(x.fecha); if((x.tipo||'').toLowerCase()==='socio') as[k]=(as[k]||0)+1; else ai[k]=(ai[k]||0)+1; }); for(let d=new Date(d0); d<=d1; d.setDate(d.getDate()+1)){ const k=iso(d); labels.push(k); inv.push(ai[k]||0); soc.push(as[k]||0); } return {labels,inv,soc}; }
+
+/* Dibujadores */
 function drawLine(ctx, labels, series, titulo){
   const c=ctx.canvas,W=c.width,H=c.height,L=50,R=15,T=24,B=28;
   ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a140a'; ctx.fillRect(0,0,W,H);
@@ -785,6 +782,53 @@ function drawLine(ctx, labels, series, titulo){
     ctx.fillStyle=col;
     for(let k=0;k<n;k+=Math.max(1,Math.floor(n/30))){ const v=s.data[k]||0; const x=L+k*xStep; const y=H-B - v*yScale; ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2); ctx.fill(); }
   });
+}
+function drawBars(ctx, labels, series, titulo){
+  // Barras agrupadas (soporta 1+ series)
+  const c=ctx.canvas,W=c.width,H=c.height,L=50,R=15,T=24,B=28;
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a140a'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#cfe9cf'; ctx.font='12px system-ui'; ctx.fillText(titulo||'',L,16);
+  const n=labels.length||1;
+  const max=Math.max(1,...series.flatMap(s=>s.data));
+  const plotW=(W-L-R), plotH=(H-T-B);
+  const xStep=plotW/Math.max(1,n);
+  const groupPad=0.2; // % espacio lateral del grupo
+  const barW=(xStep*(1-groupPad))/Math.max(1,series.length);
+  // Ejes
+  ctx.strokeStyle='#264'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(L,T); ctx.lineTo(L,H-B); ctx.lineTo(W-R,H-B); ctx.stroke();
+  // Rejilla y labels Y
+  ctx.fillStyle='#9abf9a'; ctx.textAlign='right';
+  const stepY=Math.max(1,Math.ceil(max/5));
+  for(let t=0;t<=max;t+=stepY){ const y=H-B - (t/max)*plotH; ctx.fillText(String(t), L-6, y+4); ctx.strokeStyle='#123'; ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(W-R,y); ctx.stroke(); }
+  // Labels X
+  ctx.textAlign='center'; ctx.fillStyle='#cfe9cf';
+  const stepX=Math.ceil(n/8)||1;
+  for(let i=0;i<n;i+=stepX){ const x=L+i*xStep + xStep/2; ctx.fillText(labels[i]||'', x, H-8); }
+  // Barras
+  series.forEach((s,si)=>{
+    const col=s.color||['#2a7a2a','#c8a84b','#9dd49d','#d4841a'][si%4];
+    ctx.fillStyle=col;
+    for(let i=0;i<n;i++){
+      const v=s.data[i]||0;
+      const x0=L+i*xStep + (xStep*(groupPad/2)) + si*barW;
+      const h=v/max*plotH;
+      const y=H-B - h;
+      ctx.fillRect(x0,y,Math.max(2,barW-2),h);
+    }
+  });
+}
+function trends(f){
+  const days=serieDiaria(f);
+  const weeks=serieSemanal(f);
+  const months=serieMensual(f);
+  const dayByType=serieDiariaPorTipo(f);
+  drawLine(document.getElementById('ch-trend-day').getContext('2d'), days.labels,[{name:'Total',data:days.values,color:'#2a7a2a'}],'Totales por día');
+  drawBars(document.getElementById('ch-trend-week').getContext('2d'), weeks.labels,[{name:'Total',data:weeks.values,color:'#c8a84b'}],'Totales por semana');
+  drawBars(document.getElementById('ch-trend-month').getContext('2d'), months.labels,[{name:'Total',data:months.values,color:'#9dd49d'}],'Totales por mes');
+  drawBars(document.getElementById('ch-trend-day-type').getContext('2d'), dayByType.labels,[
+    {name:'Invitados',data:dayByType.inv,color:'#d4841a'},
+    {name:'Socios',data:dayByType.soc,color:'#2a7a2a'}
+  ],'Distribución diaria por tipo');
 }
 
 /* ======= ACTIVAR / VALIDAR ======= */
@@ -810,7 +854,6 @@ async function guardarYActivar(){
     setToken(t);
 
     if(!online()){
-      // Activación offline diferida: queda activado y sincroniza cuando vuelva la conexión
       nubeActiva=true; setActivated(true);
       setSyncBadge('err','☁️ Activado (offline)');
       msgEl.textContent='Token guardado. Quedó activado (offline).';
@@ -843,7 +886,7 @@ async function guardarYActivar(){
   }
 }
 async function validarToken(){
-  if(!online()) return {ok:true,modo:'local'}; // offline: permitir uso local activado
+  if(!online()) return {ok:true,modo:'local'};
   const token=getToken(); if(!token) return {ok:false,error:'Falta token'};
   try{
     setSyncBadge('syncing','☁️ Sincronizando…');
@@ -867,12 +910,11 @@ async function validarToken(){
   }
 }
 
-/* ======= GITHUB (Gist + Repo fallback) ======= */
+/* ======= GITHUB (Gist + Repo) ======= */
 function ghHeaders(){ return {'Accept':'application/vnd.github+json','Authorization':'Bearer '+getToken(),'X-GitHub-Api-Version':'2022-11-28'}; }
 function b64(s){ return btoa(unescape(encodeURIComponent(s))); }
 async function ghUser(){ const r=await fetch('https://api.github.com/user',{headers:ghHeaders(),mode:'cors',cache:'no-store'}); if(!r.ok) throw new Error('user:'+r.status); return await r.json(); }
 
-/* Pull/Push Gist */
 async function discoverGistId(){
   for(let page=1; page<=5; page++){
     const r=await fetch(`https://api.github.com/gists?per_page=50&page=${page}`,{headers:ghHeaders(),mode:'cors',cache:'no-store'});
@@ -897,14 +939,14 @@ async function pullFromGist(gid){
   return {
     ingresos: await readFile('ingresos.json')||[],
     fotos:     await readFile('fotos.json')||{},
-    sanciones: await readFile('sanciones.json')||[]   // <-- NUEVO
+    sanciones: await readFile('sanciones.json')||[]
   };
 }
 async function createGistFromLocal(){
   const body={ description:GIST_DESC, public:false, files:{
     'ingresos.json':{content:JSON.stringify(getIngresos(),null,2)},
     'fotos.json':   {content:JSON.stringify(getFotosMap(),null,2)},
-    'sanciones.json':{content:JSON.stringify(getSanciones(),null,2)},  // <-- NUEVO
+    'sanciones.json':{content:JSON.stringify(getSanciones(),null,2)},
     'meta.json':    {content:JSON.stringify({createdAt:new Date().toISOString(),app:'PejerreyClub'},null,2)}
   }};
   const r=await fetch('https://api.github.com/gists',{method:'POST',headers:ghHeaders(),mode:'cors',cache:'no-store',body:JSON.stringify(body)});
@@ -921,7 +963,7 @@ async function patchGist(gid){
   const body={ files:{
     'ingresos.json':{content:JSON.stringify(getIngresos(),null,2)},
     'fotos.json':   {content:JSON.stringify(getFotosMap(),null,2)},
-    'sanciones.json':{content:JSON.stringify(getSanciones(),null,2)},    // <-- NUEVO
+    'sanciones.json':{content:JSON.stringify(getSanciones(),null,2)},
     'meta.json':    {content:JSON.stringify({updatedAt:new Date().toISOString(),app:'PejerreyClub'},null,2)}
   }};
   const r=await fetch('https://api.github.com/gists/'+gid,{method:'PATCH',headers:ghHeaders(),mode:'cors',cache:'no-store',body:JSON.stringify(body)});
@@ -929,8 +971,6 @@ async function patchGist(gid){
   localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now()));
   clearDirty();
 }
-
-/* Repo (fallback) */
 async function ensureRepo(owner,name){
   let r=await fetch(`https://api.github.com/repos/${owner}/${name}`,{headers:ghHeaders(),mode:'cors',cache:'no-store'});
   if(r.status===404){
@@ -971,11 +1011,10 @@ function mergeIngresos(localArr, remoteArr){
 }
 function mergeFotos(localMap, remoteMap){ return {...remoteMap, ...localMap}; }
 function mergeSanciones(localArr, remoteArr){
-  // Preferimos por id; si no, por (personaId|tipo|fechaISO|desdeISO|hastaISO|motivo)
   const k = s => (s.id && String(s.id)) || [
     s.personaId||'', s.tipo||'',
     s.fechaISO||'', s.desdeISO||'', s.hastaISO||'',
-    (s.motivo||'').slice(0,80) // acorta para clave
+    (s.motivo||'').slice(0,80)
   ].join('|');
   const map=new Map();
   [...remoteArr, ...localArr].forEach(s=>map.set(k(s), s)); // local pisa remoto
@@ -1019,7 +1058,7 @@ async function bootstrapFromGitHub(){
     save(KEYS.ingresos,ing); save(KEYS.fotos,fot); save(KEYS.sanciones,san);
     await putFileJson(owner,repo,'ingresos.json',ing,'sync: ingresos');
     await putFileJson(owner,repo,'fotos.json',fot,'sync: fotos');
-    await putFileJson(owner,repo,'sanciones.json',san,'sync: sanciones'); // NUEVO
+    await putFileJson(owner,repo,'sanciones.json',san,'sync: sanciones');
     await putFileJson(owner,repo,'meta.json',{updatedAt:new Date().toISOString(),app:'PejerreyClub'},'sync: meta');
     localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now()));
   }catch(e){ setSyncBadge('err','☁️ Datos local'); }
@@ -1045,7 +1084,7 @@ async function persistir(){
     await ensureRepo(owner,repo);
     await putFileJson(owner,repo,'ingresos.json',getIngresos(),'sync: ingresos');
     await putFileJson(owner,repo,'fotos.json',getFotosMap(),'sync: fotos');
-    await putFileJson(owner,repo,'sanciones.json',getSanciones(),'sync: sanciones'); // NUEVO
+    await putFileJson(owner,repo,'sanciones.json',getSanciones(),'sync: sanciones');
     await putFileJson(owner,repo,'meta.json',{updatedAt:new Date().toISOString(),app:'PejerreyClub'},'sync: meta');
     localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now()));
     clearDirty(); setSyncBadge('ok','☁️ Datos online');
@@ -1069,27 +1108,10 @@ function mostrarIngresosDeHoy(){
   consulta();
 }
 
-/* ======= BACKUP manual ======= */
-function exportarJSON(){
-  const txt=JSON.stringify({ingresos:getIngresos(),fotos:getFotosMap(),sanciones:getSanciones()},null,2);
-  document.getElementById('backup-json').value=txt;
-  document.getElementById('backup-alert').textContent='Exportado.';
-}
-function importarJSON(){
-  try{
-    const txt=document.getElementById('backup-json').value||'{}';
-    const data=JSON.parse(txt);
-    if(data.ingresos) save(KEYS.ingresos,data.ingresos);
-    if(data.fotos) save(KEYS.fotos,data.fotos);
-    if(data.sanciones) save(KEYS.sanciones,data.sanciones);
-    document.getElementById('backup-alert').textContent='Importación OK.';
-    markDirty();
-  }catch(e){
-    document.getElementById('backup-alert').textContent='Error al importar JSON.';
-  }
-}
+/* ======= UTILS ======= */
+function getRndIds(){ return load(KEYS.rndIds,[]); }
+function setRndIds(a){ save(KEYS.rndIds,a||[]); }
 
-/* ======= RANDOM DATA (desde 01/2026 · 100) ======= */
 function generarRandomDesdeEnero2026(){
   const start = new Date(2026,0,1);
   const end = new Date();
@@ -1110,7 +1132,7 @@ function generarRandomDesdeEnero2026(){
     const ts = new Date(start.getTime() + Math.random()*(end.getTime()-start.getTime()));
     ts.setHours(rnd(8,20), rnd(0,59), rnd(0,59), 0);
     lista.push({dni:id, tipo, nombre, fecha:fDate(ts), hora:fTime(ts), isoFecha:toISOo(ts), rnd:true});
-    if(!fotos[id]) fotos[id] = RANDOM_PHOTO_URL; // <-- usa imagen adjunta
+    if(!fotos[id]) fotos[id] = RANDOM_PHOTO_URL;
     rndIds.add(id);
     creados++;
   }
@@ -1119,11 +1141,10 @@ function generarRandomDesdeEnero2026(){
   setRndIds(Array.from(rndIds));
   markDirty();
 
-  const el = document.getElementById('backup-alert');
+  const el = document.getElementById('utils-alert');
   if(el) el.textContent = `✅ Generados ${creados} ingresos aleatorios desde 2026-01-01.`;
-  console.info('[random] Generados', creados, 'Total ingresos:', getIngresos().length);
 
-  // Mostrar todo lo generado: ir a "Consulta" con rango amplio
+  // Mostrar todo lo generado
   try{
     navClick('consulta', document.getElementById('btn-nav-consulta'));
     const d = document.getElementById('consulta-desde');
@@ -1133,39 +1154,37 @@ function generarRandomDesdeEnero2026(){
     const id = document.getElementById('consulta-id'); if(id) id.value = '';
     const t = document.getElementById('consulta-tipo'); if(t) t.value = 'ambos';
     consulta();
-  }catch(e){
-    console.warn('No se pudo refrescar la vista de Consulta', e);
-  }
+  }catch(e){}
 }
 
 function borrarRandom(){
   const rndIds = new Set(getRndIds());
+  const el = document.getElementById('utils-alert');
+
   if(!rndIds.size){
-    const el = document.getElementById('backup-alert'); if(el) el.textContent = 'No hay datos aleatorios para borrar.';
+    if(el) el.textContent = 'No hay datos aleatorios para borrar.';
     return;
   }
-  const ing0 = getIngresos();
-  const ing = ing0.filter(x=> !x.rnd && !rndIds.has(x.dni));
+  // Ingresos
+  const ing = getIngresos().filter(x=> !x.rnd && !rndIds.has(x.dni));
   save(KEYS.ingresos, ing);
 
-  // Fotos asociadas a IDs aleatorios
+  // Fotos
   const fot = getFotosMap();
   rndIds.forEach(id=>{ if(fot[id]) delete fot[id]; });
   setFotosMap(fot);
 
-  // Sanciones asociadas a IDs aleatorios (por si se cargaron mientras probabas)
-  const san0 = getSanciones();
-  const san = san0.filter(s=> !s.rnd && !rndIds.has(s.personaId));
+  // Sanciones
+  const san = getSanciones().filter(s=> !s.rnd && !rndIds.has(s.personaId));
   setSanciones(san);
 
-  // Limpiar registro de IDs aleatorios
+  // Limpiar registro
   setRndIds([]);
   markDirty();
 
-  const el = document.getElementById('backup-alert');
   if(el) el.textContent = '🧹 Datos aleatorios eliminados.';
 
-  // Refrescar Consulta para ver el efecto
+  // Refrescar Consulta
   try{
     navClick('consulta', document.getElementById('btn-nav-consulta'));
     const d = document.getElementById('consulta-desde'); const h = document.getElementById('consulta-hasta');
@@ -1182,8 +1201,6 @@ function setFotosMap(m){ save(KEYS.fotos,m||{}); }
 function getFoto(id){ const m=getFotosMap(); return m[id]; }
 function getSanciones(){ return load(KEYS.sanciones,[]); }
 function setSanciones(a){ save(KEYS.sanciones,a||[]); }
-function getRndIds(){ return load(KEYS.rndIds,[]); }
-function setRndIds(a){ save(KEYS.rndIds,a||[]); }
 function markDirty(){ localStorage.setItem(KEYS.dirty,'1'); }
 function clearDirty(){ localStorage.removeItem(KEYS.dirty); }
 function hayPendientes(){ return !!localStorage.getItem(KEYS.dirty); }
@@ -1193,7 +1210,6 @@ function hayPendientes(){ return !!localStorage.getItem(KEYS.dirty); }
   tick(); setInterval(tick,1000);
   ['consulta-desde','consulta-hasta','stats-desde','stats-hasta','aperc-desde','aperc-hasta'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=hoyISO(); });
 
-  // Manejo de conectividad con activación offline-first
   window.addEventListener('online', async ()=>{
     if(getToken() && isActivated()){
       setSyncBadge('syncing','☁️ Reconectado, sincronizando…');
@@ -1239,14 +1255,13 @@ function hayPendientes(){ return !!localStorage.getItem(KEYS.dirty); }
   scheduleSync();
   navClick('ingreso', document.getElementById('btn-nav-ingreso'));
 
-  // Fallback por si el handler inline estuviera bloqueado:
   try{
     const btnAct = document.getElementById('btn-activar-sistema');
     if(btnAct) btnAct.addEventListener('click', abrirActivar);
   }catch(_){}
 })();
 
-/* Exponer funciones para inline onclick="" */
+/* Exponer funciones para onclick="" */
 window.abrirActivar = abrirActivar;
 window.cerrarActivar = cerrarActivar;
 window.guardarYActivar = guardarYActivar;
@@ -1271,7 +1286,7 @@ window.cerrarObserv = cerrarObserv;
 window.cerrarImgModal = cerrarImgModal;
 window.aplicarStats = aplicarStats;
 
-/* Helper para limpiar el formulario de ingreso */
+/* Reset de formulario de ingreso */
 function resetIngresoForm(){
   const nombre=document.getElementById('nombre-ingreso');
   const dni=document.getElementById('dni-ingreso');
@@ -1280,7 +1295,7 @@ function resetIngresoForm(){
   if(getTipo()==='invitado'){ if(dni) dni.value=''; } else { if(socio) socio.value=''; }
   const prev=document.getElementById('foto-preview'); const wrap=document.getElementById('foto-preview-wrap');
   if(prev) prev.src=''; if(wrap) wrap.style.display='none';
-  document.getElementById('btn-borrar-foto').style.display='none';
+  const bDel=document.getElementById('btn-borrar-foto'); if(bDel) bDel.style.display='none';
   focusIdInput();
 }
 </script>
