@@ -1,113 +1,1081 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Pejerrey Club Quilmes — Sistema</title>
-  <!-- Opcional: URL RAW de GitHub para recargar datos sin tocar la UI -->
-  <meta name="gh-data" content="">
-  <style>
-    body{margin:0;font-family:Arial;background:#111;color:#eee}
-    header{padding:12px;background:#0c1c0c;border-bottom:3px solid #c8a84b;position:sticky;top:0;z-index:10}
-    h1{margin:0;color:#c8a84b;font-size:1.2rem}
-    .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .chip{padding:6px 12px;border-radius:20px;background:#222;border:1px solid #555}
-    .btn{background:#225122;color:white;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
-    .btn-warn{background:#8a5a0d}
-    nav{display:flex;gap:8px;padding:8px;background:#0e1e0e;border-bottom:2px solid #c8a84b}
-    nav button{background:#1b331b;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer}
-    nav button.act{border:2px solid #c8a84b}
-    .card{background:#0f1f0f;border:1px solid #244;padding:14px;margin:14px;border-radius:8px}
-    .form-row{display:flex;gap:12px;flex-wrap:wrap}
-    input,select{background:#111;border:1px solid #355;padding:8px;border-radius:6px;color:white}
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:1000}
-    .modal-box{background:#0c1c0c;padding:20px;border-radius:10px;border:2px solid #c8a84b;width:90%;max-width:400px}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Pejerrey Club Quilmes — Sistema</title>
+<style>
+ :root{ --verde:#1e5c1e; --dorado:#c8a84b; --bg:#0d1f0d; --panel:#0f1f0f; --txt:#f4fff4; --sub:#cfe9cf; --warn:#d4841a; --err:#c62828; --ok:#2a7a2a; }
+ *{box-sizing:border-box}
+ body{margin:0;background:linear-gradient(160deg,#0b1c0b,#143414);color:var(--txt);font-family:system-ui,Segoe UI,Roboto,Arial}
+ header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,#0a1a0a,#143414);border-bottom:3px solid var(--dorado);padding:10px 14px}
+ h1{margin:0;font-size:1.1rem;color:var(--dorado)}
+ .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+ .chip{border:1px solid #2a4a2a;background:#0b1b0b;border-radius:999px;padding:4px 10px}
+ .sub{color:var(--sub);font-size:.85rem}
+ .btn{cursor:pointer;border-radius:8px;border:1px solid #2f5f2f;background:#184718;color:#fff;padding:7px 10px}
+ .btn-warn{background:#5a3a0c;border-color:#b06f18}
+ .btn-ghost{background:#0e2210;border:1px dashed #3b5a3b}
+ .btn-danger{background:#701818;border-color:#b03b3b}
+ nav{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;border-bottom:2px solid var(--dorado);background:#0b1b0b}
+ nav button{background:#0e2210;border:1px solid #2a4a2a;color:#e6ffe6;padding:6px 10px;border-radius:6px;cursor:pointer}
+ nav button.act{outline:2px solid var(--dorado)}
+ main{padding:14px}
+ .card{background:var(--panel);border:1px solid #2d4e2d;border-radius:10px;padding:12px;margin-bottom:14px}
+ .form-row{display:flex;gap:12px;flex-wrap:wrap}
+ label{display:flex;flex-direction:column;gap:6px;min-width:220px;flex:1}
+ input,select,textarea{padding:8px;border-radius:8px;border:1px solid #365e36;background:#0a1a0a;color:var(--txt)}
+ table{width:100%;border-collapse:collapse;margin-top:8px}
+ th,td{padding:6px 8px;border-bottom:1px solid #244}
+ th{text-align:left;color:#d8c06f}
+ .thumb{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid #d0b15c;cursor:zoom-in;background:#000}
+ .alerta{margin-top:8px;padding:8px 10px;border-radius:8px;border:1px solid #3a3a3a;background:#101010;color:#eee}
+ .alerta.ok{border-color:#2d7a2d;background:#0f2a0f}
+ .alerta.warn{border-color:#b06f18;background:#2a1a0a}
+ .alerta.error{border-color:#b03b3b;background:#2a0f0f}
+ .state-ok{border-color:#2a8a2a;background:#0f2410;color:#e8ffe8}
+ .state-warn{border-color:#b06f18;background:#2a1a0a;color:#ffe5b8}
+ .state-block{border-color:#b03b3b;background:#2a0f0f;color:#ffd6d6}
+ .modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:1200}
+ .modal-box{background:#0c1c0c;border:1px solid var(--dorado);border-radius:12px;padding:16px;max-width:560px;width:calc(100% - 32px)}
+ #img-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:1000}
+ #img-modal-box{text-align:center}
+ #img-modal-img{max-width:90vw;max-height:80vh;border:3px solid var(--dorado);border-radius:10px}
+ #sync-debug{font-size:.8rem;color:#cfe9cf;margin-left:8px}
+</style>
 </head>
 <body>
 <header>
-  <h1>Pejerrey Club Quilmes — Sistema</h1>
-  <div class="row" style="margin-top:8px">
-    <div id="reloj" class="chip">--:--:--</div>
-    <div id="sync-badge" class="chip">Offline</div>
-    <div style="flex:1"></div>
-    <button class="btn btn-warn" onclick="abrirModal()">⚡ Activar sistema</button>
-  </div>
+ <h1>Pejerrey Club Quilmes — Sistema</h1>
+ <div class="row" style="margin-top:6px">
+  <div id="reloj" class="chip">--:--:-- — --/--/----</div>
+  <div id="sync-badge" class="chip">—</div>
+  <div id="sync-debug" class="sub"></div>
+  <div style="flex:1"></div>
+  <!-- HOTFIX: usar abrirActivarSafe() -->
+  <button id="btn-activar-sistema" class="btn btn-warn" onclick="abrirActivarSafe()">⚡ Conectar</button>
+ </div>
 </header>
+
 <nav>
-  <button class="act" onclick="mostrar('ingreso', this)">Ingreso</button>
-  <button onclick="mostrar('consulta', this)">Consulta</button>
+ <button id="btn-nav-ingreso" class="act" onclick="navClick('ingreso',this)">Ingreso</button>
+ <button id="btn-nav-consulta" onclick="navClick('consulta',this)">Consulta</button>
+ <button id="btn-nav-estad" onclick="navClick('estad',this)">Estadísticas</button>
+ <button id="btn-nav-sanc" onclick="navClick('sanc',this)">Sanciones</button>
+ <button id="btn-nav-utils" onclick="navClick('utils',this)">Utils</button>
 </nav>
+
 <main>
-  <section id="ingreso" class="card">
-    <h2>Ingreso</h2>
-    <div class="form-row">
-      <input placeholder="DNI">
+ <!-- Ingreso -->
+ <section id="sec-ingreso" class="card">
+  <h2>Ingreso</h2>
+  <div class="form-row">
+   <label>Tipo de ingreso
+    <div class="row">
+     <label style="display:inline-flex;align-items:center;gap:6px"><input type="radio" name="tipo-ing" value="invitado" checked onchange="toggleIngresoFields()"> Invitado</label>
+     <label style="display:inline-flex;align-items:center;gap:6px"><input type="radio" name="tipo-ing" value="socio" onchange="toggleIngresoFields()"> Socio</label>
     </div>
-  </section>
-  <section id="consulta" class="card" style="display:none">
-    <h2>Consulta</h2>
-    <div class="form-row">
-      <input placeholder="Buscar...">
-    </div>
-  </section>
-</main>
-<!-- ==== MODAL SIMPLE ==== -->
-<div id="modal" class="modal">
-  <div class="modal-box">
-    <h3>Activar sistema</h3>
-    <p>Esto es un modal simple. Funciona siempre.</p>
-    <input id="token" type="password" placeholder="Pegá tu token (si querés)">
-    <div style="margin-top:12px;display:flex;gap:10px">
-      <button class="btn" onclick="guardar()">Guardar</button>
-      <button class="btn btn-warn" onclick="cerrarModal()">Cancelar</button>
-    </div>
+   </label>
   </div>
+  <div class="form-row">
+   <label id="wrap-dni">DNI
+    <input id="dni" type="text" placeholder="30123456" maxlength="12" oninput="this.value=this.value.replace(/\D/g,'');onIdentificadorChange()"/>
+   </label>
+   <label id="wrap-socio" style="display:none">N° de socio
+    <input id="nroSocio" type="text" placeholder="S-12345" maxlength="20" oninput="onIdentificadorChange()"/>
+   </label>
+  </div>
+  <div class="row"><div id="estado-chip" class="chip" style="display:none"></div></div>
+  <div class="form-row">
+   <label>Nombre
+    <input id="nombre" type="text" placeholder="Apellido, Nombre"/>
+    <span id="hint" class="sub"></span>
+   </label>
+  </div>
+
+  <div class="card">
+   <h3>Foto (obligatoria)</h3>
+   <div class="row" style="gap:8px">
+    <button class="btn" onclick="iniciarCamara()" id="btn-cam-start">🎥 Iniciar cámara</button>
+    <button class="btn" onclick="tomarFoto()" id="btn-cam-shot" style="display:none">📸 Tomar foto</button>
+    <button class="btn btn-danger" onclick="detenerCamara()" id="btn-cam-stop" style="display:none">✖ Detener cámara</button>
+    <button class="btn btn-danger" onclick="borrarFoto()" id="btn-del-foto" style="display:none">🗑️ Borrar foto</button>
+   </div>
+   <div id="cam-wrap" style="display:none;margin-top:8px">
+    <video id="cam-video" autoplay playsinline style="width:260px;height:260px;border-radius:10px;border:3px solid #d0b15c;object-fit:cover;background:#000"></video>
+    <canvas id="cam-canvas" width="320" height="320" style="display:none"></canvas>
+   </div>
+   <div id="foto-preview-wrap" style="display:none;margin-top:8px">
+    <img id="foto-preview" alt="Foto" style="width:260px;height:260px;border-radius:10px;border:3px solid #d0b15c;object-fit:cover;background:#000"/>
+    <div id="foto-preview-id" class="sub">ID: --</div>
+   </div>
+  </div>
+
+  <div class="row" style="gap:8px">
+   <button class="btn" onclick="buscarInvitado()">Buscar / Estado</button>
+   <button class="btn" onclick="registrarIngreso()">Registrar ingreso</button>
+  </div>
+  <div id="alerta-ing" class="alerta" role="alert" style="display:none"></div>
+ </section>
+
+ <!-- Consulta -->
+ <section id="sec-consulta" class="card" style="display:none">
+  <h2>Consulta</h2>
+  <div class="form-row">
+   <label>Identificador (opcional)
+    <input id="c-id" type="text"/>
+   </label>
+   <label>Tipo
+    <select id="c-tipo">
+     <option value="ambos" selected>Ambos</option>
+     <option value="invitado">Invitado</option>
+     <option value="socio">Socio</option>
+    </select>
+   </label>
+  </div>
+  <div class="form-row">
+   <label>Desde <input id="c-desde" type="date"/></label>
+   <label>Hasta <input id="c-hasta" type="date"/></label>
+  </div>
+  <div class="row" style="gap:8px">
+   <button class="btn" onclick="consulta()">Buscar</button>
+   <button class="btn btn-warn" onclick="limpiarConsulta()">Limpiar</button>
+   <button class="btn btn-ghost" onclick="syncManual()">🔁 Sincronizar</button>
+  </div>
+  <div id="c-res" class="alerta" role="alert" style="display:none"></div>
+  <div id="c-tabla-wrap" style="display:none;margin-top:8px">
+   <table id="c-tabla"><thead><tr><th>Foto</th><th>Inv/Soc</th><th>ID</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody></tbody></table>
+  </div>
+ </section>
+
+ <!-- Sanciones -->
+ <section id="sec-sanc" class="card" style="display:none">
+  <h2>Sanciones</h2>
+  <div class="card">
+   <h3>Apercibimientos</h3>
+   <div class="form-row">
+    <label>Desde <input id="ap-desde" type="date"/></label>
+    <label>Hasta <input id="ap-hasta" type="date"/></label>
+   </div>
+   <div class="row" style="gap:8px">
+    <button class="btn" onclick="listarAperc()">Buscar</button>
+    <button class="btn btn-warn" onclick="limpiarAperc()">Limpiar</button>
+   </div>
+   <div id="ap-res" class="alerta" style="display:none"></div>
+   <div id="ap-wrap" style="display:none;margin-top:8px"><table><thead><tr><th>Foto</th><th>Nombre</th><th>Fecha</th></tr></thead><tbody id="ap-tbody"></tbody></table></div>
+  </div>
+
+  <div class="card">
+   <h3>Suspensiones activas</h3>
+   <div id="su-res" class="alerta" style="display:none"></div>
+   <div id="su-wrap" style="display:none;margin-top:8px"><table><thead><tr><th>Foto</th><th>Nombre</th><th>Desde</th><th>Hasta</th></tr></thead><tbody id="su-tbody"></tbody></table></div>
+  </div>
+ </section>
+
+ <!-- Estadísticas -->
+ <section id="sec-estad" class="card" style="display:none">
+  <h2>Estadísticas</h2>
+  <div class="row" style="gap:8px"><button class="btn" onclick="aplicarStats()">Aplicar</button></div>
+  <div class="sub" id="s-resumen" style="margin:8px 0"></div>
+  <div class="card"><h3>Totales por día</h3><canvas id="ch-trend-day" width="650" height="240" style="background:#0a140a;border:1px solid #234;border-radius:6px"></canvas></div>
+  <div class="card"><h3>Totales por semana</h3><canvas id="ch-trend-week" width="650" height="240" style="background:#0a140a;border:1px solid #234;border-radius:6px"></canvas></div>
+  <div class="card"><h3>Totales por mes</h3><canvas id="ch-trend-month" width="650" height="240" style="background:#0a140a;border:1px solid #234;border-radius:6px"></canvas></div>
+  <div class="card"><h3>Distribución diaria por tipo</h3><canvas id="ch-trend-day-type" width="650" height="240" style="background:#0a140a;border:1px solid #234;border-radius:6px"></canvas></div>
+ </section>
+
+ <!-- Utils -->
+ <section id="sec-utils" class="card" style="display:none">
+  <h2>Utils</h2>
+  <div class="row" style="gap:8px;margin-bottom:8px">
+   <button class="btn btn-ghost" onclick="generarRandomDesdeEnero2026()">🎲 Generar datos aleatorios</button>
+   <button class="btn btn-danger" onclick="borrarRandom()">🧹 Borrar aleatorios</button>
+   <button class="btn" onclick="testGuardar()">🧪 Test guardar</button>
+  </div>
+  <div id="utils-alert" class="alerta" style="display:none"></div>
+ </section>
+</main>
+
+<!-- Modal Activar sistema -->
+<div id="activar-modal" class="modal" role="dialog" aria-modal="true">
+ <div class="modal-box">
+  <h3>Activar sistema</h3>
+  <div class="sub">Pegá tu token de GitHub. Si no hay red se activa en modo local.</div>
+  <div class="form-row" style="margin-top:8px">
+   <label>Token
+    <input type="password" id="activar-token" placeholder="github_pat_… o ghp_…" autocomplete="off"/>
+   </label>
+  </div>
+  <div class="row" style="gap:8px;margin-top:10px">
+   <button class="btn" onclick="guardarYActivar()">Guardar y activar</button>
+   <button class="btn btn-warn" onclick="cerrarActivar()">Cancelar</button>
+  </div>
+  <div class="sub" id="activar-msg" style="margin-top:6px"></div>
+ </div>
 </div>
+
+<!-- Modal para imagen -->
+<div id="img-modal" onclick="cerrarImgModal()">
+ <div id="img-modal-box">
+  <img id="img-modal-img" alt="Foto"/>
+  <div id="img-modal-cap" class="sub"></div>
+  <div id="img-modal-status" class="sub" style="margin-top:6px"></div>
+ </div>
+</div>
+
 <script>
-/* ======== RELOJ ======== */
-setInterval(() => {
-  document.getElementById("reloj").textContent = new Date().toLocaleTimeString();
-}, 1000);
+/* ══ CONFIG ══ */
+const GH = { owner:'lamannafernando-commits', repo:'pejedb', branch:'main', dataFile:'data/pcq_data.json' };
+const KEYS={ ingresos:'app_ingresos', fotos:'app_fotos', sanciones:'app_sanciones', rndIds:'app_rnd_ids', token:'pcq_gh_token' };
 
-/* ======== MODAL ======== */
-function abrirModal(){
-  document.getElementById("modal").style.display = "flex";
-}
-function cerrarModal(){
-  document.getElementById("modal").style.display = "none";
-}
-function guardar(){
-  const t = document.getElementById("token").value.trim();
-  // Bugfix: concatenación del alert
-  alert("Token guardado (local): " + (t ? t : "vacío"));
-  cerrarModal();
-}
+/* ==== Helpers base ==== */
+const load=(k,def)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):def;}catch{return def}};
+const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const now=()=>new Date(); const dos=n=>n<10?('0'+n):(''+n);
+const fDate=d=>[dos(d.getDate()),dos(d.getMonth()+1),d.getFullYear()].join('/');
+const fTime=d=>[dos(d.getHours()),dos(d.getMinutes()),dos(d.getSeconds())].join(':');
+const iso=d=>d.toISOString().slice(0,10); const hoyISO=()=>iso(now());
+function setSyncBadge(state,text){ const el=document.getElementById('sync-badge'); if(el){ el.textContent=text; el.className='chip '+(state||''); } }
+function setSyncDebug(msg){ const el=document.getElementById('sync-debug'); if(el){ el.textContent=msg||''; } }
+function esc(s){ return String(s||'').replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
 
-/* ======== NAV ======== */
-function mostrar(id, btn){
-  document.querySelectorAll("main section").forEach(s => s.style.display="none");
-  document.getElementById(id).style.display="block";
-  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("act"));
-  btn.classList.add("act");
+/* ==== Token helpers ==== */
+function setCookie(name, value, days){
+  try {
+    const d = new Date(); d.setTime(d.getTime() + days*24*60*60*1000);
+    const expires = '; expires='+d.toUTCString();
+    document.cookie = name + '=' + encodeURIComponent(String(value||'')) + expires + '; path=/; SameSite=Lax';
+  } catch(_){}
 }
+function getCookie(name){
+  try {
+    const m = document.cookie.split(';').map(s=>s.trim()).find(s=>s.startsWith(name+'='));
+    return m ? decodeURIComponent(m.split('=')[1]) : '';
+  } catch(_) { return ''; }
+}
+function getToken(){
+  const c = getCookie(KEYS.token); if(c) return c;
+  try { return localStorage.getItem(KEYS.token) || ''; } catch(_) { return ''; }
+}
+function setToken(t){
+  const v = String(t||'').trim();
+  setCookie(KEYS.token, v, 180);
+  try{ localStorage.setItem(KEYS.token, v); }catch(_){}
+}
+function tokenInfo(t) {
+  if(!t) return {ok:false, reason:'vacío'};
+  if(/^ghp_[A-Za-z0-9]{36,}$/.test(t)) return {ok:true, type:'classic'};
+  if(/^github_pat_[A-Za-z0-9_]{10,}/.test(t)) return {ok:true, type:'fine'};
+  return {ok:true, type:'desconocido'};
+}
+/* ==== GitHub helpers ==== */
+function fetchConTimeout(url,opts,ms=12000){ const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),ms); return fetch(url,{...opts,signal:ctrl.signal}).finally(()=>clearTimeout(t)); }
+function utf8ToBase64(s){const b=new TextEncoder().encode(s);let r='';b.forEach(x=>{r+=String.fromCharCode(x);});return btoa(r);}
+function base64ToUtf8(b64){const bin=atob(b64);const b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);return new TextDecoder().decode(b);}
 
-/* ======== LECTURA DE GITHUB (SILENCIOSA, SIN CAMBIAR UI) ======== */
-(function(){
-  const GH_URL = (document.querySelector('meta[name="gh-data"]').content || '').trim();
-  async function cargarDesdeGitHub(){
-    if(!GH_URL) return; // si no hay URL, no hacemos nada
-    try{
-      const res = await fetch(GH_URL + (GH_URL.includes('?')?'&':'?') + 't=' + Date.now(), {cache:'no-store'});
-      if(!res.ok) throw new Error('HTTP '+res.status);
-      const data = await res.json().catch(()=>res.text());
-      if(window.onGitHubData) window.onGitHubData(data); // hook opcional de la app
-    }catch(e){ /* silencioso: no modificamos UI */ }
+async function ghCheckRepo(){
+ if(!navigator.onLine) return {ok:false,error:'offline'};
+ const t = getToken();
+  if(!t) return {ok:false,error:'sin-token'};
+  try{
+    const r = await fetchConTimeout(`https://api.github.com/repos/${GH.owner}/${GH.repo}`,{
+      headers:{
+        'Authorization':`Bearer ${t}`,
+        'Accept':'application/vnd.github+json',
+        'X-GitHub-Api-Version':'2022-11-28'
+      }
+    });
+    if(r.status===404) return {ok:false,error:'repo-no-existe'};
+    if(r.status===401 || r.status===403) return {ok:false,error:'permiso-token'};
+    if(!r.ok) return {ok:false,error:`repo ${r.status}`};
+    const info=await r.json();
+
+    const br=GH.branch || info.default_branch || 'main';
+    const r2=await fetchConTimeout(
+      `https://api.github.com/repos/${GH.owner}/${GH.repo}/branches/${encodeURIComponent(br)}`,
+      { headers:{'Authorization':`Bearer ${t}`,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'} }
+    );
+    if(!r2.ok){
+      const r3=await fetchConTimeout(
+        `https://api.github.com/repos/${GH.owner}/${GH.repo}/branches/${encodeURIComponent(info.default_branch)}`,
+        { headers:{'Authorization':`Bearer ${t}`,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'} }
+      );
+      if(r3.ok) { GH.branch = info.default_branch; return {ok:true, default_branch:info.default_branch}; }
+      return {ok:false,error:'branch-no-existe'};
+    }
+    GH.branch = br;
+    return {ok:true, default_branch:info.default_branch};
+  }catch(e){
+    return {ok:false,error:(e.name==='AbortError'?'timeout':e.message)};
   }
-  // Lee al cargar, y cuando vuelve el foco o la conexión
-  window.addEventListener('online', cargarDesdeGitHub);
-  document.addEventListener('visibilitychange', () => { if(!document.hidden) cargarDesdeGitHub(); });
-  cargarDesdeGitHub();
+}
+
+async function ghGetFile(path){
+  if(!getToken()) return {sha:null,content:null,error:'sin-token'};
+  try{
+    const r=await fetchConTimeout(`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${path}?ref=${GH.branch}&t=${Date.now()}`,{
+      headers:{'Authorization':`Bearer ${getToken()}`,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}
+    });
+    if(r.status===404) return {sha:null,content:null};
+    if(!r.ok) return {sha:null,content:null,error:`GET ${r.status}`};
+    const d=await r.json();
+    return {sha:d.sha||null, content:d.content||null};
+  }catch(e){ return {sha:null,content:null,error:e.name==='AbortError'?'timeout':e.message}; }
+}
+
+async function ghPutFile(path, contenido, mensaje, sha){
+  if(!getToken()) return {ok:false,error:'sin-token'};
+  const body={ message:mensaje, content:utf8ToBase64(contenido), branch:GH.branch };
+  if(sha) body.sha=sha;
+  try{
+    const r=await fetchConTimeout(`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${path}`,{
+      method:'PUT',
+      headers:{
+        'Authorization':`Bearer ${getToken()}`,
+        'Accept':'application/vnd.github+json',
+        'Content-Type':'application/json',
+        'X-GitHub-Api-Version':'2022-11-28'
+      },
+      body:JSON.stringify(body)
+    });
+    if(r.ok) return {ok:true};
+    const d=await r.json().catch(()=>({message:''}));
+    if(r.status===409||r.status===422) return {ok:false,error:'sha-conflict'};
+    if(r.status===401||r.status===403) return {ok:false,error:'permiso-token'};
+    if(r.status===404) return {ok:false,error:'repo/path-not-found'};
+    return {ok:false,error:`PUT ${r.status} ${d.message||''}`};
+  }catch(e){ return {ok:false,error:e.name==='AbortError'?'timeout':e.message}; }
+}
+
+/* ==== Datos locales y snapshot ==== */
+function getIngresos(){ return load(KEYS.ingresos,[]); }
+function setIngresos(a){ save(KEYS.ingresos,a||[]); }
+function getFotosMap(){ return load(KEYS.fotos,{}); }
+function setFotosMap(m){ save(KEYS.fotos,m||{}); }
+function getFoto(id){ return getFotosMap()[id]; }
+function getSanciones(){ return load(KEYS.sanciones,[]); }
+function setSanciones(a){ save(KEYS.sanciones,a||[]); }
+
+const LAST_SYNC_KEY='pcq_last_sync', LAST_REMOTE_TS_KEY='pcq_last_remote_ts';
+function construirDatos(){ return { version:2, updatedAt:new Date().toISOString(), ingresos:getIngresos(), sanciones:getSanciones(), fotos:getFotosMap() }; }
+function aplicarDatos(d){
+  if(!d||typeof d!=='object') return false;
+  if(Array.isArray(d.ingresos)) setIngresos(d.ingresos);
+  if(Array.isArray(d.sanciones)) setSanciones(d.sanciones);
+  if(d.fotos && typeof d.fotos==='object') setFotosMap(d.fotos);
+  try{ prepararConsultaFull?.(); refrescarSanciones?.(); }catch(_){}
+  return true;
+}
+
+async function ensureDataFile(){
+  const info = await ghGetFile(GH.dataFile);
+  if(info.error && info.error.startsWith('GET')){ setSyncDebug(info.error); }
+  if(info.content==null){
+    const base = JSON.stringify({version:2, updatedAt:new Date().toISOString(), ingresos:[], sanciones:[], fotos:{}}, null, 2);
+    const res = await ghPutFile(GH.dataFile, base, `PCQ init ${new Date().toISOString()}`);
+    return res;
+  }
+  return {ok:true};
+}
+
+let _syncEnCurso=false;
+async function guardarEnGitHub(tag){
+  if(!getToken()) { setSyncBadge('', '☁️ Sin token'); setSyncDebug('No token'); return {ok:false,error:'sin-token'}; }
+  let i=0; while(_syncEnCurso && i<15){ await new Promise(r=>setTimeout(r,200)); i++; }
+  _syncEnCurso=true; setSyncBadge('syncing',`⏳ Guardando${tag?': '+tag:''}`);
+  try{
+    const repoOk = await ghCheckRepo();
+    if(!repoOk.ok){ setSyncBadge('', '☁️ Error repo/branch'); setSyncDebug(repoOk.error||'repo'); return {ok:false,error:repoOk.error||'repo'}; }
+    const payload = JSON.stringify(construirDatos(), null, 2);
+    for(let t=0;t<3;t++){
+      const info=await ghGetFile(GH.dataFile);
+      if(info.error && info.error!=='sin-token') setSyncDebug(info.error);
+      const res = await ghPutFile(GH.dataFile, payload, `PCQ ${new Date().toISOString()}`, info.sha||null);
+      if(res.ok){
+        const ts=new Date().toISOString();
+        localStorage.setItem(LAST_SYNC_KEY,ts);
+        localStorage.setItem(LAST_REMOTE_TS_KEY,ts);
+        setSyncBadge('ok','✅ Sincronizado'); setSyncDebug('');
+        return {ok:true};
+      }
+      if(res.error==='sha-conflict'){ await new Promise(r=>setTimeout(r, 500*(t+1))); continue; }
+      setSyncBadge('', '☁️ Error al guardar'); setSyncDebug(res.error||'desconocido'); return {ok:false,error:res.error};
+    }
+    setSyncBadge('', '☁️ Conflicto sha'); setSyncDebug('reintentos agotados'); return {ok:false,error:'sha-conflict'};
+  }catch(e){ setSyncBadge('', '☁️ Error'); setSyncDebug(e.message); return {ok:false,error:e.message}; }
+  finally{ _syncEnCurso=false; }
+}
+
+async function sincronizarDesdeGitHub(){
+  if(_syncEnCurso) return; _syncEnCurso=true; setSyncBadge('syncing','🔄 Sincronizando...');
+  try{
+    const repoOk = await ghCheckRepo(); if(!repoOk.ok){ setSyncBadge('', '☁️ Error repo/branch'); setSyncDebug(repoOk.error||'repo'); return; }
+    const info=await ghGetFile(GH.dataFile);
+    if(!info.content){ await ensureDataFile(); setSyncBadge('ok','✅ Inicializado'); setSyncDebug(''); return; }
+    const remoto=JSON.parse(base64ToUtf8(info.content.replace(/\n/g,'')));
+    const tsRemoto=remoto.updatedAt?new Date(remoto.updatedAt).getTime():0;
+    const tsLocal=localStorage.getItem(LAST_REMOTE_TS_KEY)?new Date(localStorage.getItem(LAST_REMOTE_TS_KEY)).getTime():0;
+    if(tsRemoto>tsLocal+500){ aplicarDatos(remoto); localStorage.setItem(LAST_SYNC_KEY,remoto.updatedAt); localStorage.setItem(LAST_REMOTE_TS_KEY,remoto.updatedAt); }
+    setSyncBadge('ok','✅ Al día'); setSyncDebug('');
+  }catch(e){ setSyncBadge('', '☁️ Error sync'); setSyncDebug(e.message); }
+  finally{ _syncEnCurso=false; }
+}
+
+/* ==== Ingreso & sanciones ==== */
+function getTipo(){ return (document.querySelector('input[name="tipo-ing"]:checked')?.value) || 'invitado'; }
+function getId(){ return getTipo()==='socio' ? (document.getElementById('nroSocio').value || '').trim() : (document.getElementById('dni').value || '').trim(); }
+function setEstadoChip(tipo, texto){
+  const ch=document.getElementById('estado-chip');
+  ch.style.display= texto? 'inline-flex':'none';
+  ch.className='chip ';
+  if(tipo==='block') ch.classList.add('state-block');
+  else if(tipo==='warn') ch.classList.add('state-warn');
+  else if(tipo==='ok') ch.classList.add('state-ok');
+  ch.textContent= texto||'';
+}
+function mostrarAlerta(id,tipo,msg){
+  const el=document.getElementById(id);
+  el.style.display='block';
+  el.className='alerta';
+  if(tipo==='ok') el.classList.add('ok');
+  else if(tipo==='warn') el.classList.add('warn');
+  else el.classList.add('error');
+  el.innerHTML=msg||'';
+}
+function limpiarAlerta(id){ const el=document.getElementById(id); if(el){ el.style.display='none'; el.textContent=''; el.className='alerta'; } }
+
+function ultimoApercPara(id){
+  const lista=getSanciones().filter(s=> s.tipo==='apercibimiento' && s.personaId===id);
+  if(!lista.length) return null;
+  lista.sort((a,b)=> (b.fechaISO||'').localeCompare(a.fechaISO||''));
+  return lista[0];
+}
+function suspActivaPara(id){
+  if(!id) return null;
+  const hoy=hoyISO();
+  return getSanciones().find(s=> s.tipo==='suspension' && s.personaId===id && s.activo!==false && (s.desdeISO||'0001-01-01')<=hoy && hoy<= (s.hastaISO||'9999-12-31'));
+}
+
+async function onIdentificadorChange(){
+  const id=getId(); const hint=document.getElementById('hint'); const nombre=document.getElementById('nombre');
+  if(!id){
+    hint.textContent=''; setEstadoChip('', ''); limpiarAlerta('alerta-ing');
+    document.getElementById('foto-preview-wrap').style.display='none';
+    document.getElementById('btn-del-foto').style.display='none';
+    return;
+  }
+  const lista=getIngresos(); const u=lista.filter(x=>x.dni===id).slice(-1)[0];
+  if(u&&u.nombre){ nombre.value=u.nombre; hint.textContent='Autocompletado por historial'; } else hint.textContent='';
+
+  const foto=getFoto(id); const prev=document.getElementById('foto-preview'); const wrap=document.getElementById('foto-preview-wrap');
+  if(foto){ prev.src=foto; wrap.style.display='block'; document.getElementById('btn-del-foto').style.display='inline-flex'; document.getElementById('foto-preview-id').textContent='ID: '+id+' ✅'; }
+  else { wrap.style.display='none'; document.getElementById('btn-del-foto').style.display='none'; document.getElementById('foto-preview-id').textContent='ID: '+id; }
+
+  const susp=suspActivaPara(id); if(susp){
+    setEstadoChip('block', `🚫 Suspendido hasta ${susp.hastaISO}. Motivo: ${susp.motivo||'—'}`);
+    mostrarAlerta('alerta-ing','error',`🚫 Suspensión vigente hasta <strong>${esc(susp.hastaISO)}</strong> · Motivo: <em>${esc(susp.motivo||'—')}</em>`);
+    return;
+  }
+  const a=ultimoApercPara(id); if(a){
+    setEstadoChip('warn', `⚠️ Apercibido (último: ${a.fechaISO||'—'}). Motivo: ${a.motivo||'—'}`);
+    mostrarAlerta('alerta-ing','warn',`⚠️ Apercibido (último: <strong>${esc(a.fechaISO||'—')}</strong>). Motivo: <em>${esc(a.motivo||'—')}</em>`);
+    return;
+  }
+  setEstadoChip('ok', '✅ Sin sanciones'); limpiarAlerta('alerta-ing');
+}
+
+async function _guardarFoto(b64){
+  const id=getId(); const prev=document.getElementById('foto-preview'); const wrap=document.getElementById('foto-preview-wrap');
+  prev.src=b64; wrap.style.display='block'; document.getElementById('btn-del-foto').style.display='inline-flex';
+  if(id){ const m=getFotosMap(); m[id]=b64; setFotosMap(m); document.getElementById('foto-preview-id').textContent='ID: '+id+' ✅'; await guardarEnGitHub('foto'); }
+}
+async function borrarFoto(){
+  const id=getId();
+  if(id){ const m=getFotosMap(); delete m[id]; setFotosMap(m); await guardarEnGitHub('borrar foto'); }
+  document.getElementById('foto-preview').src='';
+  document.getElementById('foto-preview-wrap').style.display='none';
+  document.getElementById('btn-del-foto').style.display='none';
+  document.getElementById('foto-preview-id').textContent='ID: --';
+}
+
+function iniciarCamara(){
+  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false})
+    .then(s=>{
+      const v=document.getElementById('cam-video');
+      v.srcObject=s; v.play(); window._cam=s;
+      document.getElementById('cam-wrap').style.display='block';
+      document.getElementById('btn-cam-start').style.display='none';
+      document.getElementById('btn-cam-shot').style.display='inline-flex';
+      document.getElementById('btn-cam-stop').style.display='inline-flex';
+    })
+    .catch(()=>alert('No se pudo acceder a la cámara'));
+}
+function detenerCamara(){
+  try{ if(window._cam){ window._cam.getTracks().forEach(t=>t.stop()); window._cam=null; } }catch(_){}
+  const v=document.getElementById('cam-video'); if(v) v.srcObject=null;
+  document.getElementById('cam-wrap').style.display='none';
+  document.getElementById('btn-cam-start').style.display='inline-flex';
+  document.getElementById('btn-cam-shot').style.display='none';
+  document.getElementById('btn-cam-stop').style.display='none';
+}
+function tomarFoto(){
+  const v=document.getElementById('cam-video');
+  const c=document.getElementById('cam-canvas'), ctx=c.getContext('2d');
+  const vw=v.videoWidth, vh=v.videoHeight; if(!vw||!vh) return;
+  const size=Math.min(vw,vh), sx=Math.floor((vw-size)/2), sy=Math.floor((vh-size)/2);
+  c.width=320; c.height=320;
+  ctx.drawImage(v,sx,sy,size,size,0,0,320,320);
+  const data=c.toDataURL('image/jpeg',0.9);
+  _guardarFoto(data); detenerCamara();
+}
+
+async function registrarIngreso(){
+  const tipo=getTipo(); const id=getId(); const nombre=(document.getElementById('nombre').value||'').trim(); const susp=suspActivaPara(id);
+  if(susp){ mostrarAlerta('alerta-ing','error',`🚫 Ingreso denegado. Suspensión vigente hasta <strong>${esc(susp.hastaISO)}</strong> · Motivo: <em>${esc(susp.motivo||'—')}</em>`); return; }
+  if(tipo==='invitado'){
+    if(!id) return mostrarAlerta('alerta-ing','error','Ingresá el DNI.');
+    if(!/^\d{6,10}$/.test(id)) return mostrarAlerta('alerta-ing','error','DNI inválido.');
+    if(!nombre) return mostrarAlerta('alerta-ing','error','El nombre es obligatorio.');
+  } else {
+    if(!id) return mostrarAlerta('alerta-ing','error','Ingresá el N° de socio.');
+    if(!/^[A-Za-z0-9\-]{3,20}$/.test(id)) return mostrarAlerta('alerta-ing','error','N° socio inválido.');
+  }
+
+  const existeFoto=!!getFoto(id);
+  const prevSrc=document.getElementById('foto-preview')?.src||'';
+  const hayNueva=prevSrc && prevSrc.startsWith('data:image/');
+  if(!existeFoto && !hayNueva) return mostrarAlerta('alerta-ing','error','📸 La foto es obligatoria.');
+  if(!existeFoto && hayNueva){ const m=getFotosMap(); m[id]=prevSrc; setFotosMap(m); }
+
+  const lista=getIngresos(); const t=now();
+  lista.push({dni:id,tipo,nombre,fecha:fDate(t),hora:fTime(t),isoFecha:iso(t)});
+  setIngresos(lista);
+
+  const ok = await guardarEnGitHub('ingreso');
+  if(!ok.ok){ mostrarAlerta('alerta-ing','error','❌ No se pudo subir a GitHub. Dato guardado local.'); }
+  else { mostrarAlerta('alerta-ing','ok',`✅ Ingreso registrado — ${tipo==='socio'?'Socio':'Invitado'} <strong>${esc(id)}</strong> ${esc(fDate(t))} ${esc(fTime(t))}`); }
+  resetIngresoForm();
+}
+
+function resetIngresoForm(){
+  const rbInv=document.querySelector('input[name="tipo-ing"][value="invitado"]'); if(rbInv) rbInv.checked=true;
+  toggleIngresoFields();
+  ['dni','nroSocio','nombre'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('hint').textContent='';
+  document.getElementById('foto-preview').src='';
+  document.getElementById('foto-preview-wrap').style.display='none';
+  document.getElementById('btn-del-foto').style.display='none';
+  limpiarAlerta('alerta-ing'); detenerCamara();
+  const ch=document.getElementById('estado-chip'); if(ch){ ch.style.display='none'; ch.textContent=''; ch.className='chip'; }
+  setTimeout(()=>{ const el=document.getElementById('dni'); el?.focus(); el?.select?.(); }, 100);
+}
+
+/* Miniatura segura */
+function renderFotoCell(personaId, nombre){
+  const foto=getFoto(personaId);
+  if(!foto) return '—';
+  const safeSrc=String(foto).replace(/"/g,'\\"');
+  const safeNom=String(nombre||'').replace(/"/g,'\\"');
+  const safeId=String(personaId||'').replace(/"/g,'\\"');
+  return `<img class="thumb" src="${safeSrc}" alt="Foto" data-id="${safeId}" data-nombre="${safeNom}" onclick="abrirImg(this)"/>`;
+}
+
+/* Acciones sanciones */
+function openAperc(btn){
+  const id=btn.dataset.id||''; const nombre=btn.dataset.nombre||'';
+  const motivo=prompt(`Apercibir a ${nombre||id}. Motivo:`, ''); if(!motivo) return;
+  const arr=getSanciones();
+  arr.push({ id:'ap-'+Date.now(), tipo:'apercibimiento', personaId:id, nombre, motivo, fechaISO:hoyISO(), rnd:false });
+  setSanciones(arr); guardarEnGitHub('aperc'); alert('Apercibimiento registrado.'); updateEstadoChip(id);
+}
+function openSusp(btn){
+  const id=btn.dataset.id||''; const nombre=btn.dataset.nombre||'';
+  const desde=hoyISO(); const hasta=prompt(`Suspender a ${nombre||id}. Hasta (YYYY-MM-DD):`, desde); if(!hasta) return;
+  const motivo=prompt('Motivo de la suspensión:',''); if(!motivo) return;
+  const arr=getSanciones();
+  arr.push({ id:'su-'+Date.now(), tipo:'suspension', personaId:id, nombre, motivo, desdeISO:desde, hastaISO:hasta, fechaISO:hoyISO(), activo:true, rnd:false });
+  setSanciones(arr); guardarEnGitHub('susp'); alert('Suspensión registrada.'); updateEstadoChip(id); refrescarSanciones();
+}
+function updateEstadoChip(id){
+  id=id||getId(); if(!id){ setEstadoChip('', ''); return; }
+  const s=suspActivaPara(id); if(s){ setEstadoChip('block', `🚫 Suspendido hasta ${s.hastaISO}. Motivo: ${s.motivo||'—'}`); return; }
+  const a=ultimoApercPara(id); if(a){ setEstadoChip('warn', `⚠️ Apercibido (último: ${a.fechaISO||'—'}). Motivo: ${a.motivo||'—'}`); return; }
+  setEstadoChip('ok', '✅ Sin sanciones');
+}
+
+/* ==== Sanciones UI lists ==== */
+function limpiarAperc(){
+  document.getElementById('ap-desde').value=hoyISO();
+  document.getElementById('ap-hasta').value=hoyISO();
+  document.getElementById('ap-res').style.display='none';
+  document.getElementById('ap-wrap').style.display='none';
+  document.getElementById('ap-tbody').innerHTML='';
+}
+function listarAperc(){
+  const d=(document.getElementById('ap-desde').value||'').trim();
+  const h=(document.getElementById('ap-hasta').value||'').trim();
+  const arr=getSanciones().filter(s=>s.tipo==='apercibimiento');
+  const enRango=arr.filter(s=>{ const f=s.fechaISO||'0001-01-01'; return (!d || f>=d)&&(!h || f<=h); });
+  const wrap=document.getElementById('ap-wrap'); const tb=document.getElementById('ap-tbody');
+  tb.innerHTML=''; wrap.style.display='none';
+  if(!enRango.length){ return; }
+  enRango.sort((a,b)=> (b.fechaISO||'').localeCompare(a.fechaISO||''));
+  enRango.forEach(s=>{
+    const tr=document.createElement('tr');
+    const fotoCell=renderFotoCell(s.personaId,s.nombre);
+    tr.innerHTML=`<td>${fotoCell}</td><td>${esc(s.nombre||'—')}</td><td>${esc(s.fechaISO||'—')}</td>`;
+    tb.appendChild(tr);
+  });
+  wrap.style.display='block';
+}
+function suspActivasHoy(){
+  const hoy=hoyISO();
+  return getSanciones().filter(s=> s.tipo==='suspension' && s.personaId===id && s.activo!==false && s.desdeISO<=hoy && hoy<=s.hastaISO );
+}
+function refrescarSanciones(){
+  const wrap=document.getElementById('su-wrap'); const tb=document.getElementById('su-tbody');
+  tb.innerHTML=''; wrap.style.display='none';
+  const act=suspActivasHoy();
+  if(!act.length){ return; }
+  act.sort((a,b)=> (a.hastaISO||'').localeCompare(b.hastaISO||''));
+  act.forEach(s=>{
+    const tr=document.createElement('tr');
+    const fotoCell=renderFotoCell(s.personaId,s.nombre);
+    tr.innerHTML=`<td>${fotoCell}</td><td>${esc(s.nombre||'—')}</td><td>${esc(s.desdeISO||'—')}</td><td>${esc(s.hastaISO||'—')}</td>`;
+    tb.appendChild(tr);
+  });
+  wrap.style.display='block';
+}
+
+/* ==== Estadísticas (helpers mínimos) ==== */
+function toISO(fecha){
+  if(!fecha) return '0001-01-01';
+  if(/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return fecha;
+  const p=fecha.split('/'); if(p.length!==3) return '0001-01-01';
+  const d=new Date(+p[2],+p[1]-1,+p[0]); return d.toISOString().slice(0,10);
+}
+function filtrarIngresos({id,desdeISO,hastaISO,tipo}){
+  const ing=getIngresos();
+  let d=desdeISO||null, h=hastaISO||null;
+  if(d && !h) h='9999-12-31'; if(!d && h) d='0001-01-01';
+  const filas=ing.filter(x=>{
+    const okId=id?x.dni===id:true;
+    const f=x.isoFecha||toISO(x.fecha);
+    const okF=(d?f>=d:true)&&(h?f<=h:true);
+    const okT=(tipo==='ambos')?true:(x.tipo===tipo);
+    return okId&&okF&&okT;
+  }).sort((a,b)=>{
+    const ka=(a.isoFecha||toISO(a.fecha||''))+' '+(a.hora||'00:00:00');
+    const kb=(b.isoFecha||toISO(b.fecha||''))+' '+(b.hora||'00:00:00');
+    return kb.localeCompare(ka);
+  });
+  return {filas};
+}
+function rangoTotalIngresos(){
+  const ing=getIngresos(); if(!ing.length) return null;
+  let min='9999-12-31', max='0001-01-01';
+  ing.forEach(x=>{ const i = x.isoFecha || toISO(x.fecha); if(i<min) min=i; if(i>max) max=i; });
+  return {min,max};
+}
+function prepararConsultaFull(){
+  const r=rangoTotalIngresos(); if(!r) return;
+  const d=document.getElementById('c-desde'); const h=document.getElementById('c-hasta');
+  if(d) d.value=r.min; if(h) h.value=r.max;
+  const id=document.getElementById('c-id'); const t=document.getElementById('c-tipo');
+  if(id) id.value=''; if(t) t.value='ambos';
+  consulta();
+}
+function consulta(){
+  const id=(document.getElementById('c-id').value||'').trim();
+  const d=(document.getElementById('c-desde').value||'').trim();
+  const h=(document.getElementById('c-hasta').value||'').trim();
+  const t=document.getElementById('c-tipo').value;
+  const wrap=document.getElementById('c-tabla-wrap');
+  const tbody=document.querySelector('#c-tabla tbody');
+  const res=document.getElementById('c-res');
+  res.className='alerta'; res.style.display='none'; wrap.style.display='none'; tbody.innerHTML='';
+  const {filas}=filtrarIngresos({id,desdeISO:d,hastaISO:h,tipo:t||'ambos'});
+  if(!filas.length){
+    res.style.display='block'; res.classList.add('warn');
+    res.textContent='Sin resultados para los filtros aplicados.'; return;
+  }
+  wrap.style.display='block';
+  for(const x of filas){
+    const tipoTxt=(x.tipo||'').toLowerCase()==='socio'?'Socio':'Invitado';
+    const nombre=x.nombre||'';
+    const fotoCell=renderFotoCell(x.dni,nombre);
+    const acciones=`<div class="row" style="gap:6px">
+      <button class="btn btn-ghost btn-xs" data-id="${esc(x.dni)}" data-nombre="${esc(nombre)}" onclick="openAperc(this)">Aperc.</button>
+      <button class="btn btn-danger btn-xs" data-id="${esc(x.dni)}" data-nombre="${esc(nombre)}" onclick="openSusp(this)">Susp.</button>
+    </div>`;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${fotoCell}</td><td>${tipoTxt}</td><td>${x.dni}</td><td>${x.fecha||'—'}</td><td>${acciones}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+/* ==== Modal imagen ==== */
+function abrirImg(el){
+  const src=el?.src||''; const id=el?.dataset?.id||''; const nombre=el?.dataset?.nombre||'';
+  const cap=(nombre?(nombre+' — '):'')+(id||'');
+  const m=document.getElementById('img-modal');
+  const img=document.getElementById('img-modal-img');
+  const c=document.getElementById('img-modal-cap');
+  const sEl=document.getElementById('img-modal-status');
+  if(img) img.src=src; if(c) c.textContent=cap;
+  let estadoTxt='Estado: —', tipo=null;
+  try{
+    const susp=suspActivaPara(id);
+    if(susp){ estadoTxt=`Estado: Suspendido hasta ${susp.hastaISO}. Motivo: ${susp.motivo||'—'}`; tipo='block'; }
+    else {
+      const a=ultimoApercPara(id);
+      if(a){ estadoTxt=`Estado: Apercibido (último: ${a.fechaISO||'—'}). Motivo: ${a.motivo||'—'}`; tipo='warn'; }
+      else { estadoTxt='Estado: Sin sanciones'; tipo='ok'; }
+    }
+  }catch(_){}
+  if(sEl){ sEl.textContent=estadoTxt; sEl.className='sub '+(tipo==='block'?'state-block':(tipo==='warn'?'state-warn':'state-ok')); }
+  if(m) m.style.display='flex';
+}
+function cerrarImgModal(){ const m=document.getElementById('img-modal'); if(m) m.style.display='none'; }
+
+/* ==== Utils visibles ==== */
+function tick(){ const el=document.getElementById('reloj'); if(el) el.textContent=fTime(now())+' — '+fDate(now()); }
+async function testGuardar(){
+  const base=JSON.stringify({version:2,updatedAt:new Date().toISOString(),ingresos:[{dni:'000',tipo:'invitado',nombre:'Test',fecha:hoyISO(),hora:'00:00:01',isoFecha:hoyISO()}],sanciones:[],fotos:{}},null,2);
+  const info=await ghGetFile(GH.dataFile);
+  const res=await ghPutFile(GH.dataFile, base, `PCQ test ${new Date().toISOString()}`, info.sha||null);
+  alert(res.ok? '✅ Test guardado OK' : '❌ Test error: '+(res.error||'—'));
+}
+
+/* ==== Generador / Borrador de datos de prueba ==== */
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function isoAddDays(isoStr, days) { const d = new Date(isoStr + 'T00:00:00'); d.setDate(d.getDate() + days); return d.toISOString().slice(0,10); }
+function nombreFalso() {
+  const ap = ['Gómez','Pérez','Rodríguez','López','Fernández','Martínez','García','Sánchez','Romero','Castro','Luna','Suárez','Molina'];
+  const no = ['Juan','María','Pedro','Lucía','Sofía','Martín','Valentina','Agustín','Camila','Nicolás','Julián','Carla','Tomás','Bruno'];
+  return `${pick(ap)}, ${pick(no)}`;
+}
+function dniFalso() { const len = pick([7,8,9]); let s = ''; for (let i = 0; i < len; i++) s += String(randInt(0,9)); return s; }
+
+/** Genera ingresos aleatorios desde 2026-01-01 hasta hoy (marca cada fila con rnd:true). */
+async function generarRandomDesdeEnero2026() {
+  const utilsRes = document.getElementById('utils-alert');
+  const desdeISO = '2026-01-01';
+  const hoy = hoyISO();
+  const fechas = [];
+  let cur = desdeISO;
+  while (cur <= hoy) { fechas.push(cur); cur = isoAddDays(cur, 1); }
+
+  const tipos = ['invitado', 'socio'];
+  const ingresos = getIngresos();
+  let creados = 0;
+
+  for (const f of fechas) {
+    const n = randInt(0, 8); // 0..8 por día
+    for (let i = 0; i < n; i++) {
+      const tipo = pick(tipos);
+      const dni = dniFalso();
+      const nombre = (tipo === 'invitado') ? nombreFalso() : `Socio ${dni}`;
+      const hora = `${dos(randInt(8, 22))}:${dos(randInt(0,59))}:${dos(randInt(0,59))}`;
+      const dObj = new Date(`${f}T${hora}`);
+      ingresos.push({
+        dni,
+        tipo,
+        nombre,
+        fecha: fDate(dObj),
+        hora,
+        isoFecha: f,
+        rnd: true
+      });
+      creados++;
+    }
+  }
+
+  setIngresos(ingresos);
+  try { prepararConsultaFull?.(); } catch (_) {}
+
+  const ok = await guardarEnGitHub('rnd-gen');
+  if (utilsRes) {
+    utilsRes.style.display = 'block';
+    utilsRes.className = 'alerta ' + (ok.ok ? 'ok' : 'warn');
+    utilsRes.textContent = ok.ok
+      ? `✅ Generados ${creados} ingresos de prueba y sincronizados.`
+      : `⚠️ Generados ${creados} ingresos de prueba. No se pudo sincronizar (quedan locales).`;
+  }
+}
+
+/** Borra todos los ingresos/sanciones con rnd:true (no toca datos reales). */
+async function borrarRandom() {
+  const utilsRes = document.getElementById('utils-alert');
+
+  const origIng = getIngresos();
+  const quedanIng = origIng.filter(x => !x.rnd);
+  const borradosIng = origIng.length - quedanIng.length;
+  setIngresos(quedanIng);
+
+  const origSan = getSanciones();
+  const quedanSan = origSan.filter(x => !x.rnd);
+  const borradosSan = origSan.length - quedanSan.length;
+  setSanciones(quedanSan);
+
+  try { prepararConsultaFull?.(); refrescarSanciones?.(); } catch (_) {}
+
+  const ok = await guardarEnGitHub('rnd-del');
+  if (utilsRes) {
+    utilsRes.style.display = 'block';
+    utilsRes.className = 'alerta ' + (ok.ok ? 'ok' : 'warn');
+    utilsRes.textContent = ok.ok
+      ? `🧹 Borrados ${borradosIng} ingresos y ${borradosSan} sanciones de prueba. Sincronizado.`
+      : `🧹 Borrados ${borradosIng} ingresos y ${borradosSan} sanciones de prueba. No se pudo sincronizar (cambios locales).`;
+  }
+}
+
+
+/* ==== Estado online/offline ==== */
+function updateOnlineStatus(){
+  if(!navigator.onLine){
+    setSyncBadge('state-block','🔴 Offline');
+    setSyncDebug('Sin conexión');
+  } else {
+    const hasTk = !!getToken();
+    setSyncBadge('', hasTk ? '☁️ Listo para conectar' : '☁️ Sin token');
+    setSyncDebug('');
+  }
+}
+
+/* ==== INIT ==== */
+(function(){
+  tick(); setInterval(tick,1000);
+  ['c-desde','c-hasta','ap-desde','ap-hasta'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=hoyISO(); });
+  navClick('ingreso', document.getElementById('btn-nav-ingreso'));
+  const _dni=document.getElementById('dni'); _dni?.focus(); _dni?.select?.();
+})();
+
+/* ==== Activar (modal) ==== */
+function abrirActivar(){ document.getElementById('activar-modal').style.display='flex'; document.getElementById('activar-token').focus(); }
+function cerrarActivar(){ document.getElementById('activar-modal').style.display='none'; }
+
+async function guardarYActivar(){
+  const t=(document.getElementById('activar-token').value||'').trim();
+  const msgEl=document.getElementById('activar-msg');
+
+  const tk = tokenInfo(t);
+  if(!tk.ok){ msgEl.textContent='Ingresá un token válido.'; return; }
+
+  setToken(t);
+  setSyncBadge('syncing','☁️ Validando…');
+  msgEl.textContent='Validando acceso al repo…';
+
+  const repoOk = await ghCheckRepo();
+  if(!repoOk.ok){
+    setSyncBadge('', '☁️ Modo local (sin GitHub)');
+    setSyncDebug(repoOk.error||'repo');
+    msgEl.innerHTML = (
+      repoOk.error==='permiso-token' ? '❌ El token no tiene permisos para leer/escribir en el repo.' :
+      repoOk.error==='repo-no-existe' ? '❌ El repo no existe (owner/repo incorrecto).' :
+      repoOk.error==='branch-no-existe' ? '❌ La rama configurada no existe.' :
+      repoOk.error==='timeout' ? '❌ Timeout consultando la API.' :
+      `❌ Error: ${repoOk.error||'desconocido'}`
+    ) + ' — La app seguirá en modo local.';
+    return;
+  }
+
+  const initOk = await ensureDataFile();
+  if(!initOk.ok){
+    setSyncBadge('', '☁️ Error creando data');
+    msgEl.textContent = 'No se pudo inicializar el archivo de datos en GitHub (permiso contents:write).';
+    return;
+  }
+
+  await sincronizarDesdeGitHub();
+  setInterval(async()=>{ if(!_syncEnCurso && getToken()) await sincronizarDesdeGitHub(); }, 20000);
+
+  setSyncBadge('ok','✅ Conectado a GitHub');
+  setSyncDebug('');
+  msgEl.textContent='Listo. Conectado y sincronizado.';
+  setTimeout(()=>cerrarActivar(), 600);
+}
+
+/* ==== Navegación ==== */
+function navClick(id,btn){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');
+  document.querySelectorAll('main > section').forEach(s=>s.style.display='none');
+  document.getElementById('sec-'+id).style.display='block';
+  if(id==='ingreso') toggleIngresoFields();
+  if(id==='sanc') refrescarSanciones();
+}
+function toggleIngresoFields(){
+  const t=(document.querySelector('input[name="tipo-ing"]:checked')?.value)||'invitado';
+  document.getElementById('wrap-dni').style.display=(t==='invitado')?'':'none';
+  document.getElementById('wrap-socio').style.display=(t==='socio')?'':'none';
+  onIdentificadorChange();
+}
+
+/* ==== Extras que faltaban en el original ==== */
+function buscarInvitado(){
+  const id=getId(); if(!id){ mostrarAlerta('alerta-ing','warn','Ingresá un identificador.'); return; }
+  onIdentificadorChange();
+  const susp=suspActivaPara(id); const a=ultimoApercPara(id);
+  if(susp) mostrarAlerta('alerta-ing','error',`🚫 Suspensión vigente hasta <strong>${esc(susp.hastaISO)}</strong>. Motivo: <em>${esc(susp.motivo||'—')}</em>`);
+  else if(a) mostrarAlerta('alerta-ing','warn',`⚠️ Apercibido (último: <strong>${esc(a.fechaISO||'—')}</strong>). Motivo: <em>${esc(a.motivo||'—')}</em>`);
+  else mostrarAlerta('alerta-ing','ok','✅ Sin sanciones registradas.');
+}
+async function syncManual() {
+  const el = document.getElementById('c-res');
+  try {
+    if(el){ el.style.display='block'; el.className='alerta'; el.textContent='Sincronizando…'; }
+    await sincronizarDesdeGitHub();
+    if(el){ el.classList.add('ok'); el.textContent='✅ Sincronizado con GitHub.'; }
+  } catch (e) {
+    if(el){ el.classList.add('error'); el.textContent='❌ Error al sincronizar: '+(e?.message||'desconocido'); }
+  }
+}
+function aplicarStats(){
+  const el=document.getElementById('s-resumen');
+  if(el) el.textContent='(Demo) Aplicado. Cargá datos para ver tendencias.';
+}
+function limpiarConsulta(){
+  const id=document.getElementById('c-id');
+  const t=document.getElementById('c-tipo');
+  const d=document.getElementById('c-desde');
+  const h=document.getElementById('c-hasta');
+  if(id) id.value='';
+  if(t) t.value='ambos';
+  const rango=rangoTotalIngresos();
+  if(rango){ if(d)d.value=rango.min; if(h)h.value=rango.max; }
+  const res=document.getElementById('c-res'); const wrap=document.getElementById('c-tabla-wrap');
+  if(res){ res.style.display='none'; res.textContent=''; res.className='alerta'; }
+  if(wrap){ wrap.style.display='none'; const tb=document.querySelector('#c-tabla tbody'); if(tb) tb.innerHTML=''; }
+}
+
+/* ==== HOTFIX: apertura segura del modal / prompt ==== */
+function abrirActivarSafe(){
+  try {
+    const tkExist = (typeof getToken==='function') ? getToken() : '';
+    if (tkExist) {
+      const inp=document.getElementById('activar-token'); if(inp) inp.value=tkExist;
+      if (typeof guardarYActivar === 'function') { guardarYActivar(); return; }
+    }
+    if (typeof abrirActivar === 'function') { abrirActivar(); return; }
+  } catch(_) { /* fallback abajo */ }
+  const prev = (typeof getToken==='function') ? getToken() : '';
+  const t = prev || prompt('Pegá tu token de GitHub (ghp_… o github_pat_…):', '');
+  if (t && typeof setToken === 'function') {
+    setToken(t);
+    if (typeof guardarYActivar === 'function') {
+      const inp=document.getElementById('activar-token'); if(inp) inp.value=t;
+      guardarYActivar();
+    } else {
+      alert('Token guardado. Volvé a intentar conectar.');
+    }
+  }
+}
+/** ==== Diagnóstico visual de errores globales ==== */
+window.addEventListener('error', (ev) => {
+  try {
+    const chip = document.getElementById('sync-badge');
+    const dbg  = document.getElementById('sync-debug');
+    if (chip) chip.textContent = '⚠️ Error en script';
+    if (dbg)  dbg.textContent  = (ev?.error?.message || ev?.message || 'Error desconocido');
+  } catch(_) {}
+});
+</script>
+<script>
+/* === Patch: autoconnect & token regex fixes (M365 Copilot) === */
+(function(){
+  // Override tokenInfo with corrected regex
+  function tokenInfo(t){
+    if(!t) return {ok:false, reason:'vacío'};
+    if(/^ghp_[A-Za-z0-9]{36,}$/.test(t)) return {ok:true, type:'classic'};
+    if(/^github_pat_[A-Za-z0-9_]{10,}$/.test(t)) return {ok:true, type:'fine'};
+    return {ok:true, type:'desconocido'};
+  }
+  try { window.tokenInfo = tokenInfo; } catch(_) {}
+
+  // Replace updateOnlineStatus to keep clear messages and avoid UI resets
+  function updateOnlineStatus(){
+    try{
+      if(!navigator.onLine){
+        setSyncBadge('state-block','🔴 Offline');
+        setSyncDebug('Sin conexión');
+      } else {
+        const hasTk = !!(typeof getToken==='function' ? getToken() : '');
+        setSyncBadge('', hasTk ? '☁️ Listo (token presente)' : '☁️ Sin token');
+        setSyncDebug('');
+      }
+    }catch(_){/* ignore */}
+  }
+  try { window.updateOnlineStatus = updateOnlineStatus; } catch(_) {}
+
+  // Auto-connect if a token exists (do not open modal). Stay in local mode otherwise.
+  async function initAutoConnect(){
+    try{
+      updateOnlineStatus();
+      const getTk = (typeof getToken==='function') ? getToken : ()=>'';
+      const tk = getTk();
+      if(!tk){ setSyncBadge('', '☁️ Sin token'); return; }
+
+      const info = tokenInfo(tk);
+      if(!info.ok){ setSyncBadge('', '☁️ Token inválido (borralo y pegá otro)'); return; }
+      if(!navigator.onLine){ setSyncBadge('state-warn','🟠 Token presente, sin conexión'); return; }
+
+      // Validate repo access and connect silently
+      setSyncBadge('syncing','☁️ Validando…');
+      const repoOk = await (typeof ghCheckRepo==='function' ? ghCheckRepo() : Promise.resolve({ok:false,error:'ghCheckRepo no disponible'}));
+      if(!repoOk.ok){
+        const msg = (
+          repoOk.error==='permiso-token' ? '❌ El token no tiene permisos o venció.' :
+          repoOk.error==='repo-no-existe' ? '❌ El repo no existe (owner/repo incorrecto).' :
+          repoOk.error==='branch-no-existe' ? '❌ La rama configurada no existe.' :
+          repoOk.error==='timeout' ? '❌ Timeout consultando la API.' :
+          `❌ Error: ${repoOk.error||'desconocido'}`
+        );
+        setSyncBadge('', '☁️ Modo local (GitHub no disponible)');
+        setSyncDebug(msg);
+        return;
+      }
+
+      const ensure = (typeof ensureDataFile==='function') ? ensureDataFile : null;
+      if(ensure){
+        const initOk = await ensure();
+        if(!initOk.ok){
+          setSyncBadge('', '☁️ Error creando data');
+          setSyncDebug('No se pudo inicializar el archivo de datos en GitHub (permiso contents:write).');
+          return;
+        }
+      }
+
+      if(typeof sincronizarDesdeGitHub==='function'){
+        await sincronizarDesdeGitHub();
+      }
+      // Periodic re-sync if token stays present
+      try{
+        if(typeof window._syncEnCurso === 'undefined'){ window._syncEnCurso = false; }
+        setInterval(async()=>{ try{ if(!window._syncEnCurso && (typeof getToken==='function' ? getToken() : '')){ if(typeof sincronizarDesdeGitHub==='function') await sincronizarDesdeGitHub(); } }catch(_){ } }, 20000);
+      }catch(_){ }
+      setSyncBadge('ok','✅ Conectado a GitHub');
+      setSyncDebug('');
+    }catch(e){
+      try{ setSyncBadge('', '☁️ Error init'); setSyncDebug(e && e.message ? e.message : 'desconocido'); }catch(_){ }
+    }
+  }
+  window.initAutoConnect = initAutoConnect;
+
+  // Optional helper to clear token quickly
+  window.desconectar = function(){
+    try{ localStorage.removeItem('pcq_gh_token'); }catch(_){}
+    try{ document.cookie = 'pcq_gh_token=; Max-Age=0; path=/; SameSite=Lax'; }catch(_){}
+    setSyncBadge('', '☁️ Sin token');
+    setSyncDebug('');
+  }
+
+  // Connectivity listeners
+  try{ window.addEventListener('online',  updateOnlineStatus); }catch(_){}
+  try{ window.addEventListener('offline', updateOnlineStatus); }catch(_){}
+
+  // Kickoff after main script has loaded
+  try{ setTimeout(()=>{ try{ initAutoConnect(); }catch(_){ } }, 0); }catch(_){}
 })();
 </script>
 </body>
