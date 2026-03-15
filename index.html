@@ -41,8 +41,6 @@
  #img-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:1000}
  #img-modal-box{text-align:center}
  #img-modal-img{max-width:90vw;max-height:80vh;border:3px solid var(--dorado);border-radius:10px}
- #gh-avatar{display:none!important}
- #gh-chip{display:none!important}
  #sync-debug{font-size:.8rem;color:#cfe9cf;margin-left:8px}
 </style>
 </head>
@@ -54,7 +52,8 @@
   <div id="sync-badge" class="chip">☁️ Datos local</div>
   <div id="sync-debug" class="sub"></div>
   <div style="flex:1"></div>
-  <button id="btn-activar-sistema" class="btn btn-warn" onclick="abrirActivar()">⚡ Activar sistema</button>
+  <!-- HOTFIX: usar abrirActivarSafe() -->
+  <button id="btn-activar-sistema" class="btn btn-warn" onclick="abrirActivarSafe()">⚡ Activar sistema</button>
  </div>
 </header>
 
@@ -561,7 +560,9 @@ function renderFotoCell(personaId, nombre){
 }
 
 /* Acciones sanciones */
-function openAbir a ${nombre||id}. Motivo:`, ''); if(!motivo) return;
+function openAperc(btn){
+  const id=btn.dataset.id||''; const nombre=btn.dataset.nombre||'';
+  const motivo=prompt(`Apercibir a ${nombre||id}. Motivo:`, ''); if(!motivo) return;
   const arr=getSanciones();
   arr.push({ id:'ap-'+Date.now(), tipo:'apercibimiento', personaId:id, nombre, motivo, fechaISO:hoyISO(), rnd:false });
   setSanciones(arr); guardarEnGitHub('aperc'); alert('Apercibimiento registrado.'); updateEstadoChip(id);
@@ -817,7 +818,7 @@ async function borrarRandom() {
   const _dni=document.getElementById('dni'); _dni?.focus(); _dni?.select?.();
 })();
 
-/* ==== Activar ==== */
+/* ==== Activar (modal) ==== */
 function abrirActivar(){ document.getElementById('activar-modal').style.display='flex'; document.getElementById('activar-token').focus(); }
 function cerrarActivar(){ document.getElementById('activar-modal').style.display='none'; }
 
@@ -879,7 +880,6 @@ function toggleIngresoFields(){
 }
 
 /* ==== Extras que faltaban en el original ==== */
-// Botón "Buscar / Estado"
 function buscarInvitado(){
   const id=getId(); if(!id){ mostrarAlerta('alerta-ing','warn','Ingresá un identificador.'); return; }
   onIdentificadorChange();
@@ -888,7 +888,6 @@ function buscarInvitado(){
   else if(a) mostrarAlerta('alerta-ing','warn',`⚠️ Apercibido (último: <strong>${esc(a.fechaISO||'—')}</strong>). Motivo: <em>${esc(a.motivo||'—')}</em>`);
   else mostrarAlerta('alerta-ing','ok','✅ Sin sanciones registradas.');
 }
-// Botón "🔁 Sincronizar" en Consulta
 async function syncManual() {
   const el = document.getElementById('c-res');
   try {
@@ -899,12 +898,55 @@ async function syncManual() {
     if(el){ el.classList.add('error'); el.textContent='❌ Error al sincronizar: '+(e?.message||'desconocido'); }
   }
 }
-// Estadísticas (stub para evitar errores)
 function aplicarStats(){
   const el=document.getElementById('s-resumen');
   if(el) el.textContent='(Demo) Aplicado. Cargá datos para ver tendencias.';
 }
+function limpiarConsulta(){
+  const id=document.getElementById('c-id');
+  const t=document.getElementById('c-tipo');
+  const d=document.getElementById('c-desde');
+  const h=document.getElementById('c-hasta');
+  if(id) id.value='';
+  if(t) t.value='ambos';
+  const rango=rangoTotalIngresos();
+  if(rango){ if(d)d.value=rango.min; if(h)h.value=rango.max; }
+  const res=document.getElementById('c-res'); const wrap=document.getElementById('c-tabla-wrap');
+  if(res){ res.style.display='none'; res.textContent=''; res.className='alerta'; }
+  if(wrap){ wrap.style.display='none'; const tb=document.querySelector('#c-tabla tbody'); if(tb) tb.innerHTML=''; }
+}
+
+/* ==== HOTFIX: apertura segura del modal / prompt ==== */
+function abrirActivarSafe(){
+  try {
+    if (typeof abrirActivar === 'function') {
+      abrirActivar();
+      return;
+    }
+  } catch(_) { /* fallback abajo */ }
+  // Fallback: usar prompt si el modal no pudo abrirse
+  const t = prompt('Pegá tu token de GitHub (ghp_… o github_pat_…):', '');
+  if (t && typeof setToken === 'function') {
+    setToken(t);
+    if (typeof guardarYActivar === 'function') {
+      // Prellenar el campo del modal por coherencia visual si existe
+      const inp=document.getElementById('activar-token'); if(inp) inp.value=t;
+      guardarYActivar();
+    } else {
+      alert('Token guardado localmente. Volvé a intentar activar.');
+    }
+  }
+}
+
+/* ==== Diagnóstico visual de errores globales ==== */
+window.addEventListener('error', (ev) => {
+  try {
+    const chip = document.getElementById('sync-badge');
+    const dbg  = document.getElementById('sync-debug');
+    if (chip) chip.textContent = '⚠️ Error en script';
+    if (dbg)  dbg.textContent  = (ev?.error?.message || ev?.message || 'Error desconocido');
+  } catch(_) {}
+});
 </script>
 </body>
 </html>
-``
