@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-03-15T07:22:08.921Z",
+  "updatedAt": "2026-03-15T07:22:28.099Z",
   "ingresos": [
     {
       "dni": "000",
@@ -2480,6 +2480,18 @@
       "nombre": "Andres",
       "motivo": "eeee",
       "fechaISO": "2026-03-15",
+      "rnd": false
+    },
+    {
+      "id": "su-1773559346129",
+      "tipo": "suspension",
+      "personaId": "24776959",
+      "nombre": "Oeoe",
+      "motivo": "dddd",
+      "desdeISO": "2026-03-15",
+      "hastaISO": "2026-03-15",
+      "fechaISO": "2026-03-15",
+      "activo": true,
       "rnd": false
     }
   ],
