@@ -49,11 +49,11 @@
  <h1>Pejerrey Club Quilmes — Sistema</h1>
  <div class="row" style="margin-top:6px">
   <div id="reloj" class="chip">--:--:-- — --/--/----</div>
-  <div id="sync-badge" class="chip">—</div>
+  <div id="sync-badge" class="chip">☁️ Datos local</div>
   <div id="sync-debug" class="sub"></div>
   <div style="flex:1"></div>
   <!-- HOTFIX: usar abrirActivarSafe() -->
-  <button id="btn-activar-sistema" class="btn btn-warn" onclick="abrirActivarSafe()">⚡ Conectar</button>
+  <button id="btn-activar-sistema" class="btn btn-warn" onclick="abrirActivarSafe()">⚡ Activar sistema</button>
  </div>
 </header>
 
@@ -239,42 +239,41 @@ function setSyncDebug(msg){ const el=document.getElementById('sync-debug'); if(e
 function esc(s){ return String(s||'').replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
 
 /* ==== Token helpers ==== */
-function setCookie(name, value, days){
-  try {
-    const d = new Date(); d.setTime(d.getTime() + days*24*60*60*1000);
-    const expires = '; expires='+d.toUTCString();
-    document.cookie = name + '=' + encodeURIComponent(String(value||'')) + expires + '; path=/; SameSite=Lax';
-  } catch(_){}
-}
-function getCookie(name){
-  try {
-    const m = document.cookie.split(';').map(s=>s.trim()).find(s=>s.startsWith(name+'='));
-    return m ? decodeURIComponent(m.split('=')[1]) : '';
-  } catch(_) { return ''; }
-}
-function getToken(){
-  const c = getCookie(KEYS.token); if(c) return c;
-  try { return localStorage.getItem(KEYS.token) || ''; } catch(_) { return ''; }
-}
-function setToken(t){
-  const v = String(t||'').trim();
-  setCookie(KEYS.token, v, 180);
-  try{ localStorage.setItem(KEYS.token, v); }catch(_){}
-}
+function getToken(){ return localStorage.getItem(KEYS.token) || ''; }
+function setToken(t){ localStorage.setItem(KEYS.token, (t||'').trim()); }
 function tokenInfo(t) {
   if(!t) return {ok:false, reason:'vacío'};
   if(/^ghp_[A-Za-z0-9]{36,}$/.test(t)) return {ok:true, type:'classic'};
   if(/^github_pat_[A-Za-z0-9_]{10,}/.test(t)) return {ok:true, type:'fine'};
   return {ok:true, type:'desconocido'};
 }
+
 /* ==== GitHub helpers ==== */
+
+/* ==== Dirty flag & Auto-Sync ==== */
+const DIRTY_KEY = 'pcq_dirty';
+function markDirty(){ try{ localStorage.setItem(DIRTY_KEY,'1'); }catch(_){} }
+function clearDirty(){ try{ localStorage.removeItem(DIRTY_KEY); }catch(_){} }
+function isDirty(){ try{ return localStorage.getItem(DIRTY_KEY)==='1'; }catch(_){ return false; } }
+async function tryAutoSync(){
+  if(!navigator.onLine || !getToken()) return;
+  try{
+    if(isDirty()){
+      setSyncBadge('syncing','⏳ Subiendo cambios pendientes…');
+      const ok = await guardarEnGitHub('auto');
+      if(ok && ok.ok){ clearDirty(); }
+    } else {
+      await sincronizarDesdeGitHub();
+    }
+  }catch(_){}
+}
+
 function fetchConTimeout(url,opts,ms=12000){ const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),ms); return fetch(url,{...opts,signal:ctrl.signal}).finally(()=>clearTimeout(t)); }
 function utf8ToBase64(s){const b=new TextEncoder().encode(s);let r='';b.forEach(x=>{r+=String.fromCharCode(x);});return btoa(r);}
 function base64ToUtf8(b64){const bin=atob(b64);const b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);return new TextDecoder().decode(b);}
 
 async function ghCheckRepo(){
- if(!navigator.onLine) return {ok:false,error:'offline'};
- const t = getToken();
+  const t = getToken();
   if(!t) return {ok:false,error:'sin-token'};
   try{
     const r = await fetchConTimeout(`https://api.github.com/repos/${GH.owner}/${GH.repo}`,{
@@ -339,7 +338,7 @@ async function ghPutFile(path, contenido, mensaje, sha){
     });
     if(r.ok) return {ok:true};
     const d=await r.json().catch(()=>({message:''}));
-    if(r.status===409||r.status===422) return {ok:false,error:'sha-conflict'};
+    if(r.status===409||r.status===422) markDirty(); return {ok:false,error:'sha-conflict'};
     if(r.status===401||r.status===403) return {ok:false,error:'permiso-token'};
     if(r.status===404) return {ok:false,error:'repo/path-not-found'};
     return {ok:false,error:`PUT ${r.status} ${d.message||''}`};
@@ -348,12 +347,12 @@ async function ghPutFile(path, contenido, mensaje, sha){
 
 /* ==== Datos locales y snapshot ==== */
 function getIngresos(){ return load(KEYS.ingresos,[]); }
-function setIngresos(a){ save(KEYS.ingresos,a||[]); }
+function setIngresos(a){ save(KEYS.ingresos,a||[]); markDirty(); }
 function getFotosMap(){ return load(KEYS.fotos,{}); }
-function setFotosMap(m){ save(KEYS.fotos,m||{}); }
+function setFotosMap(m){ save(KEYS.fotos,m||{}); markDirty(); }); }
 function getFoto(id){ return getFotosMap()[id]; }
 function getSanciones(){ return load(KEYS.sanciones,[]); }
-function setSanciones(a){ save(KEYS.sanciones,a||[]); }
+function setSanciones(a){ save(KEYS.sanciones,a||[]); markDirty(); }
 
 const LAST_SYNC_KEY='pcq_last_sync', LAST_REMOTE_TS_KEY='pcq_last_remote_ts';
 function construirDatos(){ return { version:2, updatedAt:new Date().toISOString(), ingresos:getIngresos(), sanciones:getSanciones(), fotos:getFotosMap() }; }
@@ -398,10 +397,10 @@ async function guardarEnGitHub(tag){
         return {ok:true};
       }
       if(res.error==='sha-conflict'){ await new Promise(r=>setTimeout(r, 500*(t+1))); continue; }
-      setSyncBadge('', '☁️ Error al guardar'); setSyncDebug(res.error||'desconocido'); return {ok:false,error:res.error};
+      setSyncBadge('', '☁️ Error al guardar'); setSyncDebug(res.error||'desconocido'); markDirty(); return {ok:false,error:res.error};
     }
-    setSyncBadge('', '☁️ Conflicto sha'); setSyncDebug('reintentos agotados'); return {ok:false,error:'sha-conflict'};
-  }catch(e){ setSyncBadge('', '☁️ Error'); setSyncDebug(e.message); return {ok:false,error:e.message}; }
+    setSyncBadge('', '☁️ Conflicto sha'); setSyncDebug('reintentos agotados'); markDirty(); return {ok:false,error:'sha-conflict'};
+  }catch(e){ setSyncBadge('', '☁️ Error'); setSyncDebug(e.message); markDirty(); return {ok:false,error:e.message}; }
   finally{ _syncEnCurso=false; }
 }
 
@@ -830,22 +829,11 @@ async function borrarRandom() {
   }
 }
 
-
-/* ==== Estado online/offline ==== */
-function updateOnlineStatus(){
-  if(!navigator.onLine){
-    setSyncBadge('state-block','🔴 Offline');
-    setSyncDebug('Sin conexión');
-  } else {
-    const hasTk = !!getToken();
-    setSyncBadge('', hasTk ? '☁️ Listo para conectar' : '☁️ Sin token');
-    setSyncDebug('');
-  }
-}
-
 /* ==== INIT ==== */
 (function(){
   tick(); setInterval(tick,1000);
+ // Auto-sync periódico si hay token
+ setInterval(()=>{ if(getToken() && navigator.onLine && !_syncEnCurso) tryAutoSync(); }, 20000);
   ['c-desde','c-hasta','ap-desde','ap-hasta'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=hoyISO(); });
   navClick('ingreso', document.getElementById('btn-nav-ingreso'));
   const _dni=document.getElementById('dni'); _dni?.focus(); _dni?.select?.();
@@ -952,26 +940,26 @@ function limpiarConsulta(){
 /* ==== HOTFIX: apertura segura del modal / prompt ==== */
 function abrirActivarSafe(){
   try {
-    const tkExist = (typeof getToken==='function') ? getToken() : '';
-    if (tkExist) {
-      const inp=document.getElementById('activar-token'); if(inp) inp.value=tkExist;
-      if (typeof guardarYActivar === 'function') { guardarYActivar(); return; }
+    if (typeof abrirActivar === 'function') {
+      abrirActivar();
+      return;
     }
-    if (typeof abrirActivar === 'function') { abrirActivar(); return; }
   } catch(_) { /* fallback abajo */ }
-  const prev = (typeof getToken==='function') ? getToken() : '';
-  const t = prev || prompt('Pegá tu token de GitHub (ghp_… o github_pat_…):', '');
+  // Fallback: usar prompt si el modal no pudo abrirse
+  const t = prompt('Pegá tu token de GitHub (ghp_… o github_pat_…):', '');
   if (t && typeof setToken === 'function') {
     setToken(t);
     if (typeof guardarYActivar === 'function') {
+      // Prellenar el campo del modal por coherencia visual si existe
       const inp=document.getElementById('activar-token'); if(inp) inp.value=t;
       guardarYActivar();
     } else {
-      alert('Token guardado. Volvé a intentar conectar.');
+      alert('Token guardado localmente. Volvé a intentar activar.');
     }
   }
 }
-/** ==== Diagnóstico visual de errores globales ==== */
+
+/* ==== Diagnóstico visual de errores globales ==== */
 window.addEventListener('error', (ev) => {
   try {
     const chip = document.getElementById('sync-badge');
