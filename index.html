@@ -10,6 +10,7 @@
     body{margin:0;background:linear-gradient(160deg,#0b1c0b,#143414);color:var(--txt);font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif}
     header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,#0a1a0a,#143414);border-bottom:3px solid var(--dorado);padding:10px 14px}
     h1{margin:0;font-size:1.2rem;letter-spacing:.3px;color:var(--dorado)}
+    h2,h3,h4{margin:.2rem 0}
     .sub{color:var(--sub);font-size:.85rem}
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px}
     .spacer{flex:1}
@@ -25,27 +26,29 @@
     .card{background:var(--panel);border:1px solid var(--borde);border-radius:10px;padding:12px;margin-bottom:14px}
     .form-row{display:flex;gap:12px;flex-wrap:wrap}
     label{display:flex;flex-direction:column;gap:6px;min-width:220px;flex:1}
-    input[type=text], input[type=date], input[type=password], select{padding:8px;border-radius:8px;border:1px solid #365e36;background:#0a1a0a;color:var(--txt)}
+    input[type=text], input[type=date], input[type=password], select, textarea{padding:8px;border-radius:8px;border:1px solid #365e36;background:#0a1a0a;color:var(--txt)}
+    textarea{resize:vertical}
     .btn{cursor:pointer;border-radius:8px;border:1px solid #2f5f2f;background:#184718;color:#fff;padding:8px 12px}
     .btn:disabled{opacity:.5;cursor:not-allowed}
     .btn-warn{background:#5a3a0c;border-color:#b06f18}
     .btn-danger{background:#701818;border-color:#b03b3b}
+    .btn-ghost{background:#0e2210;border:1px dashed #3b5a3b}
     .alerta{margin-top:8px;padding:8px 10px;border-radius:8px;border:1px solid #3a3a3a;background:#101010;color:#eee}
     .alerta.ok{border-color:#2d7a2d;background:#0f2a0f}
     .alerta.warn{border-color:#b06f18;background:#2a1a0a}
     .alerta.error{border-color:#b03b3b;background:#2a0f0f}
     table{width:100%;border-collapse:collapse;margin-top:8px}
-    th,td{padding:6px 8px;border-bottom:1px solid #244}
+    th,td{padding:6px 8px;border-bottom:1px solid #244;vertical-align:middle}
     .thumb{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--dorado);cursor:zoom-in;background:#000}
     #img-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:1000}
     #img-modal img{max-width:90vw;max-height:90vh;border:3px solid var(--dorado);border-radius:10px}
-    .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
-    .chart-card{background:#0b1b0b;border:1px solid #2d6e2d;border-radius:10px;padding:10px}
-    canvas{width:100%;height:240px;background:#0a140a;border:1px solid #2d6e2d;border-radius:8px}
-    #bloqueo-overlay{display:none !important;pointer-events:none !important}
-    #activar-modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:1200}
-    #activar-box{background:#0c1c0c;border:1px solid var(--dorado);border-radius:12px;padding:16px;max-width:520px;width:calc(100% - 32px)}
-    #activar-msg{margin-top:8px}
+    /* modal genérico */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:1200}
+    .modal-box{background:#0c1c0c;border:1px solid var(--dorado);border-radius:12px;padding:16px;max-width:560px;width:calc(100% - 32px)}
+    /* cámara */
+    #cam-wrap{display:none;margin-top:8px}
+    #cam-video{width:260px;height:260px;border-radius:10px;border:3px solid var(--dorado);background:#000;object-fit:cover}
+    #cam-canvas{display:none}
   </style>
 </head>
 <body>
@@ -53,7 +56,7 @@
     <h1>Gestion de Ingresos Pejerrey Club Quilmes</h1>
     <div class="row">
       <div class="chip" id="reloj">--:--:-- — --/--/----</div>
-      <div class="chip" id="sync-badge">☁️ Local</div>
+      <div class="chip" id="sync-badge">☁️ Datos local</div>
       <div class="spacer"></div>
       <button id="btn-activar-sistema" class="btn btn-warn" onclick="abrirActivar()">⚡ Activar sistema</button>
     </div>
@@ -63,6 +66,7 @@
     <button id="btn-nav-ingreso" class="act" onclick="navClick('ingreso',this)">Ingreso</button>
     <button id="btn-nav-consulta" onclick="navClick('consulta',this)">Consulta</button>
     <button id="btn-nav-estadisticas" onclick="navClick('estadisticas',this)">Estadísticas</button>
+    <button id="btn-nav-sanciones" onclick="navClick('sanciones',this)">Sanciones</button>
     <button id="btn-nav-backup" onclick="navClick('backup',this)">Backup</button>
   </nav>
 
@@ -106,9 +110,9 @@
           <button class="btn btn-danger" id="btn-cam-stop" type="button" onclick="detenerCamara()" style="display:none">✖ Detener cámara</button>
           <button class="btn btn-danger" id="btn-borrar-foto" onclick="borrarFoto()" style="display:none">🗑️ Borrar foto</button>
         </div>
-        <div id="cam-wrap" style="display:none; margin-top:8px">
-          <video id="cam-video" autoplay playsinline style="width:260px;height:260px;border-radius:10px;border:3px solid var(--dorado);background:#000;object-fit:cover"></video>
-          <canvas id="cam-canvas" width="320" height="320" style="display:none"></canvas>
+        <div id="cam-wrap">
+          <video id="cam-video" autoplay playsinline></video>
+          <canvas id="cam-canvas" width="320" height="320"></canvas>
         </div>
         <div id="foto-preview-wrap" style="display:none;margin-top:8px">
           <img id="foto-preview" alt="Foto" style="width:260px;height:260px;border-radius:10px;border:3px solid var(--dorado);object-fit:cover;background:#000"/>
@@ -149,12 +153,15 @@
       </div>
       <div class="row" style="gap:8px;margin-top:8px">
         <button class="btn" onclick="consulta()">Buscar</button>
+        <button class="btn btn-ghost" onclick="syncManual()">🔁 Sincronizar</button>
         <button class="btn btn-warn" onclick="limpiarConsulta()">Limpiar</button>
       </div>
       <div id="consulta-res" class="alerta" role="alert"></div>
       <div id="consulta-tabla-wrap" style="margin-top:8px;display:none">
         <table id="consulta-tabla">
-          <thead><tr><th>Foto</th><th>Inv/Soc</th><th>ID</th><th>Fecha</th></tr></thead>
+          <thead>
+            <tr><th>Foto</th><th>Inv/Soc</th><th>ID</th><th>Fecha</th><th>Acción</th></tr>
+          </thead>
           <tbody></tbody>
         </table>
       </div>
@@ -195,6 +202,40 @@
       </div>
     </section>
 
+    <!-- SANCIONES -->
+    <section id="sec-sanciones" class="card" style="display:none">
+      <h2>Sanciones</h2>
+      <div class="card" style="margin-bottom:10px">
+        <h3>Apercibimientos</h3>
+        <div class="form-row">
+          <label>Desde <input type="date" id="aperc-desde"></label>
+          <label>Hasta <input type="date" id="aperc-hasta"></label>
+        </div>
+        <div class="row" style="gap:8px">
+          <button class="btn" onclick="listarApercibimientos()">Buscar</button>
+          <button class="btn btn-warn" onclick="limpiarAperc()">Limpiar</button>
+        </div>
+        <div id="aperc-res" class="alerta"></div>
+        <div id="aperc-tabla-wrap" style="display:none;margin-top:8px">
+          <table>
+            <thead><tr><th>ID</th><th>Nombre</th><th>Identificador</th><th>Fecha</th><th>Motivo</th></tr></thead>
+            <tbody id="aperc-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Suspensiones activas</h3>
+        <div id="susp-res" class="alerta"></div>
+        <div id="susp-tabla-wrap" style="display:none;margin-top:8px">
+          <table>
+            <thead><tr><th>ID</th><th>Nombre</th><th>Identificador</th><th>Desde</th><th>Hasta</th><th>Motivo</th><th>Acciones</th></tr></thead>
+            <tbody id="susp-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
     <!-- BACKUP -->
     <section id="sec-backup" class="card" style="display:none">
       <h2>Backup</h2>
@@ -208,8 +249,8 @@
   </main>
 
   <!-- Modal Activar -->
-  <div id="activar-modal" role="dialog" aria-modal="true">
-    <div id="activar-box">
+  <div id="activar-modal" class="modal" role="dialog" aria-modal="true">
+    <div id="activar-box" class="modal-box">
       <h3>Activar sistema</h3>
       <div class="form-row" style="margin-top:6px">
         <label>Token de GitHub (scope: gist o repo)
@@ -224,15 +265,63 @@
     </div>
   </div>
 
+  <!-- Modal Apercibir -->
+  <div id="mdl-aperc" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <h3>Apercibir</h3>
+      <div class="sub" id="aperc-idtxt">ID: —</div>
+      <label style="margin-top:8px">Motivo
+        <textarea id="aperc-motivo" rows="3" placeholder="Motivo del apercibimiento..."></textarea>
+      </label>
+      <div class="row" style="gap:8px;margin-top:10px">
+        <button class="btn" onclick="guardarAperc()">Guardar</button>
+        <button class="btn btn-warn" onclick="closeAperc()">Cancelar</button>
+      </div>
+      <div class="sub" id="aperc-msg"></div>
+    </div>
+  </div>
+
+  <!-- Modal Suspender -->
+  <div id="mdl-susp" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <h3>Suspender</h3>
+      <div class="sub" id="susp-idtxt">ID: —</div>
+      <div class="form-row" style="margin-top:6px">
+        <label>Desde <input type="date" id="susp-desde"></label>
+        <label>Hasta <input type="date" id="susp-hasta"></label>
+      </div>
+      <label>Motivo
+        <textarea id="susp-motivo" rows="3" placeholder="Motivo de la suspensión..."></textarea>
+      </label>
+      <div class="row" style="gap:8px;margin-top:10px">
+        <button class="btn" onclick="guardarSusp()">Guardar</button>
+        <button class="btn btn-warn" onclick="closeSusp()">Cancelar</button>
+      </div>
+      <div class="sub" id="susp-msg"></div>
+    </div>
+  </div>
+
+  <!-- Modal ver imagen -->
   <div id="img-modal" onclick="cerrarImgModal()"><img id="img-modal-img" alt="Foto"/></div>
+
   <div id="bloqueo-overlay"></div>
 
   <script>
   // ======= CONFIG / KEYS =======
-  const KEYS={ ingresos:'app_ingresos', fotos:'app_fotos', token:'app_token', gistId:'app_gist_id', lastSync:'app_lastsync', dirty:'app_dirty' };
+  const KEYS={
+    ingresos:'app_ingresos',
+    fotos:'app_fotos',
+    token:'app_token',
+    gistId:'app_gist_id',
+    lastSync:'app_lastsync',
+    dirty:'app_dirty',
+    sanciones:'app_sanciones' // {id, tipo:'apercibimiento'|'suspension', personaId, nombre?, motivo, desdeISO?, hastaISO?, fechaISO, activo?}
+  };
   const BACKUP={ modeKey:'app_backup_mode', repoOwnerKey:'app_repo_owner', repoNameKey:'app_repo_name' };
   const GIST_DESC='Pejerrey Club — Backup (auto)';
   let nubeActiva=false, _camStream=null, _syncTimer=null;
+  let _apercPersonaId='', _apercNombre='';
+  let _suspPersonaId='', _suspNombre='';
 
   // ======= UTIL =======
   const load=(k,def)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):def;}catch{return def}};
@@ -243,7 +332,6 @@
   const setGistId=id=>localStorage.setItem(KEYS.gistId,id||'');
   const getBackupMode=()=>localStorage.getItem(BACKUP.modeKey)||'gist';
   const setBackupMode=m=>localStorage.setItem(BACKUP.modeKey,m||'gist');
-  const getRepoInfo=()=>({ owner: localStorage.getItem(BACKUP.repoOwnerKey)||'', name: localStorage.getItem(BACKUP.repoNameKey)||'' });
   const setRepoInfo=(o,n)=>{localStorage.setItem(BACKUP.repoOwnerKey,o||'');localStorage.setItem(BACKUP.repoNameKey,n||'');};
 
   const online=()=> (typeof navigator!=='undefined' && 'onLine' in navigator) ? navigator.onLine : true;
@@ -256,18 +344,22 @@
 
   function setSyncBadge(state,text){ const el=document.getElementById('sync-badge'); if(!el) return; el.textContent=text; el.className='chip '+(state||''); }
 
-  // ======= DATOS LOCALES =======
+  // ======= LOCAL DATA =======
   const getIngresos=()=>load(KEYS.ingresos,[]);
   const setIngresos=v=>{ save(KEYS.ingresos,v); markDirty(); };
   const getFotosMap=()=>load(KEYS.fotos,{});
   const setFotosMap=m=>{ save(KEYS.fotos,m); markDirty(); };
   const getFoto=id=>getFotosMap()[id]||'';
+  const getSanciones=()=>load(KEYS.sanciones,[]);
+  const setSanciones=arr=>{ save(KEYS.sanciones,arr); markDirty(); };
+
   function markDirty(){ localStorage.setItem(KEYS.dirty,String(Date.now())); }
   function clearDirty(){ localStorage.removeItem(KEYS.dirty); }
+  function hayPendientes(){ return !!localStorage.getItem(KEYS.dirty); }
 
   // ======= UI BASICA =======
   function tick(){ const el=document.getElementById('reloj'); if(el) el.textContent=fTime(now())+' — '+fDate(now()); }
-  function navClick(id,btn){ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('act')); btn.classList.add('act'); document.querySelectorAll('main > section').forEach(s=>s.style.display='none'); document.getElementById('sec-'+id).style.display='block'; if(id==='ingreso') toggleIngresoFields(); }
+  function navClick(id,btn){ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('act')); btn.classList.add('act'); document.querySelectorAll('main > section').forEach(s=>s.style.display='none'); document.getElementById('sec-'+id).style.display='block'; if(id==='ingreso') toggleIngresoFields(); if(id==='sanciones'){refrescarSanciones();} }
 
   // ======= CÁMARA =======
   async function iniciarCamara(){ try{ if(!_camStream){ _camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false}); } const v=document.getElementById('cam-video'); v.srcObject=_camStream; v.play(); document.getElementById('cam-wrap').style.display='block'; document.getElementById('btn-cam-start').style.display='none'; document.getElementById('btn-cam-shot').style.display='inline-flex'; document.getElementById('btn-cam-stop').style.display='inline-flex'; }catch(e){ alert('No se pudo acceder a la cámara'); } }
@@ -292,7 +384,147 @@
   function limpiarConsulta(){ ['consulta-id','consulta-desde','consulta-hasta'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';}); document.getElementById('consulta-tipo').value='ambos'; const res=document.getElementById('consulta-res'); res.className='alerta'; res.innerHTML=''; document.getElementById('consulta-tabla-wrap').style.display='none'; document.querySelector('#consulta-tabla tbody').innerHTML=''; document.getElementById('consulta-desde').value=hoyISO(); document.getElementById('consulta-hasta').value=hoyISO(); }
   function toISO(fecha){ if(!fecha) return '0001-01-01'; if(/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return fecha; const p=fecha.split('/'); if(p.length!==3) return '0001-01-01'; const d=new Date(+p[2],+p[1]-1,+p[0]); return d.toISOString().slice(0,10); }
   function filtrarIngresos({id,desdeISO,hastaISO,tipo}){ const ing=getIngresos(); let d=desdeISO||null, h=hastaISO||null; if(d && !/^\d{4}-\d{2}-\d{2}$/.test(d)) return {error:'Fecha "Desde" inválida.'}; if(h && !/^\d{4}-\d{2}-\d{2}$/.test(h)) return {error:'Fecha "Hasta" inválida.'}; if(d && !h) h='9999-12-31'; if(!d && h) d='0001-01-01'; const filas=ing.filter(x=>{ const okId=id?x.dni===id:true; const f=x.isoFecha||toISO(x.fecha); const okF=(d?f>=d:true)&&(h?f<=h:true); const okT=(tipo==='ambos')?true:(x.tipo===tipo); return okId&&okF&&okT; }).sort((a,b)=>{const ka=(a.isoFecha||toISO(a.fecha))+' '+(a.hora||'00:00:00'); const kb=(b.isoFecha||toISO(b.fecha))+' '+(b.hora||'00:00:00'); return kb.localeCompare(ka);}); return {filas}; }
-  function consulta(){ const id=(document.getElementById('consulta-id').value||'').trim(); const d=(document.getElementById('consulta-desde').value||'').trim(); const h=(document.getElementById('consulta-hasta').value||'').trim(); const t=document.getElementById('consulta-tipo').value; const res=document.getElementById('consulta-res'); const wrap=document.getElementById('consulta-tabla-wrap'); const tbody=document.querySelector('#consulta-tabla tbody'); res.className='alerta'; res.innerHTML=''; wrap.style.display='none'; tbody.innerHTML=''; const {filas,error}=filtrarIngresos({id,desdeISO:d,hastaISO:h,tipo:t}); if(error){ res.classList.add('error'); res.innerHTML='❌ '+error; return; } if(!filas.length){ res.classList.add('warn'); res.innerHTML='😕 Sin registros para los filtros aplicados.'; return; } wrap.style.display='block'; filas.forEach(x=>{ const tr=document.createElement('tr'); const foto=getFoto(x.dni); const tipoTxt=(x.tipo||'').toLowerCase()==='socio'?'Socio':'Invitado'; tr.innerHTML = `<td>${foto?`<img class="thumb" src="${foto}" alt="Foto" onclick="abrirImgModal('${(foto||'').replace(/'/g,'&#39;')}')">`:'—'}</td>`+`<td>${tipoTxt}</td>`+`<td>${x.dni}</td>`+`<td>${x.fecha||'—'}</td>`; tbody.appendChild(tr); }); res.classList.add('ok'); res.innerHTML=`✅ ${filas.length} registro(s) encontrado(s).`+(id?` ID: <strong>${id}</strong>.`:''); }
+  function consulta(){
+    const id=(document.getElementById('consulta-id').value||'').trim();
+    const d=(document.getElementById('consulta-desde').value||'').trim();
+    const h=(document.getElementById('consulta-hasta').value||'').trim();
+    const t=document.getElementById('consulta-tipo').value;
+    const res=document.getElementById('consulta-res');
+    const wrap=document.getElementById('consulta-tabla-wrap');
+    const tbody=document.querySelector('#consulta-tabla tbody');
+    res.className='alerta'; res.innerHTML=''; wrap.style.display='none'; tbody.innerHTML='';
+
+    const {filas,error}=filtrarIngresos({id,desdeISO:d,hastaISO:h,tipo:t});
+    if(error){ res.classList.add('error'); res.innerHTML='❌ '+error; return; }
+    if(!filas.length){ res.classList.add('warn'); res.innerHTML=''; return; } // 👈 si hoy no hay, no mostrar nada
+
+    wrap.style.display='block';
+    filas.forEach(x=>{
+      const tr=document.createElement('tr');
+      const foto=getFoto(x.dni);
+      const tipoTxt=(x.tipo||'').toLowerCase()==='socio'?'Socio':'Invitado';
+      const acciones =
+        `<div class="row" style="gap:6px">
+           <button class="btn btn-ghost" onclick="openAperc('${x.dni}','${(x.nombre||'').replace(/"/g,'&quot;')}')">Apercibir</button>
+           <button class="btn btn-danger" onclick="openSusp('${x.dni}','${(x.nombre||'').replace(/"/g,'&quot;')}')">Suspender</button>
+         </div>`;
+      tr.innerHTML =
+        `<td>${foto?`${foto}`:'—'}</td>`+
+        `<td>${tipoTxt}</td>`+
+        `<td>${x.dni}</td>`+
+        `<td>${x.fecha||'—'}</td>`+
+        `<td>${acciones}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ====== ACCIONES: APERCIBIR / SUSPENDER ======
+  function openAperc(personaId, nombre){
+    _apercPersonaId=personaId||''; _apercNombre=nombre||'';
+    document.getElementById('aperc-idtxt').textContent='ID: '+personaId+(nombre?(' · '+nombre):'');
+    document.getElementById('aperc-motivo').value='';
+    document.getElementById('aperc-msg').textContent='';
+    document.getElementById('mdl-aperc').style.display='flex';
+  }
+  function closeAperc(){ document.getElementById('mdl-aperc').style.display='none'; }
+  function guardarAperc(){
+    const motivo=(document.getElementById('aperc-motivo').value||'').trim();
+    if(!motivo){ document.getElementById('aperc-msg').textContent='Ingresá un motivo.'; return; }
+    const arr=getSanciones();
+    arr.push({ id:'ap-'+Date.now(), tipo:'apercibimiento', personaId:_apercPersonaId, nombre:_apercNombre, motivo, fechaISO: hoyISO() });
+    setSanciones(arr);
+    closeAperc();
+    alert('Apercibimiento registrado.');
+  }
+
+  function openSusp(personaId, nombre){
+    _suspPersonaId=personaId||''; _suspNombre=nombre||'';
+    const hoy=hoyISO(); const d = new Date(); d.setDate(d.getDate()+7);
+    document.getElementById('susp-idtxt').textContent='ID: '+personaId+(nombre?(' · '+nombre):'');
+    document.getElementById('susp-desde').value=hoy;
+    document.getElementById('susp-hasta').value=d.toISOString().slice(0,10);
+    document.getElementById('susp-motivo').value='';
+    document.getElementById('susp-msg').textContent='';
+    document.getElementById('mdl-susp').style.display='flex';
+  }
+  function closeSusp(){ document.getElementById('mdl-susp').style.display='none'; }
+  function guardarSusp(){
+    const desdeISO=(document.getElementById('susp-desde').value||'').trim();
+    const hastaISO=(document.getElementById('susp-hasta').value||'').trim();
+    const motivo=(document.getElementById('susp-motivo').value||'').trim();
+    if(!desdeISO||!hastaISO||!motivo){ document.getElementById('susp-msg').textContent='Completá motivo y rango de fechas.'; return; }
+    if(hastaISO<desdeISO){ document.getElementById('susp-msg').textContent='La fecha fin no puede ser anterior al inicio.'; return; }
+    const arr=getSanciones();
+    arr.push({ id:'su-'+Date.now(), tipo:'suspension', personaId:_suspPersonaId, nombre:_suspNombre, motivo, desdeISO, hastaISO, fechaISO:hoyISO(), activo:true });
+    setSanciones(arr);
+    closeSusp();
+    alert('Suspensión registrada.');
+    refrescarSanciones();
+  }
+
+  // ====== SECCIÓN SANCIONES ======
+  function limpiarAperc(){
+    document.getElementById('aperc-desde').value=hoyISO();
+    document.getElementById('aperc-hasta').value=hoyISO();
+    document.getElementById('aperc-res').className='alerta'; document.getElementById('aperc-res').innerHTML='';
+    document.getElementById('aperc-tabla-wrap').style.display='none';
+    document.getElementById('aperc-tbody').innerHTML='';
+  }
+  function listarApercibimientos(){
+    const d=(document.getElementById('aperc-desde').value||'').trim();
+    const h=(document.getElementById('aperc-hasta').value||'').trim();
+    const arr=getSanciones().filter(s=>s.tipo==='apercibimiento');
+    const enRango=arr.filter(s=>{
+      const f=s.fechaISO||'0001-01-01';
+      return (!d||f>=d)&&(!h||f<=h);
+    });
+    const wrap=document.getElementById('aperc-tabla-wrap');
+    const tbody=document.getElementById('aperc-tbody');
+    const res=document.getElementById('aperc-res');
+    tbody.innerHTML=''; wrap.style.display='none'; res.className='alerta'; res.innerHTML='';
+
+    if(!enRango.length){ res.classList.add('warn'); res.innerHTML=''; return; }
+    enRango.sort((a,b)=> (b.fechaISO||'').localeCompare(a.fechaISO||''));
+    enRango.forEach(s=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML = `<td>${s.id}</td><td>${s.nombre||'—'}</td><td>${s.personaId}</td><td>${s.fechaISO||'—'}</td><td>${s.motivo||'—'}</td>`;
+      tbody.appendChild(tr);
+    });
+    wrap.style.display='block';
+    res.classList.add('ok'); res.innerHTML=`✅ ${enRango.length} apercibimiento(s).`;
+  }
+
+  function suspActivasHoy(){
+    const hoy=hoyISO();
+    return getSanciones().filter(s=>s.tipo==='suspension' && s.activo!==false && s.desdeISO<=hoy && hoy<=s.hastaISO);
+  }
+  function darBajaSusp(id){
+    const arr=getSanciones();
+    const s=arr.find(x=>x.id===id);
+    if(s){ s.activo=false; setSanciones(arr); alert('Suspensión dada de baja.'); refrescarSanciones(); }
+  }
+  function refrescarSanciones(){
+    // set defaults
+    if(!document.getElementById('aperc-desde').value) limpiarAperc();
+
+    // Suspensiones activas
+    const res=document.getElementById('susp-res');
+    const tbody=document.getElementById('susp-tbody');
+    const wrap=document.getElementById('susp-tabla-wrap');
+    tbody.innerHTML=''; wrap.style.display='none'; res.className='alerta'; res.innerHTML='';
+
+    const act=suspActivasHoy();
+    if(!act.length){ res.classList.add('warn'); res.innerHTML=''; return; }
+    act.sort((a,b)=> (a.hastaISO||'').localeCompare(b.hastaISO||''));
+    act.forEach(s=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML = `<td>${s.id}</td><td>${s.nombre||'—'}</td><td>${s.personaId}</td><td>${s.desdeISO}</td><td>${s.hastaISO}</td><td>${s.motivo||'—'}</td>
+                      <td><button class="btn btn-ghost" onclick="darBajaSusp('${s.id}')">Dar de baja</button></td>`;
+      tbody.appendChild(tr);
+    });
+    wrap.style.display='block';
+    res.classList.add('ok'); res.innerHTML=`✅ ${act.length} suspensión(es) activas.`;
+  }
 
   // ======= ESTADISTICAS (tendencia) =======
   function aplicarStats(){ const id=(document.getElementById('stats-id').value||'').trim(); const d=(document.getElementById('stats-desde').value||'').trim(); const h=(document.getElementById('stats-hasta').value||'').trim(); const t=document.getElementById('stats-tipo').value; const {filas,error}=filtrarIngresos({id,desdeISO:d,hastaISO:h,tipo:t}); const lbl=(id?`ID ${id} · `:'')+(t==='ambos'?'Ambos':(t==='socio'?'Socios':'Invitados'))+(d||h?` · Rango ${d||'inicio'} → ${h||'fin'}`:' · (todos)'); const box=document.getElementById('stats-resumen'); if(error){ box.textContent=error; limpiarCharts(); return; } box.textContent=`Registros: ${filas.length} · ${lbl}`; trends(filas); }
@@ -320,16 +552,15 @@
     document.getElementById('activar-msg').textContent='Validando token…';
     const r=await validarToken();
     if(r && r.ok){
-      nubeActiva=true; setSyncBadge('ok','☁️ ✔️ Listo');
+      nubeActiva=true; setSyncBadge('ok','☁️ Datos online');
       document.getElementById('activar-msg').textContent='Activado.';
       setTimeout(()=>{
         cerrarActivar();
-        // Pull + merge y luego mostrar hoy (con fallback a 30 días)
-        bootstrapFromGitHub().then(()=>mostrarIngresosDeHoy());
+        bootstrapFromGitHub().then(()=>mostrarIngresosDeHoy()); // 👈 solo hoy, sin fallback si no hay
       }, 400);
     } else {
       nubeActiva=false;
-      setSyncBadge('err','☁️ ❌ '+(r && r.error?r.error:'Token inválido'));
+      setSyncBadge('err','☁️ Datos local');
       document.getElementById('activar-msg').textContent='No se pudo activar: '+(r && r.error?r.error:'Token inválido');
     }
   }
@@ -337,24 +568,17 @@
     if(!online()) return {ok:true,modo:'local'};
     const token=getToken(); if(!token) return {ok:false,error:'Falta token'};
     try{
-      setSyncBadge('syncing','☁️ 🔄 Validando token...');
+      setSyncBadge('syncing','☁️ Sincronizando…');
       const ping=await fetch('https://api.github.com/zen',{method:'GET',mode:'cors',cache:'no-store'});
       if(!ping.ok) return {ok:false,error:'No se puede contactar a GitHub'};
-
       const r=await fetch('https://api.github.com/user',{
         method:'GET',mode:'cors',cache:'no-store',
-        headers:{
-          'Accept':'application/vnd.github+json',
-          'Authorization':'Bearer '+token,
-          'X-GitHub-Api-Version':'2022-11-28'
-        }
+        headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+token,'X-GitHub-Api-Version':'2022-11-28'}
       });
-
       if(r.status===401) return {ok:false,error:'Token inválido (401)'};
-      if(r.status===403) return {ok:false,error:'Acceso denegado (403)'}; 
+      if(r.status===403) return {ok:false,error:'Acceso denegado (403)'};
       if(!r.ok)         return {ok:false,error:'Error: '+r.status};
-
-      // Detectar scopes del token para informar permisos
+      // Scopes informativos
       const scopes=(r.headers.get('x-oauth-scopes')||'').toLowerCase();
       localStorage.setItem('app_scopes', scopes);
       if(!scopes.includes('gist') && !scopes.includes('repo')){
@@ -366,7 +590,7 @@
     }
   }
 
-  // ======= GITHUB (Gist + fallback Repo) =======
+  // ======= GITHUB (Gist + Repo fallback, con textos “Datos online / local”) =======
   function ghHeaders(){ return {'Accept':'application/vnd.github+json','Authorization':'Bearer '+getToken(),'X-GitHub-Api-Version':'2022-11-28'}; }
   function b64(s){ return btoa(unescape(encodeURIComponent(s))); }
   async function ghUser(){ const r=await fetch('https://api.github.com/user',{method:'GET',mode:'cors',cache:'no-store',headers:ghHeaders()}); if(!r.ok) throw new Error('user:'+r.status); return await r.json(); }
@@ -385,7 +609,7 @@
 
   async function bootstrapFromGitHub(){
     if(!nubeActiva || !online()) return;
-    setSyncBadge('syncing','☁️ 🔄 Buscando datos…');
+    setSyncBadge('syncing','☁️ Datos online');
     let mode=getBackupMode(); let gid=getGistId();
     if(mode==='gist'){
       try{
@@ -396,19 +620,18 @@
           const fot=mergeFotos(getFotosMap(),remote.fotos||{});
           save(KEYS.ingresos,ing); save(KEYS.fotos,fot);
           await patchGist(gid);
-          setSyncBadge('ok','☁️ ✔️ Datos de GitHub (Gist)');
+          setSyncBadge('ok','☁️ Datos online');
           return;
         }
         const hasLocal=getIngresos().length||Object.keys(getFotosMap()).length;
-        if(hasLocal){ await createGistFromLocal(); setSyncBadge('ok','☁️ ✔️ Subido (Gist nuevo)'); return; }
-        setSyncBadge('ok','☁️ ✔️ Listo (sin datos)');
+        if(hasLocal){ await createGistFromLocal(); setSyncBadge('ok','☁️ Datos online'); return; }
+        setSyncBadge('ok','☁️ Datos online');
         return;
       }catch(e){
         if(String(e.message||'').startsWith('GIST_UNAVAILABLE')){ setBackupMode('repo'); }
-        else { setSyncBadge('err','☁️ ❌ '+(e.message||e)); return; }
+        else { setSyncBadge('err','☁️ Datos local'); return; }
       }
     }
-    // Fallback Repo
     try{
       const user=await ghUser(); const owner=user.login; const repo='pejerrey-backup';
       await ensureRepo(owner,repo);
@@ -421,25 +644,24 @@
       await putFileJson(owner,repo,'fotos.json',fot,'sync: fotos');
       await putFileJson(owner,repo,'meta.json',{updatedAt:new Date().toISOString(),app:'PejerreyClub'},'sync: meta');
       localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now()));
-      setSyncBadge('ok','☁️ ✔️ Datos de GitHub (Repo)');
+      setSyncBadge('ok','☁️ Datos online');
     }catch(e){
-      setSyncBadge('err','☁️ ❌ Repo: '+(e.message||e));
+      setSyncBadge('err','☁️ Datos local');
     }
   }
 
-  function hayPendientes(){ return !!localStorage.getItem(KEYS.dirty); }
   async function persistir(){
     if(!nubeActiva || !online()) return;
-    setSyncBadge('syncing','☁️ 🔄 Sincronizando…');
+    setSyncBadge('syncing','☁️ Datos online');
     let mode=getBackupMode();
     if(mode==='gist'){
       try{
         let gid=getGistId(); if(!gid) gid=await discoverGistId();
-        if(!gid){ await createGistFromLocal(); setSyncBadge('ok','☁️ ✔️ Subido (Gist)'); clearDirty(); return; }
-        await patchGist(gid); setSyncBadge('ok','☁️ ✔️ Sincronizado'); clearDirty(); return;
+        if(!gid){ await createGistFromLocal(); clearDirty(); setSyncBadge('ok','☁️ Datos online'); return; }
+        await patchGist(gid); clearDirty(); setSyncBadge('ok','☁️ Datos online'); return;
       }catch(e){
         if(String(e.message||'').startsWith('GIST_')){ setBackupMode('repo'); }
-        else { setSyncBadge('err','☁️ ❌ '+(e.message||e)); return; }
+        else { setSyncBadge('err','☁️ Datos local'); return; }
       }
     }
     try{
@@ -449,52 +671,49 @@
       await putFileJson(owner,repo,'fotos.json',getFotosMap(),'sync: fotos');
       await putFileJson(owner,repo,'meta.json',{updatedAt:new Date().toISOString(),app:'PejerreyClub'},'sync: meta');
       localStorage.setItem(KEYS.lastSync, fDate(now())+' '+fTime(now()));
-      setSyncBadge('ok','☁️ ✔️ Sincronizado'); clearDirty();
-    }catch(e){
-      setSyncBadge('err','☁️ ❌ Repo: '+(e.message||e));
-    }
+      clearDirty(); setSyncBadge('ok','☁️ Datos online');
+    }catch(e){ setSyncBadge('err','☁️ Datos local'); }
   }
 
   function scheduleSync(){ if(_syncTimer) clearInterval(_syncTimer); _syncTimer=setInterval(async()=>{ if(hayPendientes()) await persistir(); }, 60*1000); }
 
-  // Mostrar HOY, con fallback a últimos 30 días si hoy está vacío
+  // ======= SYNC MANUAL (botón en Consulta) =======
+  async function syncManual(){
+    if(!getToken()){ alert('Ingresá tu token y activá el sistema.'); return; }
+    const v=await validarToken(); if(!(v&&v.ok)){ alert('Token inválido o sin permisos.'); return; }
+    nubeActiva=true;
+    await bootstrapFromGitHub();    // pull + merge + push
+    // no se fuerza consulta — queda a criterio del operador
+  }
+
+  // ======= MOSTRAR HOY (sin fallback si está vacío) =======
   function mostrarIngresosDeHoy(){
     const hoy = hoyISO();
     document.getElementById('consulta-desde').value=hoy;
     document.getElementById('consulta-hasta').value=hoy;
     navClick('consulta', document.getElementById('btn-nav-consulta'));
-
-    const {filas}=filtrarIngresos({
-      id:(document.getElementById('consulta-id').value||'').trim(),
-      desdeISO:hoy, hastaISO:hoy, tipo:document.getElementById('consulta-tipo').value
-    });
-    if(!filas || filas.length===0){
-      const d = new Date(); d.setDate(d.getDate()-30);
-      document.getElementById('consulta-desde').value=d.toISOString().slice(0,10);
-      document.getElementById('consulta-hasta').value=hoy;
-    }
-    consulta();
+    consulta(); // si hoy no hay registros, grilla oculta y sin mensaje
   }
 
   // ======= BACKUP MANUAL =======
-  function exportarJSON(){ const txt=JSON.stringify({ingresos:getIngresos(),fotos:getFotosMap()},null,2); document.getElementById('backup-json').value=txt; document.getElementById('backup-alert').textContent='Exportado.'; }
-  function importarJSON(){ try{ const txt=document.getElementById('backup-json').value||'{}'; const data=JSON.parse(txt); if(data.ingresos) save(KEYS.ingresos,data.ingresos); if(data.fotos) save(KEYS.fotos,data.fotos); document.getElementById('backup-alert').textContent='Importación OK.'; markDirty(); }catch(e){ document.getElementById('backup-alert').textContent='Error al importar JSON.'; } }
+  function exportarJSON(){ const txt=JSON.stringify({ingresos:getIngresos(),fotos:getFotosMap(),sanciones:getSanciones()},null,2); document.getElementById('backup-json').value=txt; document.getElementById('backup-alert').textContent='Exportado.'; }
+  function importarJSON(){ try{ const txt=document.getElementById('backup-json').value||'{}'; const data=JSON.parse(txt); if(data.ingresos) save(KEYS.ingresos,data.ingresos); if(data.fotos) save(KEYS.fotos,data.fotos); if(data.sanciones) save(KEYS.sanciones,data.sanciones); document.getElementById('backup-alert').textContent='Importación OK.'; markDirty(); }catch(e){ document.getElementById('backup-alert').textContent='Error al importar JSON.'; } }
 
   // ======= INIT =======
   (function(){
     tick(); setInterval(tick,1000);
-    // date pickers hoy
-    ['consulta-desde','consulta-hasta','stats-desde','stats-hasta'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=hoyISO(); });
+    // Date pickers hoy
+    ['consulta-desde','consulta-hasta','stats-desde','stats-hasta','aperc-desde','aperc-hasta'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=hoyISO(); });
 
-    window.addEventListener('online',()=>{ if(getToken()) setSyncBadge('ok','☁️ ✔️ Conectado'); else setSyncBadge('err','☁️ ❌ Sin token'); });
-    window.addEventListener('offline',()=> setSyncBadge('err','☁️ ⚡ Local (sin internet)'));
+    window.addEventListener('online',()=>{ if(getToken()) setSyncBadge('ok','☁️ Datos online'); else setSyncBadge('err','☁️ Datos local'); });
+    window.addEventListener('offline',()=> setSyncBadge('err','☁️ Datos local'));
 
-    if(!online()){ setSyncBadge('err','☁️ ⚡ Local (sin internet)'); }
-    else if(!getToken()){ setSyncBadge('err','☁️ ❌ Sin token'); }
+    if(!online()){ setSyncBadge('err','☁️ Datos local'); }
+    else if(!getToken()){ setSyncBadge('err','☁️ Datos local'); }
     else {
       validarToken().then(r=>{
-        if(r&&r.ok){ nubeActiva=true; setSyncBadge('ok','☁️ ✔️ Listo'); bootstrapFromGitHub().then(()=>mostrarIngresosDeHoy()); }
-        else { nubeActiva=false; setSyncBadge('err','☁️ ❌ '+(r.error||'Token inválido')); }
+        if(r&&r.ok){ nubeActiva=true; setSyncBadge('ok','☁️ Datos online'); bootstrapFromGitHub().then(()=>mostrarIngresosDeHoy()); }
+        else { nubeActiva=false; setSyncBadge('err','☁️ Datos local'); }
       });
     }
 
