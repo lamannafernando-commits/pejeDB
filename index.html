@@ -280,14 +280,7 @@ function setSyncBadge(state,text){ const el=document.getElementById('sync-badge'
 
 /* ===== Reloj & Nav ===== */ 
 function tick(){ const el=document.getElementById('reloj'); if(el) el.textContent=fTime(now())+' — '+fDate(now()); } 
-function navClick(id,btn){ 
-  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('act')); 
-  btn.classList.add('act'); 
-  document.querySelectorAll('main > section').forEach(s=>s.style.display='none'); 
-  document.getElementById('sec-'+id).style.display='block'; 
-  if(id==='ingreso') toggleIngresoFields(); 
-  if(id==='sanc') refrescarSanciones(); 
-} 
+function navClick(id,btn){ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('act')); btn.classList.add('act'); document.querySelectorAll('main > section').forEach(s=>s.style.display='none'); document.getElementById('sec-'+id).style.display='block'; if(id==='ingreso') toggleIngresoFields(); if(id==='sanc') refrescarSanciones(); } 
 
 /* ===== Activación y Perfil GitHub ===== */ 
 function abrirActivar(){ document.getElementById('activar-modal').style.display='flex'; document.getElementById('activar-token').focus(); } 
@@ -348,7 +341,7 @@ function startAutoSync(){
 } 
 function stopAutoSync(){ if(_syncTimer){ clearInterval(_syncTimer); _syncTimer=null; } } 
 
-/* ===== Validación de token (acepta FG aunque no haya scopes en header) ===== */ 
+/* ===== Validación de token ===== */ 
 async function validarToken(){ 
  if(!online()) return {ok:true,modo:'local'}; 
  const token=getToken(); if(!token) return {ok:false,error:'Falta token'}; 
@@ -405,17 +398,18 @@ async function bootstrapFromRepo(){
  if(!online()) return false; 
  const token=getToken(); if(!token) return false; 
  const info=await fetchRepoInfo(); const ref=info?.default_branch||'main'; 
- const files=['app_ingresos.json','app_fotos.json','app_sanciones.json','app_rnd_ids.json']; 
+ /* >>>>> AJUSTE: archivos dentro de data/ <<<<< */
+ const files=['data/app_ingresos.json','data/app_fotos.json','data/app_sanciones.json','data/app_rnd_ids.json']; 
  let ok=false; 
  for(const f of files){ 
    const txt=await fetchContentFile(f, ref); 
    if(!txt) continue; 
    try{ 
      const obj=JSON.parse(txt); 
-     if(f==='app_ingresos.json') save(KEYS.ingresos,obj); 
-     else if(f==='app_fotos.json') setFotosMap(obj); 
-     else if(f==='app_sanciones.json') setSanciones(obj); 
-     else if(f==='app_rnd_ids.json') setRndIds(obj); 
+     if(f.endsWith('app_ingresos.json')) save(KEYS.ingresos,obj); 
+     else if(f.endsWith('app_fotos.json')) setFotosMap(obj); 
+     else if(f.endsWith('app_sanciones.json')) setSanciones(obj); 
+     else if(f.endsWith('app_rnd_ids.json')) setRndIds(obj); 
      ok=true; 
    }catch(_){} 
  } 
@@ -425,17 +419,18 @@ async function pullFromRepo(){
  if(!online()) return false; 
  const token=getToken(); if(!token) return false; 
  const info=await fetchRepoInfo(); const ref=info?.default_branch||'main'; 
- const files=['app_ingresos.json','app_fotos.json','app_sanciones.json','app_rnd_ids.json']; 
+ /* >>>>> AJUSTE: archivos dentro de data/ <<<<< */
+ const files=['data/app_ingresos.json','data/app_fotos.json','data/app_sanciones.json','data/app_rnd_ids.json']; 
  let ok=false; 
  for(const f of files){ 
    const txt=await fetchContentFile(f, ref); 
    if(!txt) continue; 
    try{ 
      const obj=JSON.parse(txt); 
-     if(f==='app_ingresos.json') save(KEYS.ingresos,obj); 
-     else if(f==='app_fotos.json') setFotosMap(obj); 
-     else if(f==='app_sanciones.json') setSanciones(obj); 
-     else if(f==='app_rnd_ids.json') setRndIds(obj); 
+     if(f.endsWith('app_ingresos.json')) save(KEYS.ingresos,obj); 
+     else if(f.endsWith('app_fotos.json')) setFotosMap(obj); 
+     else if(f.endsWith('app_sanciones.json')) setSanciones(obj); 
+     else if(f.endsWith('app_rnd_ids.json')) setRndIds(obj); 
      ok=true; 
    }catch(_){} 
  } 
@@ -842,11 +837,7 @@ function markDirty(){ localStorage.setItem(KEYS.dirty,'1'); }
  if(isActivated()) { 
    hideActivateBtn(); 
    setSyncBadge(nubeActiva?'ok':'','☁️ '+(nubeActiva?'Datos online':'Activado (local)')); 
-   if(online() && getToken()){ 
-     fetchGitHubProfile(); 
-     bootstrapFromRepo().then((ok)=>{ try{ if(ok) prepararConsultaFull(); else consulta(); refrescarSanciones(); }catch(_){ }}); 
-     startAutoSync(); 
-   } else { hideGitHubInfo(); stopAutoSync(); } 
+   if(online() && getToken()){ fetchGitHubProfile(); bootstrapFromRepo().then((ok)=>{ try{ if(ok) prepararConsultaFull(); else consulta(); refrescarSanciones(); }catch(_){ }}); startAutoSync(); } else { hideGitHubInfo(); stopAutoSync(); } 
  } 
  window.addEventListener('online', ()=> { setSyncBadge('ok','☁️ Conectado'); if(isActivated() && getToken()) { fetchGitHubProfile(); startAutoSync(); } }); 
  window.addEventListener('offline', ()=> { setSyncBadge('','☁️ Sin conexión'); hideGitHubInfo(); stopAutoSync(); }); 
