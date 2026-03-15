@@ -1045,52 +1045,59 @@ window.addEventListener('error', (ev) => {
 
 <script>
 function renderHourly(filas, d, h, tSel){
-  if(!window.Chart) return;
-  if(!window.__chartsInited){ try{ if(window.ChartDataLabels) Chart.register(ChartDataLabels); }catch(_){} window.__chartsInited=true; }
-  const charts = (window.__pcqCharts = window.__pcqCharts || {});
-  function destroy(key){ try{ charts[key]?.destroy?.(); }catch(_){} }
-  const invColor='rgba(200,168,75,0.75)'; // dorado translúcido
-  const socColor='rgba(46,139,87,0.75)'; // verde translúcido
+  try{
+    if(typeof Chart==='undefined') return;
+    const canvas = document.getElementById('ch-hourly');
+    if(!canvas) return; // canvas no disponible
+    if(!window.__chartsInited){ try{ if(window.ChartDataLabels) Chart.register(ChartDataLabels); }catch(_){} window.__chartsInited=true; }
+    const charts = (window.__pcqCharts = window.__pcqCharts || {});
+    function destroy(key){ try{ charts[key]?.destroy?.(); }catch(_){} }
+    const invColor='rgba(200,168,75,0.75)';
+    const socColor='rgba(46,139,87,0.75)';
 
-  // Bins horarios 00..23
-  const hours = Array.from({length:24}, (_,i)=> ('0'+i).slice(-2)+':00');
-  const hourInv = Object.fromEntries(hours.map(hh=>[hh,0]));
-  const hourSoc = Object.fromEntries(hours.map(hh=>[hh,0]));
+    const hours = Array.from({length:24}, (_,i)=> ('0'+i).slice(-2)+':00');
+    const hourInv = Object.fromEntries(hours.map(hh=>[hh,0]));
+    const hourSoc = Object.fromEntries(hours.map(hh=>[hh,0]));
 
-  for(const r of filas){
-    const hh = String((r.hora||'00:00:00')).slice(0,2)+':00';
-    const tipo = (String(r.tipo||'').toLowerCase()==='socio') ? 'socio' : 'invitado';
-    if(tipo==='socio'){ if(hourSoc.hasOwnProperty(hh)) hourSoc[hh] = (hourSoc[hh]||0)+1; }
-    else{ if(hourInv.hasOwnProperty(hh)) hourInv[hh] = (hourInv[hh]||0)+1; }
-  }
-
-  const labelsHour = hours;
-  const invData = labelsHour.map(hh=>hourInv[hh]||0);
-  const socData = labelsHour.map(hh=>hourSoc[hh]||0);
-
-  destroy('hourly');
-  charts.hourly = new Chart(document.getElementById('ch-hourly'), {
-    type:'bar',
-    data:{
-      labels: labelsHour,
-      datasets:[
-        { label:'Invitados', data: invData, backgroundColor: invColor },
-        { label:'Socios', data: socData, backgroundColor: socColor }
-      ]
-    },
-    options:{
-      responsive:false,
-      plugins:{
-        title:{display:true, text:`Distribución por hora (Invitados vs. Socios) ${tSel!=='ambos'?('['+tSel+']'):''} (${d}→${h})`},
-        legend:{ labels:{ color:'#cfe9cf' }},
-        datalabels:{ anchor:'center', align:'center', color:'#000', formatter:(v)=> v>0? v:'' }
-      },
-      scales:{
-        x:{ stacked:true, ticks:{ color:'#cfe9cf'} },
-        y:{ stacked:true, beginAtZero:true, ticks:{ color:'#cfe9cf'} }
-      }
+    for(const r of filas){
+      const hora = (r && r.hora) ? String(r.hora) : '00:00:00';
+      const hh = hora.slice(0,2)+':00';
+      const tipo = (String(r?.tipo||'').toLowerCase()==='socio') ? 'socio' : 'invitado';
+      if(tipo==='socio'){ if(hourSoc.hasOwnProperty(hh)) hourSoc[hh] = (hourSoc[hh]||0)+1; }
+      else{ if(hourInv.hasOwnProperty(hh)) hourInv[hh] = (hourInv[hh]||0)+1; }
     }
-  });
+
+    const labelsHour = hours;
+    const invData = labelsHour.map(hh=>hourInv[hh]||0);
+    const socData = labelsHour.map(hh=>hourSoc[hh]||0);
+
+    destroy('hourly');
+    charts.hourly = new Chart(canvas, {
+      type:'bar',
+      data:{
+        labels: labelsHour,
+        datasets:[
+          { label:'Invitados', data: invData, backgroundColor: invColor },
+          { label:'Socios', data: socData, backgroundColor: socColor }
+        ]
+      },
+      options:{
+        responsive:false,
+        plugins:{
+          title:{display:true, text:`Distribución por hora (Invitados vs. Socios) ${tSel!=='ambos'?('['+tSel+']'):''} (${d}→${h})`},
+          legend:{ labels:{ color:'#cfe9cf' }},
+          datalabels:{ anchor:'center', align:'center', color:'#000', formatter:(v)=> v>0? v:'' }
+        },
+        scales:{
+          x:{ stacked:true, ticks:{ color:'#cfe9cf'} },
+          y:{ stacked:true, beginAtZero:true, ticks:{ color:'#cfe9cf'} }
+        }
+      }
+    });
+  }catch(e){
+    try{ const sd=document.getElementById('sync-debug'); if(sd) sd.textContent='Hourly err: '+(e?.message||e); }catch(_){}
+    console?.error?.('renderHourly error', e);
+  }
 }
 </script>
 
