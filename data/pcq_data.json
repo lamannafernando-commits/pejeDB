@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-03-15T07:01:51.279Z",
+  "updatedAt": "2026-03-15T07:01:52.935Z",
   "ingresos": [
     {
       "dni": "000",
@@ -40,6 +40,14 @@
       "nombre": "Andres",
       "fecha": "15/03/2026",
       "hora": "03:49:08",
+      "isoFecha": "2026-03-15"
+    },
+    {
+      "dni": "7777",
+      "tipo": "socio",
+      "nombre": "Pedro",
+      "fecha": "15/03/2026",
+      "hora": "04:01:52",
       "isoFecha": "2026-03-15"
     }
   ],
