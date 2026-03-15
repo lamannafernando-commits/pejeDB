@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-03-15T09:37:18.185Z",
+  "updatedAt": "2026-03-15T09:37:20.624Z",
   "ingresos": [
     {
       "dni": "000",
@@ -2358,6 +2358,14 @@
       "hora": "21:22:09",
       "isoFecha": "2026-03-14",
       "rnd": true
+    },
+    {
+      "dni": "0009",
+      "tipo": "socio",
+      "nombre": "Test",
+      "fecha": "15/03/2026",
+      "hora": "06:37:20",
+      "isoFecha": "2026-03-15"
     }
   ],
   "sanciones": [
